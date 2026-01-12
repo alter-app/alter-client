@@ -20,3 +20,132 @@
   }
 }
 
+@layer utilities {
+  /* Display */
+  .typography-display {
+    font-family: RixYeoljeongdo_Pro, sans-serif;
+    font-weight: 400;
+    line-height: 140%;
+    font-size: 32px;
+    letter-spacing: -0.01em;
+  }
+
+  /* Headlines */
+  .typography-headline01 {
+    font-family: Pretendard, sans-serif;
+    font-weight: 600;
+    line-height: 140%;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+  }
+
+  .typography-headline02 {
+    font-family: Pretendard, sans-serif;
+    font-weight: 600;
+    line-height: 140%;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  .typography-headline03 {
+    font-family: Pretendard, sans-serif;
+    font-weight: 600;
+    line-height: 140%;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+  }
+
+  /* Body */
+  .typography-body01-semibold {
+    font-family: Pretendard, sans-serif;
+    font-weight: 600;
+    line-height: 140%;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+  }
+
+  .typography-body01-regular {
+    font-family: Pretendard, sans-serif;
+    font-weight: 400;
+    line-height: 140%;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+  }
+
+  .typography-body02-semibold {
+    font-family: Pretendard, sans-serif;
+    font-weight: 600;
+    line-height: 140%;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .typography-body02-regular {
+    font-family: Pretendard, sans-serif;
+    font-weight: 400;
+    line-height: 140%;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .typography-body03-semibold {
+    font-family: Pretendard, sans-serif;
+    font-weight: 600;
+    line-height: 140%;
+    font-size: 13px;
+    letter-spacing: -0.01em;
+  }
+
+  .typography-body03-regular {
+    font-family: Pretendard, sans-serif;
+    font-weight: 400;
+    line-height: 140%;
+    font-size: 13px;
+    letter-spacing: -0.01em;
+  }
+
+  /* Button */
+  .typography-bt {
+    font-family: Pretendard, sans-serif;
+    font-weight: 600;
+    line-height: 140%;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+  }
+
+  /* Badge */
+  .typography-bg {
+    font-family: Pretendard, sans-serif;
+    font-weight: 600;
+    line-height: 140%;
+    font-size: 11px;
+    letter-spacing: -0.01em;
+  }
+
+  /* Doc */
+  .typography-doc {
+    font-family: Pretendard, sans-serif;
+    font-weight: 400;
+    line-height: 100%;
+    font-size: 12px;
+    letter-spacing: -0.01em;
+  }
+
+  .typography-doc-non {
+    font-family: Pretendard, sans-serif;
+    font-weight: 400;
+    line-height: 100%;
+    font-size: 12px;
+    letter-spacing: -0.01em;
+  }
+
+  /* Logo */
+  .typography-logo {
+    font-family: RixYeoljeongdo_Pro, sans-serif;
+    font-weight: 400;
+    line-height: 100%;
+    font-size: 28px;
+    letter-spacing: 0;
+  }
+}
+
