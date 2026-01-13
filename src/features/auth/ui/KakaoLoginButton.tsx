@@ -1,14 +1,47 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { colors, fontFamilies, fontSizes, fontWeights } from '@/shared/lib/tokens'
+import { loginWithKakao } from '@/shared/lib/socialLogin'
+import { loginSocial } from '@/shared/api/auth'
+import useAuthStore from '@/shared/stores/useAuthStore'
 
 export function KakaoLoginButton() {
-  const handleKakaoLogin = () => {
-    // TODO: 카카오 로그인 구현
-    console.log('카카오 로그인')
+  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
+  const { setAuth } = useAuthStore()
+
+  const handleKakaoLogin = async () => {
+    try {
+      setIsLoading(true)
+
+      // 카카오 로그인 실행
+      const kakaoResult = await loginWithKakao()
+
+      // 서버에 소셜 로그인 요청
+      await loginSocial(
+        {
+          provider: 'KAKAO',
+          oauthToken: {
+            accessToken: kakaoResult.accessToken || '',
+            refreshToken: kakaoResult.refreshToken,
+          },
+          platformType: 'WEB',
+        },
+        setAuth,
+        navigate
+      )
+    } catch (error: any) {
+      console.error('카카오 로그인 실패:', error)
+      alert(error.message || '카카오 로그인에 실패했습니다.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
     <button
       onClick={handleKakaoLogin}
+      disabled={isLoading}
       style={{
         width: '100%',
         height: '56px',
@@ -19,11 +52,12 @@ export function KakaoLoginButton() {
         fontFamily: fontFamilies.pretendard,
         fontWeight: fontWeights.semibold,
         borderRadius: '12px',
-        cursor: 'pointer',
+        cursor: isLoading ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s ease',
+        opacity: isLoading ? 0.6 : 1,
       }}
     >
-      카카오로 로그인
+      {isLoading ? '로그인 중...' : '카카오로 로그인'}
     </button>
   )
 }
