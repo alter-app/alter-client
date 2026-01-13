@@ -16,7 +16,7 @@ interface LoginResponse {
   }
 }
 
-interface SocialLoginRequest {
+export interface SocialLoginRequest {
   provider: 'KAKAO' | 'APPLE'
   oauthToken?: {
     accessToken: string
@@ -107,58 +107,74 @@ export async function loginIDPW(
   }
 }
 
+export interface SocialLoginResult {
+  success: boolean
+  requiresSignup?: boolean
+  data?: SocialLoginResponse
+  error?: ApiError
+}
+
 export async function loginSocial(
   request: SocialLoginRequest,
   setAuth: (data: LoginResponse) => void,
   navigate: NavigateFunction
 ): Promise<SocialLoginResponse> {
-  try {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/public/users/login-social`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
-    })
+  const response = await fetch(`${API_CONFIG.BASE_URL}/public/users/login-social`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  })
 
-    if (!response.ok) {
-      const errorData: ErrorResponse = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    const errorData: ErrorResponse = await response.json().catch(() => ({}))
+    
+    // B011: 존재하지 않는 사용자 계정 - 회원가입 필요
+    if (errorData.code === 'B011') {
       const error: ApiError = {
         data: errorData,
-        message: errorData.message || getErrorMessage(errorData.code) || '소셜 로그인에 실패했습니다.',
+        message: '신규 사용자입니다. 회원가입을 진행해주세요.',
       }
+      // 회원가입 페이지로 리다이렉트 (소셜 로그인 정보와 함께)
+      navigate('/signup', {
+        state: {
+          socialLoginData: request,
+          errorCode: 'B011',
+        },
+        replace: false,
+      })
       throw error
     }
 
-    const result: SocialLoginResponse = await response.json()
-    const { data } = result
-
-    // API 응답을 앱 내부 형식으로 변환
-    // scope는 "APP"으로 오지만, 필요시 매핑 로직 추가 가능
-    const scope = data.scope === 'APP' ? 'USER' : (data.scope as 'MANAGER' | 'USER')
-    
-    setAuth({
-      token: data.accessToken,
-      refreshToken: data.refreshToken,
-      scope: scope,
-    })
-
-    // 로그인 성공 후 리다이렉트
-    if (scope === 'MANAGER') {
-      navigate('/main', { replace: true })
-    } else {
-      navigate('/job-lookup-map', { replace: true })
+    const error: ApiError = {
+      data: errorData,
+      message: errorData.message || getErrorMessage(errorData.code) || '소셜 로그인에 실패했습니다.',
     }
-
-    return result
-  } catch (error) {
-    if (error && typeof error === 'object' && 'data' in error) {
-      throw error as ApiError
-    }
-    throw {
-      message: '네트워크 오류가 발생했습니다.',
-    } as ApiError
+    throw error
   }
+
+  const result: SocialLoginResponse = await response.json()
+  const { data } = result
+
+  // API 응답을 앱 내부 형식으로 변환
+  // scope는 "APP"으로 오지만, 필요시 매핑 로직 추가 가능
+  const scope = data.scope === 'APP' ? 'USER' : (data.scope as 'MANAGER' | 'USER')
+  
+  setAuth({
+    token: data.accessToken,
+    refreshToken: data.refreshToken,
+    scope: scope,
+  })
+
+  // 로그인 성공 후 리다이렉트
+  if (scope === 'MANAGER') {
+    navigate('/main', { replace: true })
+  } else {
+    navigate('/job-lookup-map', { replace: true })
+  }
+
+  return result
 }
 
 /**

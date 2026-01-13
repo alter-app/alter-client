@@ -35,6 +35,13 @@ export function AppleLoginButton() {
       )
     } catch (error: any) {
       console.error('애플 로그인 실패:', error)
+      
+      // B011 에러는 회원가입 페이지로 리다이렉트되므로 alert 표시하지 않음
+      if (error?.data?.code === 'B011') {
+        // 회원가입 페이지로 이동 (이미 navigate에서 처리됨)
+        return
+      }
+      
       alert(error.message || '애플 로그인에 실패했습니다.')
     } finally {
       setIsLoading(false)

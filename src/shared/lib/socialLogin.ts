@@ -28,17 +28,27 @@ export interface SocialLoginResult {
  *    Kakao.init('YOUR_KAKAO_APP_KEY')
  */
 export async function loginWithKakao(): Promise<SocialLoginResult> {
+  // SDK가 로드되고 초기화될 때까지 대기
+  await waitForKakaoSDK()
+  
+  // 초기화 확인
+  if (!window.Kakao.isInitialized()) {
+    // 자동으로 초기화 시도
+    const kakaoRestApiKey = import.meta.env.VITE_KAKAO_REST_API_KEY
+    if (kakaoRestApiKey) {
+      try {
+        await initKakaoSDK(kakaoRestApiKey)
+      } catch (error) {
+        throw new Error('카카오 SDK 초기화에 실패했습니다. 앱 키를 확인해주세요.')
+      }
+    } else {
+      throw new Error('카카오 REST API 키가 설정되지 않았습니다.')
+    }
+  }
+
+  const redirectURI = import.meta.env.VITE_KAKAO_REDIRECT_URI || window.location.origin + '/oauth/kakao/callback'
+
   return new Promise((resolve, reject) => {
-    if (!window.Kakao) {
-      reject(new Error('카카오 SDK가 로드되지 않았습니다.'))
-      return
-    }
-
-    if (!window.Kakao.isInitialized()) {
-      reject(new Error('카카오 SDK가 초기화되지 않았습니다.'))
-      return
-    }
-
     // 카카오 로그인 실행
     window.Kakao.Auth.login({
       success: (authObj: any) => {
@@ -51,6 +61,7 @@ export async function loginWithKakao(): Promise<SocialLoginResult> {
       fail: () => {
         reject(new Error('카카오 로그인에 실패했습니다.'))
       },
+      redirectUri: redirectURI,
     })
   })
 }
@@ -71,11 +82,19 @@ export async function loginWithApple(): Promise<SocialLoginResult> {
       return
     }
 
+    const oauthClientId = import.meta.env.VITE_OAUTH_CLIENT_ID || ''
+    const oauthRedirectURI = import.meta.env.VITE_OAUTH_REDIRECT_URI || window.location.origin + '/login'
+
+    if (!oauthClientId) {
+      reject(new Error('애플 OAuth 클라이언트 ID가 설정되지 않았습니다.'))
+      return
+    }
+
     // 애플 로그인 실행
     window.AppleID.auth.init({
-      clientId: import.meta.env.VITE_APPLE_CLIENT_ID || '',
+      clientId: oauthClientId,
       scope: 'name email',
-      redirectURI: window.location.origin + '/apple/callback',
+      redirectURI: oauthRedirectURI,
       usePopup: true,
     })
 
@@ -94,11 +113,41 @@ export async function loginWithApple(): Promise<SocialLoginResult> {
 }
 
 /**
+ * 카카오 SDK가 로드될 때까지 대기
+ */
+function waitForKakaoSDK(maxAttempts = 50, interval = 100): Promise<void> {
+  return new Promise((resolve, reject) => {
+    let attempts = 0
+    
+    const checkSDK = () => {
+      if (window.Kakao) {
+        resolve()
+      } else if (attempts < maxAttempts) {
+        attempts++
+        setTimeout(checkSDK, interval)
+      } else {
+        reject(new Error('카카오 SDK 로드를 기다리는 중 타임아웃이 발생했습니다.'))
+      }
+    }
+    
+    checkSDK()
+  })
+}
+
+/**
  * 카카오 SDK 초기화
  */
-export function initKakaoSDK(appKey: string): void {
-  if (window.Kakao && !window.Kakao.isInitialized()) {
-    window.Kakao.init(appKey)
+export async function initKakaoSDK(appKey: string): Promise<void> {
+  try {
+    // SDK가 로드될 때까지 대기
+    await waitForKakaoSDK()
+    
+    if (!window.Kakao.isInitialized()) {
+      window.Kakao.init(appKey)
+    }
+  } catch (error) {
+    console.error('카카오 SDK 초기화 실패:', error)
+    throw error
   }
 }
 
