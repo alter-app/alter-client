@@ -39,7 +39,7 @@ interface GenerateTokenResponseDto {
   refreshToken: string
 }
 
-interface SocialLoginResponse extends ApiResponse<GenerateTokenResponseDto> {}
+type SocialLoginResponse = ApiResponse<GenerateTokenResponseDto>
 
 interface ErrorResponse {
   code?: string
@@ -69,7 +69,10 @@ export async function loginIDPW(
       const errorData: ErrorResponse = await response.json().catch(() => ({}))
       const error: ApiError = {
         data: errorData,
-        message: errorData.message || getErrorMessage(errorData.code) || '로그인에 실패했습니다.',
+        message:
+          errorData.message ||
+          getErrorMessage(errorData.code) ||
+          '로그인에 실패했습니다.',
       }
       throw error
     }
@@ -79,14 +82,15 @@ export async function loginIDPW(
 
     // API 응답을 앱 내부 형식으로 변환
     // scope는 "APP"으로 오지만, 필요시 매핑 로직 추가 가능
-    const scope = data.scope === 'APP' ? 'USER' : (data.scope as 'MANAGER' | 'USER')
-    
+    const scope =
+      data.scope === 'APP' ? 'USER' : (data.scope as 'MANAGER' | 'USER')
+
     const loginResponse: LoginResponse = {
       token: data.accessToken,
       refreshToken: data.refreshToken,
       scope: scope,
     }
-    
+
     setAuth(loginResponse)
 
     // 로그인 성공 후 리다이렉트
@@ -119,17 +123,20 @@ export async function loginSocial(
   setAuth: (data: LoginResponse) => void,
   navigate: NavigateFunction
 ): Promise<SocialLoginResponse> {
-  const response = await fetch(`${API_CONFIG.BASE_URL}/public/users/login-social`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(request),
-  })
+  const response = await fetch(
+    `${API_CONFIG.BASE_URL}/public/users/login-social`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    }
+  )
 
   if (!response.ok) {
     const errorData: ErrorResponse = await response.json().catch(() => ({}))
-    
+
     // B011: 존재하지 않는 사용자 계정 - 회원가입 필요
     if (errorData.code === 'B011') {
       const error: ApiError = {
@@ -149,7 +156,10 @@ export async function loginSocial(
 
     const error: ApiError = {
       data: errorData,
-      message: errorData.message || getErrorMessage(errorData.code) || '소셜 로그인에 실패했습니다.',
+      message:
+        errorData.message ||
+        getErrorMessage(errorData.code) ||
+        '소셜 로그인에 실패했습니다.',
     }
     throw error
   }
@@ -159,8 +169,9 @@ export async function loginSocial(
 
   // API 응답을 앱 내부 형식으로 변환
   // scope는 "APP"으로 오지만, 필요시 매핑 로직 추가 가능
-  const scope = data.scope === 'APP' ? 'USER' : (data.scope as 'MANAGER' | 'USER')
-  
+  const scope =
+    data.scope === 'APP' ? 'USER' : (data.scope as 'MANAGER' | 'USER')
+
   setAuth({
     token: data.accessToken,
     refreshToken: data.refreshToken,
@@ -187,4 +198,3 @@ function getErrorMessage(code?: string): string | undefined {
   }
   return code ? errorMessages[code] : undefined
 }
-

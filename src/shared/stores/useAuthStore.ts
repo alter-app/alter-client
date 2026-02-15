@@ -21,13 +21,13 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    set => ({
       token: null,
       refreshToken: null,
       isLoggedIn: false,
       scope: null,
       user: null,
-      setAuth: (data) =>
+      setAuth: data =>
         set({
           token: data.token,
           refreshToken: data.refreshToken || null,
@@ -51,4 +51,3 @@ export const useAuthStore = create<AuthState>()(
 )
 
 export default useAuthStore
-

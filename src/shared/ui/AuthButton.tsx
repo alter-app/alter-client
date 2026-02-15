@@ -1,9 +1,13 @@
-import { ButtonHTMLAttributes } from 'react'
+import type { ButtonHTMLAttributes } from 'react'
 import { colors, fontFamilies, fontSizes, fontWeights } from '../lib/tokens'
 
-interface AuthButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
+type AuthButtonProps = ButtonHTMLAttributes<HTMLButtonElement>
 
-export function AuthButton({ className = '', children, ...props }: AuthButtonProps) {
+export function AuthButton({
+  className = '',
+  children,
+  ...props
+}: AuthButtonProps) {
   return (
     <button
       className={className}
@@ -30,4 +34,3 @@ export function AuthButton({ className = '', children, ...props }: AuthButtonPro
     </button>
   )
 }
-

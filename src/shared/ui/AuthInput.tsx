@@ -1,11 +1,15 @@
-import { InputHTMLAttributes } from 'react'
+import type { InputHTMLAttributes } from 'react'
 import { colors, fontFamilies, fontSizes, fontWeights } from '../lib/tokens'
 
 interface AuthInputProps extends InputHTMLAttributes<HTMLInputElement> {
   borderColor?: string
 }
 
-export function AuthInput({ borderColor, className = '', ...props }: AuthInputProps) {
+export function AuthInput({
+  borderColor,
+  className = '',
+  ...props
+}: AuthInputProps) {
   return (
     <input
       className={className}
@@ -28,4 +32,3 @@ export function AuthInput({ borderColor, className = '', ...props }: AuthInputPr
     />
   )
 }
-

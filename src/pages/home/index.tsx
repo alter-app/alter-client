@@ -11,10 +11,13 @@ export function HomePage() {
         <Counter />
 
         <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
-          Edit <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">src/pages/home/index.tsx</code> and save to test HMR
+          Edit{' '}
+          <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+            src/pages/home/index.tsx
+          </code>{' '}
+          and save to test HMR
         </p>
       </div>
     </div>
   )
 }
-

@@ -6,9 +6,10 @@ interface ErrorResponse {
   fieldErrors?: FieldErrors
   globalError?: string
   message?: string
+  error?: string
 }
 
-export function parseErrorResponse(data: any): {
+export function parseErrorResponse(data: unknown): {
   fieldErrors: FieldErrors
   globalError: string | null
 } {
@@ -16,18 +17,20 @@ export function parseErrorResponse(data: any): {
   let globalError: string | null = null
 
   if (typeof data === 'object' && data !== null) {
+    const typedData = data as ErrorResponse
+
     // 필드별 에러 처리
-    if (data.fieldErrors && typeof data.fieldErrors === 'object') {
-      Object.assign(fieldErrors, data.fieldErrors)
+    if (typedData.fieldErrors && typeof typedData.fieldErrors === 'object') {
+      Object.assign(fieldErrors, typedData.fieldErrors)
     }
 
     // 전역 에러 처리
-    if (data.globalError) {
-      globalError = String(data.globalError)
-    } else if (data.message) {
-      globalError = String(data.message)
-    } else if (data.error) {
-      globalError = String(data.error)
+    if (typedData.globalError) {
+      globalError = String(typedData.globalError)
+    } else if (typedData.message) {
+      globalError = String(typedData.message)
+    } else if (typedData.error) {
+      globalError = String(typedData.error)
     }
   } else if (typeof data === 'string') {
     globalError = data
@@ -35,4 +38,3 @@ export function parseErrorResponse(data: any): {
 
   return { fieldErrors, globalError }
 }
-

@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { colors, fontFamilies, fontSizes, fontWeights } from '@/shared/lib/tokens'
+import {
+  fontFamilies,
+  fontSizes,
+  fontWeights,
+} from '@/shared/lib/tokens'
 import { loginWithApple } from '@/shared/lib/socialLogin'
 import { loginSocial } from '@/shared/api/auth'
 import useAuthStore from '@/shared/stores/useAuthStore'
@@ -33,16 +37,20 @@ export function AppleLoginButton() {
         setAuth,
         navigate
       )
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('애플 로그인 실패:', error)
-      
+      const apiError = error as {
+        data?: { code?: string }
+        message?: string
+      }
+
       // B011 에러는 회원가입 페이지로 리다이렉트되므로 alert 표시하지 않음
-      if (error?.data?.code === 'B011') {
+      if (apiError?.data?.code === 'B011') {
         // 회원가입 페이지로 이동 (이미 navigate에서 처리됨)
         return
       }
-      
-      alert(error.message || '애플 로그인에 실패했습니다.')
+
+      alert(apiError.message || '애플 로그인에 실패했습니다.')
     } finally {
       setIsLoading(false)
     }
@@ -71,4 +79,3 @@ export function AppleLoginButton() {
     </button>
   )
 }
-

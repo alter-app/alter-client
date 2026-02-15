@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 interface MobileLayoutProps {
   children: ReactNode
@@ -34,4 +34,3 @@ export function MobileLayout({
     </>
   )
 }
-

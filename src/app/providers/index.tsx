@@ -23,8 +23,10 @@ export function AppProviders({ children }: AppProvidersProps) {
 
       // 애플 SDK 초기화
       const oauthClientId = import.meta.env.VITE_OAUTH_CLIENT_ID
-      const oauthRedirectURI = import.meta.env.VITE_OAUTH_REDIRECT_URI || window.location.origin + '/login'
-      
+      const oauthRedirectURI =
+        import.meta.env.VITE_OAUTH_REDIRECT_URI ||
+        window.location.origin + '/login'
+
       if (oauthClientId) {
         // 애플 SDK 로드 대기
         const waitForAppleSDK = () => {
@@ -51,4 +53,3 @@ export function AppProviders({ children }: AppProvidersProps) {
 
   return <>{children}</>
 }
-
