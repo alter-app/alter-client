@@ -35,6 +35,11 @@ export function SignupPage() {
   const [adAgreed, setAdAgreed] = useState(false)
   const [birthError, setBirthError] = useState('')
   const [signupError, setSignupError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordCheckError, setPasswordCheckError] = useState('')
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false)
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isStep1Valid = !!(
     name.trim() &&
@@ -43,24 +48,44 @@ export function SignupPage() {
     birth.trim().length === 8 &&
     !birthError
   )
+  const isPasswordValid = (value: string) => {
+    // 최소 8자, 영문/숫자/특수문자 조합 중 2가지 이상 포함
+    const trimmed = value.trim()
+    if (trimmed.length < 8) return false
+    const hasLetter = /[A-Za-z]/.test(trimmed)
+    const hasNumber = /\d/.test(trimmed)
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(trimmed)
+    const kinds = [hasLetter, hasNumber, hasSpecial].filter(Boolean).length
+    return kinds >= 2
+  }
+
   const isStep2Valid =
     nicknameChecked &&
     emailChecked &&
     agreed &&
-    !!password.trim() &&
-    password === passwordCheck
+    isPasswordValid(password) &&
+    password === passwordCheck &&
+    !passwordError &&
+    !passwordCheckError
 
-  const handleFormatPhone = (value: string) => {
-    const onlyNumber = value.replace(/\D/g, '')
+  const normalizePhone = (value: string) =>
+    value.replace(/\D/g, '').slice(0, 11)
+
+  const formatPhone = (value: string) => {
+    const onlyNumber = normalizePhone(value)
     if (onlyNumber.length < 4) return onlyNumber
     if (onlyNumber.length < 8)
       return `${onlyNumber.slice(0, 3)}-${onlyNumber.slice(3)}`
     return `${onlyNumber.slice(0, 3)}-${onlyNumber.slice(3, 7)}-${onlyNumber.slice(7, 11)}`
   }
 
+  const normalizeBirthday = (value: string) =>
+    value.replace(/\D/g, '').slice(0, 8)
+
   const handleNicknameCheck = async () => {
     if (!nickname.trim()) return
     try {
+      setIsCheckingNickname(true)
       const isAvailable = await checkNicknameDuplicate(nickname)
       if (isAvailable) {
         setNicknameChecked(true)
@@ -75,12 +100,15 @@ export function SignupPage() {
       setNicknameCheckMessage(
         apiError.message || '닉네임 중복 검사 중 오류가 발생했습니다.'
       )
+    } finally {
+      setIsCheckingNickname(false)
     }
   }
 
   const handleEmailCheck = async () => {
     if (!email.trim()) return
     try {
+      setIsCheckingEmail(true)
       const isAvailable = await checkEmailDuplicate(email)
       if (isAvailable) {
         setEmailChecked(true)
@@ -95,6 +123,8 @@ export function SignupPage() {
       setEmailCheckMessage(
         apiError.message || '이메일 중복 검사 중 오류가 발생했습니다.'
       )
+    } finally {
+      setIsCheckingEmail(false)
     }
   }
 
@@ -109,8 +139,9 @@ export function SignupPage() {
     try {
       setSignupError('')
       setBirthError('')
+      setIsSubmitting(true)
 
-      const birthday = birth.replace(/\D/g, '')
+      const birthday = normalizeBirthday(birth)
       if (birthday.length !== 8) {
         setBirthError(
           '생년월일은 하이픈 없이 YYYYMMDD 8자리(예: 19990101)로 입력해주세요.'
@@ -129,7 +160,7 @@ export function SignupPage() {
           nickname: nickname.trim(),
           gender: getGenderCode(gender),
           birthday,
-          contact: phone.replace(/-/g, ''),
+          contact: normalizePhone(phone),
         },
         setAuth,
         navigate
@@ -137,6 +168,8 @@ export function SignupPage() {
     } catch (error) {
       const apiError = error as { message?: string }
       setSignupError(apiError.message || '회원가입에 실패했습니다.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -199,7 +232,7 @@ export function SignupPage() {
                 maxLength={13}
                 placeholder="전화번호"
                 value={phone}
-                onChange={e => setPhone(handleFormatPhone(e.target.value))}
+                onChange={e => setPhone(formatPhone(e.target.value))}
               />
 
               <AuthInput
@@ -208,8 +241,7 @@ export function SignupPage() {
                 value={birth}
                 maxLength={8}
                 onChange={e => {
-                  const onlyNumber = e.target.value.replace(/\D/g, '')
-                  const next = onlyNumber.slice(0, 8)
+                  const next = normalizeBirthday(e.target.value)
                   setBirth(next)
                   if (next.length === 0 || next.length === 8) {
                     setBirthError('')
@@ -312,9 +344,9 @@ export function SignupPage() {
                   type="button"
                   className="min-w-[100px] h-14 border-none bg-main text-white text-[14px] font-pretendard font-medium rounded-xl cursor-pointer transition-all duration-200 hover:bg-[#25c973] hover:-translate-y-px active:bg-[#1fb865] active:translate-y-0 disabled:bg-[#cbcbcb] disabled:text-white disabled:cursor-not-allowed disabled:transform-none sm:h-[52px] sm:text-[13px] sm:rounded-[10px] sm:min-w-[90px] xs:h-12 xs:text-[12px] xs:rounded-lg xs:min-w-[80px]"
                   onClick={handleNicknameCheck}
-                  disabled={!nickname.trim()}
+                  disabled={!nickname.trim() || isCheckingNickname}
                 >
-                  중복 확인
+                  {isCheckingNickname ? '확인 중...' : '중복 확인'}
                 </button>
               </div>
 
@@ -353,9 +385,9 @@ export function SignupPage() {
                   type="button"
                   className="min-w-[100px] h-14 border-none bg-main text-white text-[14px] font-pretendard font-medium rounded-xl cursor-pointer transition-all duration-200 hover:bg-[#25c973] hover:-translate-y-px active:bg-[#1fb865] active:translate-y-0 disabled:bg-[#cbcbcb] disabled:text-white disabled:cursor-not-allowed disabled:transform-none sm:h-[52px] sm:text-[13px] sm:rounded-[10px] sm:min-w-[90px] xs:h-12 xs:text-[12px] xs:rounded-lg xs:min-w-[80px]"
                   onClick={handleEmailCheck}
-                  disabled={!email.trim()}
+                  disabled={!email.trim() || isCheckingEmail}
                 >
-                  중복 확인
+                  {isCheckingEmail ? '확인 중...' : '중복 확인'}
                 </button>
               </div>
 
@@ -375,15 +407,53 @@ export function SignupPage() {
                   type="password"
                   placeholder="비밀번호"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={e => {
+                    const value = e.target.value
+                    setPassword(value)
+                    if (!value.trim()) {
+                      setPasswordError('비밀번호를 입력해주세요.')
+                    } else if (!isPasswordValid(value)) {
+                      setPasswordError(
+                        '비밀번호는 최소 8자이며, 영문/숫자/특수문자 중 2가지 이상을 포함해야 합니다.'
+                      )
+                    } else {
+                      setPasswordError('')
+                    }
+
+                    // 비밀번호가 바뀌면 확인 값과도 다시 비교
+                    if (passwordCheck && value !== passwordCheck) {
+                      setPasswordCheckError(
+                        '비밀번호가 서로 일치하지 않습니다.'
+                      )
+                    } else {
+                      setPasswordCheckError('')
+                    }
+                  }}
                 />
                 <AuthInput
                   type="password"
                   placeholder="비밀번호 확인"
                   value={passwordCheck}
-                  onChange={e => setPasswordCheck(e.target.value)}
+                  onChange={e => {
+                    const value = e.target.value
+                    setPasswordCheck(value)
+                    if (!value.trim()) {
+                      setPasswordCheckError('비밀번호 확인을 입력해주세요.')
+                    } else if (value !== password) {
+                      setPasswordCheckError(
+                        '비밀번호가 서로 일치하지 않습니다.'
+                      )
+                    } else {
+                      setPasswordCheckError('')
+                    }
+                  }}
                 />
               </div>
+              {(passwordError || passwordCheckError) && (
+                <div className="font-pretendard font-regular text-[12px] leading-[18px] text-error text-left w-full mt-1 sm:text-[11px] sm:leading-[17px] xs:text-[10px] xs:leading-4">
+                  {passwordError || passwordCheckError}
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col gap-3 w-full mb-6 sm:gap-[10px] sm:mb-5 xs:gap-2.5 xs:mb-4">
@@ -396,7 +466,9 @@ export function SignupPage() {
                 />
                 <span>
                   <span className="text-[#DC0000] mr-1">(필수)</span>
-                  <span className="font-medium text-[#111111]">이용약관</span>과{' '}
+                  <span className="font-medium text-[#111111]">
+                    이용약관
+                  </span>과{' '}
                   <span className="font-medium text-[#111111]">
                     개인정보 보호정책
                   </span>
@@ -422,10 +494,10 @@ export function SignupPage() {
               active:bg-[#1fb865] active:translate-y-0 active:shadow-[0_2px_6px_rgba(45,226,131,0.3)]
               disabled:bg-[#cbcbcb] disabled:text-white disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none
               sm:h-[52px] sm:text-[17px] sm:rounded-[10px] xs:h-12 xs:text-4 xs:rounded-lg"
-              disabled={!isStep2Valid}
+              disabled={!isStep2Valid || isSubmitting}
               onClick={handleSubmit}
             >
-              가입하기
+              {isSubmitting ? '가입 중...' : '가입하기'}
             </button>
 
             {signupError && (
