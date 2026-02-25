@@ -6,7 +6,10 @@
 declare global {
   interface KakaoAuth {
     login: (options: {
-      success: (authObj: { access_token: string; refresh_token?: string }) => void
+      success: (authObj: {
+        access_token: string
+        refresh_token?: string
+      }) => void
       fail: () => void
       redirectUri: string
     }) => void

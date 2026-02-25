@@ -1,10 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  fontFamilies,
-  fontSizes,
-  fontWeights,
-} from '@/shared/lib/tokens'
+import { fontFamilies, fontSizes, fontWeights } from '@/shared/lib/tokens'
 import { loginWithKakao } from '@/shared/lib/socialLogin'
 import { loginSocial } from '@/shared/api/auth'
 import useAuthStore from '@/shared/stores/useAuthStore'

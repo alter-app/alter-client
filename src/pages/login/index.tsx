@@ -59,7 +59,7 @@ export function LoginPage() {
   }
 
   const goToSignup = () => {
-    navigate('/phoneauth')
+    navigate('/signup')
   }
 
   return (
