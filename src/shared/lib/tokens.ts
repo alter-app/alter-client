@@ -32,13 +32,13 @@ export const colors = {
     500: '#9dccc1',
     300: '#c4e1da',
   },
-} as const;
+} as const
 
 // 폰트 패밀리
 export const fontFamilies = {
   rixyeoljeongdo: 'RixYeoljeongdo_Pro',
   pretendard: 'Pretendard',
-} as const;
+} as const
 
 // 폰트 사이즈
 export const fontSizes = {
@@ -52,7 +52,7 @@ export const fontSizes = {
   7: '22px',
   8: '28px',
   9: '32px',
-} as const;
+} as const
 
 // 라인 높이
 export const lineHeights = {
@@ -71,19 +71,19 @@ export const lineHeights = {
   12: '100%',
   13: '100%',
   14: '100%',
-} as const;
+} as const
 
 // 레터 스페이싱
 export const letterSpacing = {
   0: '-0.01em',
   1: '0',
-} as const;
+} as const
 
 // 폰트 웨이트
 export const fontWeights = {
   regular: 400,
   semibold: 600,
-} as const;
+} as const
 
 // 타이포그래피 스타일
 export const typography = {
@@ -192,5 +192,4 @@ export const typography = {
     fontSize: fontSizes[8],
     letterSpacing: letterSpacing[1],
   },
-} as const;
-
+} as const

@@ -6,6 +6,11 @@ export default {
   ],
   theme: {
     extend: {
+      // Custom breakpoints
+      screens: {
+        'xs': '360px',
+        'sm': '480px',
+      },
       // Colors
       colors: {
         // 오류
