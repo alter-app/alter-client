@@ -4,7 +4,7 @@ import type { NavigateFunction } from 'react-router-dom'
 import axiosInstance from '../lib/axiosInstance'
 
 interface LoginCredentials {
-  email: string
+  phone: string
   password: string
 }
 
@@ -28,7 +28,7 @@ export interface SocialLoginRequest {
   platformType: 'WEB' | 'NATIVE'
 }
 
-// API 응답 형식 (CommonApiResponse<GenerateTokenResponseDto>)
+// API 응답 형식 (CommonApiResponse<T>)
 interface ApiResponse<T> {
   timestamp: string
   data: T
@@ -56,7 +56,7 @@ interface ApiError {
 // 회원가입 요청 형태
 export interface SignupRequest {
   signupSessionId: string
-  email: string
+  emailSessionId?: string // 이메일 인증 세션 ID (이메일 입력 시 필수)
   password: string
   name: string
   nickname: string
@@ -70,13 +70,12 @@ interface CheckNicknameDuplicationResponseDto {
   duplicated: boolean
 }
 
-interface CheckEmailDuplicationResponseDto {
-  email: string
-  duplicated: boolean
-}
-
 interface CreateSignupSessionResponseDto {
   signupSessionId: string
+}
+
+interface EmailVerificationSessionDto {
+  sessionId: string
 }
 
 export async function loginIDPW(
@@ -87,7 +86,10 @@ export async function loginIDPW(
   try {
     const { data: result } = await axiosInstance.post<
       ApiResponse<GenerateTokenResponseDto>
-    >('/public/users/login', credentials)
+    >('/public/users/login', {
+      contact: credentials.phone.replace(/-/g, ''),
+      password: credentials.password,
+    })
 
     const { data } = result
 
@@ -218,14 +220,14 @@ export async function checkNicknameDuplicate(
   }
 }
 
-export async function checkEmailDuplicate(email: string): Promise<boolean> {
+/**
+ * 회원가입용 이메일 인증 코드 발송
+ * - 이미 가입된 이메일이면 A004 에러
+ * - 30초 내 재요청 시 E001 에러 (쿨다운)
+ */
+export async function sendEmailVerification(email: string): Promise<void> {
   try {
-    const { data: result } = await axiosInstance.post<
-      ApiResponse<CheckEmailDuplicationResponseDto>
-    >('/public/users/exists/email', { email })
-
-    // duplicated === true 이면 이미 사용 중이므로, 사용 가능 여부는 false
-    return result.data.duplicated === false
+    await axiosInstance.post('/public/users/email/verification/send', { email })
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const errorData: ErrorResponse = error.response?.data ?? {}
@@ -234,22 +236,52 @@ export async function checkEmailDuplicate(email: string): Promise<boolean> {
         message:
           errorData.message ||
           getErrorMessage(errorData.code) ||
-          '이메일 중복 검사 중 오류가 발생했습니다.',
+          '인증 코드 발송에 실패했습니다.',
       } as ApiError
     }
-    throw {
-      message: '이메일 중복 검사 중 오류가 발생했습니다.',
-    } as ApiError
+    throw { message: '네트워크 오류가 발생했습니다.' } as ApiError
   }
 }
 
-export async function createSignupSession(phone: string): Promise<string> {
+/**
+ * 회원가입용 이메일 인증 코드 검증
+ * @returns emailSessionId - 회원가입 요청의 emailSessionId로 사용
+ */
+export async function verifyEmailCode(
+  email: string,
+  code: string
+): Promise<string> {
+  try {
+    const { data: result } = await axiosInstance.post<
+      ApiResponse<EmailVerificationSessionDto>
+    >('/public/users/email/verification', { email, code })
+
+    return result.data.sessionId
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorData: ErrorResponse = error.response?.data ?? {}
+      throw {
+        data: errorData,
+        message:
+          errorData.message ||
+          getErrorMessage(errorData.code) ||
+          '인증 코드 확인에 실패했습니다.',
+      } as ApiError
+    }
+    throw { message: '네트워크 오류가 발생했습니다.' } as ApiError
+  }
+}
+
+export async function createSignupSession(
+  phone: string,
+  firebaseIdToken: string
+): Promise<string> {
   try {
     const contact = phone.replace(/-/g, '')
 
     const { data: result } = await axiosInstance.post<
       ApiResponse<CreateSignupSessionResponseDto>
-    >('/public/users/signup-session', { contact })
+    >('/public/users/signup-session', { contact, firebaseIdToken })
 
     return result.data.signupSessionId
   } catch (error) {
@@ -319,9 +351,10 @@ export async function signup(
  */
 function getErrorMessage(code?: string): string | undefined {
   const errorMessages: Record<string, string> = {
+    B001: '인증 코드가 일치하지 않습니다.',
     B011: '존재하지 않는 사용자 계정입니다.',
-    A004: '이미 사용 중인 이메일입니다.',
-    // 추가 에러 코드 매핑 가능
+    A004: '이미 가입된 이메일입니다.',
+    E001: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
   }
   return code ? errorMessages[code] : undefined
 }

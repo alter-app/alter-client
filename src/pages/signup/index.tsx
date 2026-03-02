@@ -1,14 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { ConfirmationResult } from 'firebase/auth'
 import { AuthInput } from '@/shared/ui/AuthInput'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import {
   checkNicknameDuplicate,
-  checkEmailDuplicate,
+  sendEmailVerification,
+  verifyEmailCode,
   createSignupSession,
   signup,
 } from '@/shared/api/auth'
+import {
+  sendPhoneVerification,
+  toInternationalPhone,
+  clearRecaptcha,
+} from '@/shared/lib/firebase'
 import useAuthStore from '@/shared/stores/useAuthStore'
+
+const RESEND_COOLDOWN = 30
+const RECAPTCHA_CONTAINER_ID = 'recaptcha-container'
 
 export function SignupPage() {
   const navigate = useNavigate()
@@ -16,124 +26,227 @@ export function SignupPage() {
 
   const [step, setStep] = useState<1 | 2>(1)
 
-  // 1단계 상태
+  // ─── 1단계: 기본 정보 ────────────────────────────────────────────
   const [name, setName] = useState('')
   const [gender, setGender] = useState<'남' | '여' | ''>('')
   const [phone, setPhone] = useState('')
   const [birth, setBirth] = useState('')
+  const [birthError, setBirthError] = useState('')
 
-  // 2단계 상태
+  // 전화번호 Firebase 인증
+  const [phoneSmsSent, setPhoneSmsSent] = useState(false)
+  const [phoneSmsCode, setPhoneSmsCode] = useState('')
+  const [phoneVerified, setPhoneVerified] = useState(false)
+  const [phoneMessage, setPhoneMessage] = useState('')
+  const [isSendingSms, setIsSendingSms] = useState(false)
+  const [isVerifyingSms, setIsVerifyingSms] = useState(false)
+  const [smsResendCooldown, setSmsResendCooldown] = useState(0)
+  const smsConfirmationRef = useRef<ConfirmationResult | null>(null)
+  const smsCooldownRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [firebaseIdToken, setFirebaseIdToken] = useState('')
+
+  // ─── 2단계: 계정 정보 ────────────────────────────────────────────
   const [nickname, setNickname] = useState('')
   const [nicknameChecked, setNicknameChecked] = useState(false)
   const [nicknameCheckMessage, setNicknameCheckMessage] = useState('')
+
+  // 이메일 인증 (선택)
   const [email, setEmail] = useState('')
-  const [emailChecked, setEmailChecked] = useState(false)
-  const [emailCheckMessage, setEmailCheckMessage] = useState('')
+  const [emailCodeSent, setEmailCodeSent] = useState(false)
+  const [emailCode, setEmailCode] = useState('')
+  const [emailSessionId, setEmailSessionId] = useState('')
+  const [emailMessage, setEmailMessage] = useState('')
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [isSendingEmailCode, setIsSendingEmailCode] = useState(false)
+  const [isVerifyingEmailCode, setIsVerifyingEmailCode] = useState(false)
+  const [emailResendCooldown, setEmailResendCooldown] = useState(0)
+  const emailCooldownRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
   const [password, setPassword] = useState('')
   const [passwordCheck, setPasswordCheck] = useState('')
   const [agreed, setAgreed] = useState(false)
   const [adAgreed, setAdAgreed] = useState(false)
-  const [birthError, setBirthError] = useState('')
   const [signupError, setSignupError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [passwordCheckError, setPasswordCheckError] = useState('')
   const [isCheckingNickname, setIsCheckingNickname] = useState(false)
-  const [isCheckingEmail, setIsCheckingEmail] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (smsCooldownRef.current) clearInterval(smsCooldownRef.current)
+      if (emailCooldownRef.current) clearInterval(emailCooldownRef.current)
+      clearRecaptcha()
+    }
+  }, [])
+
+  // ─── 쿨다운 헬퍼 ─────────────────────────────────────────────────
+  const startSmsCooldown = () => {
+    setSmsResendCooldown(RESEND_COOLDOWN)
+    smsCooldownRef.current = setInterval(() => {
+      setSmsResendCooldown(prev => {
+        if (prev <= 1) {
+          if (smsCooldownRef.current) clearInterval(smsCooldownRef.current)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  const startEmailCooldown = () => {
+    setEmailResendCooldown(RESEND_COOLDOWN)
+    emailCooldownRef.current = setInterval(() => {
+      setEmailResendCooldown(prev => {
+        if (prev <= 1) {
+          if (emailCooldownRef.current) clearInterval(emailCooldownRef.current)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  // ─── 유효성 ───────────────────────────────────────────────────────
   const isStep1Valid = !!(
     name.trim() &&
     gender &&
     phone.trim() &&
     birth.trim().length === 8 &&
-    !birthError
+    !birthError &&
+    phoneVerified
   )
+
   const isPasswordValid = (value: string) => {
-    // 최소 8자, 영문/숫자/특수문자 조합 중 2가지 이상 포함
     const trimmed = value.trim()
     if (trimmed.length < 8) return false
     const hasLetter = /[A-Za-z]/.test(trimmed)
     const hasNumber = /\d/.test(trimmed)
     const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(trimmed)
-    const kinds = [hasLetter, hasNumber, hasSpecial].filter(Boolean).length
-    return kinds >= 2
+    return [hasLetter, hasNumber, hasSpecial].filter(Boolean).length >= 2
   }
+
+  const isEmailValid = !email.trim() || emailVerified
 
   const isStep2Valid =
     nicknameChecked &&
-    emailChecked &&
+    isEmailValid &&
     agreed &&
     isPasswordValid(password) &&
     password === passwordCheck &&
     !passwordError &&
     !passwordCheckError
 
+  // ─── 포맷 헬퍼 ───────────────────────────────────────────────────
   const normalizePhone = (value: string) =>
     value.replace(/\D/g, '').slice(0, 11)
 
   const formatPhone = (value: string) => {
-    const onlyNumber = normalizePhone(value)
-    if (onlyNumber.length < 4) return onlyNumber
-    if (onlyNumber.length < 8)
-      return `${onlyNumber.slice(0, 3)}-${onlyNumber.slice(3)}`
-    return `${onlyNumber.slice(0, 3)}-${onlyNumber.slice(3, 7)}-${onlyNumber.slice(7, 11)}`
+    const n = normalizePhone(value)
+    if (n.length < 4) return n
+    if (n.length < 8) return `${n.slice(0, 3)}-${n.slice(3)}`
+    return `${n.slice(0, 3)}-${n.slice(3, 7)}-${n.slice(7, 11)}`
   }
 
   const normalizeBirthday = (value: string) =>
     value.replace(/\D/g, '').slice(0, 8)
 
-  const handleNicknameCheck = async () => {
-    if (!nickname.trim()) return
+  // ─── 전화번호 SMS 인증 ────────────────────────────────────────────
+  const handleSendSms = async () => {
+    if (!phone.trim() || isSendingSms || smsResendCooldown > 0) return
     try {
-      setIsCheckingNickname(true)
-      const isAvailable = await checkNicknameDuplicate(nickname)
-      if (isAvailable) {
-        setNicknameChecked(true)
-        setNicknameCheckMessage('사용 가능한 닉네임입니다!')
-      } else {
-        setNicknameChecked(false)
-        setNicknameCheckMessage('이미 사용 중인 닉네임입니다.')
-      }
-    } catch (error) {
-      const apiError = error as { message?: string }
-      setNicknameChecked(false)
-      setNicknameCheckMessage(
-        apiError.message || '닉네임 중복 검사 중 오류가 발생했습니다.'
+      setIsSendingSms(true)
+      setPhoneMessage('')
+      clearRecaptcha() // 재발송 시 reCAPTCHA 재생성
+      const intlPhone = toInternationalPhone(normalizePhone(phone))
+      const confirmation = await sendPhoneVerification(
+        intlPhone,
+        RECAPTCHA_CONTAINER_ID
+      )
+      smsConfirmationRef.current = confirmation
+      setPhoneSmsSent(true)
+      setPhoneMessage('인증번호가 발송됐어요. 문자를 확인해주세요.')
+      startSmsCooldown()
+    } catch (err) {
+      const e = err as { message?: string }
+      clearRecaptcha()
+      setPhoneMessage(
+        e.message || 'SMS 발송에 실패했습니다. 잠시 후 다시 시도해주세요.'
       )
     } finally {
-      setIsCheckingNickname(false)
+      setIsSendingSms(false)
     }
   }
 
-  const handleEmailCheck = async () => {
-    if (!email.trim()) return
+  const handleVerifySms = async () => {
+    if (!phoneSmsCode.trim() || isVerifyingSms || !smsConfirmationRef.current)
+      return
     try {
-      setIsCheckingEmail(true)
-      const isAvailable = await checkEmailDuplicate(email)
-      if (isAvailable) {
-        setEmailChecked(true)
-        setEmailCheckMessage('사용 가능한 이메일입니다!')
-      } else {
-        setEmailChecked(false)
-        setEmailCheckMessage('이미 사용 중인 이메일입니다.')
-      }
-    } catch (error) {
-      const apiError = error as { message?: string }
-      setEmailChecked(false)
-      setEmailCheckMessage(
-        apiError.message || '이메일 중복 검사 중 오류가 발생했습니다.'
-      )
+      setIsVerifyingSms(true)
+      setPhoneMessage('')
+      const result = await smsConfirmationRef.current.confirm(phoneSmsCode)
+      const idToken = await result.user.getIdToken()
+      setFirebaseIdToken(idToken)
+      setPhoneVerified(true)
+      setPhoneMessage('전화번호 인증이 완료됐어요!')
+      if (smsCooldownRef.current) clearInterval(smsCooldownRef.current)
+      setSmsResendCooldown(0)
+    } catch {
+      setPhoneVerified(false)
+      setPhoneMessage('인증번호가 올바르지 않습니다. 다시 확인해주세요.')
     } finally {
-      setIsCheckingEmail(false)
+      setIsVerifyingSms(false)
     }
   }
 
+  // ─── 이메일 인증 ─────────────────────────────────────────────────
+  const handleSendEmailCode = async () => {
+    if (!email.trim() || isSendingEmailCode || emailResendCooldown > 0) return
+    try {
+      setIsSendingEmailCode(true)
+      setEmailMessage('')
+      await sendEmailVerification(email.trim())
+      setEmailCodeSent(true)
+      setEmailMessage('인증 코드가 발송됐어요. 이메일을 확인해주세요.')
+      startEmailCooldown()
+    } catch (error) {
+      const apiError = error as { message?: string }
+      setEmailMessage(
+        apiError.message || '인증 코드 발송에 실패했습니다. 다시 시도해주세요.'
+      )
+    } finally {
+      setIsSendingEmailCode(false)
+    }
+  }
+
+  const handleVerifyEmailCode = async () => {
+    if (!emailCode.trim() || isVerifyingEmailCode) return
+    try {
+      setIsVerifyingEmailCode(true)
+      setEmailMessage('')
+      const sessionId = await verifyEmailCode(email.trim(), emailCode.trim())
+      setEmailSessionId(sessionId)
+      setEmailVerified(true)
+      setEmailMessage('이메일 인증이 완료됐어요!')
+      if (emailCooldownRef.current) clearInterval(emailCooldownRef.current)
+      setEmailResendCooldown(0)
+    } catch (error) {
+      const apiError = error as { message?: string }
+      setEmailVerified(false)
+      setEmailMessage(
+        apiError.message || '인증 코드가 올바르지 않습니다. 다시 확인해주세요.'
+      )
+    } finally {
+      setIsVerifyingEmailCode(false)
+    }
+  }
+
+  // ─── 회원가입 제출 ────────────────────────────────────────────────
   const getGenderCode = (
-    genderStr: '남' | '여' | ''
-  ): 'GENDER_MALE' | 'GENDER_FEMALE' => {
-    if (genderStr === '남') return 'GENDER_MALE'
-    return 'GENDER_FEMALE'
-  }
+    g: '남' | '여' | ''
+  ): 'GENDER_MALE' | 'GENDER_FEMALE' =>
+    g === '남' ? 'GENDER_MALE' : 'GENDER_FEMALE'
 
   const handleSubmit = async () => {
     try {
@@ -149,12 +262,12 @@ export function SignupPage() {
         return
       }
 
-      const signupSessionId = await createSignupSession(phone)
+      const signupSessionId = await createSignupSession(phone, firebaseIdToken)
 
       await signup(
         {
           signupSessionId,
-          email: email.trim(),
+          ...(emailSessionId ? { emailSessionId } : {}),
           password,
           name: name.trim(),
           nickname: nickname.trim(),
@@ -173,16 +286,21 @@ export function SignupPage() {
     }
   }
 
+  // ─── 렌더링 ───────────────────────────────────────────────────────
   return (
     <MobileLayout>
+      {/* Invisible reCAPTCHA 마운트 포인트 */}
+      <div id={RECAPTCHA_CONTAINER_ID} />
+
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-48px)] min-h-[calc(100dvh-48px)] px-5 py-6 box-border bg-white relative overflow-x-hidden sm:px-4 sm:py-5 xs:px-3 xs:py-4">
+        {/* ── 1단계 ──────────────────────────────────────────────── */}
         {step === 1 && (
           <div className="flex flex-col items-center w-full max-w-[400px]">
             <div className="w-full mb-8 sm:mb-7 xs:mb-6">
               <h1 className="font-pretendard font-semibold text-[24px] leading-8 text-[#111111] text-left mb-4 sm:text-[22px] sm:leading-[30px] xs:text-[20px] xs:leading-[28px]">
                 회원님의 정보를 알려주세요!
               </h1>
-              <p className="font-pretendard font-regular text-[14px] leading-5 text-[#767676] text-left mb-8 sm:text-[13px] sm:leading-[19px] sm:mb-7 xs:text-[12px] xs:leading-[18px] xs:mb-6">
+              <p className="font-pretendard font-regular text-[14px] leading-5 text-[#767676] text-left sm:text-[13px] sm:leading-[19px] xs:text-[12px] xs:leading-[18px]">
                 알터가 회원님이 동의해 주신 내용을 바탕으로 작성했어요.
                 <br />
                 틀리거나 빈 정보가 있다면 알려주시겠어요?
@@ -190,6 +308,7 @@ export function SignupPage() {
             </div>
 
             <div className="flex flex-col gap-4 w-full mb-6 sm:gap-[14px] sm:mb-5 xs:gap-3 xs:mb-4">
+              {/* 이름 + 성별 */}
               <div className="flex gap-3 w-full sm:gap-[10px] xs:gap-2">
                 <div className="flex-1">
                   <AuthInput
@@ -203,22 +322,14 @@ export function SignupPage() {
                   <div className="flex border border-[#d9d9d9] rounded-xl h-14 overflow-hidden sm:h-[52px] xs:h-12">
                     <button
                       type="button"
-                      className={`px-4 font-pretendard text-4 ${
-                        gender === '남'
-                          ? 'bg-main text-white font-semibold'
-                          : 'bg-white text-[#767676]'
-                      }`}
+                      className={`px-4 font-pretendard text-4 ${gender === '남' ? 'bg-main text-white font-semibold' : 'bg-white text-[#767676]'}`}
                       onClick={() => setGender('남')}
                     >
                       남
                     </button>
                     <button
                       type="button"
-                      className={`px-4 font-pretendard text-4 border-l border-[#d9d9d9] ${
-                        gender === '여'
-                          ? 'bg-main text-white font-semibold'
-                          : 'bg-white text-[#767676]'
-                      }`}
+                      className={`px-4 font-pretendard text-4 border-l border-[#d9d9d9] ${gender === '여' ? 'bg-main text-white font-semibold' : 'bg-white text-[#767676]'}`}
                       onClick={() => setGender('여')}
                     >
                       여
@@ -227,14 +338,95 @@ export function SignupPage() {
                 </div>
               </div>
 
-              <AuthInput
-                type="tel"
-                maxLength={13}
-                placeholder="전화번호"
-                value={phone}
-                onChange={e => setPhone(formatPhone(e.target.value))}
-              />
+              {/* 전화번호 + SMS 인증 */}
+              <div className="flex flex-col gap-2 w-full">
+                <div className="flex gap-3 w-full sm:gap-[10px] xs:gap-2">
+                  <div className="flex-1">
+                    <AuthInput
+                      type="tel"
+                      maxLength={13}
+                      placeholder="전화번호"
+                      value={phone}
+                      disabled={phoneVerified}
+                      onChange={e => {
+                        setPhone(formatPhone(e.target.value))
+                        setPhoneSmsSent(false)
+                        setPhoneSmsCode('')
+                        setPhoneVerified(false)
+                        setFirebaseIdToken('')
+                        setPhoneMessage('')
+                        if (smsCooldownRef.current)
+                          clearInterval(smsCooldownRef.current)
+                        setSmsResendCooldown(0)
+                      }}
+                      borderColor={
+                        phoneVerified
+                          ? '1px solid #2DE283'
+                          : phoneMessage && !phoneSmsSent
+                            ? '1px solid #DC0000'
+                            : undefined
+                      }
+                    />
+                  </div>
+                  {!phoneVerified && (
+                    <button
+                      type="button"
+                      className="min-w-[100px] h-14 border-none bg-main text-white text-[14px] font-pretendard font-medium rounded-xl cursor-pointer transition-all duration-200 hover:bg-[#25c973] hover:-translate-y-px active:bg-[#1fb865] active:translate-y-0 disabled:bg-[#cbcbcb] disabled:cursor-not-allowed disabled:transform-none sm:h-[52px] sm:text-[13px] sm:rounded-[10px] sm:min-w-[90px] xs:h-12 xs:text-[12px] xs:rounded-lg xs:min-w-[80px]"
+                      onClick={handleSendSms}
+                      disabled={
+                        !phone.trim() || isSendingSms || smsResendCooldown > 0
+                      }
+                    >
+                      {isSendingSms
+                        ? '발송 중...'
+                        : smsResendCooldown > 0
+                          ? `${smsResendCooldown}초 후 재발송`
+                          : phoneSmsSent
+                            ? '재발송'
+                            : '인증번호 발송'}
+                    </button>
+                  )}
+                </div>
 
+                {/* SMS 인증번호 입력 */}
+                {phoneSmsSent && !phoneVerified && (
+                  <div className="flex gap-3 w-full sm:gap-[10px] xs:gap-2">
+                    <div className="flex-1">
+                      <AuthInput
+                        type="text"
+                        placeholder="인증번호 6자리"
+                        value={phoneSmsCode}
+                        maxLength={6}
+                        onChange={e => {
+                          setPhoneSmsCode(
+                            e.target.value.replace(/\D/g, '').slice(0, 6)
+                          )
+                          setPhoneMessage('')
+                        }}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="min-w-[100px] h-14 border-none bg-main text-white text-[14px] font-pretendard font-medium rounded-xl cursor-pointer transition-all duration-200 hover:bg-[#25c973] hover:-translate-y-px active:bg-[#1fb865] active:translate-y-0 disabled:bg-[#cbcbcb] disabled:cursor-not-allowed disabled:transform-none sm:h-[52px] sm:text-[13px] sm:rounded-[10px] sm:min-w-[90px] xs:h-12 xs:text-[12px] xs:rounded-lg xs:min-w-[80px]"
+                      onClick={handleVerifySms}
+                      disabled={phoneSmsCode.length !== 6 || isVerifyingSms}
+                    >
+                      {isVerifyingSms ? '확인 중...' : '확인'}
+                    </button>
+                  </div>
+                )}
+
+                {phoneMessage && (
+                  <div
+                    className="font-pretendard font-regular text-[12px] leading-[18px] text-left w-full sm:text-[11px] xs:text-[10px]"
+                    style={{ color: phoneVerified ? '#2DE283' : '#DC0000' }}
+                  >
+                    {phoneMessage}
+                  </div>
+                )}
+              </div>
+
+              {/* 생년월일 */}
               <AuthInput
                 type="text"
                 placeholder="생년월일 8자리"
@@ -254,12 +446,12 @@ export function SignupPage() {
               />
             </div>
 
-            <p className="font-pretendard font-regular text-[12px] leading-[18px] text-[#767676] text-center w-full mb-6 sm:text-[11px] sm:leading-[17px] sm:mb-5 xs:text-[10px] xs:leading-4 xs:mb-4">
+            <p className="font-pretendard font-regular text-[12px] leading-[18px] text-[#767676] text-center w-full mb-6 sm:text-[11px] sm:mb-5 xs:text-[10px] xs:mb-4">
               만약 내용이 없다면 모든 내용을 기입해 주세요!
             </p>
 
             {birthError && (
-              <div className="font-pretendard font-regular text-[12px] leading-[18px] text-error text-center w-full mb-4 sm:text-[11px] sm:leading-[17px] sm:mb-3 xs:text-[10px] xs:leading-4 xs:mb-3">
+              <div className="font-pretendard font-regular text-[12px] leading-[18px] text-error text-center w-full mb-4 sm:text-[11px] sm:mb-3 xs:text-[10px] xs:mb-3">
                 {birthError}
               </div>
             )}
@@ -279,6 +471,7 @@ export function SignupPage() {
           </div>
         )}
 
+        {/* ── 2단계 ──────────────────────────────────────────────── */}
         {step === 2 && (
           <div className="flex flex-col items-center w-full max-w-[400px]">
             <div className="flex justify-start w-full mb-6 sm:mb-5 xs:mb-4">
@@ -315,6 +508,7 @@ export function SignupPage() {
             </div>
 
             <div className="flex flex-col gap-4 w-full mb-4 sm:gap-[14px] sm:mb-[14px] xs:gap-3 xs:mb-3">
+              {/* 닉네임 */}
               <div className="flex gap-3 w-full sm:gap-[10px] xs:gap-2">
                 <div className="flex-1">
                   <AuthInput
@@ -323,9 +517,7 @@ export function SignupPage() {
                     value={nickname}
                     onChange={e => {
                       const value = e.target.value
-                      const allowedPattern = /^[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9]*$/
-
-                      if (allowedPattern.test(value)) {
+                      if (/^[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9]*$/.test(value)) {
                         setNickname(value)
                         setNicknameChecked(false)
                         setNicknameCheckMessage('')
@@ -342,8 +534,28 @@ export function SignupPage() {
                 </div>
                 <button
                   type="button"
-                  className="min-w-[100px] h-14 border-none bg-main text-white text-[14px] font-pretendard font-medium rounded-xl cursor-pointer transition-all duration-200 hover:bg-[#25c973] hover:-translate-y-px active:bg-[#1fb865] active:translate-y-0 disabled:bg-[#cbcbcb] disabled:text-white disabled:cursor-not-allowed disabled:transform-none sm:h-[52px] sm:text-[13px] sm:rounded-[10px] sm:min-w-[90px] xs:h-12 xs:text-[12px] xs:rounded-lg xs:min-w-[80px]"
-                  onClick={handleNicknameCheck}
+                  className="min-w-[100px] h-14 border-none bg-main text-white text-[14px] font-pretendard font-medium rounded-xl cursor-pointer transition-all duration-200 hover:bg-[#25c973] hover:-translate-y-px active:bg-[#1fb865] active:translate-y-0 disabled:bg-[#cbcbcb] disabled:cursor-not-allowed disabled:transform-none sm:h-[52px] sm:text-[13px] sm:rounded-[10px] sm:min-w-[90px] xs:h-12 xs:text-[12px] xs:rounded-lg xs:min-w-[80px]"
+                  onClick={async () => {
+                    if (!nickname.trim()) return
+                    try {
+                      setIsCheckingNickname(true)
+                      const ok = await checkNicknameDuplicate(nickname)
+                      setNicknameChecked(ok)
+                      setNicknameCheckMessage(
+                        ok
+                          ? '사용 가능한 닉네임입니다!'
+                          : '이미 사용 중인 닉네임입니다.'
+                      )
+                    } catch (err) {
+                      const e = err as { message?: string }
+                      setNicknameChecked(false)
+                      setNicknameCheckMessage(
+                        e.message || '닉네임 중복 검사 중 오류가 발생했습니다.'
+                      )
+                    } finally {
+                      setIsCheckingNickname(false)
+                    }
+                  }}
                   disabled={!nickname.trim() || isCheckingNickname}
                 >
                   {isCheckingNickname ? '확인 중...' : '중복 확인'}
@@ -352,82 +564,126 @@ export function SignupPage() {
 
               {nicknameCheckMessage && (
                 <div
-                  className="font-pretendard font-regular text-[12px] leading-[18px] text-left w-full sm:text-[11px] sm:leading-[17px] xs:text-[10px] xs:leading-4"
-                  style={{
-                    color: nicknameChecked ? '#2DE283' : '#DC0000',
-                  }}
+                  className="font-pretendard font-regular text-[12px] leading-[18px] text-left w-full sm:text-[11px] xs:text-[10px]"
+                  style={{ color: nicknameChecked ? '#2DE283' : '#DC0000' }}
                 >
                   {nicknameCheckMessage}
                 </div>
               )}
 
-              <div className="flex gap-3 w-full sm:gap-[10px] xs:gap-2">
-                <div className="flex-1">
-                  <AuthInput
-                    type="email"
-                    placeholder="이메일"
-                    value={email}
-                    onChange={e => {
-                      setEmail(e.target.value)
-                      setEmailChecked(false)
-                      setEmailCheckMessage('')
-                    }}
-                    borderColor={
-                      emailChecked
-                        ? '1px solid #2DE283'
-                        : emailCheckMessage
-                          ? '1px solid #DC0000'
-                          : undefined
-                    }
-                  />
+              {/* 이메일 인증 (선택) */}
+              <div className="flex flex-col gap-2 w-full">
+                <p className="font-pretendard font-regular text-[12px] leading-[18px] text-[#767676] sm:text-[11px] xs:text-[10px]">
+                  <span className="mr-1">(선택)</span>
+                  이메일 — 인증 후 알림 수신 및 비밀번호 찾기에 활용돼요.
+                </p>
+
+                <div className="flex gap-3 w-full sm:gap-[10px] xs:gap-2">
+                  <div className="flex-1">
+                    <AuthInput
+                      type="email"
+                      placeholder="이메일 (선택)"
+                      value={email}
+                      disabled={emailVerified}
+                      onChange={e => {
+                        setEmail(e.target.value)
+                        setEmailCodeSent(false)
+                        setEmailCode('')
+                        setEmailSessionId('')
+                        setEmailVerified(false)
+                        setEmailMessage('')
+                        if (emailCooldownRef.current)
+                          clearInterval(emailCooldownRef.current)
+                        setEmailResendCooldown(0)
+                      }}
+                      borderColor={
+                        emailVerified
+                          ? '1px solid #2DE283'
+                          : emailMessage && !emailCodeSent
+                            ? '1px solid #DC0000'
+                            : undefined
+                      }
+                    />
+                  </div>
+                  {!emailVerified && (
+                    <button
+                      type="button"
+                      className="min-w-[100px] h-14 border-none bg-main text-white text-[14px] font-pretendard font-medium rounded-xl cursor-pointer transition-all duration-200 hover:bg-[#25c973] hover:-translate-y-px active:bg-[#1fb865] active:translate-y-0 disabled:bg-[#cbcbcb] disabled:cursor-not-allowed disabled:transform-none sm:h-[52px] sm:text-[13px] sm:rounded-[10px] sm:min-w-[90px] xs:h-12 xs:text-[12px] xs:rounded-lg xs:min-w-[80px]"
+                      onClick={handleSendEmailCode}
+                      disabled={
+                        !email.trim() ||
+                        isSendingEmailCode ||
+                        emailResendCooldown > 0
+                      }
+                    >
+                      {isSendingEmailCode
+                        ? '발송 중...'
+                        : emailResendCooldown > 0
+                          ? `${emailResendCooldown}초 후 재발송`
+                          : emailCodeSent
+                            ? '재발송'
+                            : '인증 코드 발송'}
+                    </button>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  className="min-w-[100px] h-14 border-none bg-main text-white text-[14px] font-pretendard font-medium rounded-xl cursor-pointer transition-all duration-200 hover:bg-[#25c973] hover:-translate-y-px active:bg-[#1fb865] active:translate-y-0 disabled:bg-[#cbcbcb] disabled:text-white disabled:cursor-not-allowed disabled:transform-none sm:h-[52px] sm:text-[13px] sm:rounded-[10px] sm:min-w-[90px] xs:h-12 xs:text-[12px] xs:rounded-lg xs:min-w-[80px]"
-                  onClick={handleEmailCheck}
-                  disabled={!email.trim() || isCheckingEmail}
-                >
-                  {isCheckingEmail ? '확인 중...' : '중복 확인'}
-                </button>
+
+                {emailCodeSent && !emailVerified && (
+                  <div className="flex gap-3 w-full sm:gap-[10px] xs:gap-2">
+                    <div className="flex-1">
+                      <AuthInput
+                        type="text"
+                        placeholder="인증 코드 6자리"
+                        value={emailCode}
+                        maxLength={6}
+                        onChange={e => {
+                          setEmailCode(
+                            e.target.value.replace(/\D/g, '').slice(0, 6)
+                          )
+                          setEmailMessage('')
+                        }}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="min-w-[100px] h-14 border-none bg-main text-white text-[14px] font-pretendard font-medium rounded-xl cursor-pointer transition-all duration-200 hover:bg-[#25c973] hover:-translate-y-px active:bg-[#1fb865] active:translate-y-0 disabled:bg-[#cbcbcb] disabled:cursor-not-allowed disabled:transform-none sm:h-[52px] sm:text-[13px] sm:rounded-[10px] sm:min-w-[90px] xs:h-12 xs:text-[12px] xs:rounded-lg xs:min-w-[80px]"
+                      onClick={handleVerifyEmailCode}
+                      disabled={emailCode.length !== 6 || isVerifyingEmailCode}
+                    >
+                      {isVerifyingEmailCode ? '확인 중...' : '확인'}
+                    </button>
+                  </div>
+                )}
+
+                {emailMessage && (
+                  <div
+                    className="font-pretendard font-regular text-[12px] leading-[18px] text-left w-full sm:text-[11px] xs:text-[10px]"
+                    style={{ color: emailVerified ? '#2DE283' : '#DC0000' }}
+                  >
+                    {emailMessage}
+                  </div>
+                )}
               </div>
 
-              {emailCheckMessage && (
-                <div
-                  className="font-pretendard font-regular text-[12px] leading-[18px] text-left w-full sm:text-[11px] sm:leading-[17px] xs:text-[10px] xs:leading-4"
-                  style={{
-                    color: emailChecked ? '#2DE283' : '#DC0000',
-                  }}
-                >
-                  {emailCheckMessage}
-                </div>
-              )}
-
+              {/* 비밀번호 */}
               <div className="flex flex-col gap-4 w-full sm:gap-[14px] xs:gap-3">
                 <AuthInput
                   type="password"
                   placeholder="비밀번호"
                   value={password}
                   onChange={e => {
-                    const value = e.target.value
-                    setPassword(value)
-                    if (!value.trim()) {
-                      setPasswordError('비밀번호를 입력해주세요.')
-                    } else if (!isPasswordValid(value)) {
+                    const v = e.target.value
+                    setPassword(v)
+                    if (!v.trim()) setPasswordError('비밀번호를 입력해주세요.')
+                    else if (!isPasswordValid(v))
                       setPasswordError(
                         '비밀번호는 최소 8자이며, 영문/숫자/특수문자 중 2가지 이상을 포함해야 합니다.'
                       )
-                    } else {
-                      setPasswordError('')
-                    }
-
-                    // 비밀번호가 바뀌면 확인 값과도 다시 비교
-                    if (passwordCheck && value !== passwordCheck) {
+                    else setPasswordError('')
+                    if (passwordCheck && v !== passwordCheck)
                       setPasswordCheckError(
                         '비밀번호가 서로 일치하지 않습니다.'
                       )
-                    } else {
-                      setPasswordCheckError('')
-                    }
+                    else setPasswordCheckError('')
                   }}
                 />
                 <AuthInput
@@ -435,27 +691,26 @@ export function SignupPage() {
                   placeholder="비밀번호 확인"
                   value={passwordCheck}
                   onChange={e => {
-                    const value = e.target.value
-                    setPasswordCheck(value)
-                    if (!value.trim()) {
+                    const v = e.target.value
+                    setPasswordCheck(v)
+                    if (!v.trim())
                       setPasswordCheckError('비밀번호 확인을 입력해주세요.')
-                    } else if (value !== password) {
+                    else if (v !== password)
                       setPasswordCheckError(
                         '비밀번호가 서로 일치하지 않습니다.'
                       )
-                    } else {
-                      setPasswordCheckError('')
-                    }
+                    else setPasswordCheckError('')
                   }}
                 />
               </div>
               {(passwordError || passwordCheckError) && (
-                <div className="font-pretendard font-regular text-[12px] leading-[18px] text-error text-left w-full mt-1 sm:text-[11px] sm:leading-[17px] xs:text-[10px] xs:leading-4">
+                <div className="font-pretendard font-regular text-[12px] leading-[18px] text-error text-left w-full mt-1 sm:text-[11px] xs:text-[10px]">
                   {passwordError || passwordCheckError}
                 </div>
               )}
             </div>
 
+            {/* 약관 동의 */}
             <div className="flex flex-col gap-3 w-full mb-6 sm:gap-[10px] sm:mb-5 xs:gap-2.5 xs:mb-4">
               <label className="flex items-start gap-2 font-pretendard font-regular text-[13px] leading-[19px] text-[#767676] sm:text-[12px] sm:leading-[18px] xs:text-[11px] xs:leading-[17px]">
                 <input
@@ -501,7 +756,7 @@ export function SignupPage() {
             </button>
 
             {signupError && (
-              <div className="mt-4 font-pretendard font-regular text-[12px] leading-[18px] text-error text-center w-full sm:text-[11px] sm:leading-[17px] xs:text-[10px] xs:leading-4">
+              <div className="mt-4 font-pretendard font-regular text-[12px] leading-[18px] text-error text-center w-full sm:text-[11px] xs:text-[10px]">
                 {signupError}
               </div>
             )}

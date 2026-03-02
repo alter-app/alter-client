@@ -9,9 +9,9 @@ import { parseErrorResponse } from '@/shared/lib/utils/errorUtils'
 import AlterLogo from '@/assets/Alter-logo.png'
 
 export function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
-  const [emailError, setEmailError] = useState('')
+  const [phoneError, setPhoneError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const { setAuth, isLoggedIn, scope, token } = useAuthStore()
@@ -28,13 +28,21 @@ export function LoginPage() {
     }
   }, [isLoggedIn, scope, token, navigate])
 
+  const formatPhone = (value: string) => {
+    const onlyNumber = value.replace(/\D/g, '').slice(0, 11)
+    if (onlyNumber.length < 4) return onlyNumber
+    if (onlyNumber.length < 8)
+      return `${onlyNumber.slice(0, 3)}-${onlyNumber.slice(3)}`
+    return `${onlyNumber.slice(0, 3)}-${onlyNumber.slice(3, 7)}-${onlyNumber.slice(7, 11)}`
+  }
+
   const handleLogin = async () => {
     try {
-      const data = await loginIDPW({ email, password }, setAuth, navigate)
+      const data = await loginIDPW({ phone, password }, setAuth, navigate)
       console.log('로그인 성공:', data)
     } catch (error: unknown) {
       // 필드별 에러 초기화
-      setEmailError('')
+      setPhoneError('')
       setPasswordError('')
       setErrorMessage('')
       const apiError = error as {
@@ -47,7 +55,8 @@ export function LoginPage() {
         const { fieldErrors, globalError } = parseErrorResponse(apiError.data)
 
         // 필드별 에러 설정
-        if (fieldErrors.email) setEmailError(fieldErrors.email)
+        if (fieldErrors.phone || fieldErrors.contact)
+          setPhoneError(fieldErrors.phone || fieldErrors.contact)
         if (fieldErrors.password) setPasswordError(fieldErrors.password)
 
         // 일반 에러 메시지
@@ -74,15 +83,16 @@ export function LoginPage() {
         <div className="flex flex-col gap-5 w-full max-w-[400px] sm:gap-4 sm:max-w-full xs:gap-[14px]">
           <div className="flex flex-col gap-4 w-full sm:gap-[14px] xs:gap-3">
             <AuthInput
-              type="text"
-              placeholder="이메일"
-              value={email}
+              type="tel"
+              placeholder="전화번호"
+              value={phone}
+              maxLength={13}
               onChange={e => {
-                setEmail(e.target.value)
-                setEmailError('')
+                setPhone(formatPhone(e.target.value))
+                setPhoneError('')
                 setErrorMessage('')
               }}
-              borderColor={emailError ? '1px solid #DC0000' : undefined}
+              borderColor={phoneError ? '1px solid #DC0000' : undefined}
             />
 
             <AuthInput
@@ -105,14 +115,14 @@ export function LoginPage() {
             disabled:bg-[#cbcbcb] disabled:text-white disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none
             sm:h-[52px] sm:text-[17px] sm:rounded-[10px] xs:h-12 xs:text-4 xs:rounded-lg"
             onClick={handleLogin}
-            disabled={!email.trim() || !password.trim()}
+            disabled={!phone.trim() || !password.trim()}
           >
             로그인
           </button>
 
-          {(emailError || passwordError || errorMessage) && (
+          {(phoneError || passwordError || errorMessage) && (
             <div className="text-error font-pretendard font-regular text-1 leading-[18px] text-left w-full sm:text-[11px] sm:leading-[17px] xs:text-0 xs:leading-4">
-              {emailError || passwordError || errorMessage}
+              {phoneError || passwordError || errorMessage}
             </div>
           )}
         </div>
@@ -130,13 +140,6 @@ export function LoginPage() {
           <AppleLoginButton />
 
           <div className="flex justify-center items-center gap-2 font-pretendard font-regular text-3 leading-[18px] text-[#767676] mt-2.5 sm:text-2 sm:gap-1.5 xs:text-1 xs:gap-1">
-            <span
-              className="cursor-pointer transition-colors duration-200 hover:text-main"
-              onClick={() => navigate('/find-id')}
-            >
-              아이디 찾기
-            </span>
-            <span>|</span>
             <span
               className="cursor-pointer transition-colors duration-200 hover:text-main"
               onClick={() => navigate('/find-password')}
