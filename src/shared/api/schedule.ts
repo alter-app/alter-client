@@ -63,6 +63,7 @@ export async function getSelfSchedule(
       const message =
         errorData.message ?? '나의 근무 스케줄 조회 중 오류가 발생했습니다.'
       const apiError = new Error(message) as ApiError & Error
+      apiError.data = errorData
       throw apiError
     }
     throw new Error('나의 근무 스케줄 조회 중 오류가 발생했습니다.')
