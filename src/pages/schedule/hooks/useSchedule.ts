@@ -10,7 +10,10 @@ type ScheduleStoreHook = () => ScheduleState
 
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
 
-function formatTimeRange(startIso: string, endIso: string): { time: string; hours: string } {
+function formatTimeRange(
+  startIso: string,
+  endIso: string
+): { time: string; hours: string } {
   const start = new Date(startIso)
   const end = new Date(endIso)
 
@@ -22,7 +25,9 @@ function formatTimeRange(startIso: string, endIso: string): { time: string; hour
   const diffMs = end.getTime() - start.getTime()
   const diffHours = Math.max(diffMs / (1000 * 60 * 60), 0)
 
-  const hoursLabel = Number.isInteger(diffHours) ? `${diffHours}시간` : `${diffHours.toFixed(1)}시간`
+  const hoursLabel = Number.isInteger(diffHours)
+    ? `${diffHours}시간`
+    : `${diffHours.toFixed(1)}시간`
 
   return {
     time: `${startTime} ~ ${endTime}`,
@@ -47,13 +52,19 @@ export function useSchedule() {
     const fetchSchedules = async () => {
       setLoading(true)
       try {
-        const { data } = await getSelfSchedule({ year: currentYear, month: currentMonth })
+        const { data } = await getSelfSchedule({
+          year: currentYear,
+          month: currentMonth,
+        })
 
         const mapped: ScheduleItemType[] = data.schedules.map(schedule => {
           const start = new Date(schedule.startDateTime)
           const dayIndex = start.getDay()
 
-          const { time, hours } = formatTimeRange(schedule.startDateTime, schedule.endDateTime)
+          const { time, hours } = formatTimeRange(
+            schedule.startDateTime,
+            schedule.endDateTime
+          )
 
           return {
             id: String(schedule.shiftId),
