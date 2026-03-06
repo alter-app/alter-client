@@ -27,6 +27,7 @@ export function ScheduleItem({
 
   return (
     <button
+    type="button"
       onClick={onClick ? handleClick : undefined}
       disabled={!onClick}
       className="flex items-center py-3 border-b border-[#f0f0f0] last:border-b-0"
