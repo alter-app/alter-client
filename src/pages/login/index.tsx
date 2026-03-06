@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { KakaoLoginButton, AppleLoginButton } from '@/features/auth'
-import { AuthInput } from '@/shared/ui/AuthInput'
+import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { loginIDPW } from '@/shared/api/auth'
 import useAuthStore from '@/shared/stores/useAuthStore'

@@ -1,4 +1,4 @@
-import { AuthInput } from '@/shared/ui/AuthInput'
+import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { VerifyActionButton } from './VerifyActionButton'
 import type { useEmailVerification } from '../hooks/useEmailVerification'
 

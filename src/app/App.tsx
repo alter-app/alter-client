@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { HomePage } from '@/pages/home'
+import { HomePage } from '@/pages/manager/home'
 import { LoginPage } from '@/pages/login'
 import { SignupPage } from '@/pages/signup'
 import { JobLookupMapPage } from '@/pages/job-lookup-map'

@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes } from 'react'
-import { colors, fontFamilies, fontSizes, fontWeights } from '../lib/tokens'
+import { colors, fontFamilies, fontSizes, fontWeights } from '../../lib/tokens'
 
 type AuthButtonProps = ButtonHTMLAttributes<HTMLButtonElement>
 
