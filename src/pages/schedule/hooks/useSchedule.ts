@@ -4,16 +4,31 @@ import {
   type ScheduleItem as ScheduleItemType,
   type ScheduleState,
 } from '@/shared/stores/useScheduleStore'
+import { getSelfSchedule } from '@/shared/api/schedule'
 
 type ScheduleStoreHook = () => ScheduleState
 
-// TODO: ScheduleItem 렌더 확인용 임시 데이터 - API 연동 시 제거
-const MOCK_SCHEDULES: ScheduleItemType[] = [
-  { id: '1', day: '월', date: '3', workplace: '스타벅스 강남점', time: '09:00 ~ 14:00', hours: '5시간' },
-  { id: '2', day: '토', date: '8', workplace: '맥도날드 홍대점', time: '14:00 ~ 22:00', hours: '8시간' },
-  { id: '3', day: '일', date: '9', workplace: '이디야 역삼점', time: '10:00 ~ 18:00', hours: '8시간' },
-  { id: '4', day: '수', date: '12', workplace: 'GS25 논현점', time: '18:00 ~ 23:00', hours: '5시간' },
-]
+const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
+
+function formatTimeRange(startIso: string, endIso: string): { time: string; hours: string } {
+  const start = new Date(startIso)
+  const end = new Date(endIso)
+
+  const pad = (value: number) => value.toString().padStart(2, '0')
+
+  const startTime = `${pad(start.getHours())}:${pad(start.getMinutes())}`
+  const endTime = `${pad(end.getHours())}:${pad(end.getMinutes())}`
+
+  const diffMs = end.getTime() - start.getTime()
+  const diffHours = Math.max(diffMs / (1000 * 60 * 60), 0)
+
+  const hoursLabel = Number.isInteger(diffHours) ? `${diffHours}시간` : `${diffHours.toFixed(1)}시간`
+
+  return {
+    time: `${startTime} ~ ${endTime}`,
+    hours: hoursLabel,
+  }
+}
 
 export function useSchedule() {
   const store = (useScheduleStore as unknown as ScheduleStoreHook)()
@@ -28,27 +43,46 @@ export function useSchedule() {
     goNextMonth,
   } = store
 
-  // 초기 로드 (API 연동 시 getUserScheduleSelf(currentYear, currentMonth) 호출 후 setSchedules)
   useEffect(() => {
-    // TODO: API 연동 시 스케줄 조회 후 setSchedules, 아래 MOCK_SCHEDULES 제거
-    setSchedules(MOCK_SCHEDULES)
-    setLoading(false)
-  }, [setSchedules, setLoading])
+    const fetchSchedules = async () => {
+      setLoading(true)
+      try {
+        const { data } = await getSelfSchedule({ year: currentYear, month: currentMonth })
+
+        const mapped: ScheduleItemType[] = data.schedules.map(schedule => {
+          const start = new Date(schedule.startDateTime)
+          const dayIndex = start.getDay()
+
+          const { time, hours } = formatTimeRange(schedule.startDateTime, schedule.endDateTime)
+
+          return {
+            id: String(schedule.shiftId),
+            day: DAY_LABELS[dayIndex],
+            date: String(start.getDate()),
+            workplace: schedule.workspace.workspaceName,
+            time,
+            hours,
+          }
+        })
+
+        setSchedules(mapped)
+      } catch (error) {
+        console.error('나의 근무 스케줄 조회 중 오류가 발생했습니다.', error)
+        setSchedules([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void fetchSchedules()
+  }, [currentYear, currentMonth, setLoading, setSchedules])
 
   const handlePreviousMonth = () => {
     goPrevMonth()
-    setLoading(true)
-    // TODO: API 연동 시 getUserScheduleSelf(year, month) 호출 후 setSchedules
-    setSchedules(MOCK_SCHEDULES)
-    setLoading(false)
   }
 
   const handleNextMonth = () => {
     goNextMonth()
-    setLoading(true)
-    // TODO: API 연동 시 getUserScheduleSelf(year, month) 호출 후 setSchedules
-    setSchedules(MOCK_SCHEDULES)
-    setLoading(false)
   }
 
   const handleScheduleClick = (schedule: ScheduleItemType) => {
