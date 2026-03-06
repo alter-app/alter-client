@@ -29,7 +29,7 @@ export interface ScheduleState {
   setYearMonth: (year: number, month: number) => void
 }
 
-export const useScheduleStore = create<ScheduleState>(set => {
+export const useScheduleStore = create<ScheduleState>((set, get) => {
   return {
     schedules: [],
     isLoading: true,
@@ -48,30 +48,26 @@ export const useScheduleStore = create<ScheduleState>(set => {
     setCurrentMonth: currentMonth => set({ currentMonth }),
 
     goPrevMonth: () => {
-      let prevYear: number
-      let prevMonth: number
-      set(state => {
-        prevMonth = state.currentMonth === 1 ? 12 : state.currentMonth - 1
-        prevYear =
-          state.currentMonth === 1 ? state.currentYear - 1 : state.currentYear
-        return { currentYear: prevYear, currentMonth: prevMonth }
-      })
-      return { year: prevYear!, month: prevMonth! }
+      const { currentYear, currentMonth } = get()
+      const month = currentMonth === 1 ? 12 : currentMonth - 1
+      const year = currentMonth === 1 ? currentYear - 1 : currentYear
+      set({ currentYear: year, currentMonth: month })
+      return { year, month }
     },
 
     goNextMonth: () => {
-      let nextYear: number
-      let nextMonth: number
-      set(state => {
-        nextMonth = state.currentMonth === 12 ? 1 : state.currentMonth + 1
-        nextYear =
-          state.currentMonth === 12 ? state.currentYear + 1 : state.currentYear
-        return { currentYear: nextYear, currentMonth: nextMonth }
-      })
-      return { year: nextYear!, month: nextMonth! }
+      const { currentYear, currentMonth } = get()
+      const month = currentMonth === 12 ? 1 : currentMonth + 1
+      const year = currentMonth === 12 ? currentYear + 1 : currentYear
+      set({ currentYear: year, currentMonth: month })
+      return { year, month }
     },
 
-    setYearMonth: (year, month) =>
-      set({ currentYear: year, currentMonth: month }),
+    setYearMonth: (year, month) => {
+      if (month < 1 || month > 12) {
+        throw new RangeError('month must be between 1 and 12')
+      }
+      set({ currentYear: year, currentMonth: month })
+    },
   }
 })

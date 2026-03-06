@@ -16,6 +16,8 @@ export function ChevronLeftIcon({
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      aria-hidden="true"
+      focusable="false"
     >
       <path
         d="M15 18L9 12L15 6"

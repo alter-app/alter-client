@@ -16,6 +16,8 @@ export function ChevronRightIcon({
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      aria-hidden="true"
+      focusable="false"
     >
       <path
         d="M9 18L15 12L9 6"

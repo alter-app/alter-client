@@ -68,7 +68,7 @@ export function SchedulePage() {
                       workplace={schedule.workplace}
                       time={schedule.time}
                       hours={schedule.hours}
-                      onClick={() => handleScheduleClick(schedule)}
+                      onClick={handleScheduleClick}
                     />
                   ))}
                 </div>

@@ -3,7 +3,7 @@ import { HomePage } from '@/pages/home'
 import { LoginPage } from '@/pages/login'
 import { SignupPage } from '@/pages/signup'
 import { JobLookupMapPage } from '@/pages/job-lookup-map'
-import SchedulePage from '@/pages/schedule'
+import { SchedulePage } from '@/pages/schedule'
 
 export function App() {
   return (

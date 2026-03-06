@@ -2,11 +2,8 @@ import { useEffect } from 'react'
 import {
   useScheduleStore,
   type ScheduleItem as ScheduleItemType,
-  type ScheduleState,
 } from '@/shared/stores/useScheduleStore'
 import { getSelfSchedule } from '@/shared/api/schedule'
-
-type ScheduleStoreHook = () => ScheduleState
 
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
 
@@ -36,19 +33,17 @@ function formatTimeRange(
 }
 
 export function useSchedule() {
-  const store = (useScheduleStore as unknown as ScheduleStoreHook)()
-  const {
-    schedules,
-    isLoading,
-    currentYear,
-    currentMonth,
-    setSchedules,
-    setLoading,
-    goPrevMonth,
-    goNextMonth,
-  } = store
+  const schedules = useScheduleStore(state => state.schedules)
+  const isLoading = useScheduleStore(state => state.isLoading)
+  const currentYear = useScheduleStore(state => state.currentYear)
+  const currentMonth = useScheduleStore(state => state.currentMonth)
+  const setSchedules = useScheduleStore(state => state.setSchedules)
+  const setLoading = useScheduleStore(state => state.setLoading)
+  const goPrevMonth = useScheduleStore(state => state.goPrevMonth)
+  const goNextMonth = useScheduleStore(state => state.goNextMonth)
 
   useEffect(() => {
+    let cancelled = false
     const fetchSchedules = async () => {
       setLoading(true)
       try {
@@ -56,6 +51,7 @@ export function useSchedule() {
           year: currentYear,
           month: currentMonth,
         })
+        if (cancelled) return
 
         const mapped: ScheduleItemType[] = data.schedules.map(schedule => {
           const start = new Date(schedule.startDateTime)
@@ -78,14 +74,18 @@ export function useSchedule() {
 
         setSchedules(mapped)
       } catch (error) {
+        if (cancelled) return
         console.error('나의 근무 스케줄 조회 중 오류가 발생했습니다.', error)
         setSchedules([])
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
 
     void fetchSchedules()
+    return () => {
+      cancelled = true
+    }
   }, [currentYear, currentMonth, setLoading, setSchedules])
 
   const handlePreviousMonth = () => {
@@ -96,8 +96,8 @@ export function useSchedule() {
     goNextMonth()
   }
 
-  const handleScheduleClick = (schedule: ScheduleItemType) => {
-    console.log('스케줄 클릭:', schedule)
+  const handleScheduleClick = (id: string) => {
+    console.log('스케줄 클릭:', id)
     // 스케줄 상세 페이지 이동 (필요시 구현)
   }
 

@@ -1,7 +1,7 @@
 import type { ScheduleItem as ScheduleItemType } from '@/shared/stores/useScheduleStore'
 
 interface ScheduleItemProps extends ScheduleItemType {
-  onClick?: () => void
+  onClick?: (id: string) => void
 }
 
 function getDayColor(day: string) {
@@ -11,6 +11,7 @@ function getDayColor(day: string) {
 }
 
 export function ScheduleItem({
+  id,
   day,
   date,
   workplace,
@@ -18,21 +19,16 @@ export function ScheduleItem({
   hours,
   onClick,
 }: ScheduleItemProps) {
+  const handleClick = () => {
+    if (onClick) {
+      onClick(id)
+    }
+  }
+
   return (
-    <div
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onClick={onClick}
-      onKeyDown={
-        onClick
-          ? e => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                onClick()
-              }
-            }
-          : undefined
-      }
+    <button
+      onClick={onClick ? handleClick : undefined}
+      disabled={!onClick}
       className="flex items-center py-3 border-b border-[#f0f0f0] last:border-b-0"
     >
       <div className="flex flex-col items-center min-w-[60px] mr-4">
@@ -56,6 +52,6 @@ export function ScheduleItem({
       <div className="py-1 px-2 bg-[#f8f9fa] rounded-lg font-pretendard font-medium text-2 text-[#666666] border border-[#e9ecef] shrink-0">
         {hours}
       </div>
-    </div>
+    </button>
   )
 }

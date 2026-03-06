@@ -1,11 +1,11 @@
 import axios from 'axios'
-import axiosInstance from '../lib/axiosInstance'
+import axiosInstance from '@/shared/lib/axiosInstance'
 import type {
   ApiError,
   CommonApiResponse,
   ErrorResponse,
-} from '../types/common'
-import { StatusEnum } from '../types/enums'
+} from '@/shared/types/common'
+import type { StatusEnum } from '@/shared/types/enums'
 
 type SelfScheduleResponse = CommonApiResponse<{
   totalWorkHours: number
@@ -60,14 +60,11 @@ export async function getSelfSchedule(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const errorData: ErrorResponse = error.response?.data ?? {}
-      throw {
-        data: errorData,
-        message:
-          errorData.message || '나의 근무 스케줄 조회 중 오류가 발생했습니다.',
-      } as ApiError
+      const message =
+        errorData.message ?? '나의 근무 스케줄 조회 중 오류가 발생했습니다.'
+      const apiError = new Error(message) as ApiError & Error
+      throw apiError
     }
-    throw {
-      message: '나의 근무 스케줄 조회 중 오류가 발생했습니다.',
-    } as ApiError
+    throw new Error('나의 근무 스케줄 조회 중 오류가 발생했습니다.')
   }
 }
