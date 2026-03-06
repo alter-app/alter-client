@@ -45,7 +45,12 @@ export const useScheduleStore = create<ScheduleState>((set, get) => {
     setNextCursor: nextCursor => set({ nextCursor }),
     setIsLoadingMore: isLoadingMore => set({ isLoadingMore }),
     setCurrentYear: currentYear => set({ currentYear }),
-    setCurrentMonth: currentMonth => set({ currentMonth }),
+    setCurrentMonth: currentMonth => {
+      if (currentMonth < 1 || currentMonth > 12) {
+        throw new RangeError('month must be between 1 and 12')
+      }
+      set({ currentMonth })
+    },
 
     goPrevMonth: () => {
       const { currentYear, currentMonth } = get()
