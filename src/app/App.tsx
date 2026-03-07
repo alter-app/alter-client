@@ -3,6 +3,7 @@ import { HomePage } from '@/pages/manager/home'
 import { LoginPage } from '@/pages/login'
 import { SignupPage } from '@/pages/signup'
 import { JobLookupMapPage } from '@/pages/job-lookup-map'
+import { SchedulePage } from '@/pages/user/schedule'
 
 export function App() {
   return (
@@ -12,6 +13,7 @@ export function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/job-lookup-map" element={<JobLookupMapPage />} />
+        <Route path="/schedule" element={<SchedulePage />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

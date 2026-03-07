@@ -1,5 +1,8 @@
 import { useEffect, type ReactNode } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { initKakaoSDK, initAppleSDK } from '@/shared/lib/socialLogin'
+
+const queryClient = new QueryClient()
 
 interface AppProvidersProps {
   children: ReactNode
@@ -51,5 +54,7 @@ export function AppProviders({ children }: AppProvidersProps) {
     initializeSDKs()
   }, [])
 
-  return <>{children}</>
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  )
 }
