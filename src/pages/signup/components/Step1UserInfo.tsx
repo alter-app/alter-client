@@ -1,5 +1,5 @@
-import { AuthInput } from '@/shared/ui/AuthInput'
-import { AuthButton } from '@/shared/ui/AuthButton'
+import { AuthInput } from '@/shared/ui/common/AuthInput'
+import { AuthButton } from '@/shared/ui/common/AuthButton'
 import { PhoneVerification } from './PhoneVerification'
 import type { usePhoneVerification } from '../hooks/usePhoneVerification'
 
