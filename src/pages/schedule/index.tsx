@@ -1,5 +1,6 @@
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import type { ScheduleItem as ScheduleItemType } from '@/shared/stores/useScheduleStore'
+import { useSelfScheduleQuery } from '@/shared/hooks/useSelfScheduleQuery'
 import { ScheduleItem } from './components/ScheduleItem'
 import { useSchedule } from './hooks/useSchedule'
 import { ChevronLeftIcon } from '@/assets/icons/ChevronLeftIcon'
@@ -9,14 +10,17 @@ import { Spinner } from '@/shared/ui/Spinner'
 
 export function SchedulePage() {
   const {
-    schedules,
-    isLoading,
     currentYear,
     currentMonth,
     handlePreviousMonth,
     handleNextMonth,
     handleScheduleClick,
   } = useSchedule()
+
+  const { schedules, isLoading } = useSelfScheduleQuery({
+    year: currentYear,
+    month: currentMonth,
+  })
 
   return (
     <MobileLayout>

@@ -28,18 +28,6 @@ type GetSelfScheduleParams = {
   day?: number
 }
 
-/**
- * 나의 근무 스케줄 조회
- * 파라미터 조합에 따라 조회가 달라집니다.
-- 인자 없음: 이번 주 스케줄 조회
-- year, month: 해당 월 스케줄 조회
-- year, month, day: 해당 일 스케줄 조회
- *
- * @param params.year 조회할 연도
- * @param params.month 조회할 월
- * @param params.day 조회할 일 (일별 조회 시 사용)
- * @returns
- */
 export async function getSelfSchedule(
   params?: GetSelfScheduleParams
 ): Promise<SelfScheduleResponse> {
