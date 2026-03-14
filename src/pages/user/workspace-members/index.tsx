@@ -1,40 +1,28 @@
-import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { Spinner } from '@/shared/ui/Spinner'
-import { useWorkspaceWorkersQuery } from '@/shared/hooks/useWorkspaceWorkersQuery'
-import { useWorkspaceManagersQuery } from '@/shared/hooks/useWorkspaceManagersQuery'
+import { useWorkspaceMembers } from './hooks/useWorkspaceMembers'
+import { ManagersSection } from './components/ManagersSection'
+import { WorkersSection } from './components/WorkersSection'
 
 export function WorkspaceMembersPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
 
-  const numericWorkspaceId = useMemo(() => {
-    const parsed = Number(workspaceId)
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
-  }, [workspaceId])
-
   const {
+    isWorkspaceIdInvalid,
+    isLoading,
+    hasError,
     workers,
-    isLoading: workersLoading,
-    error: workersError,
-  } = useWorkspaceWorkersQuery({
-    workspaceId: numericWorkspaceId,
-    pageSize: 50,
-  })
-
-  const {
     managers,
-    isLoading: managersLoading,
-    error: managersError,
-  } = useWorkspaceManagersQuery({
-    workspaceId: numericWorkspaceId,
-    pageSize: 50,
+    hasMoreWorkers,
+    hasMoreManagers,
+    loadMoreWorkers,
+    loadMoreManagers,
+  } = useWorkspaceMembers({
+    workspaceId,
+    initialPageSize: 3,
+    loadMorePageSize: 10,
   })
-
-  const isLoading = workersLoading || managersLoading
-  const hasError = workersError || managersError
-
-  const isWorkspaceIdInvalid = !numericWorkspaceId
 
   return (
     <MobileLayout>
@@ -64,8 +52,8 @@ export function WorkspaceMembersPage() {
           {!isWorkspaceIdInvalid && hasError && !isLoading && (
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-red-100">
               <p className="font-pretendard text-3 text-red-500 m-0">
-                함께 일하는 사람들 목록을 불러오는 중 오류가 발생했습니다.
-                잠시 후 다시 시도해주세요.
+                함께 일하는 사람들 목록을 불러오는 중 오류가 발생했습니다. 잠시
+                후 다시 시도해주세요.
               </p>
             </div>
           )}
@@ -88,69 +76,16 @@ export function WorkspaceMembersPage() {
             !hasError &&
             (workers.length > 0 || managers.length > 0) && (
               <div className="flex flex-col gap-4">
-                {managers.length > 0 && (
-                  <section className="bg-white rounded-2xl p-5 shadow-sm border border-line-1">
-                    <h2 className="font-pretendard font-semibold text-4 text-text-100 mb-3">
-                      점주 / 매니저
-                    </h2>
-                    <ul className="list-none p-0 m-0 flex flex-col gap-3">
-                      {managers.map(manager => (
-                        <li
-                          key={manager.id}
-                          className="flex items-center justify-between py-2 px-3 rounded-xl bg-bg-light"
-                        >
-                          <div className="flex flex-col gap-0.5">
-                            <span className="font-pretendard font-semibold text-3 text-text-100">
-                              {manager.manager.name}
-                            </span>
-                            <span className="font-pretendard text-2 text-text-70">
-                              {manager.position.emoji}{' '}
-                              {manager.position.description ||
-                                manager.position.type}
-                            </span>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
-
-                {workers.length > 0 && (
-                  <section className="bg-white rounded-2xl p-5 shadow-sm border border-line-1">
-                    <h2 className="font-pretendard font-semibold text-4 text-text-100 mb-3">
-                      근무자
-                    </h2>
-                    <ul className="list-none p-0 m-0 flex flex-col gap-3">
-                      {workers.map(worker => (
-                        <li
-                          key={worker.id}
-                          className="flex items-center justify-between py-2 px-3 rounded-xl bg-bg-light"
-                        >
-                          <div className="flex flex-col gap-0.5">
-                            <span className="font-pretendard font-semibold text-3 text-text-100">
-                              {worker.user.name}
-                            </span>
-                            <span className="font-pretendard text-2 text-text-70">
-                              {worker.position.emoji}{' '}
-                              {worker.position.description ||
-                                worker.position.type}
-                            </span>
-                          </div>
-                          <div className="flex flex-col items-end gap-0.5">
-                            <span className="font-pretendard text-[11px] text-text-50">
-                              입사일 {worker.employedAt}
-                            </span>
-                            {worker.nextShiftDateTime && (
-                              <span className="font-pretendard text-[11px] text-primary-600">
-                                다음 근무 예정: {worker.nextShiftDateTime}
-                              </span>
-                            )}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
+                <ManagersSection
+                  managers={managers}
+                  hasMore={hasMoreManagers}
+                  onLoadMore={loadMoreManagers}
+                />
+                <WorkersSection
+                  workers={workers}
+                  hasMore={hasMoreWorkers}
+                  onLoadMore={loadMoreWorkers}
+                />
               </div>
             )}
         </div>
@@ -160,4 +95,3 @@ export function WorkspaceMembersPage() {
 }
 
 export default WorkspaceMembersPage
-
