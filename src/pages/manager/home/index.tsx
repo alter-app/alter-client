@@ -97,7 +97,7 @@ export function ManagerHomePage() {
             <div className="typography-bg">전체 보기</div>
           </div>
           <div className="typography-headline01 pt-6">
-            오늘 근무자는 <span className="text-[#3A9982]">6</span>명이에요
+            오늘 근무자는 <span className="text-sub">6</span>명이에요
           </div>
 
           <div className="flex gap-3 overflow-x-auto pt-4 pb-2 -mx-1">
@@ -140,7 +140,7 @@ export function ManagerHomePage() {
         </div>
         <div className="pt-6 pb-8">
           <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
-            진행 중인 공고 <span className="text-[#3A9982]">10</span>건
+            진행 중인 공고 <span className="text-sub">10</span>건
           </h2>
           <div className="mx-4">
             <OngoingPostingCard
@@ -152,7 +152,7 @@ export function ManagerHomePage() {
         </div>
         <div className="pt-6 pb-8">
           <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
-            대타 승인 요청 <span className="text-[#3A9982]">10</span>건
+            대타 승인 요청 <span className="text-sub">10</span>건
           </h2>
           <div className="mx-4">
             <SubstituteApprovalCard
