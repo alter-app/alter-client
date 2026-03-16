@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ManagerHomePage } from '@/pages/manager/home'
 import { LoginPage } from '@/pages/login'
 import { SignupPage } from '@/pages/signup'
-import { JobLookupMapPage } from '@/pages/job-lookup-map'
+import { JobLookupMapPage } from '@/pages/user/job-lookup-map'
 import { SchedulePage } from '@/pages/user/schedule'
 
 export function App() {
