@@ -2,8 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { HomePage } from '@/pages/manager/home'
 import { LoginPage } from '@/pages/login'
 import { SignupPage } from '@/pages/signup'
-import { JobLookupMapPage } from '@/pages/job-lookup-map'
+import { JobLookupMapPage } from '@/pages/user/job-lookup-map'
 import { SchedulePage } from '@/pages/user/schedule'
+import { WorkspaceMembersPage } from '@/pages/user/workspace-members'
 
 export function App() {
   return (
@@ -14,6 +15,10 @@ export function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/job-lookup-map" element={<JobLookupMapPage />} />
         <Route path="/schedule" element={<SchedulePage />} />
+        <Route
+          path="/workspaces/:workspaceId/members"
+          element={<WorkspaceMembersPage />}
+        />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
