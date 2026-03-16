@@ -77,6 +77,7 @@ export function useWorkspaceMembers(params: Params) {
     managersState.workspaceId === numericWorkspaceId ? managersState.items : []
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setWorkersState(prev => {
       if (prev.workspaceId === numericWorkspaceId) return prev
 
@@ -87,6 +88,7 @@ export function useWorkspaceMembers(params: Params) {
       }
     })
 
+     
     setManagersState(prev => {
       if (prev.workspaceId === numericWorkspaceId) return prev
 
@@ -102,6 +104,7 @@ export function useWorkspaceMembers(params: Params) {
     if (!numericWorkspaceId || workersLoading || workersError) return
     if (!workers || workers.length === 0) return
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setWorkersState(prev => {
       if (prev.workspaceId !== numericWorkspaceId) {
         const existingIds = new Set(workers.map(worker => worker.id))
@@ -128,6 +131,7 @@ export function useWorkspaceMembers(params: Params) {
     if (!numericWorkspaceId || managersLoading || managersError) return
     if (!managers || managers.length === 0) return
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setManagersState(prev => {
       if (prev.workspaceId !== numericWorkspaceId) {
         const existingIds = new Set(managers.map(manager => manager.id))
