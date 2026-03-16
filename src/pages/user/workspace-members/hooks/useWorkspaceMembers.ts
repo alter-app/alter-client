@@ -21,16 +21,34 @@ export function useWorkspaceMembers(params: Params) {
   }, [workspaceId])
 
   const isWorkspaceIdInvalid = !numericWorkspaceId
+  type WorkersState = {
+    workspaceId?: number
+    cursor?: string
+    items: ReturnType<typeof useWorkspaceWorkersQuery>['workers']
+  }
 
-  const [workersCursor, setWorkersCursor] = useState<string | undefined>()
-  const [managersCursor, setManagersCursor] = useState<string | undefined>()
+  type ManagersState = {
+    workspaceId?: number
+    cursor?: string
+    items: ReturnType<typeof useWorkspaceManagersQuery>['managers']
+  }
 
-  const [allWorkers, setAllWorkers] = useState<
-    ReturnType<typeof useWorkspaceWorkersQuery>['workers']
-  >([])
-  const [allManagers, setAllManagers] = useState<
-    ReturnType<typeof useWorkspaceManagersQuery>['managers']
-  >([])
+  const [workersState, setWorkersState] = useState<WorkersState>({
+    workspaceId: numericWorkspaceId,
+    cursor: undefined,
+    items: [],
+  })
+
+  const [managersState, setManagersState] = useState<ManagersState>({
+    workspaceId: numericWorkspaceId,
+    cursor: undefined,
+    items: [],
+  })
+
+  const workersCursor =
+    workersState.workspaceId === numericWorkspaceId ? workersState.cursor : undefined
+  const managersCursor =
+    managersState.workspaceId === numericWorkspaceId ? managersState.cursor : undefined
 
   const {
     workers,
@@ -53,22 +71,56 @@ export function useWorkspaceMembers(params: Params) {
     cursor: managersCursor,
     pageSize: managersCursor ? loadMorePageSize : initialPageSize,
   })
+  const allWorkers =
+    workersState.workspaceId === numericWorkspaceId ? workersState.items : []
+  const allManagers =
+    managersState.workspaceId === numericWorkspaceId ? managersState.items : []
 
   useEffect(() => {
-    setWorkersCursor(undefined)
-    setManagersCursor(undefined)
-    setAllWorkers([])
-    setAllManagers([])
+    setWorkersState(prev => {
+      if (prev.workspaceId === numericWorkspaceId) return prev
+
+      return {
+        workspaceId: numericWorkspaceId,
+        cursor: undefined,
+        items: [],
+      }
+    })
+
+    setManagersState(prev => {
+      if (prev.workspaceId === numericWorkspaceId) return prev
+
+      return {
+        workspaceId: numericWorkspaceId,
+        cursor: undefined,
+        items: [],
+      }
+    })
   }, [numericWorkspaceId])
 
   useEffect(() => {
     if (!numericWorkspaceId || workersLoading || workersError) return
     if (!workers || workers.length === 0) return
 
-    setAllWorkers(prev => {
-      const existingIds = new Set(prev.map(worker => worker.id))
+    setWorkersState(prev => {
+      if (prev.workspaceId !== numericWorkspaceId) {
+        const existingIds = new Set(workers.map(worker => worker.id))
+        const uniqueWorkers = workers.filter(worker => !existingIds.has(worker.id))
+
+        return {
+          workspaceId: numericWorkspaceId,
+          cursor: undefined,
+          items: uniqueWorkers,
+        }
+      }
+
+      const existingIds = new Set(prev.items.map(worker => worker.id))
       const appended = workers.filter(worker => !existingIds.has(worker.id))
-      return [...prev, ...appended]
+
+      return {
+        ...prev,
+        items: [...prev.items, ...appended],
+      }
     })
   }, [numericWorkspaceId, workers, workersLoading, workersError])
 
@@ -76,10 +128,27 @@ export function useWorkspaceMembers(params: Params) {
     if (!numericWorkspaceId || managersLoading || managersError) return
     if (!managers || managers.length === 0) return
 
-    setAllManagers(prev => {
-      const existingIds = new Set(prev.map(manager => manager.id))
+    setManagersState(prev => {
+      if (prev.workspaceId !== numericWorkspaceId) {
+        const existingIds = new Set(managers.map(manager => manager.id))
+        const uniqueManagers = managers.filter(
+          manager => !existingIds.has(manager.id)
+        )
+
+        return {
+          workspaceId: numericWorkspaceId,
+          cursor: undefined,
+          items: uniqueManagers,
+        }
+      }
+
+      const existingIds = new Set(prev.items.map(manager => manager.id))
       const appended = managers.filter(manager => !existingIds.has(manager.id))
-      return [...prev, ...appended]
+
+      return {
+        ...prev,
+        items: [...prev.items, ...appended],
+      }
     })
   }, [numericWorkspaceId, managers, managersLoading, managersError])
 
@@ -89,10 +158,31 @@ export function useWorkspaceMembers(params: Params) {
   const hasMoreWorkers = workersTotalCount > allWorkers.length
   const hasMoreManagers = managersTotalCount > allManagers.length
 
-  const loadMoreWorkers = () =>
-    setWorkersCursor(workersPage?.cursor ?? undefined)
-  const loadMoreManagers = () =>
-    setManagersCursor(managersPage?.cursor ?? undefined)
+  const loadMoreWorkers = () => {
+    if (!numericWorkspaceId) return
+
+    setWorkersState(prev => {
+      if (prev.workspaceId !== numericWorkspaceId) return prev
+
+      return {
+        ...prev,
+        cursor: workersPage?.cursor ?? undefined,
+      }
+    })
+  }
+
+  const loadMoreManagers = () => {
+    if (!numericWorkspaceId) return
+
+    setManagersState(prev => {
+      if (prev.workspaceId !== numericWorkspaceId) return prev
+
+      return {
+        ...prev,
+        cursor: managersPage?.cursor ?? undefined,
+      }
+    })
+  }
 
   const isLoading = workersLoading || managersLoading
   const hasError = !!workersError || !!managersError
