@@ -4,7 +4,7 @@ import React from 'react'
 import { AuthButton } from '../../src/shared/ui/common/AuthButton'
 
 const meta = {
-  title: 'shared/ui/AuthButton',
+  title: 'shared/ui/common/AuthButton',
   component: AuthButton,
   parameters: {
     layout: 'centered',
