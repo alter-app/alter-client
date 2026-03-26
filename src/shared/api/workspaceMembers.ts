@@ -104,8 +104,7 @@ export async function getWorkspaceManagers(
     if (axios.isAxiosError(error)) {
       const errorData: ErrorResponse = error.response?.data ?? {}
       const message =
-        errorData.message ??
-        '점주/매니저 목록 조회 중 오류가 발생했습니다.'
+        errorData.message ?? '점주/매니저 목록 조회 중 오류가 발생했습니다.'
       const apiError = new Error(message) as ApiError & Error
       apiError.data = errorData
       throw apiError
@@ -114,4 +113,3 @@ export async function getWorkspaceManagers(
     throw new Error('점주/매니저 목록 조회 중 오류가 발생했습니다.')
   }
 }
-

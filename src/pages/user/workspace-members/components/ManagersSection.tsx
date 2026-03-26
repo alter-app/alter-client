@@ -41,4 +41,3 @@ export function ManagersSection(props: Props) {
 }
 
 export default ManagersSection
-
