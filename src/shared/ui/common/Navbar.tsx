@@ -13,7 +13,11 @@ interface NavbarProps {
   onBackClick?: () => void
 }
 
-export function Navbar({ variant = 'main', title = '', onBackClick }: NavbarProps) {
+export function Navbar({
+  variant = 'main',
+  title = '',
+  onBackClick,
+}: NavbarProps) {
   const navigate = useNavigate()
   const isMain = variant === 'main'
 
@@ -31,18 +35,7 @@ export function Navbar({ variant = 'main', title = '', onBackClick }: NavbarProp
         {isMain ? (
           <div className="flex items-center gap-2">
             <img src={AlterLogo} alt="Alter logo" className="h-7 w-7" />
-            <span
-              className="text-text-100"
-              style={{
-                fontFamily: typography.logo.fontFamily,
-                fontSize: typography.logo.fontSize,
-                fontWeight: typography.logo.fontWeight,
-                lineHeight: typography.logo.lineHeight,
-                letterSpacing: typography.logo.letterSpacing,
-              }}
-            >
-              알터
-            </span>
+            <span className="typography-logo">알터</span>
           </div>
         ) : (
           <button

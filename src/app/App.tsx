@@ -4,6 +4,7 @@ import { LoginPage } from '@/pages/login'
 import { SignupPage } from '@/pages/signup'
 import { JobLookupMapPage } from '@/pages/user/job-lookup-map'
 import { SchedulePage } from '@/pages/user/schedule'
+import { UserHomePage } from '@/pages/user/home'
 import { WorkspaceMembersPage } from '@/pages/user/workspace-members'
 
 export function App() {
@@ -14,6 +15,7 @@ export function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/job-lookup-map" element={<JobLookupMapPage />} />
         <Route path="/schedule" element={<SchedulePage />} />
+        <Route path="/home" element={<UserHomePage />} />
         <Route
           path="/workspaces/:workspaceId/members"
           element={<WorkspaceMembersPage />}
