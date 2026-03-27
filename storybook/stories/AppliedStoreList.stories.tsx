@@ -14,7 +14,7 @@ const sampleStores: AppliedStoreItem[] = [
 ]
 
 const meta = {
-  title: 'features/home/AppliedStoreList',
+  title: 'features/home/user/AppliedStoreList',
   component: AppliedStoreList,
   parameters: {
     layout: 'centered',

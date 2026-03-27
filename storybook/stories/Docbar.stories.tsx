@@ -12,7 +12,7 @@ const createSelectedTab = (activeTab: TabKey): DocbarSelectedTab => ({
 })
 
 const meta = {
-  title: 'shared/ui/Docbar',
+  title: 'shared/ui/common/Docbar',
   component: DocbarView,
   parameters: {
     layout: 'centered',

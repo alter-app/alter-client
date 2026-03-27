@@ -3,7 +3,7 @@ import React from 'react'
 import { AppliedStoreCard } from '../../src/features/home/user/ui/AppliedStoreCard'
 
 const meta = {
-  title: 'features/home/AppliedStoreCard',
+  title: 'features/home/user/AppliedStoreCard',
   component: AppliedStoreCard,
   parameters: {
     layout: 'centered',

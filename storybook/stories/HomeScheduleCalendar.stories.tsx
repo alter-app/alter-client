@@ -114,7 +114,7 @@ function StatefulCalendar({
 }
 
 const meta = {
-  title: 'features/home/HomeScheduleCalendar',
+  title: 'features/home/user/HomeScheduleCalendar',
   component: HomeScheduleCalendar,
   parameters: {
     layout: 'centered',

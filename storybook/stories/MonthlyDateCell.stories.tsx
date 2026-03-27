@@ -3,7 +3,7 @@ import React from 'react'
 import { MonthlyDateCell } from '../../src/features/home/user/ui/MonthlyDateCell'
 
 const meta = {
-  title: 'features/home/MonthlyDateCell',
+  title: 'features/home/user/MonthlyDateCell',
   component: MonthlyDateCell,
   parameters: {
     layout: 'centered',

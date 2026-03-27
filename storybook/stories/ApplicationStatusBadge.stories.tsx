@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import React from 'react'
-import { ApplicationStatusBadge } from '../../src/shared/ui/common/ApplicationStatusBadge'
+import { ApplicationStatusBadge } from '../../src/shared/ui/home/ApplicationStatusBadge'
 
 const meta = {
-  title: 'shared/ui/common/ApplicationStatusBadge',
+  title: 'shared/ui/home/ApplicationStatusBadge',
   component: ApplicationStatusBadge,
   parameters: {
     layout: 'centered',

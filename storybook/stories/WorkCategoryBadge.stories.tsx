@@ -3,7 +3,7 @@ import React from 'react'
 import { WorkCategoryBadge } from '../../src/shared/ui/home/WorkCategoryBadge'
 
 const meta = {
-  title: 'shared/ui/common/WorkCategoryBadge',
+  title: 'shared/ui/home/WorkCategoryBadge',
   component: WorkCategoryBadge,
   parameters: {
     layout: 'centered',

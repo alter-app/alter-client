@@ -27,7 +27,7 @@ const sampleStores: WorkingStoreItem[] = [
 ]
 
 const meta = {
-  title: 'features/home/WorkingStoresList',
+  title: 'features/home/user/WorkingStoresList',
   component: WorkingStoresList,
   parameters: {
     layout: 'centered',
