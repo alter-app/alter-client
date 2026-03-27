@@ -92,7 +92,7 @@ export function ManagerHomePage() {
     <MobileLayout>
       <div className="flex min-h-[100dvh] flex-col box-border bg-[#EFEFEF]">
         <Navbar />
-        
+
         <div className=" h-50">
           <img
             src={homeBanner}

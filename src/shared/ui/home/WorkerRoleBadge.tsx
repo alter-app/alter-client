@@ -16,14 +16,17 @@ const ROLE_STYLE_MAP = {
   },
 } as const
 
-export function WorkerRoleBadge({ role, className = '' }: WorkerRoleBadgeProps) {
+export function WorkerRoleBadge({
+  role,
+  className = '',
+}: WorkerRoleBadgeProps) {
   const style = ROLE_STYLE_MAP[role]
 
   return (
     <div
       className={`inline-flex h-5 items-center rounded-[80px] px-2 py-0.5 ${style.containerClassName} ${className}`}
     >
-      <span className='typography-bg text-text-90'>{style.label}</span>
+      <span className="typography-bg text-text-90">{style.label}</span>
     </div>
   )
 }
