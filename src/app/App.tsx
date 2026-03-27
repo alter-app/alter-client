@@ -25,9 +25,12 @@ function MobileRouteLayoutWithDocbar() {
   )
 }
 
+const routerBasename =
+  import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
+
 export function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={routerBasename}>
       <Routes>
         <Route element={<MobileRouteLayoutWithoutDocbar />}>
           <Route path="/login" element={<LoginPage />} />
