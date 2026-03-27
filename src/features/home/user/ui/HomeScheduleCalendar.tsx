@@ -1,10 +1,10 @@
 import type {
   CalendarViewData,
   HomeCalendarMode,
-} from '@/features/home/types/schedule'
-import { DailyCalendar } from '@/features/home/ui/DailyCalendar'
-import { MonthlyCalendar } from '@/features/home/ui/MonthlyCalendar'
-import { WeeklyCalendar } from '@/features/home/ui/WeeklyCalendar'
+} from '@/features/home/user/types/schedule'
+import { DailyCalendar } from '@/features/home/user/ui/DailyCalendar'
+import { MonthlyCalendar } from '@/features/home/user/ui/MonthlyCalendar'
+import { WeeklyCalendar } from '@/features/home/user/ui/WeeklyCalendar'
 
 interface HomeScheduleCalendarProps {
   mode: HomeCalendarMode

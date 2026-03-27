@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import React from 'react'
-import { MonthlyDateCell } from '../../src/features/home/ui/MonthlyDateCell'
+import { MonthlyDateCell } from '../../src/features/home/user/ui/MonthlyDateCell'
 
 const meta = {
   title: 'features/home/MonthlyDateCell',

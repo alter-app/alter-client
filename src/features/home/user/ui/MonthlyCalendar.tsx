@@ -1,7 +1,7 @@
 import DownIcon from '@/assets/icons/home/chevron-down.svg?react'
-import { useMonthlyCalendarViewModel } from '@/features/home/hooks/useMonthlyCalendarViewModel'
-import type { MonthlyCalendarPropsBase } from '@/features/home/types/monthlyCalendar'
-import { MonthlyDateCell } from '@/features/home/ui/MonthlyDateCell'
+import { useMonthlyCalendarViewModel } from '@/features/home/user/hooks/useMonthlyCalendarViewModel'
+import type { MonthlyCalendarPropsBase } from '@/features/home/user/types/monthlyCalendar'
+import { MonthlyDateCell } from '@/features/home/user/ui/MonthlyDateCell'
 
 interface MonthlyCalendarProps extends MonthlyCalendarPropsBase {
   isLoading?: boolean

@@ -1,10 +1,10 @@
 import { format } from 'date-fns'
 import { useMemo } from 'react'
-import { getWeeklyDateCells } from '@/features/home/lib/date'
+import { getWeeklyDateCells } from '@/features/home/user/lib/date'
 import type {
   WeeklyCalendarPropsBase,
   WeeklyCalendarViewModel,
-} from '@/features/home/types/weeklyCalendar'
+} from '@/features/home/user/types/weeklyCalendar'
 
 function getSelectedDayIndex(baseDate: Date) {
   const day = baseDate.getDay()

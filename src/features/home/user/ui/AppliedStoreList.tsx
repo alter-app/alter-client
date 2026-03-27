@@ -1,5 +1,5 @@
 import { MoreButton } from '@/shared/ui/common/MoreButton'
-import { AppliedStoreCard } from '@/features/home/ui/AppliedStoreCard'
+import { AppliedStoreCard } from '@/features/home/user/ui/AppliedStoreCard'
 
 interface AppliedStoreItem {
   id: number | string

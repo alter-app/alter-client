@@ -1,4 +1,4 @@
-import { useWorkingStoreCardViewModel } from '@/features/home/hooks/useWorkingStoreCardViewModel'
+import { useWorkingStoreCardViewModel } from '@/features/home/user/hooks/useWorkingStoreCardViewModel'
 
 export interface WorkingStoreItem {
   workspaceId: number

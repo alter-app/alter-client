@@ -8,7 +8,7 @@ import {
   type CalendarViewData,
   type HomeCalendarMode,
 } from '@/features/home'
-import { getRangeParamsByMode } from '@/features/home/lib/date'
+import { getRangeParamsByMode } from '@/features/home/user/lib/date'
 
 export function UserHomePage() {
   const [mode, setMode] = useState<HomeCalendarMode>('monthly')

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { UseMonthlyDateCellsStateParams } from '@/features/home/types/monthlyCalendar'
+import type { UseMonthlyDateCellsStateParams } from '@/features/home/user/types/monthlyCalendar'
 
 export function useMonthlyDateCellsState({
   cells,

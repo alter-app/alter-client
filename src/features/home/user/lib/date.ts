@@ -9,8 +9,8 @@ import {
   startOfWeek,
 } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import type { ScheduleDataDto } from '@/features/home/types/schedule'
-import type { HomeCalendarMode } from '@/features/home/types/schedule'
+import type { ScheduleDataDto } from '@/features/home/user/types/schedule'
+import type { HomeCalendarMode } from '@/features/home/user/types/schedule'
 
 const ISO_DATE_LENGTH = 10
 const ISO_TIME_START = 11

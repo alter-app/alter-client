@@ -1,4 +1,4 @@
-import type { CalendarViewData } from '@/features/home/types/schedule'
+import type { CalendarViewData } from '@/features/home/user/types/schedule'
 
 export interface BaseCalendarProps {
   baseDate: Date

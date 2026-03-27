@@ -1,4 +1,4 @@
-import type { BaseCalendarProps } from '@/features/home/types/calendar'
+import type { BaseCalendarProps } from '@/features/home/user/types/calendar'
 
 export type DailyCalendarPropsBase = BaseCalendarProps
 

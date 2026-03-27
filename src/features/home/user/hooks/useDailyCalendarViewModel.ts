@@ -5,12 +5,12 @@ import {
   DAILY_TIMELINE_END_HOUR,
   DAILY_TIMELINE_HEIGHT,
   DAILY_TIMELINE_START_HOUR,
-} from '@/features/home/constants/calendar'
+} from '@/features/home/user/constants/calendar'
 import type {
   DailyCalendarPropsBase,
   DailyCalendarViewModel,
-} from '@/features/home/types/dailyCalendar'
-import type { CalendarEvent } from '@/features/home/types/schedule'
+} from '@/features/home/user/types/dailyCalendar'
+import type { CalendarEvent } from '@/features/home/user/types/schedule'
 
 function getStatusStyle(status: string) {
   return DAILY_STATUS_STYLE_MAP[status] ?? 'bg-bg-dark text-text-90'

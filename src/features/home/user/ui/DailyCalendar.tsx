@@ -1,6 +1,6 @@
 import DownIcon from '@/assets/icons/home/chevron-down.svg?react'
-import { useDailyCalendarViewModel } from '@/features/home/hooks/useDailyCalendarViewModel'
-import type { DailyCalendarPropsBase } from '@/features/home/types/dailyCalendar'
+import { useDailyCalendarViewModel } from '@/features/home/user/hooks/useDailyCalendarViewModel'
+import type { DailyCalendarPropsBase } from '@/features/home/user/types/dailyCalendar'
 
 interface DailyCalendarProps extends DailyCalendarPropsBase {
   isLoading?: boolean

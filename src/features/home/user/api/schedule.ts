@@ -6,12 +6,12 @@ import type {
   CalendarViewData,
   ScheduleApiResponse,
   ScheduleDataDto,
-} from '@/features/home/types/schedule'
+} from '@/features/home/user/types/schedule'
 import {
   getDurationHours,
   toDateKey,
   toTimeLabel,
-} from '@/features/home/lib/date'
+} from '@/features/home/user/lib/date'
 
 interface PeriodQueryParams {
   startDate: string

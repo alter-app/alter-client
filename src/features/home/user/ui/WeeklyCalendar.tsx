@@ -1,5 +1,5 @@
-import { useWeeklyCalendarViewModel } from '@/features/home/hooks/useWeeklyCalendarViewModel'
-import type { WeeklyCalendarPropsBase } from '@/features/home/types/weeklyCalendar'
+import { useWeeklyCalendarViewModel } from '@/features/home/user/hooks/useWeeklyCalendarViewModel'
+import type { WeeklyCalendarPropsBase } from '@/features/home/user/types/weeklyCalendar'
 
 interface WeeklyCalendarProps extends WeeklyCalendarPropsBase {
   isLoading?: boolean

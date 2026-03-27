@@ -14,15 +14,15 @@ import {
   DATE_KEY_FORMAT,
   MONTH_LABEL_FORMAT,
   WEEKDAY_LABELS,
-} from '@/features/home/constants/calendar'
-import { useMonthlyDateCellsState } from '@/features/home/hooks/useMonthlyDateCellsState'
+} from '@/features/home/user/constants/calendar'
+import { useMonthlyDateCellsState } from '@/features/home/user/hooks/useMonthlyDateCellsState'
 import type {
   MonthlyCalendarViewModel,
   MonthlyCellInput,
   MonthlyDayMetrics,
   MonthlyCalendarPropsBase,
-} from '@/features/home/types/monthlyCalendar'
-import type { CalendarViewData } from '@/features/home/types/schedule'
+} from '@/features/home/user/types/monthlyCalendar'
+import type { CalendarViewData } from '@/features/home/user/types/schedule'
 
 function getMonthlyCells(baseDate: Date): MonthlyCellInput[] {
   const monthStart = startOfMonth(baseDate)

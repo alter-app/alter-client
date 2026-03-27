@@ -1,4 +1,4 @@
-import { MonthlyDateGauge } from '@/features/home/ui/MonthlyDateGauge'
+import { MonthlyDateGauge } from '@/features/home/user/ui/MonthlyDateGauge'
 
 interface MonthlyDateCellProps {
   dayText: string

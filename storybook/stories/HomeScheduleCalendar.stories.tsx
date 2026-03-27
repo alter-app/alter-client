@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import React, { useMemo, useState } from 'react'
-import { HomeScheduleCalendar } from '../../src/features/home/ui/HomeScheduleCalendar'
+import { HomeScheduleCalendar } from '../../src/features/home/user/ui/HomeScheduleCalendar'
 import type {
   CalendarViewData,
   HomeCalendarMode,
-} from '../../src/features/home/types/schedule'
+} from '../../src/features/home/user/types/schedule'
 
 const baseDate = new Date('2026-01-19T09:00:00+09:00')
 

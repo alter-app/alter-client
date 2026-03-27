@@ -1,5 +1,5 @@
-import type { WEEKDAY_LABELS } from '@/features/home/constants/calendar'
-import type { BaseCalendarProps } from '@/features/home/types/calendar'
+import type { WEEKDAY_LABELS } from '@/features/home/user/constants/calendar'
+import type { BaseCalendarProps } from '@/features/home/user/types/calendar'
 
 export interface MonthlyCellInput {
   dateKey: string
