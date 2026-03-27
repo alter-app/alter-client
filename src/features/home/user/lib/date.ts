@@ -1,5 +1,6 @@
 import {
   addDays,
+  addMonths,
   eachDayOfInterval,
   endOfMonth,
   endOfWeek,
@@ -118,9 +119,7 @@ export function moveDateByMode(
 ) {
   const unit = direction === 'next' ? 1 : -1
   if (mode === 'monthly') {
-    const next = new Date(baseDate)
-    next.setMonth(next.getMonth() + unit)
-    return next
+    return addMonths(baseDate, unit)
   }
   if (mode === 'weekly') {
     return addDays(baseDate, 7 * unit)
