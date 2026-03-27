@@ -31,7 +31,11 @@ function MobileRouteLayoutWithDocbar() {
   )
 }
 
-const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '')
+const routerBasename =
+  basePath && basePath.startsWith('/') && basePath !== '/'
+    ? basePath
+    : undefined
 
 export function App() {
   return (
