@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import React from 'react'
 
 import { Spinner } from '../../src/shared/ui/Spinner'
 

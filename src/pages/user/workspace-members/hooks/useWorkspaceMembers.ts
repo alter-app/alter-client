@@ -9,11 +9,7 @@ type Params = {
 }
 
 export function useWorkspaceMembers(params: Params) {
-  const {
-    workspaceId,
-    initialPageSize = 3,
-    loadMorePageSize = 10,
-  } = params
+  const { workspaceId, initialPageSize = 3, loadMorePageSize = 10 } = params
 
   const numericWorkspaceId = useMemo(() => {
     const parsed = Number(workspaceId)
@@ -46,9 +42,13 @@ export function useWorkspaceMembers(params: Params) {
   })
 
   const workersCursor =
-    workersState.workspaceId === numericWorkspaceId ? workersState.cursor : undefined
+    workersState.workspaceId === numericWorkspaceId
+      ? workersState.cursor
+      : undefined
   const managersCursor =
-    managersState.workspaceId === numericWorkspaceId ? managersState.cursor : undefined
+    managersState.workspaceId === numericWorkspaceId
+      ? managersState.cursor
+      : undefined
 
   const {
     workers,
@@ -88,7 +88,6 @@ export function useWorkspaceMembers(params: Params) {
       }
     })
 
-     
     setManagersState(prev => {
       if (prev.workspaceId === numericWorkspaceId) return prev
 
@@ -108,7 +107,9 @@ export function useWorkspaceMembers(params: Params) {
     setWorkersState(prev => {
       if (prev.workspaceId !== numericWorkspaceId) {
         const existingIds = new Set(workers.map(worker => worker.id))
-        const uniqueWorkers = workers.filter(worker => !existingIds.has(worker.id))
+        const uniqueWorkers = workers.filter(
+          worker => !existingIds.has(worker.id)
+        )
 
         return {
           workspaceId: numericWorkspaceId,

@@ -1,10 +1,9 @@
-import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { WorkerImageCard } from '@/shared/ui/manager/WorkerImageCard'
 import {
-  WorkerListItem,
-  type WorkerListItemData,
-} from '@/shared/ui/manager/WorkerListItem'
+  StoreWorkerListItem,
+  type StoreWorkerRole,
+} from '@/features/home/manager/ui/StoreWorkerListItem'
 import {
   OngoingPostingCard,
   type JobPostingItem,
@@ -22,10 +21,18 @@ const TODAY_WORKERS = [
   { name: '알바생2', timeRange: '00:00 ~ 00:00' },
 ] as const
 
-const STORE_WORKERS: WorkerListItemData[] = [
-  { id: '1', name: '이름임', role: '매니저', nextWorkDate: '2025. 1. 1.' },
-  { id: '2', name: '이름임', role: '알바', nextWorkDate: '2025. 1. 1.' },
-  { id: '3', name: '이름임', role: '알바', nextWorkDate: '2025. 1. 1.' },
+interface StoreWorkerData {
+  id: string
+  name: string
+  role: StoreWorkerRole
+  nextWorkDate: string
+  profileImageUrl?: string
+}
+
+const STORE_WORKERS: StoreWorkerData[] = [
+  { id: '1', name: '이름임', role: 'manager', nextWorkDate: '2025. 1. 1.' },
+  { id: '2', name: '이름임', role: 'staff', nextWorkDate: '2025. 1. 1.' },
+  { id: '3', name: '이름임', role: 'staff', nextWorkDate: '2025. 1. 1.' },
 ]
 
 const ONGOING_POSTINGS: JobPostingItem[] = [
@@ -81,9 +88,9 @@ const SUBSTITUTE_REQUESTS: SubstituteRequestItem[] = [
 
 export function ManagerHomePage() {
   return (
-    <MobileLayout>
-      <div className="flex flex-col min-h-screen min-h-[100dvh] box-border bg-[#EFEFEF]">
+    <div className="flex min-h-[100dvh] flex-col box-border bg-[#EFEFEF]">
         <Navbar />
+
         <div className=" h-50">
           <img
             src={homeBanner}
@@ -118,12 +125,12 @@ export function ManagerHomePage() {
           <div className="bg-white mx-4 py-8  rounded-[16px] shadow-sm overflow-hidden flex flex-col">
             <div className="px-4">
               {STORE_WORKERS.map(worker => (
-                <WorkerListItem
+                <StoreWorkerListItem
                   key={worker.id}
                   name={worker.name}
                   role={worker.role}
                   nextWorkDate={worker.nextWorkDate}
-                  imageUrl={worker.imageUrl}
+                  profileImageUrl={worker.profileImageUrl}
                   onOptions={() => {}}
                 />
               ))}
@@ -162,7 +169,6 @@ export function ManagerHomePage() {
             />
           </div>
         </div>
-      </div>
-    </MobileLayout>
+    </div>
   )
 }

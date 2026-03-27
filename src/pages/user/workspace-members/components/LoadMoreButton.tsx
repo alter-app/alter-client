@@ -18,4 +18,3 @@ export function LoadMoreButton(props: Props) {
 }
 
 export default LoadMoreButton
-

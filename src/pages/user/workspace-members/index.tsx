@@ -1,5 +1,4 @@
 import { useParams } from 'react-router-dom'
-import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { Spinner } from '@/shared/ui/Spinner'
 import { useWorkspaceMembers } from './hooks/useWorkspaceMembers'
 import { ManagersSection } from './components/ManagersSection'
@@ -25,8 +24,7 @@ export function WorkspaceMembersPage() {
   })
 
   return (
-    <MobileLayout>
-      <div className="min-h-screen bg-bg-light">
+    <div className="min-h-screen bg-bg-light">
         <header className="sticky top-0 z-10 bg-white border-b border-line-1 px-4 py-3">
           <h1 className="font-pretendard font-semibold text-5 text-text-100">
             함께 일하는 사람들
@@ -89,8 +87,7 @@ export function WorkspaceMembersPage() {
               </div>
             )}
         </div>
-      </div>
-    </MobileLayout>
+    </div>
   )
 }
 
