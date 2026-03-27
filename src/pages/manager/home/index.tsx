@@ -1,4 +1,3 @@
-import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { WorkerImageCard } from '@/shared/ui/manager/WorkerImageCard'
 import {
@@ -89,8 +88,7 @@ const SUBSTITUTE_REQUESTS: SubstituteRequestItem[] = [
 
 export function ManagerHomePage() {
   return (
-    <MobileLayout>
-      <div className="flex min-h-[100dvh] flex-col box-border bg-[#EFEFEF]">
+    <div className="flex min-h-[100dvh] flex-col box-border bg-[#EFEFEF]">
         <Navbar />
 
         <div className=" h-50">
@@ -171,7 +169,6 @@ export function ManagerHomePage() {
             />
           </div>
         </div>
-      </div>
-    </MobileLayout>
+    </div>
   )
 }

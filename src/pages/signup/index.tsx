@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { MobileLayout } from '@/shared/ui/MobileLayout'
 import {
   usePhoneVerification,
   RECAPTCHA_CONTAINER_ID,
@@ -30,11 +29,11 @@ export function SignupPage() {
     })
 
   return (
-    <MobileLayout>
+    <>
       {/* Invisible reCAPTCHA 마운트 포인트 */}
       <div id={RECAPTCHA_CONTAINER_ID} />
 
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-48px)] min-h-[calc(100dvh-48px)] px-5 py-6 box-border bg-white relative overflow-x-hidden sm:px-4 sm:py-5 xs:px-3 xs:py-4">
+      <div className="relative box-border flex min-h-[calc(100dvh-48px)] flex-col items-center justify-center overflow-x-hidden bg-white px-5 py-6 sm:px-4 sm:py-5 xs:px-3 xs:py-4">
         {step === 1 && (
           <Step1UserInfo
             name={form.name}
@@ -60,7 +59,7 @@ export function SignupPage() {
           />
         )}
       </div>
-    </MobileLayout>
+    </>
   )
 }
 

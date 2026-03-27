@@ -26,7 +26,8 @@ function DocContent({
   const Icon = icon
 
   return (
-    <div
+    <button
+      type="button"
       className="flex flex-col items-center gap-1 cursor-pointer w-[78px] h-[78px] pt-2.5 pb-3"
       onClick={onClick}
     >
@@ -45,7 +46,7 @@ function DocContent({
       >
         {TAB_TITLE_MAP[titleKey]}
       </p>
-    </div>
+    </button>
   )
 }
 
@@ -58,7 +59,7 @@ interface DocbarViewProps {
 
 export function DocbarView({ selectedTab, onTabClick }: DocbarViewProps) {
   return (
-    <div className="flex items-center justify-between w-full px-4 bg-white">
+    <div className="flex items-center justify-between w-full px-4 bg-white shadow-[0px_-4px_10px_rgba(0,_0,_0,_0.1)]">
       <div className="flex items-center justify-between w-full">
         <DocContent
           icon={HomeIcon}

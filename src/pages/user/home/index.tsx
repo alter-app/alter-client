@@ -1,4 +1,3 @@
-import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { useEffect, useState } from 'react'
 import {
   getDailySchedules,
@@ -57,8 +56,7 @@ export function UserHomePage() {
   }, [baseDate, mode])
 
   return (
-    <MobileLayout>
-      <div className="min-h-screen bg-bg-light p-4 space-y-3">
+    <div className="min-h-screen bg-bg-light p-4 space-y-3">
         <div className="inline-flex rounded-xl border border-line-1 bg-white p-1">
           {(['monthly', 'weekly', 'daily'] as const).map(item => (
             <button
@@ -91,7 +89,6 @@ export function UserHomePage() {
           isLoading={isLoading}
           onDateChange={setBaseDate}
         />
-      </div>
-    </MobileLayout>
+    </div>
   )
 }

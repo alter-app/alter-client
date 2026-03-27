@@ -1,4 +1,3 @@
-import { MobileLayout } from '@/shared/ui/MobileLayout'
 import type { ScheduleItem as ScheduleItemType } from '@/shared/stores/useScheduleStore'
 import { useSelfScheduleQuery } from '@/shared/hooks/useSelfScheduleQuery'
 import { ScheduleItem } from './components/ScheduleItem'
@@ -23,8 +22,7 @@ export function SchedulePage() {
   })
 
   return (
-    <MobileLayout>
-      <div className="min-h-screen bg-bg-light">
+    <div className="min-h-screen bg-bg-light">
         <header className="sticky top-0 z-10 bg-white border-b border-line-1 px-4 py-3">
           <h1 className="font-pretendard font-semibold text-5 text-text-100">
             내 일정
@@ -94,8 +92,7 @@ export function SchedulePage() {
             )}
           </div>
         )}
-      </div>
-    </MobileLayout>
+    </div>
   )
 }
 
