@@ -1,4 +1,4 @@
-import { ApplicationStatusBadge } from '@/shared/ui/common/ApplicationStatusBadge'
+import { ApplicationStatusBadge } from '@/shared/ui/home/ApplicationStatusBadge'
 
 interface AppliedStoreCardProps {
   storeName: string
@@ -28,7 +28,7 @@ export function AppliedStoreCard({
       </p>
       <ApplicationStatusBadge
         status={status}
-        className='absolute bottom-3 right-[10px]'
+        className="absolute bottom-3 right-[10px]"
       />
     </div>
   )
