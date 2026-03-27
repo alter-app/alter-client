@@ -1,4 +1,5 @@
 export { HomeScheduleCalendar } from '@/features/home/user/ui/HomeScheduleCalendar'
+export { TodayWorkerList } from '@/features/home/manager/ui/TodayWorkerList'
 export { AppliedStoreCard } from '@/features/home/user/ui/AppliedStoreCard'
 export { AppliedStoreList } from '@/features/home/user/ui/AppliedStoreList'
 export { WorkingStoresList } from '@/features/home/user/ui/WorkingStoresList'

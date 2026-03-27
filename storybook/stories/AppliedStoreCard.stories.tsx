@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import React from 'react'
-import { AppliedStoreCard } from '../../src/features/home/ui/AppliedStoreCard'
+import { AppliedStoreCard } from '../../src/features/home/user/ui/AppliedStoreCard'
 
 const meta = {
   title: 'features/home/AppliedStoreCard',

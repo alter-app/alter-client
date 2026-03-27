@@ -3,7 +3,7 @@ import React from 'react'
 import {
   WorkingStoresList,
   type WorkingStoreItem,
-} from '../../src/features/home/ui/WorkingStoresList'
+} from '../../src/features/home/user/ui/WorkingStoresList'
 
 const sampleStores: WorkingStoreItem[] = [
   {
