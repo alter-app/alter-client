@@ -47,13 +47,12 @@ export function App() {
           />
         </Route>
 
-        <Route path="/manager/home" element={<ManagerHomePage />} />
-        <Route path="/manager/social" element={<SocialPage />} />
-        <Route path="/manager/social/chat" element={<SocialChatPage />} />
         <Route element={<MobileRouteLayoutWithDocbar />}>
           <Route path="/job-lookup-map" element={<JobLookupMapPage />} />
           <Route path="/home" element={<UserHomePage />} />
           <Route path="/manager/home" element={<ManagerHomePage />} />
+          <Route path="/manager/social" element={<SocialPage />} />
+          <Route path="/manager/social/chat" element={<SocialChatPage />} />
         </Route>
 
         <Route path="/" element={<Navigate to="/login" replace />} />
