@@ -12,7 +12,7 @@ export function MobileLayout({
   maxWidth = '428px',
 }: MobileLayoutProps) {
   return (
-    <div className='flex w-full justify-center bg-white'>
+    <div className="flex w-full justify-center bg-white">
       <div
         className={`mobile-layout-container relative mx-auto w-full ${className}`}
         style={{ maxWidth }}

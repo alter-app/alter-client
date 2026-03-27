@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from 'react-router-dom'
 import { ManagerHomePage } from '@/pages/manager/home'
 import { LoginPage } from '@/pages/login'
 import { SignupPage } from '@/pages/signup'
@@ -25,8 +31,7 @@ function MobileRouteLayoutWithDocbar() {
   )
 }
 
-const routerBasename =
-  import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
+const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
 
 export function App() {
   return (

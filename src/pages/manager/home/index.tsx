@@ -89,86 +89,86 @@ const SUBSTITUTE_REQUESTS: SubstituteRequestItem[] = [
 export function ManagerHomePage() {
   return (
     <div className="flex min-h-[100dvh] flex-col box-border bg-[#EFEFEF]">
-        <Navbar />
+      <Navbar />
 
-        <div className=" h-50">
-          <img
-            src={homeBanner}
-            alt="logo"
-            className="w-full h-full object-cover"
-          />
+      <div className=" h-50">
+        <img
+          src={homeBanner}
+          alt="logo"
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="bg-white pt-3 px-8 pb-5">
+        <div className="flex items-center justify-between">
+          <div className="typography-headline02">MM월 dd일</div>
+          <div className="typography-bg">전체 보기</div>
         </div>
-        <div className="bg-white pt-3 px-8 pb-5">
-          <div className="flex items-center justify-between">
-            <div className="typography-headline02">MM월 dd일</div>
-            <div className="typography-bg">전체 보기</div>
-          </div>
-          <div className="typography-headline01 pt-6">
-            오늘 근무자는 <span className="text-sub">6</span>명이에요
-          </div>
+        <div className="typography-headline01 pt-6">
+          오늘 근무자는 <span className="text-sub">6</span>명이에요
+        </div>
 
-          <div className="flex gap-3 overflow-x-auto pt-4 pb-2 -mx-1">
-            {TODAY_WORKERS.map(worker => (
-              <WorkerImageCard
-                key={worker.name}
+        <div className="flex gap-3 overflow-x-auto pt-4 pb-2 -mx-1">
+          {TODAY_WORKERS.map(worker => (
+            <WorkerImageCard
+              key={worker.name}
+              name={worker.name}
+              timeRange={worker.timeRange}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="pt-6 pb-8">
+        <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
+          우리 매장 근무자
+        </h2>
+
+        <div className="bg-white mx-4 py-8  rounded-[16px] shadow-sm overflow-hidden flex flex-col">
+          <div className="px-4">
+            {STORE_WORKERS.map(worker => (
+              <StoreWorkerListItem
+                key={worker.id}
                 name={worker.name}
-                timeRange={worker.timeRange}
+                role={worker.role}
+                nextWorkDate={worker.nextWorkDate}
+                profileImageUrl={worker.profileImageUrl}
+                onOptions={() => {}}
               />
             ))}
           </div>
-        </div>
-        <div className="pt-6 pb-8">
-          <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
-            우리 매장 근무자
-          </h2>
-
-          <div className="bg-white mx-4 py-8  rounded-[16px] shadow-sm overflow-hidden flex flex-col">
-            <div className="px-4">
-              {STORE_WORKERS.map(worker => (
-                <StoreWorkerListItem
-                  key={worker.id}
-                  name={worker.name}
-                  role={worker.role}
-                  nextWorkDate={worker.nextWorkDate}
-                  profileImageUrl={worker.profileImageUrl}
-                  onOptions={() => {}}
-                />
-              ))}
-            </div>
-            <div className="px-4 pb-4 pt-1">
-              <button
-                type="button"
-                className="w-full py-3 rounded-[8px] border border-gray-200 bg-white typography-body02-semibold text-gray-900 hover:bg-gray-50 transition-colors"
-              >
-                더보기
-              </button>
-            </div>
+          <div className="px-4 pb-4 pt-1">
+            <button
+              type="button"
+              className="w-full py-3 rounded-[8px] border border-gray-200 bg-white typography-body02-semibold text-gray-900 hover:bg-gray-50 transition-colors"
+            >
+              더보기
+            </button>
           </div>
         </div>
-        <div className="pt-6 pb-8">
-          <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
-            진행 중인 공고 <span className="text-sub">10</span>건
-          </h2>
-          <div className="mx-4">
-            <OngoingPostingCard
-              postings={ONGOING_POSTINGS}
-              onViewMore={() => {}}
-              onPostingClick={() => {}}
-            />
-          </div>
+      </div>
+      <div className="pt-6 pb-8">
+        <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
+          진행 중인 공고 <span className="text-sub">10</span>건
+        </h2>
+        <div className="mx-4">
+          <OngoingPostingCard
+            postings={ONGOING_POSTINGS}
+            onViewMore={() => {}}
+            onPostingClick={() => {}}
+          />
         </div>
-        <div className="pt-6 pb-8">
-          <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
-            대타 승인 요청 <span className="text-sub">10</span>건
-          </h2>
-          <div className="mx-4">
-            <SubstituteApprovalCard
-              requests={SUBSTITUTE_REQUESTS}
-              onViewMore={() => {}}
-              onRequestClick={() => {}}
-            />
-          </div>
+      </div>
+      <div className="pt-6 pb-8">
+        <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
+          대타 승인 요청 <span className="text-sub">10</span>건
+        </h2>
+        <div className="mx-4">
+          <SubstituteApprovalCard
+            requests={SUBSTITUTE_REQUESTS}
+            onViewMore={() => {}}
+            onRequestClick={() => {}}
+          />
         </div>
+      </div>
     </div>
   )
 }
