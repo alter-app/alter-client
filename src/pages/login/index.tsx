@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { KakaoLoginButton, AppleLoginButton } from '@/features/auth'
 import { AuthInput } from '@/shared/ui/common/AuthInput'
-import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { loginIDPW } from '@/shared/api/auth'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { parseErrorResponse } from '@/shared/lib/utils/errorUtils'
@@ -72,8 +71,7 @@ export function LoginPage() {
   }
 
   return (
-    <MobileLayout>
-      <div className="flex flex-col items-center justify-center min-h-screen min-h-[100dvh] px-5 py-6 relative overflow-x-hidden box-border sm:px-4 sm:py-5 xs:px-3 xs:py-4">
+    <div className="relative box-border flex min-h-[100dvh] flex-col items-center justify-center overflow-x-hidden px-5 py-6 sm:px-4 sm:py-5 xs:px-3 xs:py-4">
         <img
           src={AlterLogo}
           alt="알터 로고"
@@ -155,7 +153,6 @@ export function LoginPage() {
             </span>
           </div>
         </div>
-      </div>
-    </MobileLayout>
+    </div>
   )
 }

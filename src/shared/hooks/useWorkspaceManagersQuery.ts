@@ -21,12 +21,7 @@ export function useWorkspaceManagersQuery(
   const { workspaceId, cursor, pageSize } = params
 
   const { data, isPending, error } = useQuery({
-    queryKey: [
-      ...WORKSPACE_MANAGERS_QUERY_KEY,
-      workspaceId,
-      cursor,
-      pageSize,
-    ],
+    queryKey: [...WORKSPACE_MANAGERS_QUERY_KEY, workspaceId, cursor, pageSize],
     queryFn: async () => {
       if (!workspaceId) {
         throw new Error('workspaceId는 필수입니다.')
@@ -60,4 +55,3 @@ export function useWorkspaceManagersQuery(
     rawData: data as WorkspaceManagersData | undefined,
   }
 }
-

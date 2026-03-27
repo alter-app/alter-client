@@ -51,4 +51,3 @@ export function WorkersSection(props: Props) {
 }
 
 export default WorkersSection
-
