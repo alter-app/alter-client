@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { SocialCategory } from '@/shared/ui/manager/social/SocialCategory'
 import { SwipeableSocialItem } from '@/shared/ui/manager/social/SocialList'
@@ -51,39 +50,37 @@ export function SocialPage() {
   const navigate = useNavigate()
 
   return (
-    <MobileLayout>
-      <div className="min-h-[100dvh] flex flex-col">
-        <Navbar />
-        <div className="px-3 py-3 flex gap-2 mb-[15px]">
-          {SOCIAL_CATEGORY.map((item, index) => (
-            <SocialCategory
+    <div className="min-h-[100dvh] flex flex-col">
+      <Navbar />
+      <div className="px-3 py-3 flex gap-2 mb-[15px]">
+        {SOCIAL_CATEGORY.map((item, index) => (
+          <SocialCategory
+            key={item.id}
+            label={item.name}
+            active={index === 0}
+          />
+        ))}
+      </div>
+
+      <main className="flex-1 overflow-y-auto">
+        <section>
+          {SOCIAL_LIST.map(item => (
+            <SwipeableSocialItem
               key={item.id}
-              label={item.name}
-              active={index === 0}
+              name={item.name}
+              message={item.message}
+              timeAgo={item.timeAgo}
+              unread={item.unread}
             />
           ))}
-        </div>
+        </section>
+      </main>
 
-        <main className="flex-1 overflow-y-auto">
-          <section>
-            {SOCIAL_LIST.map(item => (
-              <SwipeableSocialItem
-                key={item.id}
-                name={item.name}
-                message={item.message}
-                timeAgo={item.timeAgo}
-                unread={item.unread}
-              />
-            ))}
-          </section>
-        </main>
+      <div className="px-3 pb-2 pt-3">
+        <div className="flex items-center gap-3">
+          <SocialSearch onClick={() => setSearchPopupOpen(true)} />
 
-        <div className="px-3 pb-2 pt-3">
-          <div className="flex items-center gap-3">
-            <SocialSearch onClick={() => setSearchPopupOpen(true)} />
-
-            <FloatingActionButton />
-          </div>
+          <FloatingActionButton />
         </div>
       </div>
 
@@ -137,6 +134,6 @@ export function SocialPage() {
           </div>
         </div>
       )}
-    </MobileLayout>
+    </div>
   )
 }
