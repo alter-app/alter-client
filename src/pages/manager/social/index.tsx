@@ -8,7 +8,7 @@ import { SocialSearch } from '@/shared/ui/manager/social/SocialSearch'
 import { FloatingActionButton } from '@/shared/ui/common/FloatingActionButton'
 
 import SearchIcon from '@/assets/icons/search.svg'
-import messageIcon from '@/assets/icons/message.svg'
+import MessageIcon from '@/assets/icons/doc/Message.svg'
 
 const SOCIAL_CATEGORY = [
   {
@@ -129,7 +129,7 @@ export function SocialPage() {
                       navigate('/manager/social/chat')
                     }}
                   >
-                    <img src={messageIcon} alt="message" />
+                    <img src={MessageIcon} alt="message" />
                   </button>
                 </div>
               ))}
