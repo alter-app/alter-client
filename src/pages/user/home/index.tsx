@@ -57,38 +57,38 @@ export function UserHomePage() {
 
   return (
     <div className="min-h-screen bg-bg-light p-4 space-y-3">
-        <div className="inline-flex rounded-xl border border-line-1 bg-white p-1">
-          {(['monthly', 'weekly', 'daily'] as const).map(item => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => setMode(item)}
-              className={`rounded-lg px-3 py-1.5 text-2 ${
-                mode === item
-                  ? 'bg-main-100 text-sub-900'
-                  : 'bg-white text-text-70'
-              }`}
-            >
-              {item === 'monthly' && '월간'}
-              {item === 'weekly' && '주간'}
-              {item === 'daily' && '금일'}
-            </button>
-          ))}
+      <div className="inline-flex rounded-xl border border-line-1 bg-white p-1">
+        {(['monthly', 'weekly', 'daily'] as const).map(item => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => setMode(item)}
+            className={`rounded-lg px-3 py-1.5 text-2 ${
+              mode === item
+                ? 'bg-main-100 text-sub-900'
+                : 'bg-white text-text-70'
+            }`}
+          >
+            {item === 'monthly' && '월간'}
+            {item === 'weekly' && '주간'}
+            {item === 'daily' && '금일'}
+          </button>
+        ))}
+      </div>
+
+      {errorMessage && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-2 text-red-600">
+          {errorMessage}
         </div>
+      )}
 
-        {errorMessage && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-2 text-red-600">
-            {errorMessage}
-          </div>
-        )}
-
-        <HomeScheduleCalendar
-          mode={mode}
-          baseDate={baseDate}
-          data={data}
-          isLoading={isLoading}
-          onDateChange={setBaseDate}
-        />
+      <HomeScheduleCalendar
+        mode={mode}
+        baseDate={baseDate}
+        data={data}
+        isLoading={isLoading}
+        onDateChange={setBaseDate}
+      />
     </div>
   )
 }

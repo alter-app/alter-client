@@ -72,87 +72,87 @@ export function LoginPage() {
 
   return (
     <div className="relative box-border flex min-h-[100dvh] flex-col items-center justify-center overflow-x-hidden px-5 py-6 sm:px-4 sm:py-5 xs:px-3 xs:py-4">
-        <img
-          src={AlterLogo}
-          alt="알터 로고"
-          className="h-[200px] w-auto mb-10 sm:h-40 sm:mb-8 xs:h-[130px] xs:mb-7"
-        />
+      <img
+        src={AlterLogo}
+        alt="알터 로고"
+        className="h-[200px] w-auto mb-10 sm:h-40 sm:mb-8 xs:h-[130px] xs:mb-7"
+      />
 
-        <div className="flex flex-col gap-5 w-full max-w-[400px] sm:gap-4 sm:max-w-full xs:gap-[14px]">
-          <div className="flex flex-col gap-4 w-full sm:gap-[14px] xs:gap-3">
-            <AuthInput
-              type="tel"
-              placeholder="전화번호"
-              value={phone}
-              maxLength={13}
-              onChange={e => {
-                setPhone(formatPhone(e.target.value))
-                setPhoneError('')
-                setErrorMessage('')
-              }}
-              borderColor={phoneError ? '1px solid #DC0000' : undefined}
-            />
+      <div className="flex flex-col gap-5 w-full max-w-[400px] sm:gap-4 sm:max-w-full xs:gap-[14px]">
+        <div className="flex flex-col gap-4 w-full sm:gap-[14px] xs:gap-3">
+          <AuthInput
+            type="tel"
+            placeholder="전화번호"
+            value={phone}
+            maxLength={13}
+            onChange={e => {
+              setPhone(formatPhone(e.target.value))
+              setPhoneError('')
+              setErrorMessage('')
+            }}
+            borderColor={phoneError ? '1px solid #DC0000' : undefined}
+          />
 
-            <AuthInput
-              type="password"
-              placeholder="비밀번호"
-              value={password}
-              onChange={e => {
-                setPassword(e.target.value)
-                setPasswordError('')
-                setErrorMessage('')
-              }}
-              borderColor={passwordError ? '1px solid #DC0000' : undefined}
-            />
-          </div>
+          <AuthInput
+            type="password"
+            placeholder="비밀번호"
+            value={password}
+            onChange={e => {
+              setPassword(e.target.value)
+              setPasswordError('')
+              setErrorMessage('')
+            }}
+            borderColor={passwordError ? '1px solid #DC0000' : undefined}
+          />
+        </div>
 
-          <button
-            className="w-full h-14 border-none bg-main text-white text-5 font-pretendard font-semibold rounded-xl cursor-pointer transition-all duration-200 shadow-[0_2px_8px_rgba(45,226,131,0.3)]
+        <button
+          className="w-full h-14 border-none bg-main text-white text-5 font-pretendard font-semibold rounded-xl cursor-pointer transition-all duration-200 shadow-[0_2px_8px_rgba(45,226,131,0.3)]
             hover:bg-[#25c973] hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(45,226,131,0.4)]
             active:bg-[#1fb865] active:translate-y-0 active:shadow-[0_2px_6px_rgba(45,226,131,0.3)]
             disabled:bg-[#cbcbcb] disabled:text-white disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none
             sm:h-[52px] sm:text-[17px] sm:rounded-[10px] xs:h-12 xs:text-4 xs:rounded-lg"
-            onClick={handleLogin}
-            disabled={!phone.trim() || !password.trim()}
-          >
-            로그인
-          </button>
+          onClick={handleLogin}
+          disabled={!phone.trim() || !password.trim()}
+        >
+          로그인
+        </button>
 
-          {(phoneError || passwordError || errorMessage) && (
-            <div className="text-error font-pretendard font-regular text-1 leading-[18px] text-left w-full sm:text-[11px] sm:leading-[17px] xs:text-0 xs:leading-4">
-              {phoneError || passwordError || errorMessage}
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center w-full max-w-[400px] my-8 sm:my-7 sm:max-w-full xs:my-6">
-          <div className="flex-1 h-px bg-[#d9d9d9]" />
-          <span className="font-pretendard font-regular text-4 leading-5 text-[#999999] mx-[15px] sm:text-3 sm:mx-2.5 xs:text-2 xs:mx-2">
-            간편 로그인
-          </span>
-          <div className="flex-1 h-px bg-[#d9d9d9]" />
-        </div>
-
-        <div className="flex flex-col gap-4 w-full max-w-[400px] items-center sm:gap-[14px] sm:max-w-full xs:gap-3">
-          <KakaoLoginButton />
-          <AppleLoginButton />
-
-          <div className="flex justify-center items-center gap-2 font-pretendard font-regular text-3 leading-[18px] text-[#767676] mt-2.5 sm:text-2 sm:gap-1.5 xs:text-1 xs:gap-1">
-            <span
-              className="cursor-pointer transition-colors duration-200 hover:text-main"
-              onClick={() => navigate('/find-password')}
-            >
-              비밀번호 찾기
-            </span>
-            <span>|</span>
-            <span
-              className="cursor-pointer transition-colors duration-200 hover:text-main"
-              onClick={goToSignup}
-            >
-              회원가입
-            </span>
+        {(phoneError || passwordError || errorMessage) && (
+          <div className="text-error font-pretendard font-regular text-1 leading-[18px] text-left w-full sm:text-[11px] sm:leading-[17px] xs:text-0 xs:leading-4">
+            {phoneError || passwordError || errorMessage}
           </div>
+        )}
+      </div>
+
+      <div className="flex items-center w-full max-w-[400px] my-8 sm:my-7 sm:max-w-full xs:my-6">
+        <div className="flex-1 h-px bg-[#d9d9d9]" />
+        <span className="font-pretendard font-regular text-4 leading-5 text-[#999999] mx-[15px] sm:text-3 sm:mx-2.5 xs:text-2 xs:mx-2">
+          간편 로그인
+        </span>
+        <div className="flex-1 h-px bg-[#d9d9d9]" />
+      </div>
+
+      <div className="flex flex-col gap-4 w-full max-w-[400px] items-center sm:gap-[14px] sm:max-w-full xs:gap-3">
+        <KakaoLoginButton />
+        <AppleLoginButton />
+
+        <div className="flex justify-center items-center gap-2 font-pretendard font-regular text-3 leading-[18px] text-[#767676] mt-2.5 sm:text-2 sm:gap-1.5 xs:text-1 xs:gap-1">
+          <span
+            className="cursor-pointer transition-colors duration-200 hover:text-main"
+            onClick={() => navigate('/find-password')}
+          >
+            비밀번호 찾기
+          </span>
+          <span>|</span>
+          <span
+            className="cursor-pointer transition-colors duration-200 hover:text-main"
+            onClick={goToSignup}
+          >
+            회원가입
+          </span>
         </div>
+      </div>
     </div>
   )
 }
