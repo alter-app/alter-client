@@ -90,7 +90,7 @@ export function SocialPage() {
           onClick={() => setSearchPopupOpen(false)}
         >
           <div
-            className="w-[358px] rounded-[20px] bg-white px-4 pt-[38px] pb-[44px]"
+            className="w-full max-w-[358px] rounded-[20px] bg-white px-4 pt-[38px] pb-[44px]"
             onClick={e => e.stopPropagation()}
           >
             <button
