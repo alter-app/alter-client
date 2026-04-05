@@ -1,4 +1,4 @@
-import PlusIcon from '@/assets/icons/plus.svg'
+import PlusIcon from '@/assets/icons/Plus.svg'
 export function FloatingActionButton() {
   return (
     <button
