@@ -30,15 +30,15 @@ describe('toTimeLabel', () => {
 
 describe('getDurationHours', () => {
   it('시작·종료 시각 차이를 시간 단위로 반환한다', () => {
-    expect(
-      getDurationHours('2026-04-05T10:00:00', '2026-04-05T12:30:00')
-    ).toBe(2.5)
+    expect(getDurationHours('2026-04-05T10:00:00', '2026-04-05T12:30:00')).toBe(
+      2.5
+    )
   })
 
   it('종료가 시작보다 이르면 0을 반환한다', () => {
-    expect(
-      getDurationHours('2026-04-05T12:00:00', '2026-04-05T10:00:00')
-    ).toBe(0)
+    expect(getDurationHours('2026-04-05T12:00:00', '2026-04-05T10:00:00')).toBe(
+      0
+    )
   })
 })
 
@@ -56,9 +56,11 @@ describe('getMonthlyDateCells', () => {
     expect(cells.length).toBeGreaterThan(27)
     const todayCell = cells.find(c => c.dateKey === '2026-04-15')
     expect(todayCell?.isToday).toBe(true)
-    expect(cells.filter(c => c.isCurrentMonth).every(c => c.dateKey.startsWith('2026-04'))).toBe(
-      true
-    )
+    expect(
+      cells
+        .filter(c => c.isCurrentMonth)
+        .every(c => c.dateKey.startsWith('2026-04'))
+    ).toBe(true)
     expect(cells.some(c => !c.isCurrentMonth)).toBe(true)
   })
 })
