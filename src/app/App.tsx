@@ -6,6 +6,8 @@ import {
   Outlet,
 } from 'react-router-dom'
 import { ManagerHomePage } from '@/pages/manager/home'
+import { SocialPage } from '@/pages/manager/social'
+import { SocialChatPage } from '@/pages/manager/social-chat'
 import { LoginPage } from '@/pages/login'
 import { SignupPage } from '@/pages/signup'
 import { JobLookupMapPage } from '@/pages/user/job-lookup-map'
@@ -55,6 +57,8 @@ export function App() {
           <Route path="/job-lookup-map" element={<JobLookupMapPage />} />
           <Route path="/home" element={<UserHomePage />} />
           <Route path="/manager/home" element={<ManagerHomePage />} />
+          <Route path="/manager/social" element={<SocialPage />} />
+          <Route path="/manager/social/chat" element={<SocialChatPage />} />
         </Route>
 
         <Route path="/" element={<Navigate to="/login" replace />} />
