@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006 --config-dir storybook",
     "build-storybook": "storybook build --config-dir storybook",
+    "test:unit": "vitest --project=unit --run",
     "test:storybook": "vitest --project=storybook"
   },
   "dependencies": {
