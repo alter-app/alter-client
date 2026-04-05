@@ -32,6 +32,21 @@ export default defineConfig({
     },
   },
   test: {
+    // 브라우저 커버리지: 리맵 후 exclude를 다시 적용해 CSS·정적 자산·Storybook preview 등을 리포트에서 제외
+    coverage: {
+      provider: 'v8',
+      excludeAfterRemap: true,
+      exclude: [
+        'src/**/*.stories.{ts,tsx}',
+        'src/**/*.mdx',
+        'src/**/*.d.ts',
+        'src/assets/**',
+        'src/app/styles/**',
+        'src/**/types/**',
+        'storybook/**',
+        '**/*.{css,png,jpg,jpeg,gif,webp,svg,ico}',
+      ],
+    },
     projects: [
       {
         extends: true,
