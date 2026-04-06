@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import {
   BrowserRouter,
   Routes,
@@ -9,13 +10,17 @@ import { ManagerHomePage } from '@/pages/manager/home'
 import { SocialPage } from '@/pages/manager/social'
 import { SocialChatPage } from '@/pages/manager/social-chat'
 import { LoginPage } from '@/pages/login'
-import { SignupPage } from '@/pages/signup'
 import { JobLookupMapPage } from '@/pages/user/job-lookup-map'
 import { SchedulePage } from '@/pages/user/schedule'
 import { UserHomePage } from '@/pages/user/home'
 import { WorkspaceMembersPage } from '@/pages/user/workspace-members'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { MobileLayoutWithDocbar } from '@/shared/ui/MobileLayoutWithDocbar'
+
+const SignupPage = lazy(async () => {
+  const m = await import('@/pages/signup')
+  return { default: m.SignupPage }
+})
 
 function MobileRouteLayoutWithoutDocbar() {
   return (
@@ -45,7 +50,14 @@ export function App() {
       <Routes>
         <Route element={<MobileRouteLayoutWithoutDocbar />}>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
+          <Route
+            path="/signup"
+            element={
+              <Suspense fallback={null}>
+                <SignupPage />
+              </Suspense>
+            }
+          />
           <Route path="/schedule" element={<SchedulePage />} />
           <Route
             path="/workspaces/:workspaceId/members"
