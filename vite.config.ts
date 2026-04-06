@@ -1,8 +1,11 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
 import path from 'path'
 import { fileURLToPath } from 'node:url'
+import { storybookTest } from '@storybook/addon-vitest/vitest-plugin'
+import { playwright } from '@vitest/browser-playwright'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -27,5 +30,57 @@ export default defineConfig({
         secure: true,
       },
     },
+  },
+  test: {
+    // 브라우저 커버리지: 리맵 후 exclude를 다시 적용해 CSS·정적 자산·Storybook preview 등을 리포트에서 제외
+    coverage: {
+      provider: 'v8',
+      excludeAfterRemap: true,
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'coverage/**',
+        'src/**/*.stories.{ts,tsx}',
+        'src/**/*.mdx',
+        'src/**/*.d.ts',
+        'src/assets/**',
+        'src/app/styles/**',
+        'src/**/types/**',
+        'storybook/**',
+        '**/*.{css,png,jpg,jpeg,gif,webp,svg,ico}',
+      ],
+    },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          environment: 'node',
+          include: ['src/**/*.test.{ts,tsx}'],
+        },
+      },
+      {
+        extends: true,
+        plugins: [
+          // The plugin will run tests for the stories defined in your Storybook config
+          // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
+          storybookTest({
+            configDir: path.join(dirname, 'storybook'),
+          }),
+        ],
+        test: {
+          name: 'storybook',
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright({}),
+            instances: [
+              {
+                browser: 'chromium',
+              },
+            ],
+          },
+        },
+      },
+    ],
   },
 })
