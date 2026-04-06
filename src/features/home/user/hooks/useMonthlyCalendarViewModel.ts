@@ -13,7 +13,7 @@ import { useMemo } from 'react'
 import {
   DATE_KEY_FORMAT,
   MONTH_LABEL_FORMAT,
-  WEEKDAY_LABELS,
+  WEEKDAY_LABELS_MONDAY_FIRST,
 } from '@/features/home/user/constants/calendar'
 import { useMonthlyDateCellsState } from '@/features/home/user/hooks/useMonthlyDateCellsState'
 import type {
@@ -27,8 +27,8 @@ import type { CalendarViewData } from '@/features/home/user/types/schedule'
 function getMonthlyCells(baseDate: Date): MonthlyCellInput[] {
   const monthStart = startOfMonth(baseDate)
   const monthEnd = endOfMonth(baseDate)
-  const intervalStart = startOfWeek(monthStart, { weekStartsOn: 0 })
-  const intervalEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
+  const intervalStart = startOfWeek(monthStart, { weekStartsOn: 1 })
+  const intervalEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
 
   return eachDayOfInterval({ start: intervalStart, end: intervalEnd }).map(
     date => ({
@@ -133,7 +133,7 @@ export function useMonthlyCalendarViewModel({
     totalWorkHoursText: String(
       Math.round(data?.summary.totalWorkHours ?? 0)
     ).padStart(2, '0'),
-    weekdayLabels: WEEKDAY_LABELS,
+    weekdayLabels: WEEKDAY_LABELS_MONDAY_FIRST,
     monthlyDateCellsState,
   }
 }

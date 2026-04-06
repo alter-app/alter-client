@@ -36,7 +36,9 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       excludeAfterRemap: true,
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
+        'coverage/**',
         'src/**/*.stories.{ts,tsx}',
         'src/**/*.mdx',
         'src/**/*.d.ts',

@@ -1,4 +1,4 @@
-import type { WEEKDAY_LABELS } from '@/features/home/user/constants/calendar'
+import type { WEEKDAY_LABELS_MONDAY_FIRST } from '@/features/home/user/constants/calendar'
 import type { BaseCalendarProps } from '@/features/home/user/types/calendar'
 
 export interface MonthlyCellInput {
@@ -31,7 +31,7 @@ export interface MonthlyCalendarViewModel {
   title: string
   monthLabel: string
   totalWorkHoursText: string
-  weekdayLabels: typeof WEEKDAY_LABELS
+  weekdayLabels: typeof WEEKDAY_LABELS_MONDAY_FIRST
   monthlyDateCellsState: MonthlyDateCellState[]
 }
 
