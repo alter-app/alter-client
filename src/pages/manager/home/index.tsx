@@ -1,9 +1,8 @@
 import { Navbar } from '@/shared/ui/common/Navbar'
-import { WorkerImageCard } from '@/shared/ui/manager/WorkerImageCard'
-import {
-  StoreWorkerListItem,
-  type StoreWorkerRole,
-} from '@/features/home/manager/ui/StoreWorkerListItem'
+import { TodayWorkerList } from '@/features/home/manager/ui/TodayWorkerList'
+import type { TodayWorkerItem } from '@/features/home/manager/ui/TodayWorkerList'
+import { StoreWorkerListItem } from '@/features/home/manager/ui/StoreWorkerListItem'
+import type { StoreWorkerRole } from '@/features/home/manager/ui/StoreWorkerListItem'
 import {
   OngoingPostingCard,
   type JobPostingItem,
@@ -16,10 +15,10 @@ import {
 import homeBanner from '@/assets/home.png'
 
 // 더미 데이터
-const TODAY_WORKERS = [
-  { name: '알바생1', timeRange: '00:00 ~ 00:00' },
-  { name: '알바생2', timeRange: '00:00 ~ 00:00' },
-] as const
+const TODAY_WORKERS: TodayWorkerItem[] = [
+  { id: '1', name: '알바생1', workTime: '00:00 ~ 00:00' },
+  { id: '2', name: '알바생2', workTime: '00:00 ~ 00:00' },
+]
 
 interface StoreWorkerData {
   id: string
@@ -103,18 +102,8 @@ export function ManagerHomePage() {
           <div className="typography-headline02">MM월 dd일</div>
           <div className="typography-bg">전체 보기</div>
         </div>
-        <div className="typography-headline01 pt-6">
-          오늘 근무자는 <span className="text-sub">6</span>명이에요
-        </div>
-
-        <div className="flex gap-3 overflow-x-auto pt-4 pb-2 -mx-1">
-          {TODAY_WORKERS.map(worker => (
-            <WorkerImageCard
-              key={worker.name}
-              name={worker.name}
-              timeRange={worker.timeRange}
-            />
-          ))}
+        <div className="pt-6">
+          <TodayWorkerList workers={TODAY_WORKERS} />
         </div>
       </div>
       <div className="pt-6 pb-8">

@@ -14,6 +14,8 @@ import { JobLookupMapPage } from '@/pages/user/job-lookup-map'
 import { SchedulePage } from '@/pages/user/schedule'
 import { UserHomePage } from '@/pages/user/home'
 import { WorkspaceMembersPage } from '@/pages/user/workspace-members'
+import { WorkspacePage } from '@/pages/user/workspace'
+import { WorkspaceDetailPage } from '@/pages/user/workspace-detail'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { MobileLayoutWithDocbar } from '@/shared/ui/MobileLayoutWithDocbar'
 
@@ -63,6 +65,8 @@ export function App() {
             path="/workspaces/:workspaceId/members"
             element={<WorkspaceMembersPage />}
           />
+          <Route path="/workspace" element={<WorkspacePage />} />
+          <Route path="/workspace/:workspaceId" element={<WorkspaceDetailPage />} />
         </Route>
 
         <Route element={<MobileRouteLayoutWithDocbar />}>

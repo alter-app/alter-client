@@ -6,6 +6,7 @@ import {
 import type { WorkingStoreItem } from '@/features/home/user/ui/WorkingStoreCard'
 import type { AppliedStoreItem } from '@/features/home/user/ui/AppliedStoreList'
 import { Navbar } from '@/shared/ui/common/Navbar'
+import { useNavigate } from 'react-router-dom'
 
 const WORKING_STORES: WorkingStoreItem[] = [
   {
@@ -29,6 +30,8 @@ const APPLIED_STORES: AppliedStoreItem[] = [
 ]
 
 export function UserHomePage() {
+  const navigate = useNavigate()
+
   return (
     <div className="flex flex-col min-h-[100dvh] bg-bg-light items-center">
       <div className="sticky top-0 z-10 bg-bg-light w-full">
@@ -43,7 +46,7 @@ export function UserHomePage() {
           onDateChange={() => {}}
         />
 
-        <WorkingStoresList stores={WORKING_STORES} onMoreClick={() => {}} />
+        <WorkingStoresList stores={WORKING_STORES} onMoreClick={() => navigate('/workspace')} />
 
         <AppliedStoreList stores={APPLIED_STORES} onMoreClick={() => {}} />
       </div>

@@ -1,4 +1,4 @@
-type WorkerRole = 'staff' | 'manager'
+type WorkerRole = 'staff' | 'manager' | 'owner'
 
 interface WorkerRoleBadgeProps {
   role: WorkerRole
@@ -12,6 +12,10 @@ const ROLE_STYLE_MAP = {
   },
   manager: {
     label: '매니저',
+    containerClassName: 'bg-main-700',
+  },
+  owner: {
+    label: '사장님',
     containerClassName: 'bg-main-700',
   },
 } as const
