@@ -1,6 +1,6 @@
-import type { ScheduleItem as ScheduleItemType } from '@/shared/stores/useScheduleStore'
+import type { ScheduleListItem } from '@/features/home/user/types/scheduleList'
 
-interface ScheduleItemProps extends ScheduleItemType {
+interface ScheduleItemProps extends ScheduleListItem {
   onClick?: (id: string) => void
 }
 

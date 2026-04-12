@@ -4,8 +4,7 @@ import {
   getWorkspaceWorkers,
   type WorkspaceWorkersResponse,
 } from '@/shared/api/workspaceMembers'
-
-export const WORKSPACE_WORKERS_QUERY_KEY = ['workspace', 'workers'] as const
+import { queryKeys } from '@/shared/lib/queryKeys'
 
 type WorkspaceWorkersQueryParams = {
   workspaceId?: number
@@ -19,7 +18,7 @@ export function useWorkspaceWorkersQuery(params: WorkspaceWorkersQueryParams) {
   const { workspaceId, cursor, pageSize } = params
 
   const { data, isPending, error } = useQuery({
-    queryKey: [...WORKSPACE_WORKERS_QUERY_KEY, workspaceId, cursor, pageSize],
+    queryKey: queryKeys.workspace.workers(workspaceId, cursor, pageSize),
     queryFn: async () => {
       if (!workspaceId) {
         throw new Error('workspaceId는 필수입니다.')

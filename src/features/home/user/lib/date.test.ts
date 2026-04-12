@@ -8,7 +8,7 @@ import {
   getDayHours,
   getDurationHours,
   getMonthlyDateCells,
-  getRangeParamsByMode,
+  getScheduleParamsByMode,
   getWeekRangeLabel,
   getWeeklyDateCells,
   moveDateByMode,
@@ -131,26 +131,28 @@ describe('getDailyHourTicks', () => {
   })
 })
 
-describe('getRangeParamsByMode', () => {
+describe('getScheduleParamsByMode', () => {
   const base = new Date(2026, 3, 15)
 
-  it('monthly이면 해당 월의 첫날·마지막날이다', () => {
-    expect(getRangeParamsByMode(base, 'monthly')).toEqual({
-      startDate: '2026-04-01',
-      endDate: '2026-04-30',
+  it('monthly이면 year·month만 반환한다', () => {
+    expect(getScheduleParamsByMode(base, 'monthly')).toEqual({
+      year: 2026,
+      month: 4,
     })
   })
 
-  it('weekly이면 해당 주 월요일~일요일이다', () => {
-    const { startDate, endDate } = getRangeParamsByMode(base, 'weekly')
-    expect(startDate <= endDate).toBe(true)
-    expect(startDate).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+  it('weekly이면 year·month만 반환한다', () => {
+    expect(getScheduleParamsByMode(base, 'weekly')).toEqual({
+      year: 2026,
+      month: 4,
+    })
   })
 
-  it('daily이면 하루 범위로 동일한 날짜다', () => {
-    expect(getRangeParamsByMode(base, 'daily')).toEqual({
-      startDate: '2026-04-15',
-      endDate: '2026-04-15',
+  it('daily이면 year·month·day를 반환한다', () => {
+    expect(getScheduleParamsByMode(base, 'daily')).toEqual({
+      year: 2026,
+      month: 4,
+      day: 15,
     })
   })
 })

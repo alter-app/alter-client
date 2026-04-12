@@ -13,7 +13,6 @@ export type {
   CalendarViewData,
 } from '@/features/home/user/types/schedule'
 export {
-  getMonthlySchedules,
-  getWeeklySchedules,
-  getDailySchedules,
+  getSelfSchedule,
+  adaptScheduleResponse,
 } from '@/features/home/user/api/schedule'

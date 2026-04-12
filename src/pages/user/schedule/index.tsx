@@ -1,7 +1,6 @@
-import type { ScheduleItem as ScheduleItemType } from '@/shared/stores/useScheduleStore'
-import { useSelfScheduleQuery } from '@/shared/hooks/useSelfScheduleQuery'
+import type { ScheduleListItem } from '@/features/home/user/types/scheduleList'
+import { useScheduleListViewModel } from '@/features/home/user/hooks/useScheduleListViewModel'
 import { ScheduleItem } from './components/ScheduleItem'
-import { useSchedule } from './hooks/useSchedule'
 import { ChevronLeftIcon } from '@/assets/icons/ChevronLeftIcon'
 import { ChevronRightIcon } from '@/assets/icons/ChevronRightIcon'
 import { CalendarEmptyIcon } from '@/assets/icons/CalendarEmptyIcon'
@@ -11,15 +10,12 @@ export function SchedulePage() {
   const {
     currentYear,
     currentMonth,
+    schedules,
+    isLoading,
     handlePreviousMonth,
     handleNextMonth,
     handleScheduleClick,
-  } = useSchedule()
-
-  const { schedules, isLoading } = useSelfScheduleQuery({
-    year: currentYear,
-    month: currentMonth,
-  })
+  } = useScheduleListViewModel()
 
   return (
     <div className="min-h-screen bg-bg-light">
@@ -61,7 +57,7 @@ export function SchedulePage() {
           {schedules.length > 0 ? (
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-line-1">
               <div className="flex flex-col gap-3">
-                {schedules.map((schedule: ScheduleItemType) => (
+                {schedules.map((schedule: ScheduleListItem) => (
                   <ScheduleItem
                     key={schedule.id}
                     id={schedule.id}

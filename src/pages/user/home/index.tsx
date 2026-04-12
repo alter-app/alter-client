@@ -5,6 +5,7 @@ import {
 } from '@/features/home'
 import type { WorkingStoreItem } from '@/features/home/user/ui/WorkingStoreCard'
 import type { AppliedStoreItem } from '@/features/home/user/ui/AppliedStoreList'
+import { useHomeScheduleViewModel } from '@/features/home/user/hooks/useHomeScheduleViewModel'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { useNavigate } from 'react-router-dom'
 
@@ -31,6 +32,8 @@ const APPLIED_STORES: AppliedStoreItem[] = [
 
 export function UserHomePage() {
   const navigate = useNavigate()
+  const { mode, baseDate, calendarData, isLoading, onDateChange } =
+    useHomeScheduleViewModel()
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-bg-light items-center">
@@ -39,11 +42,11 @@ export function UserHomePage() {
       </div>
       <div className="flex flex-col space-y-3 pb-8 mt-4">
         <HomeScheduleCalendar
-          mode="monthly"
-          baseDate={new Date()}
-          data={null}
-          isLoading={false}
-          onDateChange={() => {}}
+          mode={mode}
+          baseDate={baseDate}
+          data={calendarData}
+          isLoading={isLoading}
+          onDateChange={onDateChange}
         />
 
         <WorkingStoresList

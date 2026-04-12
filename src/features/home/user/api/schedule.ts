@@ -13,9 +13,10 @@ import {
   toTimeLabel,
 } from '@/features/home/user/lib/date'
 
-interface PeriodQueryParams {
-  startDate: string
-  endDate: string
+export interface SelfScheduleQueryParams {
+  year?: number
+  month?: number
+  day?: number
 }
 
 function mapToCalendarEvent(
@@ -47,38 +48,32 @@ export function adaptScheduleResponse(
   }
 }
 
-async function fetchSchedule(
-  endpoint: string,
-  params: PeriodQueryParams
+export async function getSelfSchedule(
+  params?: SelfScheduleQueryParams
 ): Promise<ScheduleApiResponse> {
+  const { year, month, day } = params ?? {}
+
   try {
-    const response = await axiosInstance.get<ScheduleApiResponse>(endpoint, {
-      params,
-    })
+    const response = await axiosInstance.get<ScheduleApiResponse>(
+      '/app/schedules/self',
+      {
+        params: {
+          ...(year !== undefined && { year }),
+          ...(month !== undefined && { month }),
+          ...(day !== undefined && { day }),
+        },
+      }
+    )
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const errorData: ErrorResponse = error.response?.data ?? {}
-      const message = errorData.message ?? '스케줄 조회 중 오류가 발생했습니다.'
+      const message =
+        errorData.message ?? '스케줄 조회 중 오류가 발생했습니다.'
       const apiError = new Error(message) as ApiError & Error
       apiError.data = errorData
       throw apiError
     }
     throw new Error('스케줄 조회 중 오류가 발생했습니다.')
   }
-}
-
-export async function getMonthlySchedules(params: PeriodQueryParams) {
-  const response = await fetchSchedule('/app/schedules/self/monthly', params)
-  return adaptScheduleResponse(response)
-}
-
-export async function getWeeklySchedules(params: PeriodQueryParams) {
-  const response = await fetchSchedule('/app/schedules/self/weekly', params)
-  return adaptScheduleResponse(response)
-}
-
-export async function getDailySchedules(params: PeriodQueryParams) {
-  const response = await fetchSchedule('/app/schedules/self/daily', params)
-  return adaptScheduleResponse(response)
 }

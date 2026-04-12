@@ -12,6 +12,9 @@ import {
 import { ko } from 'date-fns/locale'
 import type { ScheduleDataDto } from '@/features/home/user/types/schedule'
 import type { HomeCalendarMode } from '@/features/home/user/types/schedule'
+import type { SelfScheduleQueryParams } from '@/features/home/user/api/schedule'
+import type { ScheduleListItem } from '@/features/home/user/types/scheduleList'
+import { WEEKDAY_LABELS } from '@/features/home/user/constants/calendar'
 
 const ISO_DATE_LENGTH = 10
 const ISO_TIME_START = 11
@@ -87,29 +90,51 @@ export function getDailyHourTicks() {
   )
 }
 
-export function getRangeParamsByMode(baseDate: Date, mode: HomeCalendarMode) {
-  if (mode === 'monthly') {
-    return {
-      startDate: format(startOfMonth(baseDate), 'yyyy-MM-dd'),
-      endDate: format(endOfMonth(baseDate), 'yyyy-MM-dd'),
-    }
+export function getScheduleParamsByMode(
+  baseDate: Date,
+  mode: HomeCalendarMode
+): SelfScheduleQueryParams {
+  const year = baseDate.getFullYear()
+  const month = baseDate.getMonth() + 1
+  if (mode === 'daily') {
+    return { year, month, day: baseDate.getDate() }
   }
+  return { year, month }
+}
 
-  if (mode === 'weekly') {
-    return {
-      startDate: format(
-        startOfWeek(baseDate, { weekStartsOn: 1 }),
-        'yyyy-MM-dd'
-      ),
-      endDate: format(endOfWeek(baseDate, { weekStartsOn: 1 }), 'yyyy-MM-dd'),
-    }
-  }
-
-  const day = format(baseDate, 'yyyy-MM-dd')
+export function formatScheduleTimeRange(
+  startIso: string,
+  endIso: string
+): { time: string; hours: string } {
+  const durationHours = getDurationHours(startIso, endIso)
+  const hoursLabel = Number.isInteger(durationHours)
+    ? `${durationHours}시간`
+    : `${durationHours.toFixed(1)}시간`
   return {
-    startDate: day,
-    endDate: day,
+    time: `${toTimeLabel(startIso)} ~ ${toTimeLabel(endIso)}`,
+    hours: hoursLabel,
   }
+}
+
+export function mapToScheduleListItems(
+  data: ScheduleDataDto | undefined
+): ScheduleListItem[] {
+  if (!data) return []
+  return data.schedules.map(schedule => {
+    const start = new Date(schedule.startDateTime)
+    const { time, hours } = formatScheduleTimeRange(
+      schedule.startDateTime,
+      schedule.endDateTime
+    )
+    return {
+      id: String(schedule.shiftId),
+      day: WEEKDAY_LABELS[start.getDay()],
+      date: String(start.getDate()),
+      workplace: schedule.workspace.workspaceName,
+      time,
+      hours,
+    }
+  })
 }
 
 export function moveDateByMode(
