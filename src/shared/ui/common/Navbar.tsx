@@ -2,7 +2,6 @@ import AlterLogo from '@/assets/Alter-logo.png'
 import BellIcon from '@/assets/icons/nav/bell.svg'
 import MenuIcon from '@/assets/icons/nav/menu.svg'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
-import { typography } from '@/shared/lib/tokens'
 import { useNavigate } from 'react-router-dom'
 
 type NavbarVariant = 'main' | 'detail'
@@ -52,14 +51,7 @@ export function Navbar({
       <div className="absolute left-1/2 -translate-x-1/2">
         {!isMain && (
           <span
-            className="text-text-100 whitespace-nowrap"
-            style={{
-              fontFamily: typography.body01Semibold.fontFamily,
-              fontSize: typography.body01Semibold.fontSize,
-              fontWeight: typography.body01Semibold.fontWeight,
-              lineHeight: typography.body01Semibold.lineHeight,
-              letterSpacing: typography.body01Semibold.letterSpacing,
-            }}
+            className="text-text-100 whitespace-nowrap typography-headline03"
           >
             {title}
           </span>
