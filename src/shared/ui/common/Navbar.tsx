@@ -30,7 +30,7 @@ export function Navbar({
   }
 
   return (
-    <header className="relative flex h-14 w-full items-center border-b border-line-2 bg-white px-4 py-3.5">
+    <header className="relative flex h-14 w-full items-center border-b border-line-2  px-4 py-3.5">
       <div className="flex min-w-[84px] items-center">
         {isMain ? (
           <div className="flex items-center gap-2">

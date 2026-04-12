@@ -23,7 +23,7 @@ export function HomeScheduleCalendar({
   isLoading = false,
 }: HomeScheduleCalendarProps) {
   return (
-    <section className="rounded-2xl bg-white px-[11px] py-6 w-[358px]">
+    <section className="rounded-2xl bg-white px-[11px] py-6 w-full">
       {mode === 'monthly' && (
         <MonthlyCalendar
           baseDate={baseDate}

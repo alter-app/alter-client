@@ -24,7 +24,7 @@ export function AppliedStoreList({
   const rightLabel = recentLabel ?? `최근 지원한 ${visibleStores.length}개`
 
   return (
-    <section className="w-full rounded-2xl bg-white py-6">
+    <section className="w-[358px] rounded-2xl bg-white py-6">
       <div className="flex justify-between px-6">
         <h3 className="typography-headline01 text-text-100">{title}</h3>
         <p className="typography-body02-regular text-text-50 mt-2 mb-[3px]">

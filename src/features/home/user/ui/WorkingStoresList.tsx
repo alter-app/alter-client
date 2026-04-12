@@ -25,7 +25,7 @@ export function WorkingStoresList({
   const { visibleStores } = useWorkingStoresListViewModel(stores)
 
   return (
-    <section className="w-full rounded-2xl bg-white py-6">
+    <section className="w-[358px] rounded-2xl bg-white py-6">
       <div className="flex items-center justify-between px-6">
         <h3 className="typography-headline01 text-text-100">{title}</h3>
         <div className="flex items-center gap-1">
