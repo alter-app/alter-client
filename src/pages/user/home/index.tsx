@@ -46,9 +46,15 @@ export function UserHomePage() {
           onDateChange={() => {}}
         />
 
-        <WorkingStoresList stores={WORKING_STORES} onMoreClick={() => navigate('/workspace')} />
+        <WorkingStoresList
+          stores={WORKING_STORES}
+          onMoreClick={() => navigate('/workspace')}
+        />
 
-        <AppliedStoreList stores={APPLIED_STORES} onMoreClick={() => {}} />
+        <AppliedStoreList
+          stores={APPLIED_STORES}
+          onMoreClick={() => navigate('/applied-stores')}
+        />
       </div>
     </div>
   )

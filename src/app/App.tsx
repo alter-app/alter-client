@@ -16,6 +16,7 @@ import { UserHomePage } from '@/pages/user/home'
 import { WorkspaceMembersPage } from '@/pages/user/workspace-members'
 import { WorkspacePage } from '@/pages/user/workspace'
 import { WorkspaceDetailPage } from '@/pages/user/workspace-detail'
+import { AppliedStoresPage } from '@/pages/user/applied-stores'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { MobileLayoutWithDocbar } from '@/shared/ui/MobileLayoutWithDocbar'
 
@@ -66,7 +67,11 @@ export function App() {
             element={<WorkspaceMembersPage />}
           />
           <Route path="/workspace" element={<WorkspacePage />} />
-          <Route path="/workspace/:workspaceId" element={<WorkspaceDetailPage />} />
+          <Route
+            path="/workspace/:workspaceId"
+            element={<WorkspaceDetailPage />}
+          />
+          <Route path="/applied-stores" element={<AppliedStoresPage />} />
         </Route>
 
         <Route element={<MobileRouteLayoutWithDocbar />}>

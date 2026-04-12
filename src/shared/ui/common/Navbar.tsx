@@ -50,9 +50,7 @@ export function Navbar({
 
       <div className="absolute left-1/2 -translate-x-1/2">
         {!isMain && (
-          <span
-            className="text-text-100 whitespace-nowrap typography-headline03"
-          >
+          <span className="text-text-100 whitespace-nowrap typography-headline03">
             {title}
           </span>
         )}
