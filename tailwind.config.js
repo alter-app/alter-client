@@ -34,6 +34,7 @@ export default {
         // Main 색상
         main: {
           DEFAULT: '#2ce283',
+          900: '#42e590',
           700: '#6ceba9',
           500: '#96f1c1',
           300: '#c0f7da',

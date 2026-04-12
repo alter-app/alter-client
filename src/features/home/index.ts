@@ -5,6 +5,7 @@ export { WorkspaceChangeCard } from '@/features/home/manager/ui/WorkspaceChangeC
 export { WorkspaceChangeList } from '@/features/home/manager/ui/WorkspaceChangeList'
 export { AppliedStoreCard } from '@/features/home/user/ui/AppliedStoreCard'
 export { AppliedStoreList } from '@/features/home/user/ui/AppliedStoreList'
+export { AppliedStoreDetailModal } from '@/features/home/user/ui/AppliedStoreDetailModal'
 export { WorkingStoresList } from '@/features/home/user/ui/WorkingStoresList'
 export { WorkingStoreCard } from '@/features/home/user/ui/WorkingStoreCard'
 export type {

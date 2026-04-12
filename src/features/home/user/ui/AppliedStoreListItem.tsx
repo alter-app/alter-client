@@ -4,15 +4,34 @@ interface AppliedStoreListItemProps {
   storeName: string
   status: 'applied' | 'rejected'
   thumbnailUrl?: string
+  onClick?: () => void
 }
 
 export function AppliedStoreListItem({
   storeName,
   status,
   thumbnailUrl,
+  onClick,
 }: AppliedStoreListItemProps) {
   return (
-    <div className="flex h-[72px] items-center rounded-2xl border border-line-1 bg-white px-6">
+    <div
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      className={`flex h-[72px] items-center rounded-2xl border border-line-1 bg-white px-6 ${
+        onClick ? 'cursor-pointer transition-opacity active:opacity-80' : ''
+      }`}
+      onClick={onClick}
+      onKeyDown={
+        onClick
+          ? e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onClick()
+              }
+            }
+          : undefined
+      }
+    >
       <div className="h-12 w-12 shrink-0 overflow-hidden rounded-[70px] bg-bg-dark">
         {thumbnailUrl ? (
           <img
