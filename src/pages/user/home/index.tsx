@@ -1,94 +1,52 @@
-import { useEffect, useState } from 'react'
 import {
-  getDailySchedules,
-  getMonthlySchedules,
-  getWeeklySchedules,
   HomeScheduleCalendar,
-  type CalendarViewData,
-  type HomeCalendarMode,
+  WorkingStoresList,
+  AppliedStoreList,
 } from '@/features/home'
-import { getRangeParamsByMode } from '@/features/home/user/lib/date'
+import type { WorkingStoreItem } from '@/features/home/user/ui/WorkingStoreCard'
+import type { AppliedStoreItem } from '@/features/home/user/ui/AppliedStoreList'
+import { Navbar } from '@/shared/ui/common/Navbar'
+
+const WORKING_STORES: WorkingStoreItem[] = [
+  {
+    workspaceId: 1,
+    businessName: '스타벅스 강남점',
+    employedAt: '2024-01-01',
+    nextShiftDateTime: '2025-04-15T09:00:00',
+  },
+  {
+    workspaceId: 2,
+    businessName: '맥도날드 홍대점',
+    employedAt: '2024-03-01',
+    nextShiftDateTime: '2025-04-18T14:00:00',
+  },
+]
+
+const APPLIED_STORES: AppliedStoreItem[] = [
+  { id: 1, storeName: '이디야커피 신촌점', status: 'applied' },
+  { id: 2, storeName: '베스킨라빈스 마포점', status: 'rejected' },
+  { id: 3, storeName: '파리바게뜨 합정점', status: 'applied' },
+]
 
 export function UserHomePage() {
-  const [mode, setMode] = useState<HomeCalendarMode>('monthly')
-  const [baseDate, setBaseDate] = useState<Date>(new Date())
-  const [data, setData] = useState<CalendarViewData | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-
-  useEffect(() => {
-    let mounted = true
-
-    const fetchData = async () => {
-      setIsLoading(true)
-      setErrorMessage('')
-      try {
-        const range = getRangeParamsByMode(baseDate, mode)
-        const result =
-          mode === 'monthly'
-            ? await getMonthlySchedules(range)
-            : mode === 'weekly'
-              ? await getWeeklySchedules(range)
-              : await getDailySchedules(range)
-
-        if (!mounted) return
-        setData(result)
-      } catch (error) {
-        if (!mounted) return
-        setData(null)
-        setErrorMessage(
-          error instanceof Error
-            ? error.message
-            : '홈 스케줄을 불러오는 중 오류가 발생했습니다.'
-        )
-      } finally {
-        if (mounted) {
-          setIsLoading(false)
-        }
-      }
-    }
-
-    fetchData()
-
-    return () => {
-      mounted = false
-    }
-  }, [baseDate, mode])
-
   return (
-    <div className="min-h-screen bg-bg-light p-4 space-y-3">
-      <div className="inline-flex rounded-xl border border-line-1 bg-white p-1">
-        {(['monthly', 'weekly', 'daily'] as const).map(item => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setMode(item)}
-            className={`rounded-lg px-3 py-1.5 text-2 ${
-              mode === item
-                ? 'bg-main-100 text-sub-900'
-                : 'bg-white text-text-70'
-            }`}
-          >
-            {item === 'monthly' && '월간'}
-            {item === 'weekly' && '주간'}
-            {item === 'daily' && '금일'}
-          </button>
-        ))}
+    <div className="flex flex-col min-h-[100dvh] bg-bg-light items-center">
+      <div className="sticky top-0 z-10 bg-bg-light w-full">
+        <Navbar />
       </div>
+      <div className="flex flex-col space-y-3 pb-8 mt-4">
+        <HomeScheduleCalendar
+          mode="monthly"
+          baseDate={new Date()}
+          data={null}
+          isLoading={false}
+          onDateChange={() => {}}
+        />
 
-      {errorMessage && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-2 text-red-600">
-          {errorMessage}
-        </div>
-      )}
+        <WorkingStoresList stores={WORKING_STORES} onMoreClick={() => {}} />
 
-      <HomeScheduleCalendar
-        mode={mode}
-        baseDate={baseDate}
-        data={data}
-        isLoading={isLoading}
-        onDateChange={setBaseDate}
-      />
+        <AppliedStoreList stores={APPLIED_STORES} onMoreClick={() => {}} />
+      </div>
     </div>
   )
 }
