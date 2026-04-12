@@ -14,7 +14,11 @@ export function useHomeScheduleViewModel() {
 
   const params = getScheduleParamsByMode(baseDate, mode)
 
-  const { data: rawData, isPending, error } = useQuery({
+  const {
+    data: rawData,
+    isPending,
+    error,
+  } = useQuery({
     queryKey: queryKeys.schedules.self(params),
     queryFn: () => getSelfSchedule(params),
   })

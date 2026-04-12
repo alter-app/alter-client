@@ -5,15 +5,16 @@ import { mapToScheduleListItems } from '@/features/home/user/lib/date'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 export function useScheduleListViewModel() {
-  const [currentYear, setCurrentYear] = useState(
-    () => new Date().getFullYear()
-  )
+  const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear())
   const [currentMonth, setCurrentMonth] = useState(
     () => new Date().getMonth() + 1
   )
 
   const { data: rawData, isPending } = useQuery({
-    queryKey: queryKeys.schedules.self({ year: currentYear, month: currentMonth }),
+    queryKey: queryKeys.schedules.self({
+      year: currentYear,
+      month: currentMonth,
+    }),
     queryFn: () => getSelfSchedule({ year: currentYear, month: currentMonth }),
   })
 

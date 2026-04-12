@@ -68,8 +68,7 @@ export async function getSelfSchedule(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const errorData: ErrorResponse = error.response?.data ?? {}
-      const message =
-        errorData.message ?? '스케줄 조회 중 오류가 발생했습니다.'
+      const message = errorData.message ?? '스케줄 조회 중 오류가 발생했습니다.'
       const apiError = new Error(message) as ApiError & Error
       apiError.data = errorData
       throw apiError
