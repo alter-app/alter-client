@@ -1,15 +1,13 @@
-import type { WorkspaceManagerDto } from '@/shared/api/workspaceMembers'
+import type { WorkspaceManagerItem } from '@/features/home/user/workspace/types/workspaceMembers'
 import { LoadMoreButton } from './LoadMoreButton'
 
 type Props = {
-  managers: WorkspaceManagerDto[]
+  managers: WorkspaceManagerItem[]
   hasMore: boolean
   onLoadMore: () => void
 }
 
-export function ManagersSection(props: Props) {
-  const { managers, hasMore, onLoadMore } = props
-
+export function ManagersSection({ managers, hasMore, onLoadMore }: Props) {
   if (managers.length === 0) return null
 
   return (
@@ -25,11 +23,11 @@ export function ManagersSection(props: Props) {
           >
             <div className="flex flex-col gap-0.5">
               <span className="font-pretendard font-semibold text-3 text-text-100">
-                {manager.manager.name}
+                {manager.name}
               </span>
               <span className="font-pretendard text-2 text-text-70">
-                {manager.position.emoji}{' '}
-                {manager.position.description || manager.position.type}
+                {manager.positionEmoji}{' '}
+                {manager.positionDescription || manager.positionType}
               </span>
             </div>
           </li>

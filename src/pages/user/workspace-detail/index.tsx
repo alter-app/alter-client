@@ -1,8 +1,8 @@
 import { useParams, useLocation } from 'react-router-dom'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { HomeScheduleCalendar } from '@/features/home'
-import { StoreWorkerListItem } from '@/features/home/manager/ui/StoreWorkerListItem'
 import { useWorkspaceScheduleViewModel } from '@/features/home/user/workspace/hooks/useWorkspaceScheduleViewModel'
+import { useWorkspaceWorkersViewModel } from '@/features/home/user/workspace/hooks/useWorkspaceWorkersViewModel'
 import UsersIcon from '@/assets/icons/home/users.svg'
 import { format, parseISO } from 'date-fns'
 
@@ -18,8 +18,16 @@ export function WorkspaceDetailPage() {
   const id = Number(workspaceId)
   const businessName = (state as { businessName?: string } | null)?.businessName
 
-  const { mode, baseDate, calendarData, workers, isLoading, onDateChange } =
+  const { mode, baseDate, calendarData, isLoading: scheduleLoading, onDateChange } =
     useWorkspaceScheduleViewModel(id)
+
+  const {
+    workers,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: workersLoading,
+  } = useWorkspaceWorkersViewModel(id, 5)
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-bg-light">
@@ -29,7 +37,7 @@ export function WorkspaceDetailPage() {
           mode={mode}
           baseDate={baseDate}
           data={calendarData}
-          isLoading={isLoading}
+          isLoading={scheduleLoading}
           workspaceName={businessName}
           onDateChange={onDateChange}
         />
@@ -42,31 +50,51 @@ export function WorkspaceDetailPage() {
             </span>
           </div>
 
-          {isLoading ? (
+          {workersLoading ? (
             <div className="flex justify-center py-6">
-              <p className="typography-body02-regular text-text-70">
-                로딩 중...
-              </p>
+              <p className="typography-body02-regular text-text-70">로딩 중...</p>
             </div>
           ) : workers.length === 0 ? (
             <div className="flex justify-center py-6">
               <p className="typography-body02-regular text-text-70">
-                이 기간에 예정된 근무자가 없습니다.
+                등록된 근무자가 없습니다.
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-2">
-              {workers.map(worker => (
-                <div key={worker.workerId} className="rounded-2xl bg-white">
-                  <StoreWorkerListItem
-                    name={worker.workerName}
-                    role="staff"
-                    nextWorkDate={formatNextShift(worker.nextShiftDateTime)}
-                    onOptions={() => {}}
-                  />
-                </div>
-              ))}
-            </div>
+            <>
+              <div className="flex flex-col gap-2">
+                {workers.map(worker => (
+                  <div
+                    key={worker.id}
+                    className="rounded-2xl bg-white px-5 py-3 flex items-center justify-between"
+                  >
+                    <div className="flex flex-col gap-0.5">
+                      <p className="typography-body02-semibold text-text-90">
+                        {worker.name}
+                      </p>
+                      <p className="typography-body02-regular text-text-70">
+                        {worker.positionEmoji}{' '}
+                        {worker.positionDescription || worker.positionType}
+                      </p>
+                    </div>
+                    <p className="typography-body02-regular text-text-50">
+                      {formatNextShift(worker.nextShiftDateTime)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {hasNextPage && (
+                <button
+                  type="button"
+                  className="typography-body02-regular mt-2 w-full py-3 text-center text-text-70"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                >
+                  {isFetchingNextPage ? '불러오는 중...' : '더 보기'}
+                </button>
+              )}
+            </>
           )}
         </section>
       </div>
