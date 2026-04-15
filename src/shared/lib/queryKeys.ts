@@ -11,5 +11,7 @@ export const queryKeys = {
       ['workspace', 'workers', workspaceId, cursor, pageSize] as const,
     managers: (workspaceId?: number, cursor?: string, pageSize?: number) =>
       ['workspace', 'managers', workspaceId, cursor, pageSize] as const,
+    list: (params?: { pageSize: number }) =>
+      ['workspace', 'list', params] as const,
   },
 } as const
