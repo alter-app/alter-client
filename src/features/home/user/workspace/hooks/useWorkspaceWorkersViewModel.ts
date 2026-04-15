@@ -9,20 +9,27 @@ export function useWorkspaceWorkersViewModel(
   workspaceId: number,
   pageSize = 10
 ) {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending, isError } =
-    useInfiniteQuery({
-      queryKey: queryKeys.workspace.workers(workspaceId),
-      queryFn: ({ pageParam }) =>
-        getWorkspaceWorkers(workspaceId, {
-          pageSize,
-          cursor: pageParam as string | undefined,
-        }),
-      initialPageParam: undefined as string | undefined,
-      getNextPageParam: lastPage => lastPage.data.page.cursor ?? undefined,
-      enabled: workspaceId > 0,
-    })
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isPending,
+    isError,
+  } = useInfiniteQuery({
+    queryKey: queryKeys.workspace.workers(workspaceId),
+    queryFn: ({ pageParam }) =>
+      getWorkspaceWorkers(workspaceId, {
+        pageSize,
+        cursor: pageParam as string | undefined,
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: lastPage => lastPage.data.page.cursor ?? undefined,
+    enabled: workspaceId > 0,
+  })
 
-  const workers = data?.pages.flatMap(page => page.data.data.map(adaptWorkerDto)) ?? []
+  const workers =
+    data?.pages.flatMap(page => page.data.data.map(adaptWorkerDto)) ?? []
 
   return {
     workers,

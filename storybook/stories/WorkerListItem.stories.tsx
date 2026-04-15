@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import React from 'react'
 
-import { WorkerListItem } from '../../src/shared/ui/manager/WorkerListItem'
+import { WorkerListItem } from '../../src/shared/ui/home/WorkerListItem'
 
 const meta = {
-  title: 'shared/ui/manager/WorkerListItem',
+  title: 'shared/ui/home/WorkerListItem',
   component: WorkerListItem,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
@@ -20,19 +20,21 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Manager: Story = {
+export const ManagerVariant: Story = {
   args: {
     name: '이름임',
-    role: '매니저',
+    role: '사장님',
+    variant: 'manager',
     nextWorkDate: '2025. 1. 1.',
     onOptions: () => {},
   },
 }
 
-export const PartTimer: Story = {
+export const WorkerVariant: Story = {
   args: {
     name: '이름임',
     role: '알바',
+    variant: 'worker',
     nextWorkDate: '2025. 1. 1.',
     onOptions: () => {},
   },

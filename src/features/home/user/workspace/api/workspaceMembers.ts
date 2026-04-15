@@ -54,7 +54,9 @@ export function adaptWorkerDto(dto: WorkspaceWorkerDto): WorkspaceWorkerItem {
   }
 }
 
-export function adaptManagerDto(dto: WorkspaceManagerDto): WorkspaceManagerItem {
+export function adaptManagerDto(
+  dto: WorkspaceManagerDto
+): WorkspaceManagerItem {
   return {
     id: dto.id,
     managerId: dto.manager.id,
