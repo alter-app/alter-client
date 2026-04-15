@@ -5,8 +5,14 @@ import { useWorkspacesViewModel } from '@/features/home/user/workspace/hooks/use
 
 export function WorkspacePage() {
   const navigate = useNavigate()
-  const { workspaces, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
-    useWorkspacesViewModel()
+  const {
+    workspaces,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useWorkspacesViewModel()
 
   if (isError) {
     return (
@@ -36,7 +42,11 @@ export function WorkspacePage() {
                 key={store.workspaceId}
                 type="button"
                 className="rounded-2xl bg-white py-[11px] text-left"
-                onClick={() => navigate(`/user/workspace/${store.workspaceId}`)}
+                onClick={() =>
+                  navigate(`/user/workspace/${store.workspaceId}`, {
+                    state: { businessName: store.businessName },
+                  })
+                }
               >
                 <WorkingStoreCard store={store} />
               </button>

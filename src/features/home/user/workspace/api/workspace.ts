@@ -5,7 +5,9 @@ import type {
   WorkspaceListQueryParams,
 } from '@/features/home/user/workspace/types/workspace'
 
-function mapToWorkspaceItem(dto: WorkspaceListApiResponse['data']['data'][number]): WorkspaceItem {
+function mapToWorkspaceItem(
+  dto: WorkspaceListApiResponse['data']['data'][number]
+): WorkspaceItem {
   return {
     workspaceId: dto.workspaceId,
     businessName: dto.businessName,
