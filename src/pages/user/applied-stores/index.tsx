@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Navbar } from '@/shared/ui/common/Navbar'
-import { AppliedStoreListItem } from '@/features/home/user/ui/AppliedStoreListItem'
-import { AppliedStoreDetailModal } from '@/features/home/user/ui/AppliedStoreDetailModal'
-import { useAppliedStoresViewModel } from '@/features/home/user/hooks/useAppliedStoresViewModel'
+import { AppliedStoreListItem } from '@/features/home/user/applied-stores/ui/AppliedStoreListItem'
+import { AppliedStoreDetailModal } from '@/features/home/user/applied-stores/ui/AppliedStoreDetailModal'
+import { useAppliedStoresViewModel } from '@/features/home/user/applied-stores/hooks/useAppliedStoresViewModel'
 import type {
   AppliedApplicationDetail,
   AppliedStoreData,
-} from '@/features/home/user/types/appliedStore'
+} from '@/features/home/user/applied-stores/types/appliedStore'
 import DownIcon from '@/assets/icons/home/chevron-down.svg?react'
 
 const SAMPLE_APPLICATION_DETAIL: AppliedApplicationDetail = {

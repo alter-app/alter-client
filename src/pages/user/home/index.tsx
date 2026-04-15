@@ -3,9 +3,9 @@ import {
   WorkingStoresList,
   AppliedStoreList,
 } from '@/features/home'
-import type { WorkingStoreItem } from '@/features/home/user/ui/WorkingStoreCard'
-import type { AppliedStoreItem } from '@/features/home/user/ui/AppliedStoreList'
-import { useHomeScheduleViewModel } from '@/features/home/user/hooks/useHomeScheduleViewModel'
+import type { WorkingStoreItem } from '@/features/home/user/workspace/ui/WorkingStoreCard'
+import type { AppliedStoreItem } from '@/features/home/user/applied-stores/ui/AppliedStoreList'
+import { useHomeScheduleViewModel } from '@/features/home/user/schedule/hooks/useHomeScheduleViewModel'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { useNavigate } from 'react-router-dom'
 
