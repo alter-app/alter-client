@@ -115,7 +115,7 @@ export function Docbar() {
 
   const pathByTab: Record<TabKey, string> = {
     home: '/manager/home',
-    search: '/job-lookup-map',
+    search: '/user/job-lookup-map',
     message: '/message',
     repute: '/repute',
     my: '/my',

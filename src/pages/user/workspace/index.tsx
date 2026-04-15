@@ -36,7 +36,7 @@ export function WorkspacePage() {
                 key={store.workspaceId}
                 type="button"
                 className="rounded-2xl bg-white py-[11px] text-left"
-                onClick={() => navigate(`/workspace/${store.workspaceId}`)}
+                onClick={() => navigate(`/user/workspace/${store.workspaceId}`)}
               >
                 <WorkingStoreCard store={store} />
               </button>

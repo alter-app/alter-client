@@ -22,7 +22,7 @@ export function LoginPage() {
       if (scope === 'MANAGER') {
         navigate('/main', { replace: true })
       } else {
-        navigate('/job-lookup-map', { replace: true })
+        navigate('/user/job-lookup-map', { replace: true })
       }
     }
   }, [isLoggedIn, scope, token, navigate])

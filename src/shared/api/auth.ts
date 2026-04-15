@@ -107,7 +107,7 @@ export async function loginIDPW(
     if (scope === 'MANAGER') {
       navigate('/main', { replace: true })
     } else {
-      navigate('/job-lookup-map', { replace: true })
+      navigate('/user/job-lookup-map', { replace: true })
     }
 
     return loginResponse
@@ -158,7 +158,7 @@ export async function loginSocial(
     if (scope === 'MANAGER') {
       navigate('/main', { replace: true })
     } else {
-      navigate('/job-lookup-map', { replace: true })
+      navigate('/user/job-lookup-map', { replace: true })
     }
 
     return result
@@ -327,7 +327,7 @@ export async function signup(
     if (scope === 'MANAGER') {
       navigate('/main', { replace: true })
     } else {
-      navigate('/job-lookup-map', { replace: true })
+      navigate('/user/job-lookup-map', { replace: true })
     }
 
     return signupResponse

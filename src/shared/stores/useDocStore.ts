@@ -8,7 +8,7 @@ const PATHNAME_TAB_MAP: Array<{ matcher: RegExp; tab: TabKey }> = [
   { matcher: /(^|\/)repute(\/|$)/, tab: 'repute' },
   { matcher: /(^|\/)search(\/|$)/, tab: 'search' },
   { matcher: /^\/manager\/home/, tab: 'home' },
-  { matcher: /^\/job-lookup-map/, tab: 'search' },
+  { matcher: /^\/user\/job-lookup-map/, tab: 'search' },
 ]
 
 const createSelectedTab = (activeTab?: TabKey) => ({

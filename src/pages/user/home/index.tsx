@@ -51,12 +51,12 @@ export function UserHomePage() {
 
         <WorkingStoresList
           stores={WORKING_STORES}
-          onMoreClick={() => navigate('/workspace')}
+          onMoreClick={() => navigate('/user/workspace')}
         />
 
         <AppliedStoreList
           stores={APPLIED_STORES}
-          onMoreClick={() => navigate('/applied-stores')}
+          onMoreClick={() => navigate('/user/applied-stores')}
         />
       </div>
     </div>

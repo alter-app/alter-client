@@ -61,22 +61,22 @@ export function App() {
               </Suspense>
             }
           />
-          <Route path="/schedule" element={<SchedulePage />} />
+          <Route path="/user/schedule" element={<SchedulePage />} />
           <Route
-            path="/workspaces/:workspaceId/members"
+            path="/user/workspaces/:workspaceId/members"
             element={<WorkspaceMembersPage />}
           />
-          <Route path="/workspace" element={<WorkspacePage />} />
+          <Route path="/user/workspace" element={<WorkspacePage />} />
           <Route
-            path="/workspace/:workspaceId"
+            path="/user/workspace/:workspaceId"
             element={<WorkspaceDetailPage />}
           />
-          <Route path="/applied-stores" element={<AppliedStoresPage />} />
+          <Route path="/user/applied-stores" element={<AppliedStoresPage />} />
         </Route>
 
         <Route element={<MobileRouteLayoutWithDocbar />}>
-          <Route path="/job-lookup-map" element={<JobLookupMapPage />} />
-          <Route path="/home" element={<UserHomePage />} />
+          <Route path="/user/job-lookup-map" element={<JobLookupMapPage />} />
+          <Route path="/user/home" element={<UserHomePage />} />
           <Route path="/manager/home" element={<ManagerHomePage />} />
           <Route path="/manager/social" element={<SocialPage />} />
           <Route path="/manager/social/chat" element={<SocialChatPage />} />
