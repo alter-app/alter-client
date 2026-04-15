@@ -1,39 +1,38 @@
+import { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   HomeScheduleCalendar,
   WorkingStoresList,
   AppliedStoreList,
 } from '@/features/home'
-import type { WorkingStoreItem } from '@/features/home/user/workspace/ui/WorkingStoreCard'
 import type { AppliedStoreItem } from '@/features/home/user/applied-stores/ui/AppliedStoreList'
 import { useHomeScheduleViewModel } from '@/features/home/user/schedule/hooks/useHomeScheduleViewModel'
+import { useWorkspacesViewModel } from '@/features/home/user/workspace/hooks/useWorkspacesViewModel'
+import { useAppliedStoresViewModel } from '@/features/home/user/applied-stores/hooks/useAppliedStoresViewModel'
 import { Navbar } from '@/shared/ui/common/Navbar'
-import { useNavigate } from 'react-router-dom'
-
-const WORKING_STORES: WorkingStoreItem[] = [
-  {
-    workspaceId: 1,
-    businessName: '스타벅스 강남점',
-    employedAt: '2024-01-01',
-    nextShiftDateTime: '2025-04-15T09:00:00',
-  },
-  {
-    workspaceId: 2,
-    businessName: '맥도날드 홍대점',
-    employedAt: '2024-03-01',
-    nextShiftDateTime: '2025-04-18T14:00:00',
-  },
-]
-
-const APPLIED_STORES: AppliedStoreItem[] = [
-  { id: 1, storeName: '이디야커피 신촌점', status: 'applied' },
-  { id: 2, storeName: '베스킨라빈스 마포점', status: 'rejected' },
-  { id: 3, storeName: '파리바게뜨 합정점', status: 'applied' },
-]
 
 export function UserHomePage() {
   const navigate = useNavigate()
+
   const { mode, baseDate, calendarData, isLoading, onDateChange } =
     useHomeScheduleViewModel()
+
+  const { workspaces } = useWorkspacesViewModel()
+
+  const { grouped } = useAppliedStoresViewModel()
+
+  const appliedStores = useMemo<AppliedStoreItem[]>(
+    () =>
+      grouped
+        .flatMap(g => g.stores)
+        .slice(0, 5)
+        .map(s => ({
+          id: s.id,
+          storeName: s.storeName,
+          status: s.status === 'cancelled' ? 'rejected' : 'applied',
+        })),
+    [grouped]
+  )
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-bg-light items-center">
@@ -50,12 +49,12 @@ export function UserHomePage() {
         />
 
         <WorkingStoresList
-          stores={WORKING_STORES}
+          stores={workspaces}
           onMoreClick={() => navigate('/user/workspace')}
         />
 
         <AppliedStoreList
-          stores={APPLIED_STORES}
+          stores={appliedStores}
           onMoreClick={() => navigate('/user/applied-stores')}
         />
       </div>

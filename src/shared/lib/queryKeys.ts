@@ -18,4 +18,8 @@ export const queryKeys = {
       params?: { year?: number; month?: number; day?: number }
     ) => ['workspace', 'schedules', workspaceId, params] as const,
   },
+  application: {
+    list: (params?: { status?: string[]; pageSize?: number }) =>
+      ['application', 'list', params] as const,
+  },
 } as const
