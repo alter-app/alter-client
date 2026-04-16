@@ -7,7 +7,9 @@ import type { AppliedStoreData } from '@/features/home/user/applied-stores/types
 import DownIcon from '@/assets/icons/home/chevron-down.svg?react'
 
 export function AppliedStoresPage() {
-  const [selectedStore, setSelectedStore] = useState<AppliedStoreData | null>(null)
+  const [selectedStore, setSelectedStore] = useState<AppliedStoreData | null>(
+    null
+  )
 
   const {
     filterLabel,
@@ -23,9 +25,16 @@ export function AppliedStoresPage() {
     isFetchingNextPage,
     isLoading,
     isError,
+    cancelApplication,
+    isCancelling,
   } = useAppliedStoresViewModel()
 
   const closeDetail = () => setSelectedStore(null)
+
+  const handleCancel = () => {
+    if (!selectedStore) return
+    cancelApplication(selectedStore.id, { onSuccess: closeDetail })
+  }
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-bg-light">
@@ -48,7 +57,9 @@ export function AppliedStoresPage() {
                   key={option.key}
                   type="button"
                   className={`flex h-10 w-full items-center px-4 typography-body02-regular text-text-100 ${
-                    index < filterOptions.length - 1 ? 'border-b border-line-2' : ''
+                    index < filterOptions.length - 1
+                      ? 'border-b border-line-2'
+                      : ''
                   }`}
                   onClick={() => selectFilter(option.key)}
                 >
@@ -119,7 +130,8 @@ export function AppliedStoresPage() {
           storeName={selectedStore.storeName}
           detail={selectedStore.applicationDetail}
           showCancelButton={selectedStore.status === 'submitted'}
-          onCancel={closeDetail}
+          onCancel={handleCancel}
+          isCancelling={isCancelling}
         />
       )}
     </div>

@@ -11,6 +11,7 @@ interface AppliedStoreDetailModalProps {
   detail: AppliedApplicationDetail
   showCancelButton: boolean
   onCancel?: () => void
+  isCancelling?: boolean
 }
 
 export function AppliedStoreDetailModal({
@@ -20,6 +21,7 @@ export function AppliedStoreDetailModal({
   detail,
   showCancelButton,
   onCancel,
+  isCancelling = false,
 }: AppliedStoreDetailModalProps) {
   useEffect(() => {
     if (!isOpen) return
@@ -117,8 +119,9 @@ export function AppliedStoreDetailModal({
           <div className="px-5 pb-5 pt-6">
             <button
               type="button"
-              className="flex h-12 w-full items-center justify-center rounded-2xl bg-main typography-body01-semibold text-text-100"
+              className="flex h-12 w-full items-center justify-center rounded-2xl bg-main typography-body01-semibold text-text-100 disabled:opacity-50"
               onClick={() => onCancel?.()}
+              disabled={isCancelling}
             >
               지원 취소
             </button>

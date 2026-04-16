@@ -10,6 +10,7 @@ import {
   adaptApplicationDto,
 } from '@/features/home/user/applied-stores/types/application'
 import { getJobApplications } from '@/features/home/user/applied-stores/api/application'
+import { useCancelApplication } from '@/features/home/user/applied-stores/hooks/useCancelApplication'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 const PAGE_SIZE = 20
@@ -41,29 +42,37 @@ export function useAppliedStoresViewModel() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  const { mutate: cancelApplication, isPending: isCancelling } =
+    useCancelApplication()
+
   const apiStatus = FILTER_TO_API_STATUS[selectedFilter]
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending, isError } =
-    useInfiniteQuery({
-      queryKey: queryKeys.application.list({
-        status: apiStatus.length ? apiStatus : undefined,
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isPending,
+    isError,
+  } = useInfiniteQuery({
+    queryKey: queryKeys.application.list({
+      status: apiStatus.length ? apiStatus : undefined,
+      pageSize: PAGE_SIZE,
+    }),
+    queryFn: ({ pageParam }) =>
+      getJobApplications({
         pageSize: PAGE_SIZE,
+        cursor: pageParam as string | undefined,
+        status: apiStatus.length ? apiStatus : undefined,
       }),
-      queryFn: ({ pageParam }) =>
-        getJobApplications({
-          pageSize: PAGE_SIZE,
-          cursor: pageParam as string | undefined,
-          status: apiStatus.length ? apiStatus : undefined,
-        }),
-      initialPageParam: undefined as string | undefined,
-      getNextPageParam: lastPage => lastPage.data.page.cursor ?? undefined,
-    })
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: lastPage => lastPage.data.page.cursor ?? undefined,
+  })
 
   const stores = useMemo<AppliedStoreData[]>(
     () =>
-      data?.pages.flatMap(page =>
-        page.data.data.map(adaptApplicationDto)
-      ) ?? [],
+      data?.pages.flatMap(page => page.data.data.map(adaptApplicationDto)) ??
+      [],
     [data]
   )
 
@@ -114,5 +123,7 @@ export function useAppliedStoresViewModel() {
     isFetchingNextPage,
     isLoading: isPending,
     isError,
+    cancelApplication,
+    isCancelling,
   }
 }

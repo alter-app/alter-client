@@ -120,9 +120,7 @@ function mapApiStatusToUiStatus(
   return 'submitted'
 }
 
-function mapApiStatusToFilterType(
-  apiStatus: ApplicationApiStatus
-): FilterType {
+function mapApiStatusToFilterType(apiStatus: ApplicationApiStatus): FilterType {
   if (apiStatus === 'SUBMITTED') return 'not_viewed'
   if (apiStatus === 'SHORTLISTED') return 'viewed'
   if (apiStatus === 'ACCEPTED') return 'completed'

@@ -19,3 +19,12 @@ export async function getJobApplications(
   )
   return response.data
 }
+
+export async function cancelJobApplication(
+  applicationId: number
+): Promise<void> {
+  await axiosInstance.patch(
+    `/app/users/me/postings/applications/${applicationId}/status`,
+    { status: 'CANCELLED' }
+  )
+}
