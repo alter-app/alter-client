@@ -1,41 +1,15 @@
 import { useEffect, useState } from 'react'
 import type { TodayWorkerItem } from '@/features/home/manager/ui/TodayWorkerList'
 import type { CalendarViewData } from '@/features/home/user/schedule/types/schedule'
-import type { SubstituteRequestItem } from '@/shared/ui/manager/SubstituteApprovalCard'
 import { useManagedWorkspacesQuery } from '@/features/home/manager/hooks/useManagedWorkspacesQuery'
 import { useWorkspaceDetailQuery } from '@/features/home/manager/hooks/useWorkspaceDetailQuery'
 import { useWorkspaceWorkersViewModel } from '@/features/home/manager/hooks/useWorkspaceWorkersViewModel'
 import { useManagedPostingsViewModel } from '@/features/home/manager/hooks/useManagedPostingsViewModel'
+import { useSubstituteRequestsViewModel } from '@/features/home/manager/hooks/useSubstituteRequestsViewModel'
 
 const TODAY_WORKERS: TodayWorkerItem[] = [
   { id: '1', name: '알바생1', workTime: '00:00 ~ 00:00' },
   { id: '2', name: '알바생2', workTime: '00:00 ~ 00:00' },
-]
-
-
-
-const SUBSTITUTE_REQUESTS: SubstituteRequestItem[] = [
-  {
-    id: '1',
-    name: '나영채',
-    role: '알바',
-    dateRange: '1월 1일 ↔ 1월 10일',
-    status: 'accepted',
-  },
-  {
-    id: '2',
-    name: '나영채',
-    role: '알바',
-    dateRange: '1월 1일 ↔ 1월 10일',
-    status: 'pending',
-  },
-  {
-    id: '3',
-    name: '나영채',
-    role: '알바',
-    dateRange: '1월 1일 ↔ 1월 10일',
-    status: 'pending',
-  },
 ]
 
 const MANAGER_SCHEDULE_BASE_DATE = new Date('2026-01-08T00:00:00+09:00')
@@ -93,6 +67,13 @@ export function useManagerHomeViewModel() {
     hasNextPage: hasMorePostings,
   } = useManagedPostingsViewModel(activeWorkspaceId, { status: 'OPEN' })
 
+  const {
+    requests: substituteRequests,
+    totalCount: substituteTotalCount,
+    fetchNextPage: fetchMoreSubstitutes,
+    hasNextPage: hasMoreSubstitutes,
+  } = useSubstituteRequestsViewModel(activeWorkspaceId)
+
   useEffect(() => {
     if (!isWorkspaceChangeModalOpen) return
 
@@ -130,7 +111,10 @@ export function useManagerHomeViewModel() {
     postingsTotalCount,
     fetchMorePostings,
     hasMorePostings,
-    substituteRequests: SUBSTITUTE_REQUESTS,
+    substituteRequests,
+    substituteTotalCount,
+    fetchMoreSubstitutes,
+    hasMoreSubstitutes,
     schedule: {
       baseDate: MANAGER_SCHEDULE_BASE_DATE,
       selectedDateKey: MANAGER_SCHEDULE_SELECTED_DATE_KEY,

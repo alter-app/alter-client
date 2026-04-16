@@ -10,29 +10,34 @@ export function useWorkspaceWorkersViewModel(
   workspaceId: number | null,
   params?: { status?: string; name?: string }
 ) {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending, isError } =
-    useInfiniteQuery({
-      queryKey: queryKeys.managerWorkspace.workers(workspaceId ?? 0, {
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isPending,
+    isError,
+  } = useInfiniteQuery({
+    queryKey: queryKeys.managerWorkspace.workers(workspaceId ?? 0, {
+      status: params?.status,
+      name: params?.name,
+      pageSize: PAGE_SIZE,
+    }),
+    queryFn: ({ pageParam }) =>
+      fetchWorkspaceWorkers({
+        workspaceId: workspaceId!,
+        pageSize: PAGE_SIZE,
+        cursor: pageParam as string | undefined,
         status: params?.status,
         name: params?.name,
-        pageSize: PAGE_SIZE,
       }),
-      queryFn: ({ pageParam }) =>
-        fetchWorkspaceWorkers({
-          workspaceId: workspaceId!,
-          pageSize: PAGE_SIZE,
-          cursor: pageParam as string | undefined,
-          status: params?.status,
-          name: params?.name,
-        }),
-      initialPageParam: undefined as string | undefined,
-      getNextPageParam: lastPage => lastPage.data.page.cursor ?? undefined,
-      enabled: workspaceId !== null,
-    })
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: lastPage => lastPage.data.page.cursor ?? undefined,
+    enabled: workspaceId !== null,
+  })
 
   const workers = useMemo(
-    () =>
-      data?.pages.flatMap(page => page.data.data.map(adaptWorkerDto)) ?? [],
+    () => data?.pages.flatMap(page => page.data.data.map(adaptWorkerDto)) ?? [],
     [data]
   )
 

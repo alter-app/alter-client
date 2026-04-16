@@ -1,14 +1,14 @@
 import axiosInstance from '@/shared/lib/axiosInstance'
 import type {
-  PostingListApiResponse,
-  ManagedPostingsQueryParams,
-} from '@/features/home/manager/types/posting'
+  SubstituteListApiResponse,
+  SubstituteRequestsQueryParams,
+} from '@/features/home/manager/types/substitute'
 
-export async function fetchManagedPostings(
-  params: ManagedPostingsQueryParams
-): Promise<PostingListApiResponse> {
-  const response = await axiosInstance.get<PostingListApiResponse>(
-    '/manager/postings',
+export async function fetchSubstituteRequests(
+  params: SubstituteRequestsQueryParams
+): Promise<SubstituteListApiResponse> {
+  const response = await axiosInstance.get<SubstituteListApiResponse>(
+    '/manager/substitute-requests',
     {
       params: {
         pageSize: params.pageSize,

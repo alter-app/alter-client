@@ -27,6 +27,9 @@ export function ManagerHomePage() {
     fetchMorePostings,
     hasMorePostings,
     substituteRequests,
+    substituteTotalCount,
+    fetchMoreSubstitutes,
+    hasMoreSubstitutes,
     schedule,
     workspaceDetail,
     workspaceChangeModal,
@@ -194,8 +197,8 @@ export function ManagerHomePage() {
       </div>
       <div className="pt-6 pb-8">
         <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
-          진행 중인 공고{' '}
-          <span className="text-sub">{postingsTotalCount}</span>건
+          진행 중인 공고 <span className="text-sub">{postingsTotalCount}</span>
+          건
         </h2>
         <div className="mx-4">
           <OngoingPostingCard
@@ -207,12 +210,15 @@ export function ManagerHomePage() {
       </div>
       <div className="pt-6 pb-8">
         <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
-          대타 승인 요청 <span className="text-sub">10</span>건
+          대타 승인 요청{' '}
+          <span className="text-sub">{substituteTotalCount}</span>건
         </h2>
         <div className="mx-4">
           <SubstituteApprovalCard
             requests={substituteRequests}
-            onViewMore={() => {}}
+            onViewMore={
+              hasMoreSubstitutes ? () => fetchMoreSubstitutes() : undefined
+            }
             onRequestClick={() => {}}
           />
         </div>

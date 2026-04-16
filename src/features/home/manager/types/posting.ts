@@ -84,7 +84,15 @@ function formatWorkHours(schedules: PostingScheduleDto[]): string {
 function formatWorkDays(schedules: PostingScheduleDto[]): string {
   if (schedules.length === 0) return '-'
   // 모든 스케줄의 요일을 합산 후 중복 제거 + 요일 순서 정렬
-  const DAY_ORDER = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
+  const DAY_ORDER = [
+    'MONDAY',
+    'TUESDAY',
+    'WEDNESDAY',
+    'THURSDAY',
+    'FRIDAY',
+    'SATURDAY',
+    'SUNDAY',
+  ]
   const daySet = new Set(schedules.flatMap(s => s.workingDays))
   return DAY_ORDER.filter(d => daySet.has(d))
     .map(d => WORKING_DAY_KO[d] ?? d)

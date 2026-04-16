@@ -1,12 +1,12 @@
 import { useMemo } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { fetchManagedPostings } from '@/features/home/manager/api/posting'
-import { adaptPostingDto } from '@/features/home/manager/types/posting'
+import { fetchSubstituteRequests } from '@/features/home/manager/api/substitute'
+import { adaptSubstituteRequestDto } from '@/features/home/manager/types/substitute'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 const PAGE_SIZE = 10
 
-export function useManagedPostingsViewModel(
+export function useSubstituteRequestsViewModel(
   workspaceId: number | null,
   params?: { status?: string }
 ) {
@@ -18,13 +18,13 @@ export function useManagedPostingsViewModel(
     isPending,
     isError,
   } = useInfiniteQuery({
-    queryKey: queryKeys.posting.list({
+    queryKey: queryKeys.substitute.list({
       workspaceId: workspaceId ?? undefined,
       status: params?.status,
       pageSize: PAGE_SIZE,
     }),
     queryFn: ({ pageParam }) =>
-      fetchManagedPostings({
+      fetchSubstituteRequests({
         pageSize: PAGE_SIZE,
         workspaceId: workspaceId ?? undefined,
         status: params?.status,
@@ -35,16 +35,18 @@ export function useManagedPostingsViewModel(
     enabled: workspaceId !== null,
   })
 
-  const postings = useMemo(
+  const requests = useMemo(
     () =>
-      data?.pages.flatMap(page => page.data.data.map(adaptPostingDto)) ?? [],
+      data?.pages.flatMap(page =>
+        page.data.data.map(adaptSubstituteRequestDto)
+      ) ?? [],
     [data]
   )
 
   const totalCount = data?.pages[0]?.data.page.totalCount ?? 0
 
   return {
-    postings,
+    requests,
     totalCount,
     fetchNextPage,
     hasNextPage: !!hasNextPage,

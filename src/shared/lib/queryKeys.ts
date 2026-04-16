@@ -26,11 +26,23 @@ export const queryKeys = {
     list: () => ['managerWorkspace', 'list'] as const,
     detail: (workspaceId: number) =>
       ['managerWorkspace', 'detail', workspaceId] as const,
-    workers: (workspaceId: number, params?: { status?: string; name?: string; pageSize?: number }) =>
-      ['managerWorkspace', 'workers', workspaceId, params] as const,
+    workers: (
+      workspaceId: number,
+      params?: { status?: string; name?: string; pageSize?: number }
+    ) => ['managerWorkspace', 'workers', workspaceId, params] as const,
   },
   posting: {
-    list: (params?: { workspaceId?: number; status?: string; pageSize?: number }) =>
-      ['posting', 'list', params] as const,
+    list: (params?: {
+      workspaceId?: number
+      status?: string
+      pageSize?: number
+    }) => ['posting', 'list', params] as const,
+  },
+  substitute: {
+    list: (params?: {
+      workspaceId?: number
+      status?: string
+      pageSize?: number
+    }) => ['substitute', 'list', params] as const,
   },
 } as const
