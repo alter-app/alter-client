@@ -45,4 +45,8 @@ export const queryKeys = {
       pageSize?: number
     }) => ['substitute', 'list', params] as const,
   },
+  manager: {
+    schedules: (workspaceId: number, year: number, month: number) =>
+      ['manager', 'schedules', workspaceId, year, month] as const,
+  },
 } as const
