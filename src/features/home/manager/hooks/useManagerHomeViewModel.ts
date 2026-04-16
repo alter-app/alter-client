@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import type { TodayWorkerItem } from '@/features/home/manager/ui/TodayWorkerList'
 import type { CalendarViewData } from '@/features/home/user/schedule/types/schedule'
-import type { JobPostingItem } from '@/shared/ui/manager/OngoingPostingCard'
 import type { SubstituteRequestItem } from '@/shared/ui/manager/SubstituteApprovalCard'
 import { useManagedWorkspacesQuery } from '@/features/home/manager/hooks/useManagedWorkspacesQuery'
 import { useWorkspaceDetailQuery } from '@/features/home/manager/hooks/useWorkspaceDetailQuery'
 import { useWorkspaceWorkersViewModel } from '@/features/home/manager/hooks/useWorkspaceWorkersViewModel'
+import { useManagedPostingsViewModel } from '@/features/home/manager/hooks/useManagedPostingsViewModel'
 
 const TODAY_WORKERS: TodayWorkerItem[] = [
   { id: '1', name: '알바생1', workTime: '00:00 ~ 00:00' },
@@ -13,32 +13,6 @@ const TODAY_WORKERS: TodayWorkerItem[] = [
 ]
 
 
-const ONGOING_POSTINGS: JobPostingItem[] = [
-  {
-    id: '1',
-    dDay: 'D-3',
-    title: '[가게이름] 평일 저녁 마감 근무자 모집',
-    wage: '시급 10,030원',
-    workHours: '17:00 ~ 21:00',
-    workDays: '수, 목, 금',
-  },
-  {
-    id: '2',
-    dDay: 'D-7',
-    title: '[가게이름] 평일 저녁 마감 근무자 모집',
-    wage: '시급 10,030원',
-    workHours: '07:00 ~ 13:00',
-    workDays: '월, 화, 수',
-  },
-  {
-    id: '3',
-    dDay: 'D-27',
-    title: '[가게이름] 평일 저녁 마감 근무자 모집',
-    wage: '시급 10,030원',
-    workHours: '07:00 ~ 13:00',
-    workDays: '월, 화, 수',
-  },
-]
 
 const SUBSTITUTE_REQUESTS: SubstituteRequestItem[] = [
   {
@@ -112,6 +86,13 @@ export function useManagerHomeViewModel() {
     isFetchingNextPage: isFetchingMoreWorkers,
   } = useWorkspaceWorkersViewModel(activeWorkspaceId)
 
+  const {
+    postings: ongoingPostings,
+    totalCount: postingsTotalCount,
+    fetchNextPage: fetchMorePostings,
+    hasNextPage: hasMorePostings,
+  } = useManagedPostingsViewModel(activeWorkspaceId, { status: 'OPEN' })
+
   useEffect(() => {
     if (!isWorkspaceChangeModalOpen) return
 
@@ -145,7 +126,10 @@ export function useManagerHomeViewModel() {
     fetchMoreWorkers,
     hasMoreWorkers,
     isFetchingMoreWorkers,
-    ongoingPostings: ONGOING_POSTINGS,
+    ongoingPostings,
+    postingsTotalCount,
+    fetchMorePostings,
+    hasMorePostings,
     substituteRequests: SUBSTITUTE_REQUESTS,
     schedule: {
       baseDate: MANAGER_SCHEDULE_BASE_DATE,

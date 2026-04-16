@@ -23,6 +23,9 @@ export function ManagerHomePage() {
     hasMoreWorkers,
     isFetchingMoreWorkers,
     ongoingPostings,
+    postingsTotalCount,
+    fetchMorePostings,
+    hasMorePostings,
     substituteRequests,
     schedule,
     workspaceDetail,
@@ -191,12 +194,13 @@ export function ManagerHomePage() {
       </div>
       <div className="pt-6 pb-8">
         <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
-          진행 중인 공고 <span className="text-sub">10</span>건
+          진행 중인 공고{' '}
+          <span className="text-sub">{postingsTotalCount}</span>건
         </h2>
         <div className="mx-4">
           <OngoingPostingCard
             postings={ongoingPostings}
-            onViewMore={() => {}}
+            onViewMore={hasMorePostings ? () => fetchMorePostings() : undefined}
             onPostingClick={() => {}}
           />
         </div>
