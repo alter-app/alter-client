@@ -7,6 +7,7 @@ import {
   Outlet,
 } from 'react-router-dom'
 import { ManagerHomePage } from '@/pages/manager/home'
+import { ManagerWorkerSchedulePage } from '@/pages/manager/worker-schedule'
 import { SocialPage } from '@/pages/manager/social'
 import { SocialChatPage } from '@/pages/manager/social-chat'
 import { LoginPage } from '@/pages/login'
@@ -72,6 +73,10 @@ export function App() {
             element={<WorkspaceDetailPage />}
           />
           <Route path="/user/applied-stores" element={<AppliedStoresPage />} />
+          <Route
+            path="/manager/worker-schedule"
+            element={<ManagerWorkerSchedulePage />}
+          />
         </Route>
 
         <Route element={<MobileRouteLayoutWithDocbar />}>

@@ -1,4 +1,5 @@
 import { Navbar } from '@/shared/ui/common/Navbar'
+import { useNavigate } from 'react-router-dom'
 import { TodayWorkerList } from '@/features/home/manager/ui/TodayWorkerList'
 import { StoreWorkerListItem } from '@/features/home/manager/ui/StoreWorkerListItem'
 import { useManagerHomeViewModel } from '@/features/home/manager/hooks/useManagerHomeViewModel'
@@ -14,6 +15,7 @@ import managerWorkspaceModalPlusIcon from '@/assets/icons/home/manager-workspace
 import managerScheduleEditIcon from '@/assets/icons/home/edit.svg'
 
 export function ManagerHomePage() {
+  const navigate = useNavigate()
   const {
     todayWorkers,
     storeWorkers,
@@ -136,6 +138,7 @@ export function ManagerHomePage() {
               type="button"
               aria-label="업장 스케줄 수정"
               className="flex h-6 w-6 items-center justify-center"
+              onClick={() => navigate('/manager/worker-schedule')}
             >
               <img
                 src={managerScheduleEditIcon}
