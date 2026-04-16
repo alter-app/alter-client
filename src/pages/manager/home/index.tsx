@@ -2,12 +2,11 @@ import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { useNavigate } from 'react-router-dom'
-import ChevronDownIcon from '@/assets/icons/home/chevron-down.svg?react'
 import { TodayWorkerList } from '@/features/home/manager/ui/TodayWorkerList'
 import { StoreWorkerListItem } from '@/features/home/manager/ui/StoreWorkerListItem'
 import { useManagerHomeViewModel } from '@/features/home/manager/hooks/useManagerHomeViewModel'
 import { WorkspaceChangeList } from '@/features/home/manager/ui/WorkspaceChangeList'
-import { MonthlyCalendar } from '@/features/home/user/schedule/ui/MonthlyCalendar'
+import { MonthlyCalendar } from '@/features/home/common/schedule/ui/MonthlyCalendar'
 import { OngoingPostingCard } from '@/shared/ui/manager/OngoingPostingCard'
 import { SubstituteApprovalCard } from '@/shared/ui/manager/SubstituteApprovalCard'
 import { MoreButton } from '@/shared/ui/common/MoreButton'
@@ -146,34 +145,21 @@ export function ManagerHomePage() {
         </div>
       </div>
       <section className="px-4 pt-4">
-        <div className="flex items-center justify-between mb-4">
-          <p className="typography-headline01 text-text-100">
-            우리 매장 시간표
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="이전 달"
-              className="flex h-6 w-6 items-center justify-center"
-              onClick={schedule.goToPrevMonth}
-            >
-              <ChevronDownIcon className="size-4 rotate-90" />
-            </button>
-            <span className="typography-body02-regular text-text-70 min-w-[56px] text-center">
-              {format(schedule.baseDate, 'yyyy.MM')}
-            </span>
-            <button
-              type="button"
-              aria-label="다음 달"
-              className="flex h-6 w-6 items-center justify-center"
-              onClick={schedule.goToNextMonth}
-            >
-              <ChevronDownIcon className="size-4 -rotate-90" />
-            </button>
+        <p className="typography-headline01 text-text-100 mb-4">
+          우리 매장 시간표
+        </p>
+        <MonthlyCalendar
+          baseDate={schedule.baseDate}
+          data={schedule.data}
+          layout="manager"
+          hideTitle
+          isLoading={schedule.isLoading}
+          selectedDateKey={schedule.selectedDateKey}
+          rightAction={
             <button
               type="button"
               aria-label="업장 스케줄 수정"
-              className="flex h-6 w-6 items-center justify-center ml-1"
+              className="flex h-6 w-6 items-center justify-center"
               onClick={() => navigate('/manager/worker-schedule')}
             >
               <img
@@ -183,15 +169,7 @@ export function ManagerHomePage() {
                 className="h-full w-full"
               />
             </button>
-          </div>
-        </div>
-        <MonthlyCalendar
-          baseDate={schedule.baseDate}
-          data={schedule.data}
-          layout="manager"
-          hideTitle
-          isLoading={schedule.isLoading}
-          selectedDateKey={schedule.selectedDateKey}
+          }
         />
       </section>
 

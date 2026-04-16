@@ -8,10 +8,8 @@ export { AppliedStoreList } from '@/features/home/user/applied-stores/ui/Applied
 export { AppliedStoreDetailModal } from '@/features/home/user/applied-stores/ui/AppliedStoreDetailModal'
 export { WorkingStoresList } from '@/features/home/user/workspace/ui/WorkingStoresList'
 export { WorkingStoreCard } from '@/features/home/user/workspace/ui/WorkingStoreCard'
-export type {
-  HomeCalendarMode,
-  CalendarViewData,
-} from '@/features/home/user/schedule/types/schedule'
+export type { HomeCalendarMode } from '@/features/home/user/schedule/types/schedule'
+export type { CalendarViewData } from '@/features/home/common/schedule/types/calendarView'
 export {
   getSelfSchedule,
   adaptScheduleResponse,

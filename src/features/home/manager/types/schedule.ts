@@ -3,12 +3,12 @@ import type { StatusEnum } from '@/shared/types/enums'
 import type {
   CalendarEvent,
   CalendarViewData,
-} from '@/features/home/user/schedule/types/schedule'
+} from '@/features/home/common/schedule/types/calendarView'
 import {
   toDateKey,
   toTimeLabel,
   getDurationHours,
-} from '@/features/home/user/schedule/lib/date'
+} from '@/features/home/common/schedule/lib/date'
 
 // ---- API DTOs ----
 export interface ManagerScheduleWorkspaceDto {

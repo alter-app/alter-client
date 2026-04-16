@@ -1,7 +1,2 @@
-import type { CalendarViewData } from '@/features/home/user/schedule/types/schedule'
-
-export interface BaseCalendarProps {
-  baseDate: Date
-  data: CalendarViewData | null
-  workspaceName?: string
-}
+// BaseCalendarProps는 common으로 이동 — 하위 호환 re-export
+export type { BaseCalendarProps } from '@/features/home/common/schedule/types/calendarBase'

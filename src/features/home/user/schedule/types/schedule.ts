@@ -1,6 +1,13 @@
 import type { CommonApiResponse } from '@/shared/types/common'
 import type { StatusEnum } from '@/shared/types/enums'
 
+// CalendarEvent, CalendarSummary, CalendarViewData는 common으로 이동 — 하위 호환 re-export
+export type {
+  CalendarEvent,
+  CalendarSummary,
+  CalendarViewData,
+} from '@/features/home/common/schedule/types/calendarView'
+
 export type HomeCalendarMode = 'monthly' | 'weekly' | 'daily'
 
 export interface WorkspaceInfo {
@@ -23,26 +30,3 @@ export interface ScheduleDataDto {
 }
 
 export type ScheduleApiResponse = CommonApiResponse<ScheduleDataDto>
-
-export interface CalendarEvent {
-  shiftId: number
-  workspaceName: string
-  position: string
-  status: StatusEnum
-  startDateTime: string
-  endDateTime: string
-  dateKey: string
-  startTimeLabel: string
-  endTimeLabel: string
-  durationHours: number
-}
-
-export interface CalendarSummary {
-  totalWorkHours: number
-  eventCount: number
-}
-
-export interface CalendarViewData {
-  summary: CalendarSummary
-  events: CalendarEvent[]
-}
