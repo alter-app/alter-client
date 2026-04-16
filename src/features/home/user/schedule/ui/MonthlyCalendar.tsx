@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import DownIcon from '@/assets/icons/home/chevron-down.svg?react'
 import { useMonthlyCalendarViewModel } from '@/features/home/user/schedule/hooks/useMonthlyCalendarViewModel'
 import type { MonthlyCalendarPropsBase } from '@/features/home/user/schedule/types/monthlyCalendar'
@@ -5,6 +6,10 @@ import { MonthlyDateCell } from '@/features/home/user/schedule/ui/MonthlyDateCel
 
 interface MonthlyCalendarProps extends MonthlyCalendarPropsBase {
   isLoading?: boolean
+  hideTitle?: boolean
+  rightAction?: ReactNode
+  estimatedEarningsText?: string
+  layout?: 'default' | 'manager'
 }
 
 export function MonthlyCalendar({
@@ -13,6 +18,10 @@ export function MonthlyCalendar({
   workspaceName,
   isLoading = false,
   selectedDateKey,
+  hideTitle = false,
+  rightAction,
+  estimatedEarningsText,
+  layout = 'default',
 }: MonthlyCalendarProps) {
   const {
     title,
@@ -37,22 +46,34 @@ export function MonthlyCalendar({
 
   return (
     <section className="rounded-2xl bg-white">
-      <div className="px-[13px] gap-2">
-        <h3 className="typography-headline01 mb-4">{title}</h3>
-        <button
-          type="button"
-          className="flex items-center gap-1 typography-body01-regular text-text-90"
-        >
-          {monthLabel}
-          <DownIcon className="w-4 h-4" />
-        </button>
-        <div className="flex items-center gap-2 py-1">
-          <span className="typography-display">{totalWorkHoursText}</span>
-          <span className="typography-body02-semibold">시간 근무해요</span>
+      <div className={layout === 'manager' ? 'px-6 pt-5' : 'px-[13px]'}>
+        {!hideTitle && <h3 className="typography-headline01 mb-4">{title}</h3>}
+
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            className="flex items-center gap-1 typography-body01-regular text-text-90"
+          >
+            {monthLabel}
+            <DownIcon className="w-4 h-4" />
+          </button>
+          {rightAction}
+        </div>
+
+        <div className="flex items-center justify-between py-1">
+          <div className="flex items-center gap-2">
+            <span className="typography-display">{totalWorkHoursText}</span>
+            <span className="typography-body02-semibold">시간 근무해요</span>
+          </div>
+          {estimatedEarningsText ? (
+            <span className="typography-body01-semibold text-sub">
+              {estimatedEarningsText}
+            </span>
+          ) : null}
         </div>
       </div>
 
-      <section className="mt-4">
+      <section className={layout === 'manager' ? 'mt-5 px-[11px] pb-4' : 'mt-4'}>
         <div className="grid grid-cols-7 text-center">
           {weekdayLabels.map((label, index) => (
             <span
