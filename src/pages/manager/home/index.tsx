@@ -19,6 +19,9 @@ export function ManagerHomePage() {
   const {
     todayWorkers,
     storeWorkers,
+    fetchMoreWorkers,
+    hasMoreWorkers,
+    isFetchingMoreWorkers,
     ongoingPostings,
     substituteRequests,
     schedule,
@@ -177,7 +180,12 @@ export function ManagerHomePage() {
                 onOptions={() => {}}
               />
             ))}
-            <MoreButton />
+            {hasMoreWorkers && (
+              <MoreButton
+                onClick={() => fetchMoreWorkers()}
+                disabled={isFetchingMoreWorkers}
+              />
+            )}
           </div>
         </div>
       </div>

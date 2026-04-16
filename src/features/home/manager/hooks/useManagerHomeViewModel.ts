@@ -1,30 +1,17 @@
 import { useEffect, useState } from 'react'
 import type { TodayWorkerItem } from '@/features/home/manager/ui/TodayWorkerList'
-import type { StoreWorkerRole } from '@/features/home/manager/ui/StoreWorkerListItem'
 import type { CalendarViewData } from '@/features/home/user/schedule/types/schedule'
 import type { JobPostingItem } from '@/shared/ui/manager/OngoingPostingCard'
 import type { SubstituteRequestItem } from '@/shared/ui/manager/SubstituteApprovalCard'
 import { useManagedWorkspacesQuery } from '@/features/home/manager/hooks/useManagedWorkspacesQuery'
 import { useWorkspaceDetailQuery } from '@/features/home/manager/hooks/useWorkspaceDetailQuery'
-
-export interface ManagerStoreWorkerData {
-  id: string
-  name: string
-  role: StoreWorkerRole
-  nextWorkDate: string
-  profileImageUrl?: string
-}
+import { useWorkspaceWorkersViewModel } from '@/features/home/manager/hooks/useWorkspaceWorkersViewModel'
 
 const TODAY_WORKERS: TodayWorkerItem[] = [
   { id: '1', name: '알바생1', workTime: '00:00 ~ 00:00' },
   { id: '2', name: '알바생2', workTime: '00:00 ~ 00:00' },
 ]
 
-const STORE_WORKERS: ManagerStoreWorkerData[] = [
-  { id: '1', name: '이름임', role: 'manager', nextWorkDate: '2025. 1. 1.' },
-  { id: '2', name: '이름임', role: 'staff', nextWorkDate: '2025. 1. 1.' },
-  { id: '3', name: '이름임', role: 'staff', nextWorkDate: '2025. 1. 1.' },
-]
 
 const ONGOING_POSTINGS: JobPostingItem[] = [
   {
@@ -118,6 +105,13 @@ export function useManagerHomeViewModel() {
 
   const { detail: workspaceDetail } = useWorkspaceDetailQuery(activeWorkspaceId)
 
+  const {
+    workers: storeWorkers,
+    fetchNextPage: fetchMoreWorkers,
+    hasNextPage: hasMoreWorkers,
+    isFetchingNextPage: isFetchingMoreWorkers,
+  } = useWorkspaceWorkersViewModel(activeWorkspaceId)
+
   useEffect(() => {
     if (!isWorkspaceChangeModalOpen) return
 
@@ -147,7 +141,10 @@ export function useManagerHomeViewModel() {
 
   return {
     todayWorkers: TODAY_WORKERS,
-    storeWorkers: STORE_WORKERS,
+    storeWorkers,
+    fetchMoreWorkers,
+    hasMoreWorkers,
+    isFetchingMoreWorkers,
     ongoingPostings: ONGOING_POSTINGS,
     substituteRequests: SUBSTITUTE_REQUESTS,
     schedule: {
