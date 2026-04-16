@@ -10,7 +10,7 @@ interface WorkspaceChangeItem {
   id: number
   businessName: string
   fullAddress: string
-  createdAt: string
+  createdAt?: string
   status: WorkspaceStatus
 }
 

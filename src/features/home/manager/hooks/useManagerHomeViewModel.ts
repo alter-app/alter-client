@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import type { TodayWorkerItem } from '@/features/home/manager/ui/TodayWorkerList'
 import type { StoreWorkerRole } from '@/features/home/manager/ui/StoreWorkerListItem'
-import type { WorkspaceChangeItem } from '@/features/home/manager/ui/WorkspaceChangeCard'
 import type { CalendarViewData } from '@/features/home/user/schedule/types/schedule'
 import type { JobPostingItem } from '@/shared/ui/manager/OngoingPostingCard'
 import type { SubstituteRequestItem } from '@/shared/ui/manager/SubstituteApprovalCard'
+import { useManagedWorkspacesQuery } from '@/features/home/manager/hooks/useManagedWorkspacesQuery'
+import { useWorkspaceDetailQuery } from '@/features/home/manager/hooks/useWorkspaceDetailQuery'
 
 export interface ManagerStoreWorkerData {
   id: string
@@ -84,39 +85,6 @@ const MANAGER_SCHEDULE_DAYS = [
   1, 2, 3, 4, 9, 10, 11, 16, 17, 18, 23, 24, 25, 30, 31,
 ]
 
-const WORKSPACE_CHANGE_ITEMS: WorkspaceChangeItem[] = [
-  {
-    id: 1,
-    businessName: '가게 이름',
-    fullAddress: '주소',
-    createdAt: '2026-01-01',
-    status: {
-      value: 'ACTIVE',
-      description: '활성',
-    },
-  },
-  {
-    id: 2,
-    businessName: '가게 이름',
-    fullAddress: '주소',
-    createdAt: '2026-01-01',
-    status: {
-      value: 'ACTIVE',
-      description: '활성',
-    },
-  },
-  {
-    id: 3,
-    businessName: '가게 이름',
-    fullAddress: '주소',
-    createdAt: '2026-01-01',
-    status: {
-      value: 'ACTIVE',
-      description: '활성',
-    },
-  },
-]
-
 const MANAGER_SCHEDULE_DATA: CalendarViewData = {
   summary: {
     totalWorkHours: 60,
@@ -144,7 +112,11 @@ const MANAGER_SCHEDULE_DATA: CalendarViewData = {
 export function useManagerHomeViewModel() {
   const [isWorkspaceChangeModalOpen, setIsWorkspaceChangeModalOpen] =
     useState(false)
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<number>(1)
+
+  const { workspaces, activeWorkspaceId, setActiveWorkspaceId } =
+    useManagedWorkspacesQuery()
+
+  const { detail: workspaceDetail } = useWorkspaceDetailQuery(activeWorkspaceId)
 
   useEffect(() => {
     if (!isWorkspaceChangeModalOpen) return
@@ -184,14 +156,17 @@ export function useManagerHomeViewModel() {
       estimatedEarningsText: MANAGER_SCHEDULE_ESTIMATED_EARNINGS_TEXT,
       data: MANAGER_SCHEDULE_DATA,
     },
+    workspaceDetail,
     workspaceChangeModal: {
       isOpen: isWorkspaceChangeModalOpen,
-      items: WORKSPACE_CHANGE_ITEMS,
-      selectedWorkspaceId,
+      items: workspaces,
+      selectedWorkspaceId: activeWorkspaceId,
     },
     openWorkspaceChangeModal: () => setIsWorkspaceChangeModalOpen(true),
     closeWorkspaceChangeModal: () => setIsWorkspaceChangeModalOpen(false),
-    selectWorkspace: (workspaceId: number) =>
-      setSelectedWorkspaceId(workspaceId),
+    selectWorkspace: (workspaceId: number) => {
+      setActiveWorkspaceId(workspaceId)
+      setIsWorkspaceChangeModalOpen(false)
+    },
   }
 }

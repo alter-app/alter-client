@@ -22,6 +22,7 @@ export function ManagerHomePage() {
     ongoingPostings,
     substituteRequests,
     schedule,
+    workspaceDetail,
     workspaceChangeModal,
     openWorkspaceChangeModal,
     closeWorkspaceChangeModal,
@@ -42,11 +43,17 @@ export function ManagerHomePage() {
 
         <div className="absolute bottom-8 left-[20px] text-white">
           <div className="mb-1 flex items-center gap-2">
-            <p className="typography-headline01">가게 이름</p>
-            <WorkCategoryBadge label="카페" />
+            <p className="typography-headline01">
+              {workspaceDetail?.businessName ?? ''}
+            </p>
+            <WorkCategoryBadge label={workspaceDetail?.businessType ?? ''} />
           </div>
-          <p className="typography-body01-regular leading-[1.4]">주소</p>
-          <p className="typography-body01-regular leading-[1.4]">가게 이름</p>
+          <p className="typography-body01-regular leading-[1.4]">
+            {workspaceDetail?.fullAddress ?? ''}
+          </p>
+          <p className="typography-body01-regular leading-[1.4]">
+            {workspaceDetail?.businessName ?? ''}
+          </p>
         </div>
 
         <button
@@ -90,7 +97,9 @@ export function ManagerHomePage() {
 
             <WorkspaceChangeList
               workspaces={workspaceChangeModal.items}
-              selectedWorkspaceId={workspaceChangeModal.selectedWorkspaceId}
+              selectedWorkspaceId={
+                workspaceChangeModal.selectedWorkspaceId ?? undefined
+              }
               categoryLabel="카페"
               className="mt-[19px]"
               onSelectWorkspace={selectWorkspace}
