@@ -5,6 +5,7 @@ import { useWorkspaceManagersViewModel } from '@/features/home/user/workspace/ho
 type Params = {
   workspaceId?: string
   initialPageSize?: number
+  loadMorePageSize?: number
 }
 
 export function useWorkspaceMembers(params: Params) {
