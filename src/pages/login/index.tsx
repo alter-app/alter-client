@@ -20,9 +20,9 @@ export function LoginPage() {
   useEffect(() => {
     if (isLoggedIn && token) {
       if (scope === 'MANAGER') {
-        navigate('/main', { replace: true })
+        navigate('/manager/home', { replace: true })
       } else {
-        navigate('/user/job-lookup-map', { replace: true })
+        navigate('/user/home', { replace: true })
       }
     }
   }, [isLoggedIn, scope, token, navigate])
