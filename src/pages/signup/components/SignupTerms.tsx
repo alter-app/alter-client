@@ -36,7 +36,7 @@ export function SignupTerms({
           className={checkboxCls}
         />
         <span>
-          <span className="text-[#DC0000] mr-1">(필수)</span>
+          <span className="text-error mr-1">(필수)</span>
           <span className="font-medium text-[#111111]">이용약관</span>과{' '}
           <span className="font-medium text-[#111111]">개인정보 보호정책</span>
           에 동의합니다.

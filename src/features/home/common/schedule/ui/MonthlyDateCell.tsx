@@ -20,7 +20,7 @@ export function MonthlyDateCell({
   const dayTextColor = !isCurrentMonth
     ? 'text-text-50'
     : isWeekend
-      ? 'text-[#DC0000]'
+      ? 'text-error'
       : 'text-text-50'
 
   return (

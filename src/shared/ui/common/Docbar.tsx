@@ -109,7 +109,7 @@ export function Docbar() {
   const setSelectedTabByPathname = useDocStore(
     state => state.setSelectedTabByPathname
   )
-  const { scope } = useAuthStore( )
+  const { scope } = useAuthStore()
 
   useEffect(() => {
     setSelectedTabByPathname(pathname)

@@ -42,9 +42,9 @@ export function EmailVerification({
             onChange={e => handleEmailChange(e.target.value)}
             borderColor={
               verified
-                ? '1px solid #2DE283'
+                ? '1px solid main'
                 : message && !codeSent
-                  ? '1px solid #DC0000'
+                  ? '1px solid error'
                   : undefined
             }
           />
@@ -92,7 +92,7 @@ export function EmailVerification({
       {message && (
         <p
           className="font-pretendard font-regular text-[12px] leading-[18px] text-left w-full sm:text-[11px] xs:text-[10px]"
-          style={{ color: verified ? '#2DE283' : '#DC0000' }}
+          style={{ color: verified ? 'main' : 'error' }}
         >
           {message}
         </p>

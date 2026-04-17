@@ -80,7 +80,7 @@ export function MonthlyCalendar({
           {weekdayLabels.map((label, index) => (
             <span
               key={label}
-              className={`w-12 typography-body03-regular ${index === 5 || index === 6 ? 'text-[#DC0000]' : 'text-text-50'}`}
+              className={`w-12 typography-body03-regular ${index === 5 || index === 6 ? 'text-error' : 'text-text-50'}`}
             >
               {label}
             </span>

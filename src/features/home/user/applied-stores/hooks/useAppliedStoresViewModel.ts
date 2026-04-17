@@ -70,9 +70,7 @@ export function useAppliedStoresViewModel() {
   })
 
   const stores = useMemo<AppliedStoreData[]>(
-    () =>
-      data?.pages.flatMap(page => page.data.map(adaptApplicationDto)) ??
-      [],
+    () => data?.pages.flatMap(page => page.data.map(adaptApplicationDto)) ?? [],
     [data]
   )
 
