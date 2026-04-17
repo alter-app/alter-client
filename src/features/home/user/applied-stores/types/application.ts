@@ -1,4 +1,3 @@
-import type { CommonApiResponse } from '@/shared/types/common'
 import type {
   AppliedStoreData,
   ApplicationStatus,
@@ -48,10 +47,10 @@ export interface ApplicationPageDto {
   totalCount: number
 }
 
-export type ApplicationListApiResponse = CommonApiResponse<{
+export type ApplicationListApiResponse = {
   page: ApplicationPageDto
   data: ApplicationDto[]
-}>
+}
 
 // ---- Query Params ----
 export interface ApplicationListQueryParams {

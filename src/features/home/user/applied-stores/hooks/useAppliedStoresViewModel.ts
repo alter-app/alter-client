@@ -66,12 +66,12 @@ export function useAppliedStoresViewModel() {
         status: apiStatus.length ? apiStatus : undefined,
       }),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: lastPage => lastPage.data.page.cursor ?? undefined,
+    getNextPageParam: lastPage => lastPage.page.cursor ?? undefined,
   })
 
   const stores = useMemo<AppliedStoreData[]>(
     () =>
-      data?.pages.flatMap(page => page.data.data.map(adaptApplicationDto)) ??
+      data?.pages.flatMap(page => page.data.map(adaptApplicationDto)) ??
       [],
     [data]
   )

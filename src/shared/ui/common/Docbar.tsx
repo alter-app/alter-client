@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useDocStore } from '@/shared/stores/useDocStore'
 import { typography } from '@/shared/lib/tokens'
 import { TAB_TITLE_MAP, type TabKey } from '@/shared/types/tab'
+import useAuthStore from '@/shared/stores/useAuthStore'
 
 function DocContent({
   icon,
@@ -108,13 +109,14 @@ export function Docbar() {
   const setSelectedTabByPathname = useDocStore(
     state => state.setSelectedTabByPathname
   )
+  const { scope } = useAuthStore( )
 
   useEffect(() => {
     setSelectedTabByPathname(pathname)
   }, [pathname, setSelectedTabByPathname])
 
   const pathByTab: Record<TabKey, string> = {
-    home: '/manager/home',
+    home: scope === 'MANAGER' ? '/manager/home' : '/user/home',
     search: '/user/job-lookup-map',
     message: '/message',
     repute: '/repute',
