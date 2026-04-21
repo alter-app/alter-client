@@ -7,10 +7,10 @@ export const queryKeys = {
       ['schedules', 'self', params] as const,
   },
   workspace: {
-    workers: (workspaceId?: number, cursor?: string, pageSize?: number) =>
-      ['workspace', 'workers', workspaceId, cursor, pageSize] as const,
-    managers: (workspaceId?: number, cursor?: string, pageSize?: number) =>
-      ['workspace', 'managers', workspaceId, cursor, pageSize] as const,
+    workers: (workspaceId?: number) =>
+      ['workspace', 'workers', workspaceId] as const,
+    managers: (workspaceId?: number) =>
+      ['workspace', 'managers', workspaceId] as const,
     list: (params?: { pageSize: number }) =>
       ['workspace', 'list', params] as const,
     schedules: (
