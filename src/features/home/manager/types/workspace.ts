@@ -28,4 +28,3 @@ export interface WorkspaceDetailDto {
 // ---- API Response Types ----
 export type ManagedWorkspacesApiResponse = CommonApiResponse<WorkspaceItemDto[]>
 export type WorkspaceDetailApiResponse = CommonApiResponse<WorkspaceDetailDto>
-

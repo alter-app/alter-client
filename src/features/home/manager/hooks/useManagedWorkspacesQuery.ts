@@ -12,14 +12,13 @@ export function useManagedWorkspacesQuery() {
     queryFn: fetchManagedWorkspaces,
   })
 
-  const workspaces = useMemo(
-    () => data?.data ?? [],
-    [data]
-  )
+  const workspaces = useMemo(() => data?.data ?? [], [data])
 
   // ID가 가장 작은 업장을 기본값으로 설정
   useEffect(() => {
-    const hasVaildActiveWorkspace = activeWorkspaceId !== null && workspaces.some(workspaces => workspaces.id === activeWorkspaceId)
+    const hasVaildActiveWorkspace =
+      activeWorkspaceId !== null &&
+      workspaces.some(workspaces => workspaces.id === activeWorkspaceId)
 
     if (hasVaildActiveWorkspace) return
 

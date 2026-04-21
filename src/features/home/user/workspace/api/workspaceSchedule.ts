@@ -50,7 +50,11 @@ export async function getWorkspaceSchedule(
       )
     }
     const [fromData, toData] = await Promise.all([
-      fetchWorkspaceScheduleByMonth(workspaceId, params.fromYear, params.fromMonth),
+      fetchWorkspaceScheduleByMonth(
+        workspaceId,
+        params.fromYear,
+        params.fromMonth
+      ),
       fetchWorkspaceScheduleByMonth(workspaceId, params.toYear, params.toMonth),
     ])
     return { ...fromData, data: [...fromData.data, ...toData.data] }
@@ -115,11 +119,15 @@ export function deriveWorkerList(
   response: WorkspaceScheduleApiResponse
 ): WorkspaceWorkerItem[] {
   const workerMap = new Map<number, WorkspaceWorkerItem>()
+  const now = Date.now()
 
-  const sorted = [...response.data].sort(
-    (a, b) =>
-      new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
-  )
+  const sorted = response.data
+    .filter(shift => new Date(shift.startDateTime).getTime() >= now)
+    .sort(
+      (a, b) =>
+        new Date(a.startDateTime).getTime() -
+        new Date(b.startDateTime).getTime()
+    )
 
   for (const shift of sorted) {
     const { workerId, workerName } = shift.assignedWorker

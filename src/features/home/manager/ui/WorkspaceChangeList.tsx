@@ -1,6 +1,4 @@
-import {
-  WorkspaceChangeCard,
-} from './WorkspaceChangeCard'
+import { WorkspaceChangeCard } from './WorkspaceChangeCard'
 import type { WorkspaceItemDto } from '@/features/home/manager/types/workspace'
 
 interface WorkspaceChangeListProps {

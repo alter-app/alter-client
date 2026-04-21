@@ -10,10 +10,7 @@ export function useWorkspaceDetailQuery(workspaceId: number | null) {
     enabled: workspaceId !== null,
   })
 
-  const detail = useMemo(
-    () => data?.data ?? null,
-    [data]
-  )
+  const detail = useMemo(() => data?.data ?? null, [data])
 
   return {
     detail,
