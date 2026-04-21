@@ -69,7 +69,7 @@ const WORKING_DAY_KO: Record<string, string> = {
 }
 
 function formatWage(payAmount: number, paymentType: string): string {
-  const label = PAYMENT_TYPE_LABEL[paymentType] ?? '시급'
+  const label = PAYMENT_TYPE_LABEL[paymentType] ?? paymentType
   const amount = payAmount.toLocaleString('ko-KR')
   return `${label} ${amount}원`
 }

@@ -6,7 +6,7 @@ import { queryKeys } from '@/shared/lib/queryKeys'
 
 export function useWorkspaceDetailQuery(workspaceId: number | null) {
   const { data, isPending, isError } = useQuery({
-    queryKey: queryKeys.managerWorkspace.detail(workspaceId ?? 0),
+    queryKey: queryKeys.managerWorkspace.detail(workspaceId!),
     queryFn: () => fetchWorkspaceDetail(workspaceId!),
     enabled: workspaceId !== null,
   })

@@ -20,8 +20,9 @@ export function useManagedWorkspacesQuery() {
 
   // ID가 가장 작은 업장을 기본값으로 설정
   useEffect(() => {
-    if (workspaces.length === 0) return
-    if (activeWorkspaceId !== null) return
+    const hasVaildActiveWorkspace = activeWorkspaceId !== null && workspaces.some(workspaces => workspaces.id === activeWorkspaceId)
+
+    if (hasVaildActiveWorkspace) return
 
     const defaultWorkspace = workspaces.reduce((prev, curr) =>
       curr.id < prev.id ? curr : prev
