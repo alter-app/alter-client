@@ -88,6 +88,18 @@ export function getScheduleParamsByMode(
   if (mode === 'daily') {
     return { year, month, day: baseDate.getDate() }
   }
+  if (mode === 'weekly') {
+    const weekStart = startOfWeek(baseDate, { weekStartsOn: 1 })
+    const weekEnd = endOfWeek(baseDate, { weekStartsOn: 1 })
+    return {
+      fromYear: weekStart.getFullYear(),
+      fromMonth: weekStart.getMonth() + 1,
+      fromDay: weekStart.getDate(),
+      toYear: weekEnd.getFullYear(),
+      toMonth: weekEnd.getMonth() + 1,
+      toDay: weekEnd.getDate(),
+    }
+  }
   return { year, month }
 }
 

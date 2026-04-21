@@ -141,10 +141,28 @@ describe('getScheduleParamsByMode', () => {
     })
   })
 
-  it('weekly이면 year·month만 반환한다', () => {
+  it('weekly이면 주의 시작·끝 날짜 범위를 반환한다', () => {
+    // 2026-04-15 (수요일) 기준 주: 2026-04-13(월) ~ 2026-04-19(일)
     expect(getScheduleParamsByMode(base, 'weekly')).toEqual({
-      year: 2026,
-      month: 4,
+      fromYear: 2026,
+      fromMonth: 4,
+      fromDay: 13,
+      toYear: 2026,
+      toMonth: 4,
+      toDay: 19,
+    })
+  })
+
+  it('weekly에서 주가 월 경계를 넘으면 두 달을 커버하는 범위를 반환한다', () => {
+    // 2026-04-28 (화요일) 기준 주: 2026-04-27(월) ~ 2026-05-03(일)
+    const crossMonth = new Date(2026, 3, 28)
+    expect(getScheduleParamsByMode(crossMonth, 'weekly')).toEqual({
+      fromYear: 2026,
+      fromMonth: 4,
+      fromDay: 27,
+      toYear: 2026,
+      toMonth: 5,
+      toDay: 3,
     })
   })
 

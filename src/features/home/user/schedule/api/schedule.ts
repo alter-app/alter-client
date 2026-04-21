@@ -17,6 +17,12 @@ export interface SelfScheduleQueryParams {
   year?: number
   month?: number
   day?: number
+  fromYear?: number
+  fromMonth?: number
+  fromDay?: number
+  toYear?: number
+  toMonth?: number
+  toDay?: number
 }
 
 function mapToCalendarEvent(
@@ -48,11 +54,11 @@ export function adaptScheduleResponse(
   }
 }
 
-export async function getSelfSchedule(
-  params?: SelfScheduleQueryParams
+async function fetchScheduleByMonth(
+  year?: number,
+  month?: number,
+  day?: number
 ): Promise<ScheduleApiResponse> {
-  const { year, month, day } = params ?? {}
-
   try {
     const response = await axiosInstance.get<ScheduleApiResponse>(
       '/app/schedules/self',
@@ -75,4 +81,35 @@ export async function getSelfSchedule(
     }
     throw new Error('스케줄 조회 중 오류가 발생했습니다.')
   }
+}
+
+function mergeScheduleResponses(
+  a: ScheduleApiResponse,
+  b: ScheduleApiResponse
+): ScheduleApiResponse {
+  return {
+    ...a,
+    data: {
+      totalWorkHours: a.data.totalWorkHours + b.data.totalWorkHours,
+      schedules: [...a.data.schedules, ...b.data.schedules],
+    },
+  }
+}
+
+export async function getSelfSchedule(
+  params?: SelfScheduleQueryParams
+): Promise<ScheduleApiResponse> {
+  if (params?.fromYear !== undefined) {
+    const sameMonth =
+      params.fromYear === params.toYear && params.fromMonth === params.toMonth
+    if (sameMonth) {
+      return fetchScheduleByMonth(params.fromYear, params.fromMonth)
+    }
+    const [fromData, toData] = await Promise.all([
+      fetchScheduleByMonth(params.fromYear, params.fromMonth),
+      fetchScheduleByMonth(params.toYear, params.toMonth),
+    ])
+    return mergeScheduleResponses(fromData, toData)
+  }
+  return fetchScheduleByMonth(params?.year, params?.month, params?.day)
 }
