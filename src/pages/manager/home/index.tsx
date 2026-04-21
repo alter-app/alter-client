@@ -111,7 +111,6 @@ export function ManagerHomePage() {
               selectedWorkspaceId={
                 workspaceChangeModal.selectedWorkspaceId ?? undefined
               }
-              categoryLabel="카페"
               className="mt-[19px]"
               onSelectWorkspace={selectWorkspace}
               onEditWorkspace={() => {}}

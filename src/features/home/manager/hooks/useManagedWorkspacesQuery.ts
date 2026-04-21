@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchManagedWorkspaces } from '@/features/home/manager/api/workspace'
-import { adaptWorkspaceItemDto } from '@/features/home/manager/types/workspace'
 import { useWorkspaceStore } from '@/shared/stores/useWorkspaceStore'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
@@ -14,7 +13,7 @@ export function useManagedWorkspacesQuery() {
   })
 
   const workspaces = useMemo(
-    () => data?.data.map(adaptWorkspaceItemDto) ?? [],
+    () => data?.data ?? [],
     [data]
   )
 

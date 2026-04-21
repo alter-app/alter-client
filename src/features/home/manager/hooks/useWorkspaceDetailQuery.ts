@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchWorkspaceDetail } from '@/features/home/manager/api/workspace'
-import { adaptWorkspaceDetailDto } from '@/features/home/manager/types/workspace'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 export function useWorkspaceDetailQuery(workspaceId: number | null) {
@@ -12,7 +11,7 @@ export function useWorkspaceDetailQuery(workspaceId: number | null) {
   })
 
   const detail = useMemo(
-    () => (data?.data ? adaptWorkspaceDetailDto(data.data) : null),
+    () => data?.data ?? null,
     [data]
   )
 
