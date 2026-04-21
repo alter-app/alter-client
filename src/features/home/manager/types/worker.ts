@@ -1,5 +1,5 @@
 import type { CommonApiResponse } from '@/shared/types/common'
-import type { StoreWorkerRole } from '@/features/home/manager/ui/StoreWorkerListItem'
+import type { StoreWorkerRole } from '@/features/home/manager/types/storeWorkerRole'
 
 // ---- API DTOs ----
 export interface WorkerUserDto {
