@@ -17,7 +17,7 @@ export function useWorkspaceManagersViewModel(
     isPending,
     isError,
   } = useInfiniteQuery({
-    queryKey: queryKeys.workspace.managers(workspaceId),
+    queryKey: [...queryKeys.workspace.managers(workspaceId), { pageSize }],
     queryFn: ({ pageParam }) =>
       getWorkspaceManagers(workspaceId, {
         pageSize,
