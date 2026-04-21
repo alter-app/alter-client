@@ -161,6 +161,9 @@ export function ManagerWorkerSchedulePage() {
         <button
           type="button"
           className="h-12 w-full rounded-2xl bg-main typography-body01-semibold text-text-100"
+          onClick={() => {
+            //Todo: 저장 기능 추가
+          }}
         >
           저장
         </button>
