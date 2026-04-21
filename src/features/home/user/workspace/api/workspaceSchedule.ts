@@ -16,15 +16,51 @@ import type {
   WorkspaceWorkerItem,
 } from '@/features/home/user/workspace/types/workspaceSchedule'
 
+async function fetchWorkspaceScheduleByMonth(
+  workspaceId: number,
+  year?: number,
+  month?: number,
+  day?: number
+): Promise<WorkspaceScheduleApiResponse> {
+  const response = await axiosInstance.get<WorkspaceScheduleApiResponse>(
+    `/app/schedules/workspaces/${workspaceId}`,
+    {
+      params: {
+        ...(year !== undefined && { year }),
+        ...(month !== undefined && { month }),
+        ...(day !== undefined && { day }),
+      },
+    }
+  )
+  return response.data
+}
+
 export async function getWorkspaceSchedule(
   workspaceId: number,
   params?: WorkspaceScheduleQueryParams
 ): Promise<WorkspaceScheduleApiResponse> {
-  const response = await axiosInstance.get<WorkspaceScheduleApiResponse>(
-    `/app/schedules/workspaces/${workspaceId}`,
-    { params }
+  if (params?.fromYear !== undefined) {
+    const sameMonth =
+      params.fromYear === params.toYear && params.fromMonth === params.toMonth
+    if (sameMonth) {
+      return fetchWorkspaceScheduleByMonth(
+        workspaceId,
+        params.fromYear,
+        params.fromMonth
+      )
+    }
+    const [fromData, toData] = await Promise.all([
+      fetchWorkspaceScheduleByMonth(workspaceId, params.fromYear, params.fromMonth),
+      fetchWorkspaceScheduleByMonth(workspaceId, params.toYear, params.toMonth),
+    ])
+    return { ...fromData, data: [...fromData.data, ...toData.data] }
+  }
+  return fetchWorkspaceScheduleByMonth(
+    workspaceId,
+    params?.year,
+    params?.month,
+    params?.day
   )
-  return response.data
 }
 
 export function adaptWorkspaceScheduleToCalendar(
