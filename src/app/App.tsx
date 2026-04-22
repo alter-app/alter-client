@@ -7,6 +7,7 @@ import {
   Outlet,
 } from 'react-router-dom'
 import { ManagerHomePage } from '@/pages/manager/home'
+import { ManagerWorkerSchedulePage } from '@/pages/manager/worker-schedule'
 import { SocialPage } from '@/pages/manager/social'
 import { SocialChatPage } from '@/pages/manager/social-chat'
 import { LoginPage } from '@/pages/login'
@@ -14,6 +15,9 @@ import { JobLookupMapPage } from '@/pages/user/job-lookup-map'
 import { SchedulePage } from '@/pages/user/schedule'
 import { UserHomePage } from '@/pages/user/home'
 import { WorkspaceMembersPage } from '@/pages/user/workspace-members'
+import { WorkspacePage } from '@/pages/user/workspace'
+import { WorkspaceDetailPage } from '@/pages/user/workspace-detail'
+import { AppliedStoresPage } from '@/pages/user/applied-stores'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { MobileLayoutWithDocbar } from '@/shared/ui/MobileLayoutWithDocbar'
 
@@ -58,16 +62,26 @@ export function App() {
               </Suspense>
             }
           />
-          <Route path="/schedule" element={<SchedulePage />} />
+          <Route path="/user/schedule" element={<SchedulePage />} />
           <Route
-            path="/workspaces/:workspaceId/members"
+            path="/user/workspaces/:workspaceId/members"
             element={<WorkspaceMembersPage />}
+          />
+          <Route path="/user/workspace" element={<WorkspacePage />} />
+          <Route
+            path="/user/workspace/:workspaceId"
+            element={<WorkspaceDetailPage />}
+          />
+          <Route path="/user/applied-stores" element={<AppliedStoresPage />} />
+          <Route
+            path="/manager/worker-schedule"
+            element={<ManagerWorkerSchedulePage />}
           />
         </Route>
 
         <Route element={<MobileRouteLayoutWithDocbar />}>
-          <Route path="/job-lookup-map" element={<JobLookupMapPage />} />
-          <Route path="/home" element={<UserHomePage />} />
+          <Route path="/user/job-lookup-map" element={<JobLookupMapPage />} />
+          <Route path="/user/home" element={<UserHomePage />} />
           <Route path="/manager/home" element={<ManagerHomePage />} />
           <Route path="/manager/social" element={<SocialPage />} />
           <Route path="/manager/social/chat" element={<SocialChatPage />} />

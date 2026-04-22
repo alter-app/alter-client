@@ -1,23 +1,10 @@
 import EditIcon from '@/assets/icons/home/edit.svg'
 import { WorkCategoryBadge } from '@/shared/ui/home/WorkCategoryBadge'
-
-interface WorkspaceStatus {
-  value: string
-  description: string
-}
-
-interface WorkspaceChangeItem {
-  id: number
-  businessName: string
-  fullAddress: string
-  createdAt: string
-  status: WorkspaceStatus
-}
+import type { WorkspaceItemDto } from '@/features/home/manager/types/workspace'
 
 interface WorkspaceChangeCardProps {
-  workspace: WorkspaceChangeItem
+  workspace: WorkspaceItemDto
   isSelected?: boolean
-  categoryLabel?: string
   className?: string
   onEdit?: (workspaceId: number) => void
   onClick?: (workspaceId: number) => void
@@ -26,7 +13,6 @@ interface WorkspaceChangeCardProps {
 export function WorkspaceChangeCard({
   workspace,
   isSelected = false,
-  categoryLabel = '',
   className = '',
   onEdit,
   onClick,
@@ -43,7 +29,7 @@ export function WorkspaceChangeCard({
           <p className="line-clamp-1 typography-headline03 text-text-100">
             {workspace.businessName}
           </p>
-          <WorkCategoryBadge label={categoryLabel} className="" />
+          <WorkCategoryBadge label={workspace.businessType} className="" />
         </div>
 
         <div className="flex min-w-0 items-center gap-2 typography-body02-regular text-text-100">
@@ -79,4 +65,4 @@ export function WorkspaceChangeCard({
   )
 }
 
-export type { WorkspaceChangeCardProps, WorkspaceChangeItem, WorkspaceStatus }
+export type { WorkspaceChangeCardProps }

@@ -1,12 +1,9 @@
-import {
-  WorkspaceChangeCard,
-  type WorkspaceChangeItem,
-} from './WorkspaceChangeCard'
+import { WorkspaceChangeCard } from './WorkspaceChangeCard'
+import type { WorkspaceItemDto } from '@/features/home/manager/types/workspace'
 
 interface WorkspaceChangeListProps {
-  workspaces: WorkspaceChangeItem[]
+  workspaces: WorkspaceItemDto[]
   selectedWorkspaceId?: number
-  categoryLabel?: string
   className?: string
   onSelectWorkspace?: (workspaceId: number) => void
   onEditWorkspace?: (workspaceId: number) => void
@@ -15,7 +12,6 @@ interface WorkspaceChangeListProps {
 export function WorkspaceChangeList({
   workspaces,
   selectedWorkspaceId,
-  categoryLabel = '',
   className = '',
   onSelectWorkspace,
   onEditWorkspace,
@@ -26,7 +22,6 @@ export function WorkspaceChangeList({
         <WorkspaceChangeCard
           key={workspace.id}
           workspace={workspace}
-          categoryLabel={categoryLabel}
           isSelected={workspace.id === selectedWorkspaceId}
           onClick={onSelectWorkspace}
           onEdit={onEditWorkspace}

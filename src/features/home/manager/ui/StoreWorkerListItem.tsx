@@ -1,10 +1,6 @@
 import MoreVerticalIcon from '@/assets/icons/home/more-vertical.svg'
-import {
-  WorkerRoleBadge,
-  type WorkerRoleBadgeProps,
-} from '@/shared/ui/home/WorkerRoleBadge'
-
-type StoreWorkerRole = WorkerRoleBadgeProps['role']
+import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
+import type { StoreWorkerRole } from '@/features/home/manager/types/storeWorkerRole'
 
 interface StoreWorkerListItemProps {
   name: string
@@ -62,4 +58,4 @@ export function StoreWorkerListItem({
   )
 }
 
-export type { StoreWorkerListItemProps, StoreWorkerRole }
+export type { StoreWorkerListItemProps }

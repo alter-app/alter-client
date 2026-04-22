@@ -1,15 +1,13 @@
-import type { WorkspaceWorkerDto } from '@/shared/api/workspaceMembers'
+import type { WorkspaceWorkerItem } from '@/features/home/user/workspace/types/workspaceMembers'
 import { LoadMoreButton } from './LoadMoreButton'
 
 type Props = {
-  workers: WorkspaceWorkerDto[]
+  workers: WorkspaceWorkerItem[]
   hasMore: boolean
   onLoadMore: () => void
 }
 
-export function WorkersSection(props: Props) {
-  const { workers, hasMore, onLoadMore } = props
-
+export function WorkersSection({ workers, hasMore, onLoadMore }: Props) {
   if (workers.length === 0) return null
 
   return (
@@ -25,11 +23,11 @@ export function WorkersSection(props: Props) {
           >
             <div className="flex flex-col gap-0.5">
               <span className="font-pretendard font-semibold text-3 text-text-100">
-                {worker.user.name}
+                {worker.name}
               </span>
               <span className="font-pretendard text-2 text-text-70">
-                {worker.position.emoji}{' '}
-                {worker.position.description || worker.position.type}
+                {worker.positionEmoji}{' '}
+                {worker.positionDescription || worker.positionType}
               </span>
             </div>
             <div className="flex flex-col items-end gap-0.5">

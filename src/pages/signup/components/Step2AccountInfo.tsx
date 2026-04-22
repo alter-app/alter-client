@@ -111,9 +111,9 @@ export function Step2AccountInfo({
                 onChange={e => handleNicknameChange(e.target.value)}
                 borderColor={
                   nicknameChecked
-                    ? '1px solid #2DE283'
+                    ? '1px solid main'
                     : nicknameCheckMessage
-                      ? '1px solid #DC0000'
+                      ? '1px solid error'
                       : undefined
                 }
               />
@@ -128,7 +128,7 @@ export function Step2AccountInfo({
           {nicknameCheckMessage && (
             <p
               className="font-pretendard font-regular text-[12px] leading-[18px] text-left w-full sm:text-[11px] xs:text-[10px]"
-              style={{ color: nicknameChecked ? '#2DE283' : '#DC0000' }}
+              style={{ color: nicknameChecked ? 'main' : 'error' }}
             >
               {nicknameCheckMessage}
             </p>

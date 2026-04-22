@@ -20,9 +20,9 @@ export function LoginPage() {
   useEffect(() => {
     if (isLoggedIn && token) {
       if (scope === 'MANAGER') {
-        navigate('/main', { replace: true })
+        navigate('/manager/home', { replace: true })
       } else {
-        navigate('/job-lookup-map', { replace: true })
+        navigate('/user/home', { replace: true })
       }
     }
   }, [isLoggedIn, scope, token, navigate])
@@ -90,7 +90,7 @@ export function LoginPage() {
               setPhoneError('')
               setErrorMessage('')
             }}
-            borderColor={phoneError ? '1px solid #DC0000' : undefined}
+            borderColor={phoneError ? '1px solid error' : undefined}
           />
 
           <AuthInput
@@ -102,7 +102,7 @@ export function LoginPage() {
               setPasswordError('')
               setErrorMessage('')
             }}
-            borderColor={passwordError ? '1px solid #DC0000' : undefined}
+            borderColor={passwordError ? '1px solid error' : undefined}
           />
         </div>
 
