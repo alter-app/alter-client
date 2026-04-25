@@ -1,32 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Navbar } from '@/shared/ui/common/Navbar'
-import { SocialCategory } from '@/shared/ui/manager/social/SocialCategory'
-import { SwipeableSocialItem } from '@/shared/ui/manager/social/SocialList'
-import { SocialSearch } from '@/shared/ui/manager/social/SocialSearch'
-import { FloatingActionButton } from '@/shared/ui/common/FloatingActionButton'
+import { SwipeableSocialItem } from '@/features/social/ui/SocialList'
 
 import SearchIcon from '@/assets/icons/search.svg'
 import MessageIcon from '@/assets/icons/doc/Message.svg'
-
-const SOCIAL_CATEGORY = [
-  {
-    id: 1,
-    name: '전체',
-  },
-  {
-    id: 2,
-    name: '알바1',
-  },
-  {
-    id: 3,
-    name: '알바 2',
-  },
-  {
-    id: 4,
-    name: '알바 3',
-  },
-]
+import { SocialSearch } from '@/features/social/common/SocialSearch'
 
 const SOCIAL_LIST = [
   {
@@ -52,16 +31,8 @@ export function SocialPage() {
   return (
     <div className="min-h-[100dvh] flex flex-col">
       <Navbar />
-      <div className="px-3 py-3 flex gap-2 mb-[15px]">
-        {SOCIAL_CATEGORY.map((item, index) => (
-          <SocialCategory
-            key={item.id}
-            label={item.name}
-            active={index === 0}
-          />
-        ))}
-      </div>
 
+      <SocialSearch />
       <main className="flex-1 overflow-y-auto">
         <section>
           {SOCIAL_LIST.map(item => (
@@ -75,14 +46,6 @@ export function SocialPage() {
           ))}
         </section>
       </main>
-
-      <div className="px-3 pb-2 pt-3">
-        <div className="flex items-center gap-3">
-          <SocialSearch onClick={() => setSearchPopupOpen(true)} />
-
-          <FloatingActionButton />
-        </div>
-      </div>
 
       {searchPopupOpen && (
         <div

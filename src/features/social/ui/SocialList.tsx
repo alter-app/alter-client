@@ -1,23 +1,23 @@
 import { useRef, useState, type PointerEventHandler } from 'react'
+import TrashIcon from '@/assets/icons/social/Trash.svg'
 
 interface SocialProfileProps {
   name: string
   message: string
   timeAgo: string
   unread?: boolean
+  unreadCount?: number
 }
 
 interface SocialActionProps {
-  onRead?: () => void
   onDelete?: () => void
 }
 
 interface SwipeableSocialItemProps extends SocialProfileProps {
-  onRead?: () => void
   onDelete?: () => void
 }
 
-const ACTION_WIDTH = 160
+const ACTION_WIDTH = 72
 const OPEN_THRESHOLD = ACTION_WIDTH * 0.45
 
 export function SocialList({
@@ -25,6 +25,7 @@ export function SocialList({
   message,
   timeAgo,
   unread = false,
+  unreadCount,
 }: SocialProfileProps) {
   return (
     <div className="flex items-center gap-3 border-b border-line-1 py-3">
@@ -38,13 +39,15 @@ export function SocialList({
           </div>
         </div>
 
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <div className=" typography-body02-semibold text-text-100">
             {message}
           </div>
-          <div
-            className={`h-3 w-3 rounded-full ${unread ? 'bg-error' : 'bg-transparent'}`}
-          />
+          {unread ? (
+            <div className="flex h-5 min-w-5 items-center justify-center rounded-full bg-sub px-1 text-white typography-body03-regular">
+              {unreadCount ?? 1}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -56,8 +59,8 @@ export function SwipeableSocialItem({
   message,
   timeAgo,
   unread = false,
-  onRead,
   onDelete,
+  unreadCount,
 }: SwipeableSocialItemProps) {
   const [translateX, setTranslateX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
@@ -67,6 +70,7 @@ export function SwipeableSocialItem({
   const startTranslateXRef = useRef(0)
 
   const handlePointerDown: PointerEventHandler<HTMLDivElement> = event => {
+    if (event.button !== 0) return
     pointerIdRef.current = event.pointerId
     startXRef.current = event.clientX
     startTranslateXRef.current = translateX
@@ -104,7 +108,7 @@ export function SwipeableSocialItem({
   return (
     <div className="relative  overflow-hidden">
       <div className="absolute right-0 top-0 h-full flex items-center">
-        <SocialAction onRead={onRead} onDelete={onDelete} />
+        <SocialAction onDelete={onDelete} />
       </div>
 
       <div
@@ -125,6 +129,7 @@ export function SwipeableSocialItem({
             message={message}
             timeAgo={timeAgo}
             unread={unread}
+            unreadCount={unreadCount}
           />
         </div>
       </div>
@@ -132,22 +137,16 @@ export function SwipeableSocialItem({
   )
 }
 
-export function SocialAction({ onRead, onDelete }: SocialActionProps) {
+export function SocialAction({ onDelete }: SocialActionProps) {
   return (
-    <div className="flex h-[64px] w-[160px] shrink-0 overflow-hidden rounded-[2px]">
-      <button
-        type="button"
-        onClick={onRead}
-        className="w-1/2 bg-[#e3e3e3] typography-body01-regular text-text-90"
-      >
-        읽음
-      </button>
+    <div className="h-[64px] w-[60px] overflow-hidden ">
       <button
         type="button"
         onClick={onDelete}
-        className="w-1/2 bg-error typography-body01-regular text-white"
+        className="flex h-full w-full items-center justify-center bg-error text-white"
+        aria-label="삭제"
       >
-        삭제
+        <img src={TrashIcon} alt="삭제" />
       </button>
     </div>
   )
