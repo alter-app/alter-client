@@ -22,15 +22,3 @@ export interface ChatRoomListQueryParams {
   cursor?: string
   pageSize: number
 }
-
-export interface CreateChatRoomRequestDto {
-  opponentUserId: number
-  opponentScope: string
-}
-
-export interface ChatRoomResponseDto {
-  timestamp: string
-  data: {
-    chatRoomId: number
-  }
-}

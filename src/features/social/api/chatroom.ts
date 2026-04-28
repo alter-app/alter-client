@@ -1,8 +1,6 @@
 import axiosInstance from '@/shared/lib/axiosInstance'
 import type {
   ChatRoomListQueryParams,
-  ChatRoomResponseDto,
-  CreateChatRoomRequestDto,
   CursorPaginatedApiResponseChatRoomListResponseDto,
 } from '@/features/social/types/chatroom'
 
@@ -19,15 +17,5 @@ export async function fetchChatRooms(
         },
       }
     )
-  return response.data
-}
-
-export async function createOrGetChatRoom(
-  payload: CreateChatRoomRequestDto
-): Promise<ChatRoomResponseDto> {
-  const response = await axiosInstance.post<ChatRoomResponseDto>(
-    '/manager/chat/rooms',
-    payload
-  )
   return response.data
 }
