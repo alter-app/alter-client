@@ -1,5 +1,5 @@
 import { useRef, useState, type PointerEventHandler } from 'react'
-import TrashIcon from '@/assets/icons/social/Trash.svg'
+import TrashIcon from '@/assets/icons/social/trash.svg'
 
 interface SocialProfileProps {
   name: string
