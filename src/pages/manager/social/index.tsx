@@ -1,49 +1,46 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Navbar } from '@/shared/ui/common/Navbar'
+import { useChatRoomsViewModel } from '@/features/social'
 import { SwipeableSocialItem } from '@/features/social/ui/SocialList'
 
 import SearchIcon from '@/assets/icons/search.svg'
 import MessageIcon from '@/assets/icons/doc/Message.svg'
 import { SocialSearch } from '@/features/social/common/SocialSearch'
 
-const SOCIAL_LIST = [
-  {
-    id: 1,
-    name: '나영채',
-    message: '메시지 내용 최대 한 줄만 출력 됩니다.',
-    timeAgo: '1시간 전',
-    unread: true,
-  },
-  {
-    id: 2,
-    name: '나영채',
-    message: '메시지 내용 최대 한 줄만 출력 됩니다.',
-    timeAgo: '1시간 전',
-    unread: false,
-  },
-]
-
 export function SocialPage() {
   const [searchPopupOpen, setSearchPopupOpen] = useState(false)
   const navigate = useNavigate()
+  const { chatRooms, isLoading, isError } = useChatRoomsViewModel()
 
   return (
     <div className="min-h-[100dvh] flex flex-col">
       <Navbar />
 
-      <SocialSearch />
+      <SocialSearch onClick={() => setSearchPopupOpen(true)} />
       <main className="flex-1 overflow-y-auto">
         <section>
-          {SOCIAL_LIST.map(item => (
-            <SwipeableSocialItem
-              key={item.id}
-              name={item.name}
-              message={item.message}
-              timeAgo={item.timeAgo}
-              unread={item.unread}
-            />
-          ))}
+          {isLoading && (
+            <div className="px-4 py-6 typography-body02-regular text-text-70">
+              목록을 불러오는 중입니다.
+            </div>
+          )}
+          {isError && !isLoading && (
+            <div className="px-4 py-6 typography-body02-regular text-error">
+              목록을 불러오지 못했습니다.
+            </div>
+          )}
+          {!isLoading &&
+            !isError &&
+            chatRooms.map(item => (
+              <SwipeableSocialItem
+                key={item.id}
+                name={item.name}
+                message={item.message}
+                timeAgo={item.timeAgo}
+                unread={item.unread}
+              />
+            ))}
         </section>
       </main>
 
@@ -67,18 +64,18 @@ export function SocialPage() {
             </button>
 
             <div className="mt-3">
-              {Array.from({ length: 5 }).map((_, index) => (
+              {chatRooms.map(item => (
                 <div
-                  key={index}
+                  key={item.id}
                   className="py-4 border-b border-line-1 flex items-center gap-3"
                 >
                   <div className="h-12 w-12 rounded-full bg-[#f4f4f4] border border-[#e6e6e6]" />
                   <div className="flex-1">
                     <div className="typography-body01-semibold text-text-100">
-                      나영채
+                      {item.name}
                     </div>
                     <div className="typography-body02-regular text-text-100">
-                      근무지 이름
+                      {item.message}
                     </div>
                   </div>
                   <button
