@@ -73,9 +73,7 @@ export function KakaoCallbackPage() {
         console.error(e)
         const err = e as { message?: string }
         setStatus('error')
-        setErrorMessage(
-          err.message || '로그인 처리 중 오류가 발생했습니다.'
-        )
+        setErrorMessage(err.message || '로그인 처리 중 오류가 발생했습니다.')
       }
     }
 

@@ -55,10 +55,7 @@ export function App() {
       <Routes>
         <Route element={<MobileRouteLayoutWithoutDocbar />}>
           <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/oauth/kakao/callback"
-            element={<KakaoCallbackPage />}
-          />
+          <Route path="/oauth/kakao/callback" element={<KakaoCallbackPage />} />
           <Route
             path="/signup"
             element={

@@ -66,7 +66,10 @@ export function LoginPage() {
             navigate
           )
         } catch (error: unknown) {
-          const apiError = error as { data?: { code?: string }; message?: string }
+          const apiError = error as {
+            data?: { code?: string }
+            message?: string
+          }
           if (apiError?.data?.code === 'B011') return
           alert(apiError.message || '카카오 로그인에 실패했습니다.')
         }
