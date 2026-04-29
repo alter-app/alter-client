@@ -53,7 +53,8 @@ export function KakaoCallbackPage() {
       try {
         if (window.opener && !window.opener.closed) {
           const parsedState = decodeKakaoOauthState(state)
-          const targetOrigin = parsedState?.openerOrigin ?? window.location.origin
+          const targetOrigin =
+            parsedState?.openerOrigin ?? window.location.origin
           window.opener.postMessage(
             {
               type: 'alter-kakao-oauth',

@@ -77,7 +77,10 @@ type KakaoOauthState = {
 }
 
 function createNonce(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+  ) {
     return crypto.randomUUID()
   }
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`
@@ -87,7 +90,9 @@ function encodeKakaoOauthState(payload: KakaoOauthState): string {
   return btoa(JSON.stringify(payload))
 }
 
-export function decodeKakaoOauthState(state?: string | null): KakaoOauthState | null {
+export function decodeKakaoOauthState(
+  state?: string | null
+): KakaoOauthState | null {
   if (!state) return null
   try {
     const decoded = atob(state)
