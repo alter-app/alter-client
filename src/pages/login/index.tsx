@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { KakaoLoginButton, AppleLoginButton } from '@/features/auth'
 import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { loginIDPW, loginSocial } from '@/shared/api/auth'
+import { getKakaoOAuthRedirectUri } from '@/shared/lib/socialLogin'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { parseErrorResponse } from '@/shared/lib/utils/errorUtils'
 import AlterLogo from '@/assets/Alter-logo.png'
@@ -27,7 +28,7 @@ export function LoginPage() {
     }
   }, [isLoggedIn, scope, token, navigate])
 
-  /** 카카오 로그인 팝업이 리다이렉트된 뒤 부모 창으로 토큰을 넘기는 경우 */
+  /** 카카오 로그인 팝업: 콜백에서 OAuth 인가 코드만 전달 (클라이언트에서 토큰 교환 시 code 소모 → A010 방지) */
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
       if (event.origin !== window.location.origin) return
@@ -35,8 +36,12 @@ export function LoginPage() {
         type?: string
         accessToken?: string
         refreshToken?: string
+        authorizationCode?: string
       }
-      if (d?.type !== 'alter-kakao-oauth' || !d.accessToken) return
+      if (d?.type !== 'alter-kakao-oauth') return
+      if (!d.authorizationCode && !d.accessToken) return
+
+      const authorizationCode = d.authorizationCode
       const accessToken = d.accessToken
       const refreshToken = d.refreshToken
 
@@ -45,10 +50,16 @@ export function LoginPage() {
           await loginSocial(
             {
               provider: 'KAKAO',
-              oauthToken: {
-                accessToken,
-                refreshToken,
-              },
+              ...(accessToken
+                ? {
+                    oauthToken: {
+                      accessToken,
+                      refreshToken,
+                    },
+                  }
+                : {}),
+              authorizationCode,
+              redirectUri: getKakaoOAuthRedirectUri(),
               platformType: 'WEB',
             },
             setAuth,

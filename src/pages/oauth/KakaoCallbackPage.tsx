@@ -4,11 +4,12 @@ import { loginSocial } from '@/shared/api/auth'
 import { getKakaoOAuthRedirectUri } from '@/shared/lib/socialLogin'
 import useAuthStore from '@/shared/stores/useAuthStore'
 
-const KAKAO_TOKEN_URL = 'https://kauth.kakao.com/oauth/token'
-
 /**
- * 카카오 OAuth 리다이렉트 URI (브라우저 주소창에 ?code= 로 돌아옴)
- * — 인가 코드를 액세스 토큰으로 교환한 뒤 서버 로그인 또는 부모 창(postMessage)으로 전달
+ * 카카오 OAuth 리다이렉트 URI (?code=)
+ *
+ * 인가 코드는 카카오에서 1회만 유효합니다. 브라우저에서 먼저 /oauth/token 으로
+ * 교환하면 서버가 같은 코드로 검증할 때 A010(만료)이 납니다.
+ * → 클라이언트에서는 교환하지 않고 code만 백엔드(login-social / signup-social)로 넘깁니다.
  */
 export function KakaoCallbackPage() {
   const [searchParams] = useSearchParams()
@@ -45,63 +46,12 @@ export function KakaoCallbackPage() {
         return
       }
 
-      const clientId = import.meta.env.VITE_KAKAO_REST_API_KEY
-      if (!clientId) {
-        setStatus('error')
-        setErrorMessage('카카오 REST API 키(VITE_KAKAO_REST_API_KEY)가 없습니다.')
-        return
-      }
-
-      const redirectUri = getKakaoOAuthRedirectUri()
-
       try {
-        const body = new URLSearchParams({
-          grant_type: 'authorization_code',
-          client_id: clientId,
-          redirect_uri: redirectUri,
-          code,
-        })
-
-        const res = await fetch(KAKAO_TOKEN_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-          },
-          body,
-        })
-
-        const raw = await res.text()
-        if (!res.ok) {
-          console.error('Kakao /oauth/token:', res.status, raw)
-          setStatus('error')
-          setErrorMessage('카카오 토큰 발급에 실패했습니다.')
-          return
-        }
-
-        let data: { access_token?: string; refresh_token?: string }
-        try {
-          data = JSON.parse(raw) as typeof data
-        } catch {
-          setStatus('error')
-          setErrorMessage('카카오 응답을 처리할 수 없습니다.')
-          return
-        }
-
-        const accessToken = data.access_token
-        if (!accessToken) {
-          setStatus('error')
-          setErrorMessage('액세스 토큰을 받지 못했습니다.')
-          return
-        }
-
-        const refreshToken = data.refresh_token
-
         if (window.opener && !window.opener.closed) {
           window.opener.postMessage(
             {
               type: 'alter-kakao-oauth',
-              accessToken,
-              refreshToken,
+              authorizationCode: code,
             },
             window.location.origin
           )
@@ -112,10 +62,8 @@ export function KakaoCallbackPage() {
         await loginSocial(
           {
             provider: 'KAKAO',
-            oauthToken: {
-              accessToken,
-              refreshToken,
-            },
+            authorizationCode: code,
+            redirectUri: getKakaoOAuthRedirectUri(),
             platformType: 'WEB',
           },
           setAuth,
@@ -123,8 +71,11 @@ export function KakaoCallbackPage() {
         )
       } catch (e) {
         console.error(e)
+        const err = e as { message?: string }
         setStatus('error')
-        setErrorMessage('로그인 처리 중 오류가 발생했습니다.')
+        setErrorMessage(
+          err.message || '로그인 처리 중 오류가 발생했습니다.'
+        )
       }
     }
 

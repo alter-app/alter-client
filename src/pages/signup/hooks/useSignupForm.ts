@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getFreshFirebaseIdToken } from '@/shared/lib/firebase'
+import { requestFreshKakaoAuthorizationCode } from '@/shared/lib/socialLogin'
 import {
   type SocialLoginRequest,
   checkNicknameDuplicate,
@@ -61,6 +63,12 @@ export function useSignupForm(options?: UseSignupFormOptions) {
 
   const [signupError, setSignupError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  /** 같은 전화로 세션을 이미 만들었으면 재시도 시 firebase 토큰 재사용 오류 방지 */
+  const signupSessionCacheRef = useRef<{
+    contact: string
+    signupSessionId: string
+  } | null>(null)
 
   // ─── 핸들러 ───────────────────────────────────────────────────────────
 
@@ -153,15 +161,49 @@ export function useSignupForm(options?: UseSignupFormOptions) {
         return
       }
 
-      const signupSessionId = await createSignupSession(phone, firebaseIdToken)
+      const contact = normalizePhone(phone)
+      let signupSessionId: string
+
+      const cached = signupSessionCacheRef.current
+      if (cached && cached.contact === contact) {
+        signupSessionId = cached.signupSessionId
+      } else {
+        const tokenForSession =
+          (await getFreshFirebaseIdToken()) ?? firebaseIdToken
+        if (!tokenForSession) {
+          setSignupError(
+            '전화번호 인증이 만료되었습니다. 1단계에서 다시 인증해 주세요.'
+          )
+          return
+        }
+        signupSessionId = await createSignupSession(phone, tokenForSession)
+        signupSessionCacheRef.current = { contact, signupSessionId }
+      }
 
       if (isSocialSignup && socialLoginData) {
+        let authorizationCode = socialLoginData.authorizationCode
+        let oauthToken = socialLoginData.oauthToken
+
+        if (socialLoginData.provider === 'KAKAO') {
+          try {
+            authorizationCode = await requestFreshKakaoAuthorizationCode()
+            oauthToken = undefined
+          } catch (err) {
+            const e = err as Error
+            setSignupError(
+              e.message ||
+                '카카오 인증을 완료하지 못했습니다. 팝업 허용 후 다시 시도해 주세요.'
+            )
+            return
+          }
+        }
+
         await signupSocial(
           {
             signupSessionId,
             provider: socialLoginData.provider,
-            oauthToken: socialLoginData.oauthToken,
-            authorizationCode: socialLoginData.authorizationCode,
+            ...(oauthToken ? { oauthToken } : {}),
+            ...(authorizationCode ? { authorizationCode } : {}),
             platformType: socialLoginData.platformType,
             name: name.trim(),
             nickname: nickname.trim(),
@@ -189,7 +231,10 @@ export function useSignupForm(options?: UseSignupFormOptions) {
         navigate
       )
     } catch (error) {
-      const e = error as { message?: string }
+      const e = error as { data?: { code?: string }; message?: string }
+      if (e.data?.code === 'A006') {
+        signupSessionCacheRef.current = null
+      }
       setSignupError(e.message || '회원가입에 실패했습니다.')
     } finally {
       setIsSubmitting(false)
