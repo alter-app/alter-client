@@ -69,7 +69,45 @@ export function getKakaoOAuthRedirectUri(): string {
 }
 
 /** KakaoCallbackPage·로그인 페이지와 동일한 postMessage 타입 */
-const KAKAO_OAUTH_MESSAGE_TYPE = 'alter-kakao-oauth'
+export const KAKAO_OAUTH_MESSAGE_TYPE = 'alter-kakao-oauth'
+
+type KakaoOauthState = {
+  nonce: string
+  openerOrigin: string
+}
+
+function createNonce(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
+function encodeKakaoOauthState(payload: KakaoOauthState): string {
+  return btoa(JSON.stringify(payload))
+}
+
+export function decodeKakaoOauthState(state?: string | null): KakaoOauthState | null {
+  if (!state) return null
+  try {
+    const decoded = atob(state)
+    const parsed = JSON.parse(decoded) as Partial<KakaoOauthState>
+    if (
+      typeof parsed.nonce === 'string' &&
+      parsed.nonce &&
+      typeof parsed.openerOrigin === 'string' &&
+      parsed.openerOrigin
+    ) {
+      return {
+        nonce: parsed.nonce,
+        openerOrigin: parsed.openerOrigin,
+      }
+    }
+    return null
+  } catch {
+    return null
+  }
+}
 
 /**
  * 새 OAuth 인가 코드만 받습니다 (백엔드가 code를 소모하므로 클라이언트에서 토큰 교환하지 않음).
@@ -84,10 +122,15 @@ export function requestFreshKakaoAuthorizationCode(): Promise<string> {
     }
 
     const redirectUri = getKakaoOAuthRedirectUri()
+    const oauthState = encodeKakaoOauthState({
+      nonce: createNonce(),
+      openerOrigin: window.location.origin,
+    })
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
       response_type: 'code',
+      state: oauthState,
     })
     const authUrl = `https://kauth.kakao.com/oauth/authorize?${params.toString()}`
 
@@ -105,11 +148,19 @@ export function requestFreshKakaoAuthorizationCode(): Promise<string> {
 
     function onMessage(event: MessageEvent) {
       if (settled || event.origin !== window.location.origin) return
+      if (event.source !== popup) return
       const d = event.data as {
         type?: string
         authorizationCode?: string
+        state?: string
       }
-      if (d?.type !== KAKAO_OAUTH_MESSAGE_TYPE || !d.authorizationCode) return
+      if (
+        d?.type !== KAKAO_OAUTH_MESSAGE_TYPE ||
+        !d.authorizationCode ||
+        d.state !== oauthState
+      ) {
+        return
+      }
       settled = true
       cleanup(onMessage, timer)
       try {

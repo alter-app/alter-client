@@ -176,7 +176,7 @@ export function useSignupForm(options?: UseSignupFormOptions) {
           )
           return
         }
-        signupSessionId = await createSignupSession(phone, tokenForSession)
+        signupSessionId = await createSignupSession(contact, tokenForSession)
         signupSessionCacheRef.current = { contact, signupSessionId }
       }
 
