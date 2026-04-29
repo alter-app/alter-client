@@ -1,4 +1,3 @@
-import EditIcon from '@/assets/icons/home/edit.svg'
 import { WorkCategoryBadge } from '@/shared/ui/home/WorkCategoryBadge'
 import type { WorkspaceItemDto } from '@/features/home/manager/types/workspace'
 
@@ -6,7 +5,6 @@ interface WorkspaceChangeCardProps {
   workspace: WorkspaceItemDto
   isSelected?: boolean
   className?: string
-  onEdit?: (workspaceId: number) => void
   onClick?: (workspaceId: number) => void
 }
 
@@ -14,7 +12,6 @@ export function WorkspaceChangeCard({
   workspace,
   isSelected = false,
   className = '',
-  onEdit,
   onClick,
 }: WorkspaceChangeCardProps) {
   return (
@@ -50,17 +47,6 @@ export function WorkspaceChangeCard({
           </span>
         </div>
       </div>
-      <button
-        type="button"
-        onClick={event => {
-          event.stopPropagation()
-          onEdit?.(workspace.id)
-        }}
-        className="absolute right-4 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center"
-        aria-label="업장 정보 수정"
-      >
-        <img src={EditIcon} alt="수정" className="h-6 w-6" />
-      </button>
     </div>
   )
 }

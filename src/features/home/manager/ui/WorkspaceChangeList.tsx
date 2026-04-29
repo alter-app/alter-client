@@ -6,7 +6,6 @@ interface WorkspaceChangeListProps {
   selectedWorkspaceId?: number
   className?: string
   onSelectWorkspace?: (workspaceId: number) => void
-  onEditWorkspace?: (workspaceId: number) => void
 }
 
 export function WorkspaceChangeList({
@@ -14,7 +13,6 @@ export function WorkspaceChangeList({
   selectedWorkspaceId,
   className = '',
   onSelectWorkspace,
-  onEditWorkspace,
 }: WorkspaceChangeListProps) {
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
@@ -24,7 +22,6 @@ export function WorkspaceChangeList({
           workspace={workspace}
           isSelected={workspace.id === selectedWorkspaceId}
           onClick={onSelectWorkspace}
-          onEdit={onEditWorkspace}
         />
       ))}
     </div>
