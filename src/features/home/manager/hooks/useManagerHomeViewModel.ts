@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react'
-import type { TodayWorkerItem } from '@/features/home/manager/ui/TodayWorkerList'
 import { useManagedWorkspacesQuery } from '@/features/home/manager/hooks/useManagedWorkspacesQuery'
 import { useWorkspaceDetailQuery } from '@/features/home/manager/hooks/useWorkspaceDetailQuery'
 import { useWorkspaceWorkersViewModel } from '@/features/home/manager/hooks/useWorkspaceWorkersViewModel'
 import { useManagedPostingsViewModel } from '@/features/home/manager/hooks/useManagedPostingsViewModel'
 import { useSubstituteRequestsViewModel } from '@/features/home/manager/hooks/useSubstituteRequestsViewModel'
 import { useMonthlySchedulesViewModel } from '@/features/home/manager/hooks/useMonthlySchedulesViewModel'
-
-const TODAY_WORKERS: TodayWorkerItem[] = [
-  { id: '1', name: '알바생1', workTime: '00:00 ~ 00:00' },
-  { id: '2', name: '알바생2', workTime: '00:00 ~ 00:00' },
-]
+import { useTodaySchedulesViewModel } from '@/features/home/manager/hooks/useTodaySchedulesViewModel'
 
 export function useManagerHomeViewModel() {
   const [isWorkspaceChangeModalOpen, setIsWorkspaceChangeModalOpen] =
@@ -51,6 +46,8 @@ export function useManagerHomeViewModel() {
     goToNextMonth,
   } = useMonthlySchedulesViewModel(activeWorkspaceId)
 
+  const { todayWorkers } = useTodaySchedulesViewModel(activeWorkspaceId)
+
   useEffect(() => {
     if (!isWorkspaceChangeModalOpen) return
 
@@ -79,7 +76,7 @@ export function useManagerHomeViewModel() {
   }, [isWorkspaceChangeModalOpen])
 
   return {
-    todayWorkers: TODAY_WORKERS,
+    todayWorkers,
     storeWorkers,
     fetchMoreWorkers,
     hasMoreWorkers,

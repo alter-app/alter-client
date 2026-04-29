@@ -48,5 +48,7 @@ export const queryKeys = {
   manager: {
     schedules: (workspaceId: number, year: number, month: number) =>
       ['manager', 'schedules', workspaceId, year, month] as const,
+    todaySchedules: (workspaceId: number) =>
+      ['manager', 'schedules', 'today', workspaceId] as const,
   },
 } as const

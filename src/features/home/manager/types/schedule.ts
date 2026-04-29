@@ -10,6 +10,22 @@ import {
   getDurationHours,
 } from '@/features/home/common/schedule/lib/date'
 
+// ---- Today Schedule DTOs ----
+export interface TodayShiftDto {
+  shiftId: number
+  startDateTime: string
+  endDateTime: string
+}
+
+export interface TodayWorkerDto {
+  workerId: number
+  workerName: string
+  profileImageUrl: string
+  shifts: TodayShiftDto[]
+}
+
+export type TodayScheduleApiResponse = CommonApiResponse<TodayWorkerDto[]>
+
 // ---- API DTOs ----
 export interface ManagerScheduleWorkspaceDto {
   workspaceId: number
