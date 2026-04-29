@@ -10,8 +10,13 @@ declare global {
         access_token: string
         refresh_token?: string
       }) => void
-      fail: () => void
+      fail?: (err?: unknown) => void
       redirectUri: string
+      /**
+       * true(기본): 카카오톡 앱(intent) 우선 → 데스크톱 브라우저에서는 스킴 미등록으로 실패할 수 있음
+       * false: 브라우저에서 카카오 계정 로그인 페이지만 사용 (로컬/웹 권장)
+       */
+      throughTalk?: boolean
     }) => void
   }
 
@@ -55,6 +60,14 @@ export interface SocialLoginResult {
   authorizationCode?: string
 }
 
+/** 카카오 로그인·토큰 교환 시 동일해야 함 (카카오 개발자 콘솔 Redirect URI와 일치) */
+export function getKakaoOAuthRedirectUri(): string {
+  return (
+    import.meta.env.VITE_KAKAO_REDIRECT_URI ||
+    `${window.location.origin}/oauth/kakao/callback`
+  )
+}
+
 /**
  * 카카오 로그인
  * 카카오 JavaScript SDK가 로드되어 있어야 합니다.
@@ -86,12 +99,11 @@ export async function loginWithKakao(): Promise<SocialLoginResult> {
     }
   }
 
-  const redirectURI =
-    import.meta.env.VITE_KAKAO_REDIRECT_URI ||
-    window.location.origin + '/oauth/kakao/callback'
+  const redirectURI = getKakaoOAuthRedirectUri()
 
   return new Promise((resolve, reject) => {
     // 카카오 로그인 실행
+    // throughTalk: false — 앱 intent 스킴 대신 웹 OAuth만 사용 (localhost/데스크톱에서 intent 오류 방지)
     window.Kakao.Auth.login({
       success: authObj => {
         resolve({
@@ -100,10 +112,14 @@ export async function loginWithKakao(): Promise<SocialLoginResult> {
           refreshToken: authObj.refresh_token,
         })
       },
-      fail: () => {
+      fail: err => {
+        if (import.meta.env.DEV && err !== undefined) {
+          console.warn('[Kakao.Auth.login] fail:', err)
+        }
         reject(new Error('카카오 로그인에 실패했습니다.'))
       },
       redirectUri: redirectURI,
+      throughTalk: false,
     })
   })
 }

@@ -11,6 +11,7 @@ import { ManagerWorkerSchedulePage } from '@/pages/manager/worker-schedule'
 import { SocialPage } from '@/pages/manager/social'
 import { SocialChatPage } from '@/pages/manager/social-chat'
 import { LoginPage } from '@/pages/login'
+import { KakaoCallbackPage } from '@/pages/oauth/KakaoCallbackPage'
 import { JobLookupMapPage } from '@/pages/user/job-lookup-map'
 import { SchedulePage } from '@/pages/user/schedule'
 import { UserHomePage } from '@/pages/user/home'
@@ -54,6 +55,10 @@ export function App() {
       <Routes>
         <Route element={<MobileRouteLayoutWithoutDocbar />}>
           <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/oauth/kakao/callback"
+            element={<KakaoCallbackPage />}
+          />
           <Route
             path="/signup"
             element={

@@ -28,6 +28,8 @@ interface Props {
     | 'signupError'
     | 'isSubmitting'
   >
+  /** 소셜 유입 가입 — 이메일·비밀번호 입력 없음 (백엔드에서 소셜 이메일 사용) */
+  isSocialSignup?: boolean
   emailVerification: ReturnType<typeof useEmailVerification>
   isValid: boolean
   onBack: () => void
@@ -36,10 +38,11 @@ interface Props {
 
 /**
  * 회원가입 2단계 — 계정 정보
- * 닉네임 · 이메일(선택) · 비밀번호 · 약관 동의
+ * 닉네임 · 이메일(선택) · 비밀번호 · 약관 동의 (소셜 가입 시 닉네임·약관만)
  */
 export function Step2AccountInfo({
   form,
+  isSocialSignup = false,
   emailVerification,
   isValid,
   onBack,
@@ -93,9 +96,20 @@ export function Step2AccountInfo({
           이제 마지막이에요!
         </h1>
         <p className="font-pretendard font-regular text-[14px] leading-5 text-[#767676] text-left mb-8 sm:text-[13px] sm:leading-[19px] sm:mb-7 xs:text-[12px] xs:leading-[18px] xs:mb-6">
-          회원님이 알터에서 불릴 닉네임을 알려주세요.
-          <br />
-          그리고 필수 정보 제공에 동의해 주시면 완료예요.
+          {isSocialSignup ? (
+            <>
+              회원님이 알터에서 불릴 닉네임을 알려주세요.
+              <br />
+              소셜 계정 이메일은 자동으로 연결되며, 필수 정보 제공에 동의해 주시면
+              완료예요.
+            </>
+          ) : (
+            <>
+              회원님이 알터에서 불릴 닉네임을 알려주세요.
+              <br />
+              그리고 필수 정보 제공에 동의해 주시면 완료예요.
+            </>
+          )}
         </p>
       </div>
 
@@ -135,28 +149,32 @@ export function Step2AccountInfo({
           )}
         </div>
 
-        {/* 이메일 인증 (선택) */}
-        <EmailVerification {...emailVerification} />
+        {/* 이메일 인증 (선택) — 일반 가입만 */}
+        {!isSocialSignup && <EmailVerification {...emailVerification} />}
 
-        {/* 비밀번호 */}
-        <div className="flex flex-col gap-4 w-full sm:gap-[14px] xs:gap-3">
-          <AuthInput
-            type="password"
-            placeholder="비밀번호"
-            value={password}
-            onChange={e => handlePasswordChange(e.target.value)}
-          />
-          <AuthInput
-            type="password"
-            placeholder="비밀번호 확인"
-            value={passwordCheck}
-            onChange={e => handlePasswordCheckChange(e.target.value)}
-          />
-        </div>
-        {(passwordError || passwordCheckError) && (
-          <p className="font-pretendard font-regular text-[12px] leading-[18px] text-error text-left w-full mt-1 sm:text-[11px] xs:text-[10px]">
-            {passwordError || passwordCheckError}
-          </p>
+        {/* 비밀번호 — 일반 가입만 (소셜 전용 계정은 앱에서 나중에 비밀번호 설정 가능) */}
+        {!isSocialSignup && (
+          <>
+            <div className="flex flex-col gap-4 w-full sm:gap-[14px] xs:gap-3">
+              <AuthInput
+                type="password"
+                placeholder="비밀번호"
+                value={password}
+                onChange={e => handlePasswordChange(e.target.value)}
+              />
+              <AuthInput
+                type="password"
+                placeholder="비밀번호 확인"
+                value={passwordCheck}
+                onChange={e => handlePasswordCheckChange(e.target.value)}
+              />
+            </div>
+            {(passwordError || passwordCheckError) && (
+              <p className="font-pretendard font-regular text-[12px] leading-[18px] text-error text-left w-full mt-1 sm:text-[11px] xs:text-[10px]">
+                {passwordError || passwordCheckError}
+              </p>
+            )}
+          </>
         )}
       </div>
 

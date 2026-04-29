@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
+  type SocialLoginRequest,
   checkNicknameDuplicate,
   createSignupSession,
   signup,
+  signupSocial,
 } from '@/shared/api/auth'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import {
@@ -19,14 +21,21 @@ interface SubmitParams {
   emailSessionId: string
 }
 
+type UseSignupFormOptions = {
+  /** B011 후 로그인 페이지에서 전달된 소셜 토큰 — 있으면 signup-social API 사용 */
+  socialLoginData?: SocialLoginRequest | null
+}
+
 /**
  * 회원가입 폼 상태 및 비즈니스 로직 훅
  * - 1단계: 이름 · 성별 · 생년월일
- * - 2단계: 닉네임 · 비밀번호 · 약관 동의
+ * - 2단계: 닉네임 · 비밀번호 · 약관 동의 (소셜 가입 시 비밀번호·이메일 생략)
  * - 회원가입 API 제출
  * (전화번호·이메일 인증 상태는 각 전용 훅에서 관리)
  */
-export function useSignupForm() {
+export function useSignupForm(options?: UseSignupFormOptions) {
+  const socialLoginData = options?.socialLoginData ?? null
+  const isSocialSignup = !!socialLoginData
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
 
@@ -146,6 +155,25 @@ export function useSignupForm() {
 
       const signupSessionId = await createSignupSession(phone, firebaseIdToken)
 
+      if (isSocialSignup && socialLoginData) {
+        await signupSocial(
+          {
+            signupSessionId,
+            provider: socialLoginData.provider,
+            oauthToken: socialLoginData.oauthToken,
+            authorizationCode: socialLoginData.authorizationCode,
+            platformType: socialLoginData.platformType,
+            name: name.trim(),
+            nickname: nickname.trim(),
+            gender: getGenderCode(gender),
+            birthday,
+          },
+          setAuth,
+          navigate
+        )
+        return
+      }
+
       await signup(
         {
           signupSessionId,
@@ -180,15 +208,21 @@ export function useSignupForm() {
       phoneVerified
     )
 
-  /** 이메일은 선택 항목: 입력하지 않았거나 인증 완료 시 통과 */
-  const isStep2Valid = (emailValue: string, emailVerified: boolean) =>
-    nicknameChecked &&
-    (!emailValue.trim() || emailVerified) &&
-    agreed &&
-    isPasswordValid(password) &&
-    password === passwordCheck &&
-    !passwordError &&
-    !passwordCheckError
+  /** 이메일은 선택 항목: 입력하지 않았거나 인증 완료 시 통과 (소셜 가입 시 이메일·비밀번호 불필요) */
+  const isStep2Valid = (emailValue: string, emailVerified: boolean) => {
+    if (isSocialSignup) {
+      return nicknameChecked && agreed
+    }
+    return (
+      nicknameChecked &&
+      (!emailValue.trim() || emailVerified) &&
+      agreed &&
+      isPasswordValid(password) &&
+      password === passwordCheck &&
+      !passwordError &&
+      !passwordCheckError
+    )
+  }
 
   return {
     // 1단계 상태
@@ -229,5 +263,8 @@ export function useSignupForm() {
 
     // 제출
     handleSubmit,
+
+    /** 소셜 유입 가입 — UI에서 이메일·비밀번호 영역 숨김 */
+    isSocialSignup,
   }
 }
