@@ -4,6 +4,7 @@ import type { TabKey } from '@/shared/types/tab'
 const PATHNAME_TAB_MAP: Array<{ matcher: RegExp; tab: TabKey }> = [
   { matcher: /(^|\/)home(\/|$)/, tab: 'home' },
   { matcher: /(^|\/)my(\/|$)/, tab: 'my' },
+  { matcher: /^\/manager\/social(?:\/|$)/, tab: 'message' },
   { matcher: /(^|\/)message(\/|$)/, tab: 'message' },
   { matcher: /(^|\/)repute(\/|$)/, tab: 'repute' },
   { matcher: /(^|\/)search(\/|$)/, tab: 'search' },
