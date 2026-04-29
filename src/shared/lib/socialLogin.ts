@@ -76,6 +76,7 @@ type KakaoOauthState = {
   openerOrigin: string
 }
 
+/** OAuth 요청 상관관계 검증용 nonce를 생성합니다. */
 function createNonce(): string {
   if (
     typeof crypto !== 'undefined' &&
@@ -86,10 +87,15 @@ function createNonce(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
+/** Kakao OAuth state payload를 base64 문자열로 인코딩합니다. */
 function encodeKakaoOauthState(payload: KakaoOauthState): string {
   return btoa(JSON.stringify(payload))
 }
 
+/**
+ * Kakao OAuth state를 디코딩해 nonce/origin 정보를 복원합니다.
+ * 유효하지 않은 값은 null을 반환합니다.
+ */
 export function decodeKakaoOauthState(
   state?: string | null
 ): KakaoOauthState | null {
