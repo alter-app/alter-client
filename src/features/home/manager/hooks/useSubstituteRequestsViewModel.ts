@@ -31,19 +31,19 @@ export function useSubstituteRequestsViewModel(
         cursor: pageParam as string | undefined,
       }),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: lastPage => lastPage.data.page?.cursor ?? undefined,
+    getNextPageParam: lastPage => lastPage?.data?.page?.cursor ?? undefined,
     enabled: workspaceId !== null,
   })
 
   const requests = useMemo(
     () =>
       data?.pages.flatMap(
-        page => page.data.data?.map(adaptSubstituteRequestDto) ?? []
+        page => page?.data?.data?.map(adaptSubstituteRequestDto) ?? []
       ) ?? [],
     [data]
   )
 
-  const totalCount = data?.pages[0]?.data.page?.totalCount ?? 0
+  const totalCount = data?.pages?.[0]?.data?.page?.totalCount ?? 0
 
   return {
     requests,
