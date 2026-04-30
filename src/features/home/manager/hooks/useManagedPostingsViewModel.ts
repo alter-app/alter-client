@@ -37,7 +37,8 @@ export function useManagedPostingsViewModel(
 
   const postings = useMemo(
     () =>
-      data?.pages.flatMap(page => page.data.data?.map(adaptPostingDto) ?? []) ?? [],
+      data?.pages.flatMap(page => page.data.data?.map(adaptPostingDto) ?? []) ??
+      [],
     [data]
   )
 

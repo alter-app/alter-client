@@ -37,8 +37,8 @@ export function useSubstituteRequestsViewModel(
 
   const requests = useMemo(
     () =>
-      data?.pages.flatMap(page =>
-        page.data.data?.map(adaptSubstituteRequestDto) ?? []
+      data?.pages.flatMap(
+        page => page.data.data?.map(adaptSubstituteRequestDto) ?? []
       ) ?? [],
     [data]
   )

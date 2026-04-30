@@ -23,7 +23,10 @@ export function useTodaySchedulesViewModel(workspaceId: number | null) {
       name: worker.workerName,
       profileImageUrl: worker.profileImageUrl,
       workTime: worker.shifts[0]
-        ? formatWorkTime(worker.shifts[0].startDateTime, worker.shifts[0].endDateTime)
+        ? formatWorkTime(
+            worker.shifts[0].startDateTime,
+            worker.shifts[0].endDateTime
+          )
         : '',
     }))
   }, [data])
