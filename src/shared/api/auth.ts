@@ -76,6 +76,8 @@ export interface SignupSocialRequest {
     refreshToken?: string
   }
   authorizationCode?: string
+  /** 카카오 WEB: 서버에서 code 교환 시 authorize 요청과 동일한 redirect_uri 필요 */
+  redirectUri?: string
   platformType: 'WEB' | 'NATIVE'
   name: string
   nickname: string
@@ -123,9 +125,9 @@ export async function loginIDPW(
     setAuth(loginResponse)
 
     if (scope === 'MANAGER') {
-      navigate('/main', { replace: true })
+      navigate('/manager/home', { replace: true })
     } else {
-      navigate('/user/job-lookup-map', { replace: true })
+      navigate('/user/home', { replace: true })
     }
 
     return loginResponse
@@ -174,9 +176,9 @@ export async function loginSocial(
     })
 
     if (scope === 'MANAGER') {
-      navigate('/main', { replace: true })
+      navigate('/manager/home', { replace: true })
     } else {
-      navigate('/user/job-lookup-map', { replace: true })
+      navigate('/user/home', { replace: true })
     }
 
     return result
@@ -343,9 +345,9 @@ export async function signupSocial(
     setAuth(signupResponse)
 
     if (scope === 'MANAGER') {
-      navigate('/main', { replace: true })
+      navigate('/manager/home', { replace: true })
     } else {
-      navigate('/user/job-lookup-map', { replace: true })
+      navigate('/user/home', { replace: true })
     }
 
     return signupResponse
@@ -388,9 +390,9 @@ export async function signup(
     setAuth(signupResponse)
 
     if (scope === 'MANAGER') {
-      navigate('/main', { replace: true })
+      navigate('/manager/home', { replace: true })
     } else {
-      navigate('/user/job-lookup-map', { replace: true })
+      navigate('/user/home', { replace: true })
     }
 
     return signupResponse

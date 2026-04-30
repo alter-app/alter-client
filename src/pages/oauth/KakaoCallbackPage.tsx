@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { loginSocial } from '@/shared/api/auth'
-import { getKakaoOAuthRedirectUri } from '@/shared/lib/socialLogin'
+import {
+  decodeKakaoOauthState,
+  getKakaoOAuthRedirectUri,
+} from '@/shared/lib/socialLogin'
 import useAuthStore from '@/shared/stores/useAuthStore'
 
 /**
@@ -24,6 +27,7 @@ export function KakaoCallbackPage() {
     ran.current = true
 
     const code = searchParams.get('code')
+    const state = searchParams.get('state')
     const oauthError = searchParams.get('error')
     const errorDescription = searchParams.get('error_description')
 
@@ -48,12 +52,16 @@ export function KakaoCallbackPage() {
 
       try {
         if (window.opener && !window.opener.closed) {
+          const parsedState = decodeKakaoOauthState(state)
+          const targetOrigin =
+            parsedState?.openerOrigin ?? window.location.origin
           window.opener.postMessage(
             {
               type: 'alter-kakao-oauth',
               authorizationCode: code,
+              state,
             },
-            window.location.origin
+            targetOrigin
           )
           window.close()
           return
