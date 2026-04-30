@@ -8,6 +8,10 @@ export interface WorkerUserDto {
   name: string
   contact: string
   gender: string
+  /** API may send any of these for the worker's profile image */
+  profileImageUrl?: string
+  avatarUrl?: string
+  profile_image_url?: string
 }
 
 export interface WorkerStatusDto {
@@ -29,6 +33,9 @@ export interface WorkerDto {
   employedAt: string
   resignedAt: string | null
   nextShiftDateTime: string | null
+  profileImageUrl?: string
+  avatarUrl?: string
+  profile_image_url?: string
 }
 
 export interface WorkerPageDto {
@@ -84,12 +91,26 @@ export function formatNextShiftTimeLabel(isoDateTime: string | null): string {
   return `${format(new Date(isoDateTime), 'HH:mm')} ~`
 }
 
+function resolveProfileImageUrl(dto: WorkerDto): string | undefined {
+  const { user } = dto
+  return (
+    dto.profileImageUrl ??
+    dto.avatarUrl ??
+    dto.profile_image_url ??
+    user.profileImageUrl ??
+    user.avatarUrl ??
+    user.profile_image_url
+  )
+}
+
 export function adaptWorkerDto(dto: WorkerDto): ManagerWorkerItem {
+  const profileImageUrl = resolveProfileImageUrl(dto)
   return {
     id: dto.id,
     name: dto.user.name,
     role: mapPositionTypeToRole(dto.position.type),
     nextWorkDate: formatNextShiftDate(dto.nextShiftDateTime),
     nextShiftDateTime: dto.nextShiftDateTime,
+    ...(profileImageUrl !== undefined && { profileImageUrl }),
   }
 }
