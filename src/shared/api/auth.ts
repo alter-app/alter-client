@@ -247,7 +247,9 @@ export async function checkNicknameDuplicate(
  */
 export async function sendEmailVerification(email: string): Promise<void> {
   try {
-    await publicInstance.post('/public/users/email/verification/send', { email })
+    await publicInstance.post('/public/users/email/verification/send', {
+      email,
+    })
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const errorData: ErrorResponse = error.response?.data ?? {}
