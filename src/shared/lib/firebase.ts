@@ -67,3 +67,13 @@ export function toInternationalPhone(phone: string): string {
   }
   return '+82' + digits
 }
+
+/**
+ * 전화 인증 직후 저장된 토큰과 달리, 백엔드 signup-session 직전에 갱신해
+ * 만료·재사용 오류를 줄입니다.
+ */
+export async function getFreshFirebaseIdToken(): Promise<string | null> {
+  const user = auth.currentUser
+  if (!user) return null
+  return user.getIdToken(true)
+}

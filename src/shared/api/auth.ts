@@ -25,6 +25,8 @@ export interface SocialLoginRequest {
     refreshToken?: string
   }
   authorizationCode?: string
+  /** 카카오 WEB: 서버에서 code 교환 시 authorize 요청과 동일한 redirect_uri 필요 */
+  redirectUri?: string
   platformType: 'WEB' | 'NATIVE'
 }
 
@@ -63,6 +65,24 @@ export interface SignupRequest {
   gender: 'GENDER_MALE' | 'GENDER_FEMALE'
   birthday: string
   contact: string
+}
+
+/** POST /public/users/signup-social — 소셜 계정으로 회원가입 (이메일·비밀번호 없음) */
+export interface SignupSocialRequest {
+  signupSessionId: string
+  provider: 'KAKAO' | 'APPLE'
+  oauthToken?: {
+    accessToken: string
+    refreshToken?: string
+  }
+  authorizationCode?: string
+  /** 카카오 WEB: 서버에서 code 교환 시 authorize 요청과 동일한 redirect_uri 필요 */
+  redirectUri?: string
+  platformType: 'WEB' | 'NATIVE'
+  name: string
+  nickname: string
+  gender: 'GENDER_MALE' | 'GENDER_FEMALE'
+  birthday: string
 }
 
 interface CheckNicknameDuplicationResponseDto {
@@ -105,9 +125,9 @@ export async function loginIDPW(
     setAuth(loginResponse)
 
     if (scope === 'MANAGER') {
-      navigate('/main', { replace: true })
+      navigate('/manager/home', { replace: true })
     } else {
-      navigate('/user/job-lookup-map', { replace: true })
+      navigate('/user/home', { replace: true })
     }
 
     return loginResponse
@@ -156,9 +176,9 @@ export async function loginSocial(
     })
 
     if (scope === 'MANAGER') {
-      navigate('/main', { replace: true })
+      navigate('/manager/home', { replace: true })
     } else {
-      navigate('/user/job-lookup-map', { replace: true })
+      navigate('/user/home', { replace: true })
     }
 
     return result
@@ -301,6 +321,51 @@ export async function createSignupSession(
   }
 }
 
+export async function signupSocial(
+  request: SignupSocialRequest,
+  setAuth: (data: LoginResponse) => void,
+  navigate: NavigateFunction
+): Promise<LoginResponse> {
+  try {
+    const { data: result } = await axiosInstance.post<
+      ApiResponse<GenerateTokenResponseDto>
+    >('/public/users/signup-social', request)
+
+    const { data } = result
+
+    const scope =
+      data.scope === 'APP' ? 'USER' : (data.scope as 'MANAGER' | 'USER')
+
+    const signupResponse: LoginResponse = {
+      token: data.accessToken,
+      refreshToken: data.refreshToken,
+      scope,
+    }
+
+    setAuth(signupResponse)
+
+    if (scope === 'MANAGER') {
+      navigate('/manager/home', { replace: true })
+    } else {
+      navigate('/user/home', { replace: true })
+    }
+
+    return signupResponse
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorData: ErrorResponse = error.response?.data ?? {}
+      throw {
+        data: errorData,
+        message:
+          errorData.message ||
+          getErrorMessage(errorData.code) ||
+          '회원가입에 실패했습니다.',
+      } as ApiError
+    }
+    throw { message: '회원가입에 실패했습니다.' } as ApiError
+  }
+}
+
 export async function signup(
   request: SignupRequest,
   setAuth: (data: LoginResponse) => void,
@@ -325,9 +390,9 @@ export async function signup(
     setAuth(signupResponse)
 
     if (scope === 'MANAGER') {
-      navigate('/main', { replace: true })
+      navigate('/manager/home', { replace: true })
     } else {
-      navigate('/user/job-lookup-map', { replace: true })
+      navigate('/user/home', { replace: true })
     }
 
     return signupResponse
@@ -351,6 +416,9 @@ export async function signup(
  */
 function getErrorMessage(code?: string): string | undefined {
   const errorMessages: Record<string, string> = {
+    A006: '회원 가입 세션이 존재하지 않습니다. 처음부터 다시 진행해주세요.',
+    A010: '소셜 인가 코드가 만료되었거나 이미 사용되었습니다. 로그인을 다시 시도해주세요.',
+    A001: '소셜 로그인 처리 중 서버 오류가 났습니다. 카카오 콘솔 Redirect URI·환경(로컬/배포 URL)이 일치하는지 확인해 주세요.',
     B001: '인증 코드가 일치하지 않습니다.',
     B011: '존재하지 않는 사용자 계정입니다.',
     A004: '이미 가입된 이메일입니다.',

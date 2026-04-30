@@ -1,9 +1,16 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getFreshFirebaseIdToken } from '@/shared/lib/firebase'
 import {
+  getKakaoOAuthRedirectUri,
+  requestFreshKakaoAuthorizationCode,
+} from '@/shared/lib/socialLogin'
+import {
+  type SocialLoginRequest,
   checkNicknameDuplicate,
   createSignupSession,
   signup,
+  signupSocial,
 } from '@/shared/api/auth'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import {
@@ -19,14 +26,21 @@ interface SubmitParams {
   emailSessionId: string
 }
 
+type UseSignupFormOptions = {
+  /** B011 후 로그인 페이지에서 전달된 소셜 토큰 — 있으면 signup-social API 사용 */
+  socialLoginData?: SocialLoginRequest | null
+}
+
 /**
  * 회원가입 폼 상태 및 비즈니스 로직 훅
  * - 1단계: 이름 · 성별 · 생년월일
- * - 2단계: 닉네임 · 비밀번호 · 약관 동의
+ * - 2단계: 닉네임 · 비밀번호 · 약관 동의 (소셜 가입 시 비밀번호·이메일 생략)
  * - 회원가입 API 제출
  * (전화번호·이메일 인증 상태는 각 전용 훅에서 관리)
  */
-export function useSignupForm() {
+export function useSignupForm(options?: UseSignupFormOptions) {
+  const socialLoginData = options?.socialLoginData ?? null
+  const isSocialSignup = !!socialLoginData
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
 
@@ -52,6 +66,12 @@ export function useSignupForm() {
 
   const [signupError, setSignupError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  /** 같은 전화로 세션을 이미 만들었으면 재시도 시 firebase 토큰 재사용 오류 방지 */
+  const signupSessionCacheRef = useRef<{
+    contact: string
+    signupSessionId: string
+  } | null>(null)
 
   // ─── 핸들러 ───────────────────────────────────────────────────────────
 
@@ -144,7 +164,64 @@ export function useSignupForm() {
         return
       }
 
-      const signupSessionId = await createSignupSession(phone, firebaseIdToken)
+      const contact = normalizePhone(phone)
+      let signupSessionId: string
+
+      const cached = signupSessionCacheRef.current
+      if (cached && cached.contact === contact) {
+        signupSessionId = cached.signupSessionId
+      } else {
+        const tokenForSession =
+          (await getFreshFirebaseIdToken()) ?? firebaseIdToken
+        if (!tokenForSession) {
+          setSignupError(
+            '전화번호 인증이 만료되었습니다. 1단계에서 다시 인증해 주세요.'
+          )
+          return
+        }
+        signupSessionId = await createSignupSession(contact, tokenForSession)
+        signupSessionCacheRef.current = { contact, signupSessionId }
+      }
+
+      if (isSocialSignup && socialLoginData) {
+        let authorizationCode = socialLoginData.authorizationCode
+        let oauthToken = socialLoginData.oauthToken
+
+        if (socialLoginData.provider === 'KAKAO') {
+          try {
+            authorizationCode = await requestFreshKakaoAuthorizationCode()
+            oauthToken = undefined
+          } catch (err) {
+            const e = err as Error
+            setSignupError(
+              e.message ||
+                '카카오 인증을 완료하지 못했습니다. 팝업 허용 후 다시 시도해 주세요.'
+            )
+            return
+          }
+        }
+
+        await signupSocial(
+          {
+            signupSessionId,
+            provider: socialLoginData.provider,
+            ...(oauthToken ? { oauthToken } : {}),
+            ...(authorizationCode ? { authorizationCode } : {}),
+            ...(socialLoginData.provider === 'KAKAO' &&
+            socialLoginData.platformType === 'WEB'
+              ? { redirectUri: getKakaoOAuthRedirectUri() }
+              : {}),
+            platformType: socialLoginData.platformType,
+            name: name.trim(),
+            nickname: nickname.trim(),
+            gender: getGenderCode(gender),
+            birthday,
+          },
+          setAuth,
+          navigate
+        )
+        return
+      }
 
       await signup(
         {
@@ -161,7 +238,10 @@ export function useSignupForm() {
         navigate
       )
     } catch (error) {
-      const e = error as { message?: string }
+      const e = error as { data?: { code?: string }; message?: string }
+      if (e.data?.code === 'A006') {
+        signupSessionCacheRef.current = null
+      }
       setSignupError(e.message || '회원가입에 실패했습니다.')
     } finally {
       setIsSubmitting(false)
@@ -180,15 +260,21 @@ export function useSignupForm() {
       phoneVerified
     )
 
-  /** 이메일은 선택 항목: 입력하지 않았거나 인증 완료 시 통과 */
-  const isStep2Valid = (emailValue: string, emailVerified: boolean) =>
-    nicknameChecked &&
-    (!emailValue.trim() || emailVerified) &&
-    agreed &&
-    isPasswordValid(password) &&
-    password === passwordCheck &&
-    !passwordError &&
-    !passwordCheckError
+  /** 이메일은 선택 항목: 입력하지 않았거나 인증 완료 시 통과 (소셜 가입 시 이메일·비밀번호 불필요) */
+  const isStep2Valid = (emailValue: string, emailVerified: boolean) => {
+    if (isSocialSignup) {
+      return nicknameChecked && agreed
+    }
+    return (
+      nicknameChecked &&
+      (!emailValue.trim() || emailVerified) &&
+      agreed &&
+      isPasswordValid(password) &&
+      password === passwordCheck &&
+      !passwordError &&
+      !passwordCheckError
+    )
+  }
 
   return {
     // 1단계 상태
@@ -229,5 +315,8 @@ export function useSignupForm() {
 
     // 제출
     handleSubmit,
+
+    /** 소셜 유입 가입 — UI에서 이메일·비밀번호 영역 숨김 */
+    isSocialSignup,
   }
 }

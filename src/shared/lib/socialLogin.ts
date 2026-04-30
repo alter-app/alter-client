@@ -10,8 +10,13 @@ declare global {
         access_token: string
         refresh_token?: string
       }) => void
-      fail: () => void
+      fail?: (err?: unknown) => void
       redirectUri: string
+      /**
+       * true(기본): 카카오톡 앱(intent) 우선 → 데스크톱 브라우저에서는 스킴 미등록으로 실패할 수 있음
+       * false: 브라우저에서 카카오 계정 로그인 페이지만 사용 (로컬/웹 권장)
+       */
+      throughTalk?: boolean
     }) => void
   }
 
@@ -55,6 +60,158 @@ export interface SocialLoginResult {
   authorizationCode?: string
 }
 
+/** 카카오 로그인·토큰 교환 시 동일해야 함 (카카오 개발자 콘솔 Redirect URI와 일치) */
+export function getKakaoOAuthRedirectUri(): string {
+  return (
+    import.meta.env.VITE_KAKAO_REDIRECT_URI ||
+    `${window.location.origin}/oauth/kakao/callback`
+  )
+}
+
+/** KakaoCallbackPage·로그인 페이지와 동일한 postMessage 타입 */
+export const KAKAO_OAUTH_MESSAGE_TYPE = 'alter-kakao-oauth'
+
+type KakaoOauthState = {
+  nonce: string
+  openerOrigin: string
+}
+
+/** OAuth 요청 상관관계 검증용 nonce를 생성합니다. */
+function createNonce(): string {
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+  ) {
+    return crypto.randomUUID()
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
+/** Kakao OAuth state payload를 base64 문자열로 인코딩합니다. */
+function encodeKakaoOauthState(payload: KakaoOauthState): string {
+  return btoa(JSON.stringify(payload))
+}
+
+/**
+ * Kakao OAuth state를 디코딩해 nonce/origin 정보를 복원합니다.
+ * 유효하지 않은 값은 null을 반환합니다.
+ */
+export function decodeKakaoOauthState(
+  state?: string | null
+): KakaoOauthState | null {
+  if (!state) return null
+  try {
+    const decoded = atob(state)
+    const parsed = JSON.parse(decoded) as Partial<KakaoOauthState>
+    if (
+      typeof parsed.nonce === 'string' &&
+      parsed.nonce &&
+      typeof parsed.openerOrigin === 'string' &&
+      parsed.openerOrigin
+    ) {
+      return {
+        nonce: parsed.nonce,
+        openerOrigin: parsed.openerOrigin,
+      }
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * 새 OAuth 인가 코드만 받습니다 (백엔드가 code를 소모하므로 클라이언트에서 토큰 교환하지 않음).
+ * 회원가입 완료 직전에 호출해 A010(만료)을 피합니다 — 카카오 동의 팝업이 열립니다.
+ */
+export function requestFreshKakaoAuthorizationCode(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const clientId = import.meta.env.VITE_KAKAO_REST_API_KEY
+    if (!clientId) {
+      reject(new Error('카카오 REST API 키가 설정되지 않았습니다.'))
+      return
+    }
+
+    const redirectUri = getKakaoOAuthRedirectUri()
+    const oauthState = encodeKakaoOauthState({
+      nonce: createNonce(),
+      openerOrigin: window.location.origin,
+    })
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      state: oauthState,
+    })
+    const authUrl = `https://kauth.kakao.com/oauth/authorize?${params.toString()}`
+
+    const timeoutMs = 180_000
+    let settled = false
+    let popup: Window | null = null
+
+    function cleanup(
+      listener: (e: MessageEvent) => void,
+      timer: ReturnType<typeof setTimeout>
+    ) {
+      window.removeEventListener('message', listener)
+      clearTimeout(timer)
+    }
+
+    function onMessage(event: MessageEvent) {
+      if (settled || event.origin !== window.location.origin) return
+      if (event.source !== popup) return
+      const d = event.data as {
+        type?: string
+        authorizationCode?: string
+        state?: string
+      }
+      if (
+        d?.type !== KAKAO_OAUTH_MESSAGE_TYPE ||
+        !d.authorizationCode ||
+        d.state !== oauthState
+      ) {
+        return
+      }
+      settled = true
+      cleanup(onMessage, timer)
+      try {
+        popup?.close()
+      } catch {
+        /* noop */
+      }
+      resolve(d.authorizationCode)
+    }
+
+    const timer = setTimeout(() => {
+      if (settled) return
+      settled = true
+      window.removeEventListener('message', onMessage)
+      try {
+        popup?.close()
+      } catch {
+        /* noop */
+      }
+      reject(new Error('카카오 인증 시간이 초과되었습니다.'))
+    }, timeoutMs)
+
+    window.addEventListener('message', onMessage)
+
+    popup = window.open(
+      authUrl,
+      'kakao_oauth_signup',
+      'width=480,height=700,scrollbars=yes,resizable=yes'
+    )
+
+    if (!popup) {
+      settled = true
+      cleanup(onMessage, timer)
+      reject(
+        new Error('팝업이 차단되었습니다. 브라우저에서 팝업을 허용해 주세요.')
+      )
+    }
+  })
+}
+
 /**
  * 카카오 로그인
  * 카카오 JavaScript SDK가 로드되어 있어야 합니다.
@@ -86,24 +243,30 @@ export async function loginWithKakao(): Promise<SocialLoginResult> {
     }
   }
 
-  const redirectURI =
-    import.meta.env.VITE_KAKAO_REDIRECT_URI ||
-    window.location.origin + '/oauth/kakao/callback'
+  const redirectURI = getKakaoOAuthRedirectUri()
 
   return new Promise((resolve, reject) => {
     // 카카오 로그인 실행
+    // throughTalk: false — 앱 intent 스킴 대신 웹 OAuth만 사용 (localhost/데스크톱에서 intent 오류 방지)
     window.Kakao.Auth.login({
       success: authObj => {
+        const extra = authObj as Record<string, string | undefined>
         resolve({
           provider: 'KAKAO',
           accessToken: authObj.access_token,
           refreshToken: authObj.refresh_token,
+          // WEB 로그인 시 백엔드가 요구하는 OAuth 인가 코드 (SDK/설정에 따라 없을 수 있음)
+          authorizationCode: extra.code ?? extra.authorization_code,
         })
       },
-      fail: () => {
+      fail: err => {
+        if (import.meta.env.DEV && err !== undefined) {
+          console.warn('[Kakao.Auth.login] fail:', err)
+        }
         reject(new Error('카카오 로그인에 실패했습니다.'))
       },
       redirectUri: redirectURI,
+      throughTalk: false,
     })
   })
 }

@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
+import type { SocialLoginRequest } from '@/shared/api/auth'
 import {
   usePhoneVerification,
   RECAPTCHA_CONTAINER_ID,
@@ -8,12 +10,20 @@ import { useSignupForm } from './hooks/useSignupForm'
 import { Step1UserInfo } from './components/Step1UserInfo'
 import { Step2AccountInfo } from './components/Step2AccountInfo'
 
+type SignupLocationState = {
+  socialLoginData?: SocialLoginRequest
+  errorCode?: string
+}
+
 export function SignupPage() {
   const [step, setStep] = useState<1 | 2>(1)
 
+  const { state } = useLocation() as { state?: SignupLocationState }
+  const socialLoginData = state?.socialLoginData
+
   const phoneVerification = usePhoneVerification()
   const emailVerification = useEmailVerification()
-  const form = useSignupForm()
+  const form = useSignupForm({ socialLoginData })
 
   const isStep1Valid = form.isStep1Valid(phoneVerification.verified)
   const isStep2Valid = form.isStep2Valid(
@@ -52,6 +62,7 @@ export function SignupPage() {
         {step === 2 && (
           <Step2AccountInfo
             form={form}
+            isSocialSignup={form.isSocialSignup}
             emailVerification={emailVerification}
             isValid={isStep2Valid}
             onBack={() => setStep(1)}
