@@ -1,7 +1,10 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getFreshFirebaseIdToken } from '@/shared/lib/firebase'
-import { requestFreshKakaoAuthorizationCode } from '@/shared/lib/socialLogin'
+import {
+  getKakaoOAuthRedirectUri,
+  requestFreshKakaoAuthorizationCode,
+} from '@/shared/lib/socialLogin'
 import {
   type SocialLoginRequest,
   checkNicknameDuplicate,
@@ -204,6 +207,10 @@ export function useSignupForm(options?: UseSignupFormOptions) {
             provider: socialLoginData.provider,
             ...(oauthToken ? { oauthToken } : {}),
             ...(authorizationCode ? { authorizationCode } : {}),
+            ...(socialLoginData.provider === 'KAKAO' &&
+            socialLoginData.platformType === 'WEB'
+              ? { redirectUri: getKakaoOAuthRedirectUri() }
+              : {}),
             platformType: socialLoginData.platformType,
             name: name.trim(),
             nickname: nickname.trim(),

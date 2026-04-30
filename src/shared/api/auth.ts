@@ -76,6 +76,8 @@ export interface SignupSocialRequest {
     refreshToken?: string
   }
   authorizationCode?: string
+  /** 카카오 WEB: 서버에서 code 교환 시 authorize 요청과 동일한 redirect_uri 필요 */
+  redirectUri?: string
   platformType: 'WEB' | 'NATIVE'
   name: string
   nickname: string
