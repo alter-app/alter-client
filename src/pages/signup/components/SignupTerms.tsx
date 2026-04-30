@@ -11,12 +11,12 @@ const checkboxClassName = cn(
   'appearance-none h-[18px] w-[18px] flex-shrink-0 rounded-[4px] border border-[#d9d9d9] bg-white',
   'mt-[1px] inline-block cursor-pointer align-middle transition-all duration-200',
   'checked:border-main checked:bg-main hover:border-main',
-  'sm:h-4 sm:w-4 xs:h-[14px] xs:w-[14px]',
+  'sm:h-4 sm:w-4 xs:h-[14px] xs:w-[14px]'
 )
 
 const labelClassName = cn(
   'flex items-start gap-2 font-pretendard font-regular text-[13px] leading-[19px] text-[#767676]',
-  'sm:text-[12px] sm:leading-[18px] xs:text-[11px] xs:leading-[17px]',
+  'sm:text-[12px] sm:leading-[18px] xs:text-[11px] xs:leading-[17px]'
 )
 
 /**
@@ -32,10 +32,7 @@ export function SignupTerms({
 }: Props) {
   return (
     <div
-      className={cn(
-        'flex w-full flex-col gap-3',
-        'sm:gap-[10px] xs:gap-2.5',
-      )}
+      className={cn('flex w-full flex-col gap-3', 'sm:gap-[10px] xs:gap-2.5')}
     >
       <label className={labelClassName}>
         <input
