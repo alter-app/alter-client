@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import type { CommonApiResponse } from '@/shared/types/common'
 import type { StoreWorkerRole } from '@/features/home/manager/types/storeWorkerRole'
 
@@ -56,6 +57,7 @@ export interface ManagerWorkerItem {
   name: string
   role: StoreWorkerRole
   nextWorkDate: string
+  nextShiftDateTime: string | null
   profileImageUrl?: string
 }
 
@@ -76,11 +78,18 @@ function formatNextShiftDate(isoDateTime: string | null): string {
   return `${y}. ${m}. ${d}.`
 }
 
+/** Home "오늘 근무자" 카드용 근무 시간 문구 */
+export function formatNextShiftTimeLabel(isoDateTime: string | null): string {
+  if (!isoDateTime) return '일정 없음'
+  return `${format(new Date(isoDateTime), 'HH:mm')} ~`
+}
+
 export function adaptWorkerDto(dto: WorkerDto): ManagerWorkerItem {
   return {
     id: dto.id,
     name: dto.user.name,
     role: mapPositionTypeToRole(dto.position.type),
     nextWorkDate: formatNextShiftDate(dto.nextShiftDateTime),
+    nextShiftDateTime: dto.nextShiftDateTime,
   }
 }

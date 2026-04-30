@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { TodayWorkerItem } from '@/features/home/manager/ui/TodayWorkerList'
 import { useManagedWorkspacesQuery } from '@/features/home/manager/hooks/useManagedWorkspacesQuery'
 import { useWorkspaceDetailQuery } from '@/features/home/manager/hooks/useWorkspaceDetailQuery'
@@ -6,11 +6,7 @@ import { useWorkspaceWorkersViewModel } from '@/features/home/manager/hooks/useW
 import { useManagedPostingsViewModel } from '@/features/home/manager/hooks/useManagedPostingsViewModel'
 import { useSubstituteRequestsViewModel } from '@/features/home/manager/hooks/useSubstituteRequestsViewModel'
 import { useMonthlySchedulesViewModel } from '@/features/home/manager/hooks/useMonthlySchedulesViewModel'
-
-const TODAY_WORKERS: TodayWorkerItem[] = [
-  { id: '1', name: '알바생1', workTime: '00:00 ~ 00:00' },
-  { id: '2', name: '알바생2', workTime: '00:00 ~ 00:00' },
-]
+import { formatNextShiftTimeLabel } from '@/features/home/manager/types/worker'
 
 export function useManagerHomeViewModel() {
   const [isWorkspaceChangeModalOpen, setIsWorkspaceChangeModalOpen] =
@@ -21,12 +17,28 @@ export function useManagerHomeViewModel() {
 
   const { detail: workspaceDetail } = useWorkspaceDetailQuery(activeWorkspaceId)
 
+  const { workers: todayWorkerItems } = useWorkspaceWorkersViewModel(
+    activeWorkspaceId,
+    { status: 'ACTIVATED', pageSize: 10 }
+  )
+
   const {
     workers: storeWorkers,
     fetchNextPage: fetchMoreWorkers,
     hasNextPage: hasMoreWorkers,
     isFetchingNextPage: isFetchingMoreWorkers,
   } = useWorkspaceWorkersViewModel(activeWorkspaceId)
+
+  const todayWorkers: TodayWorkerItem[] = useMemo(
+    () =>
+      todayWorkerItems.map(w => ({
+        id: String(w.id),
+        name: w.name,
+        workTime: formatNextShiftTimeLabel(w.nextShiftDateTime),
+        profileImageUrl: w.profileImageUrl,
+      })),
+    [todayWorkerItems]
+  )
 
   const {
     postings: ongoingPostings,
@@ -79,7 +91,7 @@ export function useManagerHomeViewModel() {
   }, [isWorkspaceChangeModalOpen])
 
   return {
-    todayWorkers: TODAY_WORKERS,
+    todayWorkers,
     storeWorkers,
     fetchMoreWorkers,
     hasMoreWorkers,
