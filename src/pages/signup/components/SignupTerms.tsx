@@ -1,3 +1,5 @@
+import { cn } from '@/shared/lib/utils'
+
 interface Props {
   agreed: boolean
   adAgreed: boolean
@@ -5,15 +7,17 @@ interface Props {
   onAdAgreeChange: (checked: boolean) => void
 }
 
-const checkboxCls =
-  'appearance-none w-[18px] h-[18px] rounded-[4px] border border-[#d9d9d9] bg-white ' +
-  'inline-block align-middle cursor-pointer transition-all duration-200 flex-shrink-0 mt-[1px] ' +
-  'checked:bg-main checked:border-main hover:border-main ' +
-  'sm:w-4 sm:h-4 xs:w-[14px] xs:h-[14px]'
+const checkboxClassName = cn(
+  'appearance-none h-[18px] w-[18px] flex-shrink-0 rounded-[4px] border border-[#d9d9d9] bg-white',
+  'mt-[1px] inline-block cursor-pointer align-middle transition-all duration-200',
+  'checked:border-main checked:bg-main hover:border-main',
+  'sm:h-4 sm:w-4 xs:h-[14px] xs:w-[14px]'
+)
 
-const labelCls =
-  'flex items-start gap-2 font-pretendard font-regular text-[13px] leading-[19px] text-[#767676] ' +
+const labelClassName = cn(
+  'flex items-start gap-2 font-pretendard font-regular text-[13px] leading-[19px] text-[#767676]',
   'sm:text-[12px] sm:leading-[18px] xs:text-[11px] xs:leading-[17px]'
+)
 
 /**
  * 약관 동의 체크박스 그룹
@@ -27,13 +31,15 @@ export function SignupTerms({
   onAdAgreeChange,
 }: Props) {
   return (
-    <div className="flex flex-col gap-3 w-full sm:gap-[10px] xs:gap-2.5">
-      <label className={labelCls}>
+    <div
+      className={cn('flex w-full flex-col gap-3', 'sm:gap-[10px] xs:gap-2.5')}
+    >
+      <label className={labelClassName}>
         <input
           type="checkbox"
           checked={agreed}
           onChange={e => onAgreeChange(e.target.checked)}
-          className={checkboxCls}
+          className={checkboxClassName}
         />
         <span>
           <span className="text-error mr-1">(필수)</span>
@@ -43,12 +49,12 @@ export function SignupTerms({
         </span>
       </label>
 
-      <label className={labelCls}>
+      <label className={labelClassName}>
         <input
           type="checkbox"
           checked={adAgreed}
           onChange={e => onAdAgreeChange(e.target.checked)}
-          className={checkboxCls}
+          className={checkboxClassName}
         />
         <span>(선택) 이메일 및 SMS 광고성 정보 수신에 동의합니다.</span>
       </label>
