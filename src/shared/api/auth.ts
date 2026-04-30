@@ -1,7 +1,7 @@
 import axios from 'axios'
 import type { NavigateFunction } from 'react-router-dom'
 
-import axiosInstance from '../lib/axiosInstance'
+import { publicInstance } from '../lib/axiosInstance'
 
 interface LoginCredentials {
   phone: string
@@ -104,7 +104,7 @@ export async function loginIDPW(
   navigate: NavigateFunction
 ): Promise<LoginResponse> {
   try {
-    const { data: result } = await axiosInstance.post<
+    const { data: result } = await publicInstance.post<
       ApiResponse<GenerateTokenResponseDto>
     >('/public/users/login', {
       contact: credentials.phone.replace(/-/g, ''),
@@ -159,7 +159,7 @@ export async function loginSocial(
   navigate: NavigateFunction
 ): Promise<SocialLoginResponse> {
   try {
-    const { data: result } = await axiosInstance.post<SocialLoginResponse>(
+    const { data: result } = await publicInstance.post<SocialLoginResponse>(
       '/public/users/login-social',
       request
     )
@@ -217,7 +217,7 @@ export async function checkNicknameDuplicate(
   nickname: string
 ): Promise<boolean> {
   try {
-    const { data: result } = await axiosInstance.post<
+    const { data: result } = await publicInstance.post<
       ApiResponse<CheckNicknameDuplicationResponseDto>
     >('/public/users/exists/nickname', { nickname })
 
@@ -247,7 +247,7 @@ export async function checkNicknameDuplicate(
  */
 export async function sendEmailVerification(email: string): Promise<void> {
   try {
-    await axiosInstance.post('/public/users/email/verification/send', { email })
+    await publicInstance.post('/public/users/email/verification/send', { email })
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const errorData: ErrorResponse = error.response?.data ?? {}
@@ -272,7 +272,7 @@ export async function verifyEmailCode(
   code: string
 ): Promise<string> {
   try {
-    const { data: result } = await axiosInstance.post<
+    const { data: result } = await publicInstance.post<
       ApiResponse<EmailVerificationSessionDto>
     >('/public/users/email/verification', { email, code })
 
@@ -299,7 +299,7 @@ export async function createSignupSession(
   try {
     const contact = phone.replace(/-/g, '')
 
-    const { data: result } = await axiosInstance.post<
+    const { data: result } = await publicInstance.post<
       ApiResponse<CreateSignupSessionResponseDto>
     >('/public/users/signup-session', { contact, firebaseIdToken })
 
@@ -327,7 +327,7 @@ export async function signupSocial(
   navigate: NavigateFunction
 ): Promise<LoginResponse> {
   try {
-    const { data: result } = await axiosInstance.post<
+    const { data: result } = await publicInstance.post<
       ApiResponse<GenerateTokenResponseDto>
     >('/public/users/signup-social', request)
 
@@ -372,7 +372,7 @@ export async function signup(
   navigate: NavigateFunction
 ): Promise<LoginResponse> {
   try {
-    const { data: result } = await axiosInstance.post<
+    const { data: result } = await publicInstance.post<
       ApiResponse<GenerateTokenResponseDto>
     >('/public/users/signup', request)
 
