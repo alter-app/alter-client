@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '@/shared/stores/useAuthStore'
+import { useUserMe } from '@/features/user/me'
 import { ProfileCard } from './components/ProfileCard'
 import { MenuListItem } from './components/MenuListItem'
 import UserIcon from '@/assets/icons/my/user.svg?react'
@@ -50,11 +51,12 @@ function MyPageHeader() {
 
 export function MyPage() {
   const navigate = useNavigate()
-  const { scope, user, logout } = useAuthStore()
+  const { scope, logout } = useAuthStore()
+  const { user, isLoading, isError } = useUserMe()
 
   const isManager = scope === 'MANAGER'
-  const nickname = user?.name || '알터'
-  const realName = user?.name
+  const nickname = user.nickname || user.name || '알터'
+  const realName = user.name
 
   const handleEditProfile = () => {
     navigate('/my/profile')
@@ -82,6 +84,23 @@ export function MyPage() {
           isManager={isManager}
           onEditClick={handleEditProfile}
         />
+
+        {isLoading && (
+          <p
+            className="mt-2 px-1 text-text-70 typography-body03-regular"
+            role="status"
+          >
+            사용자 정보를 불러오는 중입니다.
+          </p>
+        )}
+        {isError && (
+          <p
+            className="mt-2 px-1 text-error typography-body03-regular"
+            role="alert"
+          >
+            사용자 정보를 불러오지 못했습니다.
+          </p>
+        )}
 
         <nav
           aria-label="마이페이지 메뉴"

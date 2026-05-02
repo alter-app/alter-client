@@ -1,24 +1,26 @@
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '@/shared/stores/useAuthStore'
+import { useUserMe } from '@/features/user/me'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { MenuListItem } from '../components/MenuListItem'
 import { ReadOnlyField } from './components/ReadOnlyField'
 import CameraCircleIcon from '@/assets/icons/my/camera-circle.svg?react'
 
+// TODO: /app/users/me API에 email/phone이 추가되면 fallback 제거
 const MOCK_PROFILE = {
   email: '123456789@gmail.com',
   phone: '010-1234-5678',
-  joinedAt: '2100.10.10',
 }
 
 export function ProfileEditPage() {
   const navigate = useNavigate()
-  const { user } = useAuthStore()
+  const { user: authUser } = useAuthStore()
+  const { user, isError } = useUserMe()
 
-  const email = user?.email || MOCK_PROFILE.email
+  const email = authUser?.email || MOCK_PROFILE.email
   const phone = MOCK_PROFILE.phone
-  const joinedAt = MOCK_PROFILE.joinedAt
-  const nickname = user?.name || '알터'
+  const joinedAt = user.joinedAtFormatted
+  const nickname = user.nickname || authUser?.name || '알터'
   const avatarUrl: string | undefined = undefined
 
   const handleAvatarUpload = () => {}
@@ -71,6 +73,14 @@ export function ProfileEditPage() {
       <div className="mt-auto pb-10 pt-6 text-center">
         <p className="text-text-50 typography-body03-regular">가입 날짜</p>
         <p className="text-text-50 typography-body03-regular">{joinedAt}</p>
+        {isError && (
+          <p
+            role="alert"
+            className="mt-2 text-error typography-body03-regular"
+          >
+            사용자 정보를 불러오지 못했습니다.
+          </p>
+        )}
       </div>
     </div>
   )
