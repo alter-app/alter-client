@@ -74,10 +74,7 @@ export function ProfileEditPage() {
         <p className="text-text-50 typography-body03-regular">가입 날짜</p>
         <p className="text-text-50 typography-body03-regular">{joinedAt}</p>
         {isError && (
-          <p
-            role="alert"
-            className="mt-2 text-error typography-body03-regular"
-          >
+          <p role="alert" className="mt-2 text-error typography-body03-regular">
             사용자 정보를 불러오지 못했습니다.
           </p>
         )}

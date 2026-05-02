@@ -55,10 +55,7 @@ export function ProfileCard({
         onClick={onEditClick}
         className="absolute right-4 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center text-text-90"
       >
-        <EditIcon
-          className="size-6 [&_*]:!stroke-current"
-          aria-hidden="true"
-        />
+        <EditIcon className="size-6 [&_*]:!stroke-current" aria-hidden="true" />
       </button>
     </div>
   )

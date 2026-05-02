@@ -28,7 +28,12 @@ const MENU_ITEMS: MenuItem[] = [
     icon: StoreIcon,
     path: '/my/store-apply',
   },
-  { key: 'support', label: '문의하기', icon: HeadphonesIcon, path: '/my/support' },
+  {
+    key: 'support',
+    label: '문의하기',
+    icon: HeadphonesIcon,
+    path: '/my/support',
+  },
   { key: 'faq', label: '자주 묻는 질문', icon: FileTextIcon, path: '/my/faq' },
   { key: 'reports', label: '신고 내역', icon: SirenIcon, path: '/my/reports' },
   {
@@ -38,7 +43,12 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/my/notifications',
   },
   { key: 'notice', label: '공지사항', icon: MegaphoneIcon, path: '/my/notice' },
-  { key: 'app-info', label: '앱 정보', icon: AlertCircleIcon, path: '/my/app-info' },
+  {
+    key: 'app-info',
+    label: '앱 정보',
+    icon: AlertCircleIcon,
+    path: '/my/app-info',
+  },
 ]
 
 function MyPageHeader() {
