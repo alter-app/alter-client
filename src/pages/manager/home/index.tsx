@@ -113,7 +113,6 @@ export function ManagerHomePage() {
               }
               className="mt-[19px]"
               onSelectWorkspace={selectWorkspace}
-              onEditWorkspace={() => {}}
             />
 
             <button
