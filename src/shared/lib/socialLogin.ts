@@ -44,12 +44,30 @@ export interface SocialLoginResult {
   authorizationCode?: string
 }
 
+/** dev·스테이징 등 alter-app.com 은 HTTPS로 통일 (브라우저가 http로 열려도 authorize redirect_uri 일치) */
+function normalizeAlterAppKakaoRedirectToHttps(uri: string): string {
+  try {
+    const u = new URL(uri)
+    if (u.protocol !== 'http:') return uri
+    if (!u.hostname.endsWith('alter-app.com')) return uri
+    u.protocol = 'https:'
+    return u.href.replace(/\/$/, '')
+  } catch {
+    return uri
+  }
+}
+
 /** 카카오 로그인·토큰 교환 시 동일해야 함 (카카오 개발자 콘솔 Redirect URI와 일치) */
 export function getKakaoOAuthRedirectUri(): string {
-  return (
-    import.meta.env.VITE_KAKAO_REDIRECT_URI ||
-    `${window.location.origin}/oauth/kakao/callback`
-  )
+  const fromEnv = (
+    import.meta.env.VITE_KAKAO_REDIRECT_URI as string | undefined
+  )?.trim()
+  const base =
+    fromEnv ||
+    (typeof window !== 'undefined'
+      ? `${window.location.origin}/oauth/kakao/callback`
+      : '')
+  return normalizeAlterAppKakaoRedirectToHttps(base)
 }
 
 /** KakaoCallbackPage ↔ 오프너(팝업 플로우) postMessage 타입 */
