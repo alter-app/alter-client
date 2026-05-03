@@ -10,12 +10,12 @@ import {
   AlbaFindCategoryBar,
   type AlbaFindFilterId,
   type AlbaFindMode,
-} from '@/shared/ui/manager/alba-find/AlbaFindCategoryBar'
-import { AlbaFindList } from '@/shared/ui/manager/alba-find/AlbaFindList'
+} from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
+import { AlbaFindList } from '@/features/job-lookup-map/common/AlbaFindList'
 import {
   Albabox,
   type AlbaboxProps,
-} from '@/shared/ui/manager/alba-find/Albabox'
+} from '@/features/job-lookup-map/common/Albabox'
 
 export type AlbaFindDrawerProps = {
   open: boolean
