@@ -51,8 +51,27 @@ export default {
       },
       // Font Families
       fontFamily: {
-        rixyeoljeongdo: ['RixYeoljeongdo_Pro', 'sans-serif'],
-        pretendard: ['Pretendard', 'sans-serif'],
+        rixyeoljeongdo: [
+          'RixYeoljeongdo_Pro',
+          'Pretendard Variable',
+          'Pretendard',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Apple SD Gothic Neo',
+          'Malgun Gothic',
+          'system-ui',
+          'sans-serif',
+        ],
+        pretendard: [
+          'Pretendard Variable',
+          'Pretendard',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Apple SD Gothic Neo',
+          'Malgun Gothic',
+          'system-ui',
+          'sans-serif',
+        ],
       },
       // Font Sizes
       fontSize: {

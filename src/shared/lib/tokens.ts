@@ -34,10 +34,13 @@ export const colors = {
   },
 } as const
 
-// 폰트 패밀리
+// 폰트 패밀리 (RixYeoljeongdo_Pro / Pretendard 미로딩 시 시스템 한글 폰트로 안전하게 fallback)
+const PRETENDARD_STACK =
+  "'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif"
+
 export const fontFamilies = {
-  rixyeoljeongdo: 'RixYeoljeongdo_Pro',
-  pretendard: 'Pretendard',
+  rixyeoljeongdo: `RixYeoljeongdo_Pro, ${PRETENDARD_STACK}`,
+  pretendard: PRETENDARD_STACK,
 } as const
 
 // 폰트 사이즈
