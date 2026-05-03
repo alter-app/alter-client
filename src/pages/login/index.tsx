@@ -4,6 +4,7 @@ import { KakaoLoginButton, AppleLoginButton } from '@/features/auth'
 import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { loginIDPW, loginSocial } from '@/shared/api/auth'
 import { getKakaoOAuthRedirectUri } from '@/shared/lib/socialLogin'
+import { homePathForScope } from '@/shared/lib/homePath'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { parseErrorResponse } from '@/shared/lib/utils/errorUtils'
 import AlterLogo from '@/assets/Alter-logo.png'
@@ -20,11 +21,7 @@ export function LoginPage() {
   // 이미 로그인되어 있고 토큰이 있으면 메인 페이지로 리다이렉트
   useEffect(() => {
     if (isLoggedIn && token) {
-      if (scope === 'MANAGER') {
-        navigate('/manager/home', { replace: true })
-      } else {
-        navigate('/user/home', { replace: true })
-      }
+      navigate(homePathForScope(scope), { replace: true })
     }
   }, [isLoggedIn, scope, token, navigate])
 

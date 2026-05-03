@@ -2,6 +2,7 @@ import axios from 'axios'
 import type { NavigateFunction } from 'react-router-dom'
 
 import { publicInstance } from '../lib/axiosInstance'
+import { homePathForScope } from '../lib/homePath'
 
 interface LoginCredentials {
   phone: string
@@ -124,11 +125,7 @@ export async function loginIDPW(
 
     setAuth(loginResponse)
 
-    if (scope === 'MANAGER') {
-      navigate('/manager/home', { replace: true })
-    } else {
-      navigate('/user/home', { replace: true })
-    }
+    navigate(homePathForScope(scope), { replace: true })
 
     return loginResponse
   } catch (error) {
@@ -175,11 +172,7 @@ export async function loginSocial(
       scope,
     })
 
-    if (scope === 'MANAGER') {
-      navigate('/manager/home', { replace: true })
-    } else {
-      navigate('/user/home', { replace: true })
-    }
+    navigate(homePathForScope(scope), { replace: true })
 
     return result
   } catch (error) {
@@ -346,11 +339,7 @@ export async function signupSocial(
 
     setAuth(signupResponse)
 
-    if (scope === 'MANAGER') {
-      navigate('/manager/home', { replace: true })
-    } else {
-      navigate('/user/home', { replace: true })
-    }
+    navigate(homePathForScope(scope), { replace: true })
 
     return signupResponse
   } catch (error) {
@@ -391,11 +380,7 @@ export async function signup(
 
     setAuth(signupResponse)
 
-    if (scope === 'MANAGER') {
-      navigate('/manager/home', { replace: true })
-    } else {
-      navigate('/user/home', { replace: true })
-    }
+    navigate(homePathForScope(scope), { replace: true })
 
     return signupResponse
   } catch (error) {

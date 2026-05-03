@@ -25,6 +25,7 @@ import { MyPage } from '@/pages/my'
 import { ProfileEditPage } from '@/pages/my/profile'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { MobileLayoutWithDocbar } from '@/shared/ui/MobileLayoutWithDocbar'
+import { HomeRouteGuard } from '@/shared/ui/common/HomeRouteGuard'
 
 const SignupPage = lazy(async () => {
   const m = await import('@/pages/signup')
@@ -93,8 +94,22 @@ export function App() {
 
         <Route element={<MobileRouteLayoutWithDocbar />}>
           <Route path="/user/job-lookup-map" element={<JobLookupMapPage />} />
-          <Route path="/user/home" element={<UserHomePage />} />
-          <Route path="/manager/home" element={<ManagerHomePage />} />
+          <Route
+            path="/user/home"
+            element={
+              <HomeRouteGuard expected="USER">
+                <UserHomePage />
+              </HomeRouteGuard>
+            }
+          />
+          <Route
+            path="/manager/home"
+            element={
+              <HomeRouteGuard expected="MANAGER">
+                <ManagerHomePage />
+              </HomeRouteGuard>
+            }
+          />
           <Route path="/manager/social" element={<SocialPage />} />
           <Route path="/manager/social/chat" element={<SocialChatPage />} />
           <Route path="/my" element={<MyPage />} />
