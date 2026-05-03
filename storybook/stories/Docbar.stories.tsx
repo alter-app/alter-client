@@ -6,8 +6,6 @@ import type { TabKey } from '../../src/shared/types/tab'
 const createSelectedTab = (activeTab: TabKey): DocbarSelectedTab => ({
   home: activeTab === 'home',
   my: activeTab === 'my',
-  message: activeTab === 'message',
-  repute: activeTab === 'repute',
   search: activeTab === 'search',
 })
 
@@ -33,13 +31,6 @@ export const HomeSelected: Story = {
 export const SearchSelected: Story = {
   args: {
     selectedTab: createSelectedTab('search'),
-    onTabClick: () => {},
-  },
-}
-
-export const MessageSelected: Story = {
-  args: {
-    selectedTab: createSelectedTab('message'),
     onTabClick: () => {},
   },
 }
