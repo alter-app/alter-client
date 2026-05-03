@@ -1,7 +1,5 @@
 import HomeIcon from '@/assets/icons/doc/Home.svg?react'
 import MYIcon from '@/assets/icons/doc/MY.svg?react'
-import MessageIcon from '@/assets/icons/doc/Message.svg?react'
-import ReputeIcon from '@/assets/icons/doc/Repute.svg?react'
 import SearchIcon from '@/assets/icons/doc/Search.svg?react'
 import type { ComponentType, SVGProps } from 'react'
 import { useEffect } from 'react'
@@ -77,20 +75,6 @@ export function DocbarView({ selectedTab, onTabClick }: DocbarViewProps) {
           onClick={() => onTabClick('search')}
         />
         <DocContent
-          icon={MessageIcon}
-          alt="Message"
-          isSelected={selectedTab.message}
-          titleKey="message"
-          onClick={() => onTabClick('message')}
-        />
-        <DocContent
-          icon={ReputeIcon}
-          alt="Repute"
-          isSelected={selectedTab.repute}
-          titleKey="repute"
-          onClick={() => onTabClick('repute')}
-        />
-        <DocContent
           icon={MYIcon}
           alt="MY"
           isSelected={selectedTab.my}
@@ -118,8 +102,6 @@ export function Docbar() {
   const pathByTab: Record<TabKey, string> = {
     home: scope === 'MANAGER' ? '/manager/home' : '/user/home',
     search: '/user/job-lookup-map',
-    message: scope === 'MANAGER' ? '/manager/social' : '/user/message',
-    repute: '/repute',
     my: '/my',
   }
 
