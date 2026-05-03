@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { KakaoLoginButton, AppleLoginButton } from '@/features/auth'
 import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { loginIDPW, loginSocial } from '@/shared/api/auth'
 import { getKakaoOAuthRedirectUri } from '@/shared/lib/socialLogin'
+import { ROUTES } from '@/shared/constants/routes'
+import { resolvePostAuthPath } from '@/shared/lib/postAuthNavigation'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { parseErrorResponse } from '@/shared/lib/utils/errorUtils'
 import AlterLogo from '@/assets/Alter-logo.png'
@@ -14,19 +16,19 @@ export function LoginPage() {
   const [phoneError, setPhoneError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
-  const { setAuth, isLoggedIn, scope, token } = useAuthStore()
+  const { setAuth, isLoggedIn, scope, token, hasHydrated } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
+  const redirectFrom =
+    (location.state as { from?: string } | undefined)?.from ?? null
 
   // 이미 로그인되어 있고 토큰이 있으면 메인 페이지로 리다이렉트
   useEffect(() => {
+    if (!hasHydrated) return
     if (isLoggedIn && token) {
-      if (scope === 'MANAGER') {
-        navigate('/manager/home', { replace: true })
-      } else {
-        navigate('/user/home', { replace: true })
-      }
+      navigate(resolvePostAuthPath(scope, redirectFrom), { replace: true })
     }
-  }, [isLoggedIn, scope, token, navigate])
+  }, [hasHydrated, isLoggedIn, scope, token, navigate, redirectFrom])
 
   /** 카카오 로그인 팝업: 콜백에서 OAuth 인가 코드만 전달 (클라이언트에서 토큰 교환 시 code 소모 → A010 방지) */
   useEffect(() => {
@@ -63,7 +65,8 @@ export function LoginPage() {
               platformType: 'WEB',
             },
             setAuth,
-            navigate
+            navigate,
+            { redirectFrom }
           )
         } catch (error: unknown) {
           const apiError = error as {
@@ -78,7 +81,7 @@ export function LoginPage() {
 
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-  }, [navigate, setAuth])
+  }, [navigate, setAuth, redirectFrom])
 
   const formatPhone = (value: string) => {
     const onlyNumber = value.replace(/\D/g, '').slice(0, 11)
@@ -90,7 +93,9 @@ export function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const data = await loginIDPW({ phone, password }, setAuth, navigate)
+      const data = await loginIDPW({ phone, password }, setAuth, navigate, {
+        redirectFrom,
+      })
       console.log('로그인 성공:', data)
     } catch (error: unknown) {
       // 필드별 에러 초기화
@@ -120,7 +125,7 @@ export function LoginPage() {
   }
 
   const goToSignup = () => {
-    navigate('/signup')
+    navigate(ROUTES.AUTH.SIGNUP)
   }
 
   return (
@@ -187,8 +192,8 @@ export function LoginPage() {
       </div>
 
       <div className="flex flex-col gap-4 w-full max-w-[400px] items-center sm:gap-[14px] sm:max-w-full xs:gap-3">
-        <KakaoLoginButton />
-        <AppleLoginButton />
+        <KakaoLoginButton redirectFrom={redirectFrom} />
+        <AppleLoginButton redirectFrom={redirectFrom} />
 
         <div className="flex justify-center items-center gap-2 font-pretendard font-regular text-3 leading-[18px] text-[#767676] mt-2.5 sm:text-2 sm:gap-1.5 xs:text-1 xs:gap-1">
           <span

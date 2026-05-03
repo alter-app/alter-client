@@ -5,6 +5,7 @@ import {
   decodeKakaoOauthState,
   getKakaoOAuthRedirectUri,
 } from '@/shared/lib/socialLogin'
+import { ROUTES } from '@/shared/constants/routes'
 import useAuthStore from '@/shared/stores/useAuthStore'
 
 /**
@@ -95,7 +96,7 @@ export function KakaoCallbackPage() {
         <button
           type="button"
           className="rounded-xl bg-main px-6 py-3 font-pretendard font-semibold text-white"
-          onClick={() => navigate('/login', { replace: true })}
+          onClick={() => navigate(ROUTES.AUTH.LOGIN, { replace: true })}
         >
           로그인으로 돌아가기
         </button>

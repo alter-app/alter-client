@@ -8,6 +8,7 @@ import WalletIcon from '@/assets/icons/nav/wallet.svg'
 import SwapIcon from '@/assets/icons/nav/swap.svg'
 import CloseXIcon from '@/assets/icons/nav/x.svg'
 import { cn } from '@/shared/lib/utils'
+import { ROUTES } from '@/shared/constants/routes'
 import useAuthStore from '@/shared/stores/useAuthStore'
 
 export interface HamburgerMenuDrawerProps {
@@ -22,20 +23,20 @@ type MenuRow = {
 }
 
 const MANAGER_ITEMS: MenuRow[] = [
-  { label: '업장 관리', icon: StoreIcon, path: '/user/workspace' },
-  { label: '직원 관리', icon: UsersIcon, path: '/manager/home' },
+  { label: '업장 관리', icon: StoreIcon, path: ROUTES.USER.WORKSPACE },
+  { label: '직원 관리', icon: UsersIcon, path: ROUTES.MANAGER.HOME },
   {
     label: '근무 일정 관리',
     icon: CalendarIcon,
-    path: '/manager/worker-schedule',
+    path: ROUTES.MANAGER.WORKER_SCHEDULE,
   },
-  { label: '급여 관리', icon: WalletIcon, path: '/my' },
+  { label: '급여 관리', icon: WalletIcon, path: ROUTES.MY.ROOT },
 ]
 
 const USER_ITEMS: MenuRow[] = [
-  { label: '내 근무 일정', icon: CalendarIcon, path: '/user/schedule' },
-  { label: '급여 확인', icon: WalletIcon, path: '/my' },
-  { label: '대타 요청 내역', icon: SwapIcon, path: '/user/home' },
+  { label: '내 근무 일정', icon: CalendarIcon, path: ROUTES.USER.SCHEDULE },
+  { label: '급여 확인', icon: WalletIcon, path: ROUTES.MY.ROOT },
+  { label: '대타 요청 내역', icon: SwapIcon, path: ROUTES.USER.HOME },
 ]
 
 function MenuList({

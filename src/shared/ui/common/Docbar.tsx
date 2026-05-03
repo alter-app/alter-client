@@ -7,6 +7,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useDocStore } from '@/shared/stores/useDocStore'
 import { typography } from '@/shared/lib/tokens'
 import { TAB_TITLE_MAP, type TabKey } from '@/shared/types/tab'
+import { homePathForScope } from '@/shared/lib/homePath'
+import { ROUTES } from '@/shared/constants/routes'
 import useAuthStore from '@/shared/stores/useAuthStore'
 
 function DocContent({
@@ -100,9 +102,9 @@ export function Docbar() {
   }, [pathname, setSelectedTabByPathname])
 
   const pathByTab: Record<TabKey, string> = {
-    home: scope === 'MANAGER' ? '/manager/home' : '/user/home',
-    search: '/user/job-lookup-map',
-    my: '/my',
+    home: homePathForScope(scope),
+    search: ROUTES.USER.JOB_LOOKUP_MAP,
+    my: ROUTES.MY.ROOT,
   }
 
   const onTabClick = (tab: TabKey) => {

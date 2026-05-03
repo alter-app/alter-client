@@ -25,6 +25,8 @@ import { MyPage } from '@/pages/my'
 import { ProfileEditPage } from '@/pages/my/profile'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { MobileLayoutWithDocbar } from '@/shared/ui/MobileLayoutWithDocbar'
+import { HomeRouteGuard } from '@/shared/ui/common/HomeRouteGuard'
+import { ROUTES } from '@/shared/constants/routes'
 
 const SignupPage = lazy(async () => {
   const m = await import('@/pages/signup')
@@ -58,49 +60,78 @@ export function App() {
     <BrowserRouter basename={routerBasename}>
       <Routes>
         <Route element={<MobileRouteLayoutWithoutDocbar />}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/oauth/kakao/callback" element={<KakaoCallbackPage />} />
+          <Route path={ROUTES.AUTH.LOGIN} element={<LoginPage />} />
           <Route
-            path="/signup"
+            path={ROUTES.OAUTH.KAKAO_CALLBACK}
+            element={<KakaoCallbackPage />}
+          />
+          <Route
+            path={ROUTES.AUTH.SIGNUP}
             element={
               <Suspense fallback={null}>
                 <SignupPage />
               </Suspense>
             }
           />
-          <Route path="/user/schedule" element={<SchedulePage />} />
+          <Route path={ROUTES.USER.SCHEDULE} element={<SchedulePage />} />
           <Route
-            path="/user/workspaces/:workspaceId/members"
+            path={ROUTES.USER.WORKSPACE_MEMBERS_PATTERN}
             element={<WorkspaceMembersPage />}
           />
-          <Route path="/user/workspace" element={<WorkspacePage />} />
-          <Route path="/user/workspace/join" element={<WorkspaceJoinPage />} />
+          <Route path={ROUTES.USER.WORKSPACE} element={<WorkspacePage />} />
           <Route
-            path="/user/workspace/:workspaceId"
+            path={ROUTES.USER.WORKSPACE_JOIN}
+            element={<WorkspaceJoinPage />}
+          />
+          <Route
+            path={ROUTES.USER.WORKSPACE_DETAIL_PATTERN}
             element={<WorkspaceDetailPage />}
           />
-          <Route path="/user/applied-stores" element={<AppliedStoresPage />} />
-          <Route path="/my/profile" element={<ProfileEditPage />} />
           <Route
-            path="/manager/worker-schedule"
+            path={ROUTES.USER.APPLIED_STORES}
+            element={<AppliedStoresPage />}
+          />
+          <Route path={ROUTES.MY.PROFILE} element={<ProfileEditPage />} />
+          <Route
+            path={ROUTES.MANAGER.WORKER_SCHEDULE}
             element={<ManagerWorkerSchedulePage />}
           />
           <Route
-            path="/manager/store-register"
+            path={ROUTES.MANAGER.STORE_REGISTER}
             element={<StoreRegisterPage />}
           />
         </Route>
 
         <Route element={<MobileRouteLayoutWithDocbar />}>
-          <Route path="/user/job-lookup-map" element={<JobLookupMapPage />} />
-          <Route path="/user/home" element={<UserHomePage />} />
-          <Route path="/manager/home" element={<ManagerHomePage />} />
-          <Route path="/manager/social" element={<SocialPage />} />
-          <Route path="/manager/social/chat" element={<SocialChatPage />} />
-          <Route path="/my" element={<MyPage />} />
+          <Route
+            path={ROUTES.USER.JOB_LOOKUP_MAP}
+            element={<JobLookupMapPage />}
+          />
+          <Route
+            path={ROUTES.USER.HOME}
+            element={
+              <HomeRouteGuard expected="USER">
+                <UserHomePage />
+              </HomeRouteGuard>
+            }
+          />
+          <Route
+            path={ROUTES.MANAGER.HOME}
+            element={
+              <HomeRouteGuard expected="MANAGER">
+                <ManagerHomePage />
+              </HomeRouteGuard>
+            }
+          />
+          <Route path={ROUTES.MANAGER.SOCIAL} element={<SocialPage />} />
+          <Route
+            path={ROUTES.MANAGER.SOCIAL_CHAT}
+            element={<SocialChatPage />}
+          />
+          <Route path={ROUTES.MY.ROOT} element={<MyPage />} />
         </Route>
 
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
       </Routes>
     </BrowserRouter>
   )

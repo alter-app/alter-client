@@ -5,6 +5,7 @@ import { useCertificateFilePick } from '@/shared/hooks/useCertificateFilePick'
 import { createWorkspaceRegistrationRequest } from '@/features/store-register/api/workspaceRequests'
 import { uploadWorkspaceRegistrationFile } from '@/features/store-register/api/workspaceFileUpload'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
+import { ROUTES } from '@/shared/constants/routes'
 
 type Step = 'info' | 'certificate' | 'done'
 
@@ -128,7 +129,7 @@ export function useStoreRegisterWizard() {
     queryClient,
   ])
 
-  const exitToHome = () => navigate('/manager/home')
+  const exitToHome = () => navigate(ROUTES.MANAGER.HOME)
 
   return {
     step,

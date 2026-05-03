@@ -2,6 +2,13 @@ import axios from 'axios'
 import type { NavigateFunction } from 'react-router-dom'
 
 import { publicInstance } from '../lib/axiosInstance'
+import { ROUTES } from '../constants/routes'
+import { resolvePostAuthPath } from '../lib/postAuthNavigation'
+
+export type AuthNavigateOptions = {
+  /** 로그인 화면 등에서 `Navigate state.from`으로 넘어온 복귀 경로 */
+  redirectFrom?: string | null
+}
 
 interface LoginCredentials {
   phone: string
@@ -101,7 +108,8 @@ interface EmailVerificationSessionDto {
 export async function loginIDPW(
   credentials: LoginCredentials,
   setAuth: (data: LoginResponse) => void,
-  navigate: NavigateFunction
+  navigate: NavigateFunction,
+  options?: AuthNavigateOptions
 ): Promise<LoginResponse> {
   try {
     const { data: result } = await publicInstance.post<
@@ -124,11 +132,9 @@ export async function loginIDPW(
 
     setAuth(loginResponse)
 
-    if (scope === 'MANAGER') {
-      navigate('/manager/home', { replace: true })
-    } else {
-      navigate('/user/home', { replace: true })
-    }
+    navigate(resolvePostAuthPath(scope, options?.redirectFrom), {
+      replace: true,
+    })
 
     return loginResponse
   } catch (error) {
@@ -156,7 +162,8 @@ export interface SocialLoginResult {
 export async function loginSocial(
   request: SocialLoginRequest,
   setAuth: (data: LoginResponse) => void,
-  navigate: NavigateFunction
+  navigate: NavigateFunction,
+  options?: AuthNavigateOptions
 ): Promise<SocialLoginResponse> {
   try {
     const { data: result } = await publicInstance.post<SocialLoginResponse>(
@@ -175,11 +182,9 @@ export async function loginSocial(
       scope,
     })
 
-    if (scope === 'MANAGER') {
-      navigate('/manager/home', { replace: true })
-    } else {
-      navigate('/user/home', { replace: true })
-    }
+    navigate(resolvePostAuthPath(scope, options?.redirectFrom), {
+      replace: true,
+    })
 
     return result
   } catch (error) {
@@ -188,7 +193,7 @@ export async function loginSocial(
 
       // B011: 존재하지 않는 사용자 계정 - 회원가입 필요
       if (errorData.code === 'B011') {
-        navigate('/signup', {
+        navigate(ROUTES.AUTH.SIGNUP, {
           state: {
             socialLoginData: request,
             errorCode: 'B011',
@@ -326,7 +331,8 @@ export async function createSignupSession(
 export async function signupSocial(
   request: SignupSocialRequest,
   setAuth: (data: LoginResponse) => void,
-  navigate: NavigateFunction
+  navigate: NavigateFunction,
+  options?: AuthNavigateOptions
 ): Promise<LoginResponse> {
   try {
     const { data: result } = await publicInstance.post<
@@ -346,11 +352,9 @@ export async function signupSocial(
 
     setAuth(signupResponse)
 
-    if (scope === 'MANAGER') {
-      navigate('/manager/home', { replace: true })
-    } else {
-      navigate('/user/home', { replace: true })
-    }
+    navigate(resolvePostAuthPath(scope, options?.redirectFrom), {
+      replace: true,
+    })
 
     return signupResponse
   } catch (error) {
@@ -371,7 +375,8 @@ export async function signupSocial(
 export async function signup(
   request: SignupRequest,
   setAuth: (data: LoginResponse) => void,
-  navigate: NavigateFunction
+  navigate: NavigateFunction,
+  options?: AuthNavigateOptions
 ): Promise<LoginResponse> {
   try {
     const { data: result } = await publicInstance.post<
@@ -391,11 +396,9 @@ export async function signup(
 
     setAuth(signupResponse)
 
-    if (scope === 'MANAGER') {
-      navigate('/manager/home', { replace: true })
-    } else {
-      navigate('/user/home', { replace: true })
-    }
+    navigate(resolvePostAuthPath(scope, options?.redirectFrom), {
+      replace: true,
+    })
 
     return signupResponse
   } catch (error) {

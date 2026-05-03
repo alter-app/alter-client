@@ -5,7 +5,13 @@ import { loginWithApple } from '@/shared/lib/socialLogin'
 import { loginSocial } from '@/shared/api/auth'
 import useAuthStore from '@/shared/stores/useAuthStore'
 
-export function AppleLoginButton() {
+import type { AuthNavigateOptions } from '@/shared/api/auth'
+
+interface AppleLoginButtonProps {
+  redirectFrom?: AuthNavigateOptions['redirectFrom']
+}
+
+export function AppleLoginButton({ redirectFrom }: AppleLoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
@@ -31,7 +37,8 @@ export function AppleLoginButton() {
           platformType: 'WEB',
         },
         setAuth,
-        navigate
+        navigate,
+        { redirectFrom }
       )
     } catch (error: unknown) {
       console.error('애플 로그인 실패:', error)
