@@ -35,6 +35,12 @@ export function getAxiosErrorMessage(error: unknown, fallback: string): string {
       return error.message
     }
   }
-  if (error instanceof Error && error.message) return error.message
+  if (
+    error instanceof Error &&
+    error.message &&
+    error.message !== 'Network Error'
+  ) {
+    return error.message
+  }
   return fallback
 }
