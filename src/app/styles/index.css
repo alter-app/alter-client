@@ -1,10 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@font-face {
+  font-family: 'RixYeoljeongdo_Pro';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2102-01@1.0/RixYeoljeongdo_Regular.woff')
+    format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 @layer base {
   :root {
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    --font-sans:
+      'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+      'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+    --font-display: 'RixYeoljeongdo_Pro', var(--font-sans);
+
+    font-family: var(--font-sans);
     line-height: 1.5;
     font-weight: 400;
     font-synthesis: none;
@@ -17,13 +30,14 @@
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
+    font-family: var(--font-sans);
   }
 }
 
 @layer utilities {
   /* Display */
   .typography-display {
-    font-family: RixYeoljeongdo_Pro, sans-serif;
+    font-family: var(--font-display);
     font-weight: 400;
     line-height: 140%;
     font-size: 32px;
@@ -32,7 +46,7 @@
 
   /* Headlines */
   .typography-headline01 {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 600;
     line-height: 140%;
     font-size: 22px;
@@ -40,7 +54,7 @@
   }
 
   .typography-headline02 {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 600;
     line-height: 140%;
     font-size: 20px;
@@ -48,7 +62,7 @@
   }
 
   .typography-headline03 {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 600;
     line-height: 140%;
     font-size: 18px;
@@ -57,7 +71,7 @@
 
   /* Body */
   .typography-body01-semibold {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 600;
     line-height: 140%;
     font-size: 16px;
@@ -65,7 +79,7 @@
   }
 
   .typography-body01-regular {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 400;
     line-height: 140%;
     font-size: 16px;
@@ -73,7 +87,7 @@
   }
 
   .typography-body02-semibold {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 600;
     line-height: 140%;
     font-size: 14px;
@@ -81,7 +95,7 @@
   }
 
   .typography-body02-regular {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 400;
     line-height: 140%;
     font-size: 14px;
@@ -89,7 +103,7 @@
   }
 
   .typography-body03-semibold {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 600;
     line-height: 140%;
     font-size: 13px;
@@ -97,7 +111,7 @@
   }
 
   .typography-body03-regular {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 400;
     line-height: 140%;
     font-size: 13px;
@@ -106,7 +120,7 @@
 
   /* Button */
   .typography-bt {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 600;
     line-height: 140%;
     font-size: 14px;
@@ -115,7 +129,7 @@
 
   /* Badge */
   .typography-bg {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 600;
     line-height: 140%;
     font-size: 11px;
@@ -124,7 +138,7 @@
 
   /* Doc */
   .typography-doc {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 400;
     line-height: 100%;
     font-size: 12px;
@@ -132,7 +146,7 @@
   }
 
   .typography-doc-non {
-    font-family: Pretendard, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 400;
     line-height: 100%;
     font-size: 12px;
@@ -141,7 +155,7 @@
 
   /* Logo */
   .typography-logo {
-    font-family: RixYeoljeongdo_Pro, sans-serif;
+    font-family: var(--font-display);
     font-weight: 400;
     line-height: 100%;
     font-size: 28px;
