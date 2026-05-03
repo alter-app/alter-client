@@ -4,6 +4,7 @@ import { loginSocial } from '@/shared/api/auth'
 import {
   decodeKakaoOauthState,
   getKakaoOAuthRedirectUri,
+  normalizeKakaoOAuthStateParam,
 } from '@/shared/lib/socialLogin'
 import { ROUTES } from '@/shared/constants/routes'
 import useAuthStore from '@/shared/stores/useAuthStore'
@@ -11,21 +12,25 @@ import useAuthStore from '@/shared/stores/useAuthStore'
 /**
  * 카카오 OAuth 리다이렉트 URI (?code=)
  *
- * 인가 코드는 카카오에서 1회만 유효합니다. 브라우저에서 먼저 /oauth/token 으로
- * 교환하면 서버가 같은 코드로 검증할 때 A010(만료)이 납니다.
- * → 클라이언트에서는 교환하지 않고 code만 백엔드(login-social / signup-social)로 넘깁니다.
+ * - **팝업**: `window.opener`가 있으면 인가 code만 `postMessage`로 넘기고 닫음.
+ *   실제 `loginSocial` 호출은 오프너의 `requestFreshKakaoAuthorizationCode` 리스너(로그인 버튼·가입 플로우)에서 1회 수행.
+ * - **전체 탭 리다이렉트**: opener 없음 → 이 페이지에서 `loginSocial` 직접 호출.
+ *
+ * 인가 코드는 1회용이므로 클라이언트에서 `/oauth/token` 교환하지 않음(A010 방지).
  */
 export function KakaoCallbackPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const hasHydrated = useAuthStore(s => s.hasHydrated)
   const { setAuth } = useAuthStore()
-  const [status, setStatus] = useState<'pending' | 'error'>('pending')
+  const [status, setStatus] = useState<'pending' | 'error' | 'close_hint'>(
+    'pending'
+  )
   const [errorMessage, setErrorMessage] = useState('')
   const ran = useRef(false)
 
   useEffect(() => {
     if (ran.current) return
-    ran.current = true
 
     const code = searchParams.get('code')
     const state = searchParams.get('state')
@@ -34,6 +39,7 @@ export function KakaoCallbackPage() {
 
     async function complete() {
       if (oauthError) {
+        ran.current = true
         setStatus('error')
         setErrorMessage(
           errorDescription
@@ -46,28 +52,56 @@ export function KakaoCallbackPage() {
       }
 
       if (!code) {
+        ran.current = true
         setStatus('error')
         setErrorMessage('인가 코드가 없습니다.')
         return
       }
 
-      try {
-        if (window.opener && !window.opener.closed) {
-          const parsedState = decodeKakaoOauthState(state)
+      const hasOpener =
+        typeof window !== 'undefined' &&
+        Boolean(window.opener && !window.opener.closed)
+
+      // 팝업 플로우: persist 재수화를 기다리면 postMessage가 늦거나 영원히 안 나가
+      // 부모 창에서만 토큰을 쓰므로 여기서는 hasHydrated 불필요
+      if (hasOpener) {
+        ran.current = true
+        try {
+          const stateNormalized = normalizeKakaoOAuthStateParam(state)
+          const parsedState = decodeKakaoOauthState(
+            stateNormalized || state || null
+          )
           const targetOrigin =
             parsedState?.openerOrigin ?? window.location.origin
           window.opener.postMessage(
             {
               type: 'alter-kakao-oauth',
               authorizationCode: code,
-              state,
+              state: stateNormalized || state || '',
             },
             targetOrigin
           )
           window.close()
-          return
+          window.setTimeout(() => {
+            if (!window.closed) {
+              setStatus('close_hint')
+            }
+          }, 400)
+        } catch (e) {
+          console.error(e)
+          setStatus('error')
+          setErrorMessage(
+            (e as { message?: string }).message ||
+              '로그인 처리 중 오류가 발생했습니다.'
+          )
         }
+        return
+      }
 
+      if (!hasHydrated) return
+
+      ran.current = true
+      try {
         await loginSocial(
           {
             provider: 'KAKAO',
@@ -87,7 +121,7 @@ export function KakaoCallbackPage() {
     }
 
     void complete()
-  }, [searchParams, navigate, setAuth])
+  }, [hasHydrated, searchParams, navigate, setAuth])
 
   if (status === 'error') {
     return (
@@ -99,6 +133,24 @@ export function KakaoCallbackPage() {
           onClick={() => navigate(ROUTES.AUTH.LOGIN, { replace: true })}
         >
           로그인으로 돌아가기
+        </button>
+      </div>
+    )
+  }
+
+  if (status === 'close_hint') {
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 p-6">
+        <p className="text-center text-sm text-neutral-700">
+          로그인은 <strong>카카오 로그인을 연 원래 창</strong>에서 이어집니다.
+          이 탭은 닫히지 않았다면 직접 닫아 주세요.
+        </p>
+        <button
+          type="button"
+          className="rounded-xl bg-main px-6 py-3 font-pretendard font-semibold text-white"
+          onClick={() => window.close()}
+        >
+          다시 닫기 시도
         </button>
       </div>
     )

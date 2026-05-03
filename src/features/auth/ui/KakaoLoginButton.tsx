@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { fontFamilies, fontSizes, fontWeights } from '@/shared/lib/tokens'
 import {
   getKakaoOAuthRedirectUri,
-  loginWithKakao,
+  requestFreshKakaoAuthorizationCode,
 } from '@/shared/lib/socialLogin'
 import { loginSocial } from '@/shared/api/auth'
 import useAuthStore from '@/shared/stores/useAuthStore'
@@ -24,18 +24,12 @@ export function KakaoLoginButton({ redirectFrom }: KakaoLoginButtonProps) {
     try {
       setIsLoading(true)
 
-      // 카카오 로그인 실행
-      const kakaoResult = await loginWithKakao()
+      const authorizationCode = await requestFreshKakaoAuthorizationCode()
 
-      // 서버에 소셜 로그인 요청 (WEB signup-social에는 OAuth code 필요 → 콜백·리다이렉트 플로우 권장)
       await loginSocial(
         {
           provider: 'KAKAO',
-          oauthToken: {
-            accessToken: kakaoResult.accessToken || '',
-            refreshToken: kakaoResult.refreshToken,
-          },
-          authorizationCode: kakaoResult.authorizationCode,
+          authorizationCode,
           redirectUri: getKakaoOAuthRedirectUri(),
           platformType: 'WEB',
         },

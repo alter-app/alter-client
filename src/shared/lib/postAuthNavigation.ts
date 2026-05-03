@@ -1,3 +1,5 @@
+import type { NavigateFunction } from 'react-router-dom'
+
 import { ROUTES } from '@/shared/constants/routes'
 
 import { homePathForScope, type AuthScope } from './homePath'
@@ -17,4 +19,15 @@ export function resolvePostAuthPath(
   if (!from.startsWith('/')) return home
   if (from === ROUTES.USER.HOME || from === ROUTES.MANAGER.HOME) return home
   return from
+}
+
+/** 로그인·회원가입 직후 `resolvePostAuthPath`로 계산한 경로로 `replace` 이동 */
+export function navigatePostAuth(
+  scope: AuthScope,
+  navigate: NavigateFunction,
+  options?: { redirectFrom?: string | null }
+): void {
+  navigate(resolvePostAuthPath(scope, options?.redirectFrom), {
+    replace: true,
+  })
 }

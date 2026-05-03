@@ -3,7 +3,7 @@ import type { NavigateFunction } from 'react-router-dom'
 
 import { publicInstance } from '../lib/axiosInstance'
 import { ROUTES } from '../constants/routes'
-import { resolvePostAuthPath } from '../lib/postAuthNavigation'
+import { navigatePostAuth } from '../lib/postAuthNavigation'
 
 export type AuthNavigateOptions = {
   /** 로그인 화면 등에서 `Navigate state.from`으로 넘어온 복귀 경로 */
@@ -132,9 +132,7 @@ export async function loginIDPW(
 
     setAuth(loginResponse)
 
-    navigate(resolvePostAuthPath(scope, options?.redirectFrom), {
-      replace: true,
-    })
+    navigatePostAuth(scope, navigate, options)
 
     return loginResponse
   } catch (error) {
@@ -182,9 +180,7 @@ export async function loginSocial(
       scope,
     })
 
-    navigate(resolvePostAuthPath(scope, options?.redirectFrom), {
-      replace: true,
-    })
+    navigatePostAuth(scope, navigate, options)
 
     return result
   } catch (error) {
@@ -352,9 +348,7 @@ export async function signupSocial(
 
     setAuth(signupResponse)
 
-    navigate(resolvePostAuthPath(scope, options?.redirectFrom), {
-      replace: true,
-    })
+    navigatePostAuth(scope, navigate, options)
 
     return signupResponse
   } catch (error) {
@@ -396,9 +390,7 @@ export async function signup(
 
     setAuth(signupResponse)
 
-    navigate(resolvePostAuthPath(scope, options?.redirectFrom), {
-      replace: true,
-    })
+    navigatePostAuth(scope, navigate, options)
 
     return signupResponse
   } catch (error) {

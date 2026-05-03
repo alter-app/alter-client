@@ -1,5 +1,35 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
+import type { StateStorage } from 'zustand/middleware'
+
+/** localStorage 사용 불가 시에도 persist·재수화 콜백이 동작하도록 메모리 스토리지로 폴백 */
+function createMemoryStorage(): StateStorage {
+  const map = new Map<string, string>()
+  return {
+    getItem: name => map.get(name) ?? null,
+    setItem: (name, value) => {
+      map.set(name, value)
+    },
+    removeItem: name => {
+      map.delete(name)
+    },
+  }
+}
+
+function getAuthPersistStorage(): StateStorage {
+  if (typeof window === 'undefined') {
+    return createMemoryStorage()
+  }
+  try {
+    const { localStorage: ls } = window
+    const probe = '__alter_auth_ls_probe__'
+    ls.setItem(probe, '1')
+    ls.removeItem(probe)
+    return ls
+  } catch {
+    return createMemoryStorage()
+  }
+}
 
 interface AuthState {
   token: string | null
@@ -49,6 +79,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      storage: createJSONStorage(getAuthPersistStorage),
       partialize: state => ({
         token: state.token,
         refreshToken: state.refreshToken,
@@ -62,5 +93,14 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 )
+
+/**
+ * persist 내부 재수화 완료 여부 — `onRehydrateStorage` 반환 콜백만으로는
+ * hydrate 버전 경합(예: React Strict Mode) 시 `hasHydrated`가 안 올라가는 경우가 있어
+ * `persist.hasHydrated` / `onFinishHydration`을 함께 사용합니다.
+ */
+useAuthStore.persist.onFinishHydration(() => {
+  useAuthStore.setState({ hasHydrated: true })
+})
 
 export default useAuthStore

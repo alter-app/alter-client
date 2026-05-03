@@ -4,24 +4,8 @@
  */
 
 declare global {
-  interface KakaoAuth {
-    login: (options: {
-      success: (authObj: {
-        access_token: string
-        refresh_token?: string
-      }) => void
-      fail?: (err?: unknown) => void
-      redirectUri: string
-      /**
-       * true(기본): 카카오톡 앱(intent) 우선 → 데스크톱 브라우저에서는 스킴 미등록으로 실패할 수 있음
-       * false: 브라우저에서 카카오 계정 로그인 페이지만 사용 (로컬/웹 권장)
-       */
-      throughTalk?: boolean
-    }) => void
-  }
-
+  /** index.html 카카오 SDK — `init`·`isInitialized`만 사용 (인가 코드는 OAuth 팝업 플로우) */
   interface KakaoSDK {
-    Auth: KakaoAuth
     isInitialized: () => boolean
     init: (appKey: string) => void
   }
@@ -68,7 +52,7 @@ export function getKakaoOAuthRedirectUri(): string {
   )
 }
 
-/** KakaoCallbackPage·로그인 페이지와 동일한 postMessage 타입 */
+/** KakaoCallbackPage ↔ 오프너(팝업 플로우) postMessage 타입 */
 export const KAKAO_OAUTH_MESSAGE_TYPE = 'alter-kakao-oauth'
 
 type KakaoOauthState = {
@@ -92,6 +76,14 @@ function encodeKakaoOauthState(payload: KakaoOauthState): string {
   return btoa(JSON.stringify(payload))
 }
 
+/** 리다이렉트 URL의 state — 쿼리 파싱 시 base64의 `+`가 공백으로 바뀌는 경우 보정 */
+export function normalizeKakaoOAuthStateParam(
+  state: string | undefined | null
+): string {
+  if (state == null || state === '') return ''
+  return state.trim().replace(/ /g, '+')
+}
+
 /**
  * Kakao OAuth state를 디코딩해 nonce/origin 정보를 복원합니다.
  * 유효하지 않은 값은 null을 반환합니다.
@@ -99,9 +91,10 @@ function encodeKakaoOauthState(payload: KakaoOauthState): string {
 export function decodeKakaoOauthState(
   state?: string | null
 ): KakaoOauthState | null {
-  if (!state) return null
+  const normalized = normalizeKakaoOAuthStateParam(state ?? null)
+  if (!normalized) return null
   try {
-    const decoded = atob(state)
+    const decoded = atob(normalized)
     const parsed = JSON.parse(decoded) as Partial<KakaoOauthState>
     if (
       typeof parsed.nonce === 'string' &&
@@ -120,9 +113,26 @@ export function decodeKakaoOauthState(
   }
 }
 
+function kakaoOAuthStateMatchesRequest(
+  sentEncodedState: string,
+  receivedState: string | undefined
+): boolean {
+  if (!receivedState) return false
+  const normalizedReceived = normalizeKakaoOAuthStateParam(receivedState)
+  if (normalizedReceived === sentEncodedState) return true
+  const expected = decodeKakaoOauthState(sentEncodedState)
+  const got = decodeKakaoOauthState(normalizedReceived)
+  return Boolean(
+    expected &&
+    got &&
+    expected.nonce === got.nonce &&
+    expected.openerOrigin === got.openerOrigin
+  )
+}
+
 /**
- * 새 OAuth 인가 코드만 받습니다 (백엔드가 code를 소모하므로 클라이언트에서 토큰 교환하지 않음).
- * 회원가입 완료 직전에 호출해 A010(만료)을 피합니다 — 카카오 동의 팝업이 열립니다.
+ * 카카오 인가 코드만 받습니다 (클라이언트에서 `/oauth/token` 교환 없음 → code 1회 사용, A010 방지).
+ * 로그인(`KakaoLoginButton`)·회원가입(소셜 가입 직전) 공통: 팝업 → `/oauth/kakao/callback` → postMessage로 code 반환.
  */
 export function requestFreshKakaoAuthorizationCode(): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -159,7 +169,8 @@ export function requestFreshKakaoAuthorizationCode(): Promise<string> {
 
     function onMessage(event: MessageEvent) {
       if (settled || event.origin !== window.location.origin) return
-      if (event.source !== popup) return
+      // 팝업이 kauth → 동일 오리진 콜백으로 이동한 뒤에는 `event.source === popup`이
+      // 브라우저마다 깨지는 경우가 있어, 오리진·state·타입으로만 검증합니다.
       const d = event.data as {
         type?: string
         authorizationCode?: string
@@ -168,7 +179,7 @@ export function requestFreshKakaoAuthorizationCode(): Promise<string> {
       if (
         d?.type !== KAKAO_OAUTH_MESSAGE_TYPE ||
         !d.authorizationCode ||
-        d.state !== oauthState
+        !kakaoOAuthStateMatchesRequest(oauthState, d.state)
       ) {
         return
       }
@@ -198,7 +209,7 @@ export function requestFreshKakaoAuthorizationCode(): Promise<string> {
 
     popup = window.open(
       authUrl,
-      'kakao_oauth_signup',
+      'kakao_oauth',
       'width=480,height=700,scrollbars=yes,resizable=yes'
     )
 
@@ -209,65 +220,6 @@ export function requestFreshKakaoAuthorizationCode(): Promise<string> {
         new Error('팝업이 차단되었습니다. 브라우저에서 팝업을 허용해 주세요.')
       )
     }
-  })
-}
-
-/**
- * 카카오 로그인
- * 카카오 JavaScript SDK가 로드되어 있어야 합니다.
- *
- * 사용 방법:
- * 1. index.html에 카카오 SDK 스크립트 추가:
- *    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
- * 2. 카카오 앱 키로 초기화:
- *    Kakao.init('YOUR_KAKAO_APP_KEY')
- */
-export async function loginWithKakao(): Promise<SocialLoginResult> {
-  // SDK가 로드되고 초기화될 때까지 대기
-  await waitForKakaoSDK()
-
-  // 초기화 확인
-  if (!window.Kakao.isInitialized()) {
-    // 자동으로 초기화 시도
-    const kakaoRestApiKey = import.meta.env.VITE_KAKAO_REST_API_KEY
-    if (kakaoRestApiKey) {
-      try {
-        await initKakaoSDK(kakaoRestApiKey)
-      } catch {
-        throw new Error(
-          '카카오 SDK 초기화에 실패했습니다. 앱 키를 확인해주세요.'
-        )
-      }
-    } else {
-      throw new Error('카카오 REST API 키가 설정되지 않았습니다.')
-    }
-  }
-
-  const redirectURI = getKakaoOAuthRedirectUri()
-
-  return new Promise((resolve, reject) => {
-    // 카카오 로그인 실행
-    // throughTalk: false — 앱 intent 스킴 대신 웹 OAuth만 사용 (localhost/데스크톱에서 intent 오류 방지)
-    window.Kakao.Auth.login({
-      success: authObj => {
-        const extra = authObj as Record<string, string | undefined>
-        resolve({
-          provider: 'KAKAO',
-          accessToken: authObj.access_token,
-          refreshToken: authObj.refresh_token,
-          // WEB 로그인 시 백엔드가 요구하는 OAuth 인가 코드 (SDK/설정에 따라 없을 수 있음)
-          authorizationCode: extra.code ?? extra.authorization_code,
-        })
-      },
-      fail: err => {
-        if (import.meta.env.DEV && err !== undefined) {
-          console.warn('[Kakao.Auth.login] fail:', err)
-        }
-        reject(new Error('카카오 로그인에 실패했습니다.'))
-      },
-      redirectUri: redirectURI,
-      throughTalk: false,
-    })
   })
 }
 

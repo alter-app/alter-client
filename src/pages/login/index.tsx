@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { KakaoLoginButton, AppleLoginButton } from '@/features/auth'
 import { AuthInput } from '@/shared/ui/common/AuthInput'
-import { loginIDPW, loginSocial } from '@/shared/api/auth'
-import { getKakaoOAuthRedirectUri } from '@/shared/lib/socialLogin'
+import { loginIDPW } from '@/shared/api/auth'
 import { ROUTES } from '@/shared/constants/routes'
-import { resolvePostAuthPath } from '@/shared/lib/postAuthNavigation'
+import { navigatePostAuth } from '@/shared/lib/postAuthNavigation'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { parseErrorResponse } from '@/shared/lib/utils/errorUtils'
 import AlterLogo from '@/assets/Alter-logo.png'
@@ -26,62 +25,9 @@ export function LoginPage() {
   useEffect(() => {
     if (!hasHydrated) return
     if (isLoggedIn && token) {
-      navigate(resolvePostAuthPath(scope, redirectFrom), { replace: true })
+      navigatePostAuth(scope, navigate, { redirectFrom })
     }
   }, [hasHydrated, isLoggedIn, scope, token, navigate, redirectFrom])
-
-  /** 카카오 로그인 팝업: 콜백에서 OAuth 인가 코드만 전달 (클라이언트에서 토큰 교환 시 code 소모 → A010 방지) */
-  useEffect(() => {
-    function handleMessage(event: MessageEvent) {
-      if (event.origin !== window.location.origin) return
-      const d = event.data as {
-        type?: string
-        accessToken?: string
-        refreshToken?: string
-        authorizationCode?: string
-      }
-      if (d?.type !== 'alter-kakao-oauth') return
-      if (!d.authorizationCode && !d.accessToken) return
-
-      const authorizationCode = d.authorizationCode
-      const accessToken = d.accessToken
-      const refreshToken = d.refreshToken
-
-      void (async () => {
-        try {
-          await loginSocial(
-            {
-              provider: 'KAKAO',
-              ...(accessToken
-                ? {
-                    oauthToken: {
-                      accessToken,
-                      refreshToken,
-                    },
-                  }
-                : {}),
-              authorizationCode,
-              redirectUri: getKakaoOAuthRedirectUri(),
-              platformType: 'WEB',
-            },
-            setAuth,
-            navigate,
-            { redirectFrom }
-          )
-        } catch (error: unknown) {
-          const apiError = error as {
-            data?: { code?: string }
-            message?: string
-          }
-          if (apiError?.data?.code === 'B011') return
-          alert(apiError.message || '카카오 로그인에 실패했습니다.')
-        }
-      })()
-    }
-
-    window.addEventListener('message', handleMessage)
-    return () => window.removeEventListener('message', handleMessage)
-  }, [navigate, setAuth, redirectFrom])
 
   const formatPhone = (value: string) => {
     const onlyNumber = value.replace(/\D/g, '').slice(0, 11)

@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { ROUTES } from '@/shared/constants/routes'
 
-import { resolvePostAuthPath } from './postAuthNavigation'
+import { navigatePostAuth, resolvePostAuthPath } from './postAuthNavigation'
 
 describe('resolvePostAuthPath', () => {
   it('from이 없으면 홈으로 보낸다', () => {
@@ -35,5 +35,26 @@ describe('resolvePostAuthPath', () => {
     expect(resolvePostAuthPath('USER', 'https://evil.test/phish')).toBe(
       ROUTES.USER.HOME
     )
+  })
+})
+
+describe('navigatePostAuth', () => {
+  it('resolvePostAuthPath 결과로 replace 네비게이션한다', () => {
+    const navigate = vi.fn()
+    navigatePostAuth('MANAGER', navigate, {
+      redirectFrom: ROUTES.USER.WORKSPACE_JOIN,
+    })
+    expect(navigate).toHaveBeenCalledTimes(1)
+    expect(navigate).toHaveBeenCalledWith(ROUTES.USER.WORKSPACE_JOIN, {
+      replace: true,
+    })
+  })
+
+  it('redirectFrom 없으면 역할 홈으로 이동한다', () => {
+    const navigate = vi.fn()
+    navigatePostAuth('USER', navigate)
+    expect(navigate).toHaveBeenCalledWith(ROUTES.USER.HOME, {
+      replace: true,
+    })
   })
 })
