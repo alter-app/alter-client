@@ -12,6 +12,7 @@ interface WorkingStoresListProps {
   selectedSort?: 'left' | 'right'
   stores: WorkingStoreItem[]
   onMoreClick?: () => void
+  onJoinWorkspaceClick?: () => void
 }
 
 export function WorkingStoresList({
@@ -21,6 +22,7 @@ export function WorkingStoresList({
   selectedSort = 'right',
   stores,
   onMoreClick,
+  onJoinWorkspaceClick,
 }: WorkingStoresListProps) {
   const { visibleStores } = useWorkingStoresListViewModel(stores)
 
@@ -60,6 +62,15 @@ export function WorkingStoresList({
 
       <div className="mt-6 px-6">
         <MoreButton onClick={onMoreClick} />
+        {onJoinWorkspaceClick ? (
+          <button
+            type="button"
+            className="mt-3 w-full typography-body02-semibold text-main"
+            onClick={onJoinWorkspaceClick}
+          >
+            새 업장 합류하기
+          </button>
+        ) : null}
       </div>
     </section>
   )

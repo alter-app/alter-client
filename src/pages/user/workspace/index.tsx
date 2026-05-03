@@ -52,10 +52,17 @@ export function WorkspacePage() {
               </button>
             ))}
             {workspaces.length === 0 && (
-              <div className="flex justify-center py-10">
+              <div className="flex flex-col items-center gap-4 py-10 px-4 text-center">
                 <p className="typography-body02-regular text-text-70">
                   근무중인 가게가 없습니다.
                 </p>
+                <button
+                  type="button"
+                  className="rounded-xl bg-main px-5 py-3 typography-body02-semibold text-white"
+                  onClick={() => navigate('/user/workspace/join')}
+                >
+                  업장 합류하기
+                </button>
               </div>
             )}
             {hasNextPage && (
