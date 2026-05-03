@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import AlterLogo from '@/assets/Alter-logo.png'
 import BellIcon from '@/assets/icons/nav/bell.svg'
 import MenuIcon from '@/assets/icons/nav/menu.svg'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 import { useNavigate } from 'react-router-dom'
+import { HamburgerMenuDrawer } from '@/shared/ui/common/HamburgerMenuDrawer'
 
 type NavbarVariant = 'main' | 'detail'
 
@@ -18,6 +20,7 @@ export function Navbar({
   onBackClick,
 }: NavbarProps) {
   const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
   const isMain = variant === 'main'
 
   const handleBackClick = () => {
@@ -29,6 +32,7 @@ export function Navbar({
   }
 
   return (
+    <>
     <header className="relative flex h-14 w-full items-center border-b border-line-2  px-4 py-3.5">
       <div className="flex min-w-[84px] items-center">
         {isMain ? (
@@ -68,14 +72,19 @@ export function Navbar({
             </button>
             <button
               type="button"
-              aria-label="메뉴"
+              aria-label="메뉴 열기"
+              aria-expanded={menuOpen}
+              aria-haspopup="dialog"
+              onClick={() => setMenuOpen(true)}
               className="flex h-6 w-6 items-center justify-center"
             >
-              <img src={MenuIcon} alt="Menu" className="h-6 w-6" />
+              <img src={MenuIcon} alt="" aria-hidden className="h-6 w-6" />
             </button>
           </>
         )}
       </div>
     </header>
+    <HamburgerMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
+    </>
   )
 }
