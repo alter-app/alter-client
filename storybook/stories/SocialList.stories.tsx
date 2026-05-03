@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import React from 'react'
 
-import { SocialList } from '../../src/shared/ui/manager/social/SocialList'
+import { SocialList } from '../../src/features/social/ui/SocialList'
 
 const meta = {
   title: 'shared/ui/social/SocialList',
