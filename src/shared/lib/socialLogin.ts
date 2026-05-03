@@ -57,8 +57,23 @@ function normalizeAlterAppKakaoRedirectToHttps(uri: string): string {
   }
 }
 
-/** 카카오 로그인·토큰 교환 시 동일해야 함 (카카오 개발자 콘솔 Redirect URI와 일치) */
+/**
+ * 카카오 로그인·토큰 교환 시 동일해야 함 (카카오 개발자 콘솔 Redirect URI와 일치)
+ *
+ * `*.alter-app.com` 에서는 **항상 현재 탭 origin**으로 콜백을 만든다.
+ * Vite는 `VITE_*`를 빌드 시 박아 넣으므로, Vercel에 env만 추가하고 재배포 전·구버전 번들에는
+ * 여전히 http/빈 값이 남을 수 있다. 런타임 분기로 그 경우도 https 콜백과 맞춘다.
+ */
 export function getKakaoOAuthRedirectUri(): string {
+  if (typeof window !== 'undefined') {
+    const { hostname, origin } = window.location
+    if (hostname.endsWith('alter-app.com')) {
+      return normalizeAlterAppKakaoRedirectToHttps(
+        `${origin}/oauth/kakao/callback`
+      )
+    }
+  }
+
   const fromEnv = (
     import.meta.env.VITE_KAKAO_REDIRECT_URI as string | undefined
   )?.trim()
