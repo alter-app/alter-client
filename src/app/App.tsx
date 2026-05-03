@@ -131,10 +131,7 @@ export function App() {
           <Route path={ROUTES.MY.ROOT} element={<MyPage />} />
         </Route>
 
-        <Route
-          path="/"
-          element={<Navigate to={ROUTES.AUTH.LOGIN} replace />}
-        />
+        <Route path="/" element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
       </Routes>
     </BrowserRouter>
   )

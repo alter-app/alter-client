@@ -93,12 +93,9 @@ export function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const data = await loginIDPW(
-        { phone, password },
-        setAuth,
-        navigate,
-        { redirectFrom }
-      )
+      const data = await loginIDPW({ phone, password }, setAuth, navigate, {
+        redirectFrom,
+      })
       console.log('로그인 성공:', data)
     } catch (error: unknown) {
       // 필드별 에러 초기화

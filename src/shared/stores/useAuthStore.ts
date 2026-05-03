@@ -56,7 +56,7 @@ export const useAuthStore = create<AuthState>()(
         scope: state.scope,
         user: state.user,
       }),
-      onRehydrateStorage: _state => (_persisted, _error) => {
+      onRehydrateStorage: () => () => {
         useAuthStore.setState({ hasHydrated: true })
       },
     }
