@@ -313,6 +313,52 @@ function waitForKakaoSDK(maxAttempts = 50, interval = 100): Promise<void> {
   })
 }
 
+type KakaoAuthLike = Record<string, unknown> & {
+  authorize?: (opts?: KakaoAuthRedirectOptions) => unknown
+  login?: (opts?: KakaoAuthRedirectOptions) => unknown
+}
+
+type KakaoAuthRedirectOptions = {
+  redirectUri?: string
+  [key: string]: unknown
+}
+
+/** SDK가 붙이는 authorize 요청(ka= 등)에서 redirect_uri가 http로 나가는 경우 보정 */
+function patchKakaoSdkAuthRedirectToHttps(): void {
+  const kakao = window.Kakao as unknown as { Auth?: KakaoAuthLike }
+  const auth = kakao.Auth
+  if (!auth) return
+
+  const wrap = (name: 'authorize' | 'login') => {
+    const fn = auth[name]
+    if (typeof fn !== 'function') return
+    if (
+      (fn as { __alterKakaoRedirectPatch?: boolean }).__alterKakaoRedirectPatch
+    )
+      return
+
+    const original = (fn as (opts?: KakaoAuthRedirectOptions) => unknown).bind(
+      auth
+    )
+    const patched = (opts?: KakaoAuthRedirectOptions) => {
+      const next: KakaoAuthRedirectOptions = { ...(opts ?? {}) }
+      const raw =
+        typeof next.redirectUri === 'string' && next.redirectUri.length > 0
+          ? next.redirectUri
+          : getKakaoOAuthRedirectUri()
+      next.redirectUri = normalizeAlterAppKakaoRedirectToHttps(raw)
+      return original(next)
+    }
+    ;(
+      patched as { __alterKakaoRedirectPatch?: boolean }
+    ).__alterKakaoRedirectPatch = true
+    auth[name] = patched as unknown as (typeof auth)[typeof name]
+  }
+
+  wrap('authorize')
+  wrap('login')
+}
+
 /**
  * 카카오 SDK 초기화
  */
@@ -324,6 +370,7 @@ export async function initKakaoSDK(appKey: string): Promise<void> {
     if (!window.Kakao.isInitialized()) {
       window.Kakao.init(appKey)
     }
+    patchKakaoSdkAuthRedirectToHttps()
   } catch (error) {
     console.error('카카오 SDK 초기화 실패:', error)
     throw error
