@@ -24,7 +24,11 @@ type MenuRow = {
 const MANAGER_ITEMS: MenuRow[] = [
   { label: '업장 관리', icon: StoreIcon, path: '/user/workspace' },
   { label: '직원 관리', icon: UsersIcon, path: '/manager/home' },
-  { label: '근무 일정 관리', icon: CalendarIcon, path: '/manager/worker-schedule' },
+  {
+    label: '근무 일정 관리',
+    icon: CalendarIcon,
+    path: '/manager/worker-schedule',
+  },
   { label: '급여 관리', icon: WalletIcon, path: '/my' },
 ]
 
@@ -56,7 +60,12 @@ function MenuList({
               accentClass
             )}
           >
-            <img src={row.icon} alt="" className="h-5 w-5 shrink-0" aria-hidden />
+            <img
+              src={row.icon}
+              alt=""
+              className="h-5 w-5 shrink-0"
+              aria-hidden
+            />
             <span className="font-rixyeoljeongdo text-[17px] leading-tight">
               {row.label}
             </span>
@@ -126,12 +135,7 @@ export function HamburgerMenuDrawer({
             className="flex h-9 w-9 items-center justify-center rounded-lg active:bg-bg-dark"
             aria-label="닫기"
           >
-            <img
-              src={CloseXIcon}
-              alt=""
-              className="h-6 w-6"
-              aria-hidden
-            />
+            <img src={CloseXIcon} alt="" className="h-6 w-6" aria-hidden />
           </button>
         </div>
 
