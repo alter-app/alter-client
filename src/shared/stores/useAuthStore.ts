@@ -10,6 +10,8 @@ interface AuthState {
     email?: string
     name?: string
   } | null
+  /** persist 재수화 완료 여부 — 스토리지 복원 전에는 false */
+  hasHydrated: boolean
   setAuth: (data: {
     token: string
     refreshToken?: string
@@ -27,6 +29,7 @@ export const useAuthStore = create<AuthState>()(
       isLoggedIn: false,
       scope: null,
       user: null,
+      hasHydrated: false,
       setAuth: data =>
         set({
           token: data.token,
@@ -46,6 +49,16 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      partialize: state => ({
+        token: state.token,
+        refreshToken: state.refreshToken,
+        isLoggedIn: state.isLoggedIn,
+        scope: state.scope,
+        user: state.user,
+      }),
+      onRehydrateStorage: _state => (_persisted, _error) => {
+        useAuthStore.setState({ hasHydrated: true })
+      },
     }
   )
 )

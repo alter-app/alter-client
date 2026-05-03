@@ -1,7 +1,10 @@
+import { ROUTES } from '@/shared/constants/routes'
+
 export type AuthScope = 'MANAGER' | 'USER' | null
 
-export function homePathForScope(
-  scope: AuthScope
-): '/manager/home' | '/user/home' {
-  return scope === 'MANAGER' ? '/manager/home' : '/user/home'
+export type HomePath =
+  (typeof ROUTES.MANAGER)['HOME'] | (typeof ROUTES.USER)['HOME']
+
+export function homePathForScope(scope: AuthScope): HomePath {
+  return scope === 'MANAGER' ? ROUTES.MANAGER.HOME : ROUTES.USER.HOME
 }

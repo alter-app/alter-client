@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '@/shared/stores/useAuthStore'
+import { ROUTES } from '@/shared/constants/routes'
 import { useUserMe } from '@/features/user/me'
 import { ProfileCard } from './components/ProfileCard'
 import { MenuListItem } from './components/MenuListItem'
@@ -69,12 +70,12 @@ export function MyPage() {
   const realName = user.name
 
   const handleEditProfile = () => {
-    navigate('/my/profile')
+    navigate(ROUTES.MY.PROFILE)
   }
 
   const handleLogout = () => {
     logout()
-    navigate('/login', { replace: true })
+    navigate(ROUTES.AUTH.LOGIN, { replace: true })
   }
 
   const handleWithdraw = () => {

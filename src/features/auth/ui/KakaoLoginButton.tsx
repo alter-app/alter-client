@@ -8,7 +8,14 @@ import {
 import { loginSocial } from '@/shared/api/auth'
 import useAuthStore from '@/shared/stores/useAuthStore'
 
-export function KakaoLoginButton() {
+import type { AuthNavigateOptions } from '@/shared/api/auth'
+
+interface KakaoLoginButtonProps {
+  /** 로그인 성공 후 복귀할 경로 (`location.state.from` 등) */
+  redirectFrom?: AuthNavigateOptions['redirectFrom']
+}
+
+export function KakaoLoginButton({ redirectFrom }: KakaoLoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
@@ -33,7 +40,8 @@ export function KakaoLoginButton() {
           platformType: 'WEB',
         },
         setAuth,
-        navigate
+        navigate,
+        { redirectFrom }
       )
     } catch (error: unknown) {
       console.error('카카오 로그인 실패:', error)
