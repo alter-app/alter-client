@@ -51,6 +51,7 @@ export function UserHomePage() {
         <WorkingStoresList
           stores={workspaces}
           onMoreClick={() => navigate('/user/workspace')}
+          onJoinWorkspaceClick={() => navigate('/user/workspace/join')}
         />
 
         <AppliedStoreList

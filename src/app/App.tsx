@@ -19,6 +19,8 @@ import { WorkspaceMembersPage } from '@/pages/user/workspace-members'
 import { WorkspacePage } from '@/pages/user/workspace'
 import { WorkspaceDetailPage } from '@/pages/user/workspace-detail'
 import { AppliedStoresPage } from '@/pages/user/applied-stores'
+import { StoreRegisterPage } from '@/pages/manager/store-register'
+import { WorkspaceJoinPage } from '@/pages/user/workspace-join'
 import { MyPage } from '@/pages/my'
 import { ProfileEditPage } from '@/pages/my/profile'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
@@ -72,6 +74,7 @@ export function App() {
             element={<WorkspaceMembersPage />}
           />
           <Route path="/user/workspace" element={<WorkspacePage />} />
+          <Route path="/user/workspace/join" element={<WorkspaceJoinPage />} />
           <Route
             path="/user/workspace/:workspaceId"
             element={<WorkspaceDetailPage />}
@@ -81,6 +84,10 @@ export function App() {
           <Route
             path="/manager/worker-schedule"
             element={<ManagerWorkerSchedulePage />}
+          />
+          <Route
+            path="/manager/store-register"
+            element={<StoreRegisterPage />}
           />
         </Route>
 

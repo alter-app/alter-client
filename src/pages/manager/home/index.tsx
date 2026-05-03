@@ -119,6 +119,7 @@ export function ManagerHomePage() {
               type="button"
               className="mx-auto mt-4 flex h-[26px] w-[26px] items-center justify-center"
               aria-label="업장 추가"
+              onClick={() => navigate('/manager/store-register')}
             >
               <img
                 src={managerWorkspaceModalPlusIcon}
