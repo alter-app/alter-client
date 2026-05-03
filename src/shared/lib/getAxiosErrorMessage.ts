@@ -8,10 +8,7 @@ const FALLBACK_CODES: Record<string, string> = {
   FORBIDDEN: '접근 권한이 없습니다.',
 }
 
-export function getAxiosErrorMessage(
-  error: unknown,
-  fallback: string
-): string {
+export function getAxiosErrorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
     const raw = error.response?.data as Partial<ErrorResponse> | undefined
     const code = raw?.code

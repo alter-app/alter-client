@@ -12,12 +12,13 @@ type RedeemInviteData = {
 const INVITE_CODE_REDEEM_PATH = '/app/users/me/invitations/redeem-invite-code'
 
 /** 성공 시 표시할 매장 이름(응답에 없으면 기본 문구). */
-export async function redeemInviteByCode(trimmedUpperCode: string): Promise<string> {
+export async function redeemInviteByCode(
+  trimmedUpperCode: string
+): Promise<string> {
   const inviteCode = trimmedUpperCode.trim().toUpperCase()
-  const { data } = await axiosInstance.post<CommonApiResponse<RedeemInviteData>>(
-    INVITE_CODE_REDEEM_PATH,
-    { inviteCode }
-  )
+  const { data } = await axiosInstance.post<
+    CommonApiResponse<RedeemInviteData>
+  >(INVITE_CODE_REDEEM_PATH, { inviteCode })
   const d = data.data
   const name =
     (typeof d?.businessName === 'string' && d.businessName.trim()) ||

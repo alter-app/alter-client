@@ -12,7 +12,10 @@ export function StoreRegisterPage() {
       <Navbar variant="detail" title="업장 등록 신청" />
 
       <div className="mx-auto w-full max-w-[400px] flex-1 px-4 pb-10 pt-4">
-        <ol className="mb-6 flex items-center gap-2" aria-label="등록 신청 진행 단계">
+        <ol
+          className="mb-6 flex items-center gap-2"
+          aria-label="등록 신청 진행 단계"
+        >
           <li className="flex flex-1 items-center gap-2">
             <span
               className={`whitespace-nowrap rounded-full px-3 py-1 typography-body02-semibold ${
@@ -40,15 +43,16 @@ export function StoreRegisterPage() {
           </li>
         </ol>
 
-        {w.step === 'info' ?
+        {w.step === 'info' ? (
           <>
             <header className="mb-6">
               <h1 className="mb-2 typography-headline01 text-text-100">
                 업장 기본 정보
               </h1>
               <p className="typography-body02-regular text-text-70">
-                사업자 등록번호, 연락처와 주소(시도·구·동·상세 주소)를 입력해 주세요.
-                증명 서류를 올린 뒤 운영자 검토까지 1~2영업일이 걸릴 수 있어요.
+                사업자 등록번호, 연락처와 주소(시도·구·동·상세 주소)를 입력해
+                주세요. 증명 서류를 올린 뒤 운영자 검토까지 1~2영업일이 걸릴 수
+                있어요.
               </p>
             </header>
             <StoreBasicInfoFields
@@ -84,16 +88,17 @@ export function StoreRegisterPage() {
               </AuthButton>
             </div>
           </>
-        : null}
+        ) : null}
 
-        {w.step === 'certificate' ?
+        {w.step === 'certificate' ? (
           <>
             <header className="mb-6">
               <h1 className="mb-2 typography-headline01 text-text-100">
                 증빙 파일
               </h1>
               <p className="typography-body02-regular text-text-70">
-                각 서류를 선택하면 먼저 서버에 올린 뒤, 신청 정보와 함께 제출돼요.
+                각 서류를 선택하면 먼저 서버에 올린 뒤, 신청 정보와 함께
+                제출돼요.
               </p>
             </header>
             <div className="flex flex-col gap-8">
@@ -110,18 +115,17 @@ export function StoreRegisterPage() {
                 headline="위임장(해당되는 경우)"
               />
             </div>
-            {w.submitError ?
+            {w.submitError ? (
               <p className="mt-4 typography-body02-regular text-red-600">
                 {w.submitError}
               </p>
-            : null}
+            ) : null}
             <div className="mt-8 flex flex-col gap-3">
               <AuthButton
                 type="button"
                 disabled={!w.certificateValid || w.isSubmitting}
                 style={{
-                  opacity:
-                    w.certificateValid && !w.isSubmitting ? 1 : 0.45,
+                  opacity: w.certificateValid && !w.isSubmitting ? 1 : 0.45,
                   width: '100%',
                   cursor:
                     w.certificateValid && !w.isSubmitting
@@ -141,9 +145,9 @@ export function StoreRegisterPage() {
               </button>
             </div>
           </>
-        : null}
+        ) : null}
 
-        {w.step === 'done' ?
+        {w.step === 'done' ? (
           <>
             <div className="rounded-2xl bg-white px-5 py-8 text-center shadow-sm">
               <h1 className="mb-3 typography-headline01 text-text-100">
@@ -162,7 +166,7 @@ export function StoreRegisterPage() {
               확인
             </AuthButton>
           </>
-        : null}
+        ) : null}
       </div>
     </div>
   )

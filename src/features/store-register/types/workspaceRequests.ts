@@ -13,8 +13,9 @@ export interface WorkspaceRequestListItemDto {
   status: WorkspaceRequestStatusDto
 }
 
-export type WorkspaceRequestsListApiResponse =
-  CommonApiResponse<WorkspaceRequestListItemDto[]>
+export type WorkspaceRequestsListApiResponse = CommonApiResponse<
+  WorkspaceRequestListItemDto[]
+>
 
 export interface WorkspaceRequestDetailDto {
   id: number

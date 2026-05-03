@@ -44,19 +44,27 @@ export function useStoreRegisterWizard() {
   const goCertificate = () => setStep('certificate')
 
   const submit = useCallback(async () => {
-    if (!certFile.file || !identityFile.file || !warrantFile.file || !infoValid) {
+    if (
+      !certFile.file ||
+      !identityFile.file ||
+      !warrantFile.file ||
+      !infoValid
+    ) {
       return
     }
 
     setSubmitError(null)
     setIsSubmitting(true)
     try {
-      const [workspaceCertFileId, workspaceOwnIdentityFileId, workspaceWarrantFileId] =
-        await Promise.all([
-          uploadWorkspaceRegistrationFile(certFile.file),
-          uploadWorkspaceRegistrationFile(identityFile.file),
-          uploadWorkspaceRegistrationFile(warrantFile.file),
-        ])
+      const [
+        workspaceCertFileId,
+        workspaceOwnIdentityFileId,
+        workspaceWarrantFileId,
+      ] = await Promise.all([
+        uploadWorkspaceRegistrationFile(certFile.file),
+        uploadWorkspaceRegistrationFile(identityFile.file),
+        uploadWorkspaceRegistrationFile(warrantFile.file),
+      ])
 
       await createWorkspaceRegistrationRequest({
         bizName,

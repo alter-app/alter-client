@@ -32,7 +32,8 @@ export async function fetchWorkspaceRequestDetail(
 export async function createWorkspaceRegistrationRequest(
   body: WorkspaceRegistrationCreateBody
 ): Promise<void> {
-  await axiosInstance.post<
-    CommonApiResponse<Record<string, never>>
-  >('/app/workspace-requests', body)
+  await axiosInstance.post<CommonApiResponse<Record<string, never>>>(
+    '/app/workspace-requests',
+    body
+  )
 }

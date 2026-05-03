@@ -46,14 +46,14 @@ export function InviteCodeJoinPanel({ onSuccess }: Props) {
         }}
       />
 
-      {mut.isError ?
+      {mut.isError ? (
         <p className="typography-body02-regular text-red-600">
           {getAxiosErrorMessage(
             mut.error,
             '초대 코드를 처리하지 못했습니다. 코드를 확인해 주세요.'
           )}
         </p>
-      : null}
+      ) : null}
 
       <AuthButton
         type="button"
