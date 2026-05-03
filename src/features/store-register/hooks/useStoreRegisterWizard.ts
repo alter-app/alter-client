@@ -56,41 +56,59 @@ export function useStoreRegisterWizard() {
     setSubmitError(null)
     setIsSubmitting(true)
     try {
-      const [
-        workspaceCertFileId,
-        workspaceOwnIdentityFileId,
-        workspaceWarrantFileId,
-      ] = await Promise.all([
-        uploadWorkspaceRegistrationFile(certFile.file),
-        uploadWorkspaceRegistrationFile(identityFile.file),
-        uploadWorkspaceRegistrationFile(warrantFile.file),
-      ])
+      let workspaceCertFileId: string
+      let workspaceOwnIdentityFileId: string
+      let workspaceWarrantFileId: string
+      try {
+        ;[
+          workspaceCertFileId,
+          workspaceOwnIdentityFileId,
+          workspaceWarrantFileId,
+        ] = await Promise.all([
+          uploadWorkspaceRegistrationFile(certFile.file, 'CERTIFICATE'),
+          uploadWorkspaceRegistrationFile(identityFile.file, 'OWN_IDENTITY'),
+          uploadWorkspaceRegistrationFile(warrantFile.file, 'WARRANT'),
+        ])
+      } catch (e) {
+        setSubmitError(
+          getAxiosErrorMessage(
+            e,
+            '파일 업로드에 실패했습니다. 형식과 용량을 확인해 주세요.'
+          )
+        )
+        return
+      }
 
-      await createWorkspaceRegistrationRequest({
-        bizName,
-        brn,
-        province,
-        district,
-        town,
-        address,
-        type,
-        contact,
-        workspaceCertFileId,
-        workspaceOwnIdentityFileId,
-        workspaceWarrantFileId,
-      })
+      try {
+        await createWorkspaceRegistrationRequest({
+          bizName,
+          brn,
+          province,
+          district,
+          town,
+          address,
+          type,
+          contact,
+          workspaceCertFileId,
+          workspaceOwnIdentityFileId,
+          workspaceWarrantFileId,
+          latitude: 37.5665,
+          longitude: 126.978,
+        })
+      } catch (e) {
+        setSubmitError(
+          getAxiosErrorMessage(
+            e,
+            '업장 등록 신청에 실패했습니다. 입력값·파일 연동을 서버 로그에서 확인해 주세요.'
+          )
+        )
+        return
+      }
 
       await queryClient.invalidateQueries({ queryKey: ['managerWorkspace'] })
       await queryClient.invalidateQueries({ queryKey: ['workspace'] })
 
       setStep('done')
-    } catch (e) {
-      setSubmitError(
-        getAxiosErrorMessage(
-          e,
-          '등록 신청 전송에 실패했습니다. 잠시 후 다시 시도해 주세요.'
-        )
-      )
     } finally {
       setIsSubmitting(false)
     }
