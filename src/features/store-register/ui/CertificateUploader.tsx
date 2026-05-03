@@ -15,9 +15,15 @@ export type CertificatePickState = Pick<
 
 type Props = {
   certificate: CertificatePickState
+  headline: string
+  hint?: string
 }
 
-export function CertificateUploader({ certificate }: Props) {
+export function CertificateUploader({
+  certificate,
+  headline,
+  hint = '촬영·스캔 이미지(JPG·PNG 등) 또는 PDF · 최대 15MB',
+}: Props) {
   const {
     file,
     previewUrl,
@@ -43,15 +49,15 @@ export function CertificateUploader({ certificate }: Props) {
         <button
           type="button"
           onClick={openPicker}
-          className="flex min-h-[180px] w-full flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-line-2 bg-white px-4 py-8"
+          className="flex min-h-[140px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-line-2 bg-white px-4 py-6"
         >
-          <span className="typography-headline03 text-text-100">
-            사업자등록증명원 첨부
+          <span className="typography-headline03 text-center text-text-100">
+            {headline}
           </span>
           <span className="typography-body02-regular text-center text-text-70">
-            촬영·스캔 이미지(JPG·PNG 등) 또는 PDF · 최대 15MB
+            {hint}
           </span>
-          <span className="rounded-xl bg-main px-4 py-2 typography-body02-semibold text-white">
+          <span className="mt-2 rounded-xl bg-main px-4 py-2 typography-body02-semibold text-white">
             파일 선택
           </span>
         </button>
@@ -73,12 +79,15 @@ export function CertificateUploader({ certificate }: Props) {
             )}
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
               <p className="truncate typography-body01-semibold text-text-100">
+                {headline}
+              </p>
+              <p className="truncate typography-body02-regular text-text-70">
                 {file.name}
               </p>
               <p className="typography-body02-regular text-text-70">
                 {isPdf
-                  ? 'PDF 파일이에요. 운영자가 확인할 때까지 그대로 제출됩니다.'
-                  : '이미지로 제출되며, 검토 후 승인돼요.'}
+                  ? 'PDF 파일입니다. 운영자 검토까지 그대로 제출됩니다.'
+                  : '이미지 파일입니다.'}
               </p>
               <div className="flex flex-wrap gap-2">
                 <button

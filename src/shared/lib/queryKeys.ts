@@ -51,21 +51,6 @@ export const queryKeys = {
     todaySchedules: (workspaceId: number) =>
       ['manager', 'schedules', 'today', workspaceId] as const,
   },
-  workspaceMembership: {
-    all: ['workspaceMembership'] as const,
-    invitations: (params?: {
-      pageSize?: number
-      status?: string
-      cursor?: string
-    }) => ['workspaceMembership', 'invitations', params] as const,
-    joinRequests: (params?: {
-      pageSize?: number
-      status?: string
-      cursor?: string
-      from?: string
-      to?: string
-    }) => ['workspaceMembership', 'joinRequests', params] as const,
-  },
   user: {
     me: () => ['user', 'me'] as const,
   },
