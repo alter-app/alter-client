@@ -186,10 +186,15 @@ export function useSignupForm(options?: UseSignupFormOptions) {
       if (isSocialSignup && socialLoginData) {
         let authorizationCode = socialLoginData.authorizationCode
         let oauthToken = socialLoginData.oauthToken
+        let kakaoWebRedirectUri: string | undefined
 
         if (socialLoginData.provider === 'KAKAO') {
           try {
-            authorizationCode = await requestFreshKakaoAuthorizationCode()
+            kakaoWebRedirectUri = getKakaoOAuthRedirectUri()
+            const kakaoOauth =
+              await requestFreshKakaoAuthorizationCode(kakaoWebRedirectUri)
+            authorizationCode = kakaoOauth.authorizationCode
+            kakaoWebRedirectUri = kakaoOauth.redirectUri
             oauthToken = undefined
           } catch (err) {
             const e = err as Error
@@ -209,7 +214,10 @@ export function useSignupForm(options?: UseSignupFormOptions) {
             ...(authorizationCode ? { authorizationCode } : {}),
             ...(socialLoginData.provider === 'KAKAO' &&
             socialLoginData.platformType === 'WEB'
-              ? { redirectUri: getKakaoOAuthRedirectUri() }
+              ? {
+                  redirectUri:
+                    kakaoWebRedirectUri ?? getKakaoOAuthRedirectUri(),
+                }
               : {}),
             platformType: socialLoginData.platformType,
             name: name.trim(),
