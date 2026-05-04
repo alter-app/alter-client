@@ -4,6 +4,10 @@ import type { NavigateFunction } from 'react-router-dom'
 import { publicInstance } from '../lib/axiosInstance'
 import { ROUTES } from '../constants/routes'
 import { navigatePostAuth } from '../lib/postAuthNavigation'
+import {
+  getKakaoOAuthRedirectUri,
+  requestFreshKakaoAuthorizationCode,
+} from '../lib/socialLogin'
 
 export type AuthNavigateOptions = {
   /** 로그인 화면 등에서 `Navigate state.from`으로 넘어온 복귀 경로 */
@@ -161,7 +165,9 @@ export async function loginSocial(
   request: SocialLoginRequest,
   setAuth: (data: LoginResponse) => void,
   navigate: NavigateFunction,
-  options?: AuthNavigateOptions
+  options?: AuthNavigateOptions,
+  /** 카카오 WEB: A010(인가 코드 소진) 시 새 code로 login-social 1회 재시도 — 외부에서 넘기지 않음 */
+  _didKakaoWebA010Retry = false
 ): Promise<SocialLoginResponse> {
   try {
     const { data: result } = await publicInstance.post<SocialLoginResponse>(
@@ -186,6 +192,52 @@ export async function loginSocial(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const errorData: ErrorResponse = error.response?.data ?? {}
+
+      const shouldRetryKakaoA010 =
+        !_didKakaoWebA010Retry &&
+        errorData.code === 'A010' &&
+        request.provider === 'KAKAO' &&
+        request.platformType === 'WEB'
+
+      if (shouldRetryKakaoA010) {
+        try {
+          const redirectBase =
+            request.redirectUri?.trim() || getKakaoOAuthRedirectUri()
+          const fresh = await requestFreshKakaoAuthorizationCode(redirectBase)
+          return await loginSocial(
+            {
+              ...request,
+              authorizationCode: fresh.authorizationCode,
+              redirectUri: fresh.redirectUri,
+              oauthToken: undefined,
+            },
+            setAuth,
+            navigate,
+            options,
+            true
+          )
+        } catch (retryErr) {
+          if (axios.isAxiosError(retryErr)) {
+            const retryData: ErrorResponse = retryErr.response?.data ?? {}
+            throw {
+              data: retryData,
+              message:
+                retryData.message ||
+                getErrorMessage(retryData.code) ||
+                '소셜 로그인에 실패했습니다.',
+            } as ApiError
+          }
+          const e = retryErr as { message?: string }
+          throw {
+            data: errorData,
+            message:
+              e.message ||
+              errorData.message ||
+              getErrorMessage(errorData.code) ||
+              '소셜 로그인에 실패했습니다.',
+          } as ApiError
+        }
+      }
 
       // B011: 존재하지 않는 사용자 계정 - 회원가입 필요
       if (errorData.code === 'B011') {
