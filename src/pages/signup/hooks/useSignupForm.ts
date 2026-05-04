@@ -191,9 +191,8 @@ export function useSignupForm(options?: UseSignupFormOptions) {
         if (socialLoginData.provider === 'KAKAO') {
           try {
             kakaoWebRedirectUri = getKakaoOAuthRedirectUri()
-            const kakaoOauth = await requestFreshKakaoAuthorizationCode(
-              kakaoWebRedirectUri
-            )
+            const kakaoOauth =
+              await requestFreshKakaoAuthorizationCode(kakaoWebRedirectUri)
             authorizationCode = kakaoOauth.authorizationCode
             kakaoWebRedirectUri = kakaoOauth.redirectUri
             oauthToken = undefined
