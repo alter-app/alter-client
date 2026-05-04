@@ -10,12 +10,10 @@ import { ROUTES } from '@/shared/constants/routes'
 import useAuthStore from '@/shared/stores/useAuthStore'
 
 /**
- * React 18 Strict Mode는 마운트→언마운트→재마운트하며 `useRef`가 초기화됩니다.
- * 모듈 스코프 Set만으로는 “첫 요청 성공 후 delete → 두 번째 마운트가 같은 code로 재요청” 경합을 막기 어렵습니다.
- * sessionStorage에 pending/done을 동기 기록해 login-social이 인가 code당 1회만 나가게 합니다.
+ * React 18 Strict Mode는 개발 환경에서 마운트→언마운트→재마운트하며 `useRef`가 초기화됩니다.
+ * 콜백 페이지에서 `loginSocial`(인가 코드 1회 소비)이 두 번 나가면 카카오·백엔드에서 A010이 납니다.
  */
-const kakaoTabOauthSessionKey = (code: string) =>
-  `alter:kakao:oauth:tab:${code}`
+const kakaoLoginTabAuthCodesBeingProcessed = new Set<string>()
 
 /**
  * 카카오 OAuth 리다이렉트 URI (?code=)
@@ -109,15 +107,10 @@ export function KakaoCallbackPage() {
 
       if (!hasHydrated) return
 
-      const sessionKey = kakaoTabOauthSessionKey(code)
-      try {
-        const phase = sessionStorage.getItem(sessionKey)
-        if (phase === 'done') return
-        if (phase === 'pending') return
-        sessionStorage.setItem(sessionKey, 'pending')
-      } catch {
-        /* 세션 스토리지 비허용 등 — 락 없이 진행 */
+      if (kakaoLoginTabAuthCodesBeingProcessed.has(code)) {
+        return
       }
+      kakaoLoginTabAuthCodesBeingProcessed.add(code)
 
       ran.current = true
       try {
@@ -131,17 +124,9 @@ export function KakaoCallbackPage() {
           setAuth,
           navigate
         )
-        try {
-          sessionStorage.setItem(sessionKey, 'done')
-        } catch {
-          /* noop */
-        }
+        kakaoLoginTabAuthCodesBeingProcessed.delete(code)
       } catch (e) {
-        try {
-          sessionStorage.removeItem(sessionKey)
-        } catch {
-          /* noop */
-        }
+        kakaoLoginTabAuthCodesBeingProcessed.delete(code)
         console.error(e)
         const err = e as { message?: string }
         setStatus('error')
