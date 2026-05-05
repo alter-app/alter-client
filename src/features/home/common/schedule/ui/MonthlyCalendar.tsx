@@ -8,7 +8,6 @@ interface MonthlyCalendarProps extends MonthlyCalendarPropsBase {
   isLoading?: boolean
   hideTitle?: boolean
   rightAction?: ReactNode
-  estimatedEarningsText?: string
   layout?: 'default' | 'manager'
 }
 
@@ -20,7 +19,6 @@ export function MonthlyCalendar({
   selectedDateKey,
   hideTitle = false,
   rightAction,
-  estimatedEarningsText,
   layout = 'default',
 }: MonthlyCalendarProps) {
   const {
@@ -29,6 +27,7 @@ export function MonthlyCalendar({
     totalWorkHoursText,
     weekdayLabels,
     monthlyDateCellsState,
+    estimatedEarningsText,
   } = useMonthlyCalendarViewModel({
     baseDate,
     data,

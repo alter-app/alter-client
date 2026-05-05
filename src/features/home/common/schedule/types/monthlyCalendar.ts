@@ -33,8 +33,10 @@ export interface MonthlyCalendarViewModel {
   totalWorkHoursText: string
   weekdayLabels: typeof WEEKDAY_LABELS_MONDAY_FIRST
   monthlyDateCellsState: MonthlyDateCellState[]
+  estimatedEarningsText?: string
 }
 
 export interface MonthlyCalendarPropsBase extends BaseCalendarProps {
   selectedDateKey?: string
+  estimatedEarningsText?: string
 }

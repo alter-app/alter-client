@@ -127,6 +127,13 @@ export function useMonthlyCalendarViewModel({
     selectedKey,
   })
 
+  const estimatedLaborCost = data?.summary.estimatedLaborCost
+
+  const estimatedEarningsText = useMemo(() => {
+    if (estimatedLaborCost == null) return undefined
+    return `약 ${estimatedLaborCost.toLocaleString()}원`
+  }, [estimatedLaborCost])
+
   return {
     title: workspaceName ?? '월간 아르바이트',
     monthLabel: format(baseDate, MONTH_LABEL_FORMAT),
@@ -135,5 +142,6 @@ export function useMonthlyCalendarViewModel({
     ).padStart(2, '0'),
     weekdayLabels: WEEKDAY_LABELS_MONDAY_FIRST,
     monthlyDateCellsState,
+    estimatedEarningsText,
   }
 }
