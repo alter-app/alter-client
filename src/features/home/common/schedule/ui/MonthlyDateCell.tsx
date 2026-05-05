@@ -3,7 +3,8 @@ import { MonthlyDateGauge } from '@/features/home/common/schedule/ui/MonthlyDate
 interface MonthlyDateCellProps {
   dayText: string
   isCurrentMonth: boolean
-  isWeekend: boolean
+  isSaturday: boolean
+  isSunday: boolean
   isSelected: boolean
   isActiveDay: boolean
   gaugeRatio?: number
@@ -12,16 +13,19 @@ interface MonthlyDateCellProps {
 export function MonthlyDateCell({
   dayText,
   isCurrentMonth,
-  isWeekend,
+  isSaturday,
+  isSunday,
   isSelected,
   isActiveDay,
   gaugeRatio = 0,
 }: MonthlyDateCellProps) {
   const dayTextColor = !isCurrentMonth
     ? 'text-text-50'
-    : isWeekend
-      ? 'text-error'
-      : 'text-text-50'
+    : isSaturday
+      ? 'text-subBlue'
+      : isSunday
+        ? 'text-error'
+        : 'text-text-50'
 
   return (
     <div

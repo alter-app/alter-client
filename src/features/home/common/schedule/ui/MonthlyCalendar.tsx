@@ -3,6 +3,7 @@ import DownIcon from '@/assets/icons/home/chevron-down.svg?react'
 import { useMonthlyCalendarViewModel } from '@/features/home/common/schedule/hooks/useMonthlyCalendarViewModel'
 import type { MonthlyCalendarPropsBase } from '@/features/home/common/schedule/types/monthlyCalendar'
 import { MonthlyDateCell } from '@/features/home/common/schedule/ui/MonthlyDateCell'
+import { cn } from '@/shared/lib/utils'
 
 interface MonthlyCalendarProps extends MonthlyCalendarPropsBase {
   isLoading?: boolean
@@ -79,7 +80,11 @@ export function MonthlyCalendar({
           {weekdayLabels.map((label, index) => (
             <span
               key={label}
-              className={`w-12 typography-body03-regular ${index === 5 || index === 6 ? 'text-error' : 'text-text-50'}`}
+              className={cn(
+                'w-12 typography-body03-regular text-text-50',
+                index === 6 && 'text-error',
+                index === 5 && 'text-subBlue'
+              )}
             >
               {label}
             </span>
@@ -93,7 +98,8 @@ export function MonthlyCalendar({
                 key={cell.dateKey}
                 dayText={cell.dayText}
                 isCurrentMonth={cell.isCurrentMonth}
-                isWeekend={cell.isWeekend}
+                isSaturday={cell.isSaturday}
+                isSunday={cell.isSunday}
                 isSelected={cell.isSelected}
                 isActiveDay={cell.isActiveDay}
                 gaugeRatio={cell.dayProgress}

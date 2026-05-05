@@ -11,7 +11,8 @@ export interface MonthlyCellInput {
 export interface MonthlyDateCellState extends MonthlyCellInput {
   dayHours: number
   dayProgress: number
-  isWeekend: boolean
+  isSaturday: boolean
+  isSunday: boolean
   isSelected: boolean
   isActiveDay: boolean
 }
