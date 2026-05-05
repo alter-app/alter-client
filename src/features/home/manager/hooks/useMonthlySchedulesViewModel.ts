@@ -2,8 +2,45 @@ import { useCallback, useMemo, useState } from 'react'
 import { addMonths, format } from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
 import { fetchMonthlySchedules } from '@/features/home/manager/api/schedule'
-import { adaptManagerScheduleResponse } from '@/features/home/manager/types/schedule'
+import type {
+  ManagerScheduleApiResponse,
+  ManagerScheduleShiftDto,
+} from '@/features/home/manager/types/schedule'
+import type {
+  CalendarEvent,
+  CalendarViewData,
+} from '@/features/home/common/schedule/types/calendarView'
+import type { StatusEnum } from '@/shared/types/enums'
+import {
+  toDateKey,
+  toTimeLabel,
+  getDurationHours,
+} from '@/features/home/common/schedule/lib/date'
 import { queryKeys } from '@/shared/lib/queryKeys'
+
+function adaptManagerScheduleResponse(
+  response: ManagerScheduleApiResponse
+): CalendarViewData {
+  const { totalWorkHours, schedules } = response.data
+  const events = schedules.map(
+    (shift: ManagerScheduleShiftDto): CalendarEvent => ({
+      shiftId: shift.shiftId,
+      workspaceName: shift.workspace.workspaceName,
+      position: shift.position,
+      status: shift.status.value as StatusEnum,
+      startDateTime: shift.startDateTime,
+      endDateTime: shift.endDateTime,
+      dateKey: toDateKey(shift.startDateTime),
+      startTimeLabel: toTimeLabel(shift.startDateTime),
+      endTimeLabel: toTimeLabel(shift.endDateTime),
+      durationHours: getDurationHours(shift.startDateTime, shift.endDateTime),
+    })
+  )
+  return {
+    summary: { totalWorkHours, eventCount: events.length },
+    events,
+  }
+}
 
 const DATE_KEY_FORMAT = 'yyyy-MM-dd'
 
