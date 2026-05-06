@@ -14,6 +14,7 @@ export type AlbaboxProps = {
   saved: boolean
   likeCount?: string
   onBookmarkClick?: () => void
+  onClick?: () => void
 }
 
 export function Albabox({
@@ -27,9 +28,13 @@ export function Albabox({
   saved,
   likeCount,
   onBookmarkClick,
+  onClick,
 }: AlbaboxProps) {
   return (
-    <article className="border-b border-line-1 py-5 last:border-b-0">
+    <article
+      className="border-b border-line-1 py-5 last:border-b-0 cursor-pointer"
+      onClick={onClick}
+    >
       <div className="flex items-start justify-between gap-2">
         <p className="typography-body02-semibold text-text-70">{storeName}</p>
         <div className="flex items-center gap-1 typography-body02-regular">
@@ -45,7 +50,10 @@ export function Albabox({
         </h3>
         <button
           type="button"
-          onClick={onBookmarkClick}
+          onClick={e => {
+            e.stopPropagation()
+            onBookmarkClick?.()
+          }}
           aria-label={saved ? '북마크 해제' : '북마크'}
           className={`shrink-0 p-1 -m-1 rounded-md transition-colors ${
             saved

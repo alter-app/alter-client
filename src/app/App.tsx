@@ -13,6 +13,8 @@ import { SocialChatPage } from '@/pages/manager/social-chat'
 import { LoginPage } from '@/pages/login'
 import { KakaoCallbackPage } from '@/pages/oauth/KakaoCallbackPage'
 import { JobLookupMapPage } from '@/pages/user/job-lookup-map'
+import { JobLookupMapApplyPage } from '@/pages/user/job-lookup-map-apply'
+import { JobLookupMapDetailPage } from '@/pages/user/job-lookup-map-detail'
 import { SchedulePage } from '@/pages/user/schedule'
 import { UserHomePage } from '@/pages/user/home'
 import { WorkspaceMembersPage } from '@/pages/user/workspace-members'
@@ -106,6 +108,14 @@ export function App() {
           <Route
             path={ROUTES.USER.JOB_LOOKUP_MAP}
             element={<JobLookupMapPage />}
+          />
+          <Route
+            path={ROUTES.USER.JOB_LOOKUP_MAP_DETAIL}
+            element={<JobLookupMapDetailPage />}
+          />
+          <Route
+            path={ROUTES.USER.JOB_LOOKUP_MAP_APPLY}
+            element={<JobLookupMapApplyPage />}
           />
           <Route
             path={ROUTES.USER.HOME}
