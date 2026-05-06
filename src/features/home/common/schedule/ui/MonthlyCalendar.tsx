@@ -99,8 +99,8 @@ export function MonthlyCalendar({
               key={label}
               className={cn(
                 'w-12 typography-body03-regular text-text-50',
-                index === 6 && 'text-error',
-                index === 5 && 'text-subBlue'
+                index === 0 && 'text-error',
+                index === 6 && 'text-subBlue'
               )}
             >
               {label}

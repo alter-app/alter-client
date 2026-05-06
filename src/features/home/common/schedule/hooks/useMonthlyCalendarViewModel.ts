@@ -13,7 +13,7 @@ import { useMemo } from 'react'
 import {
   DATE_KEY_FORMAT,
   MONTH_LABEL_FORMAT,
-  WEEKDAY_LABELS_MONDAY_FIRST,
+  WEEKDAY_LABELS,
 } from '@/features/home/common/schedule/constants/calendar'
 import { useMonthlyDateCellsState } from '@/features/home/common/schedule/hooks/useMonthlyDateCellsState'
 import type {
@@ -140,7 +140,7 @@ export function useMonthlyCalendarViewModel({
     totalWorkHoursText: String(
       Math.round(data?.summary.totalWorkHours ?? 0)
     ).padStart(2, '0'),
-    weekdayLabels: WEEKDAY_LABELS_MONDAY_FIRST,
+    weekdayLabels: WEEKDAY_LABELS,
     monthlyDateCellsState,
     estimatedEarningsText,
   }
