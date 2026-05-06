@@ -27,8 +27,8 @@ import type { CalendarViewData } from '@/features/home/common/schedule/types/cal
 function getMonthlyCells(baseDate: Date): MonthlyCellInput[] {
   const monthStart = startOfMonth(baseDate)
   const monthEnd = endOfMonth(baseDate)
-  const intervalStart = startOfWeek(monthStart, { weekStartsOn: 1 })
-  const intervalEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
+  const intervalStart = startOfWeek(monthStart, { weekStartsOn: 0 })
+  const intervalEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
 
   return eachDayOfInterval({ start: intervalStart, end: intervalEnd }).map(
     date => ({
