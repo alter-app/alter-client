@@ -36,7 +36,7 @@ function getNaverMaps(): NaverMapsApi | undefined {
 /** 위치 권한 거부·오류 시 임시 중심 (서울시청 근처) */
 const FALLBACK_LAT = 37.5665
 const FALLBACK_LNG = 126.978
-const SHEET_PEEK_HEIGHT = 20
+const SHEET_PEEK_HEIGHT = 80
 
 export function JobLookupMapPage() {
   const navigate = useNavigate()
