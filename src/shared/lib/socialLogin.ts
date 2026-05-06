@@ -80,6 +80,28 @@ export function getKakaoOAuthRedirectUri(): string {
   return ''
 }
 
+/**
+ * 전체 탭 리다이렉트로 콜백 페이지에 착지했을 때, 실제 브라우저 URL과 동일한 규칙의 redirect_uri.
+ * `VITE_KAKAO_REDIRECT_URI`가 있으면 그대로 사용하고, 없으면 현재 origin + pathname 기준(authorize 요청과 일치).
+ */
+export function getKakaoOAuthRedirectUriFromCallbackLocation(): string {
+  const fromEnv = (
+    import.meta.env.VITE_KAKAO_REDIRECT_URI as string | undefined
+  )?.trim()
+  if (fromEnv) {
+    return normalizeAlterAppKakaoRedirectToHttps(fromEnv)
+  }
+
+  if (typeof window !== 'undefined') {
+    const path = window.location.pathname || '/oauth/kakao/callback'
+    return normalizeAlterAppKakaoRedirectToHttps(
+      `${window.location.origin}${path.replace(/\/$/, '')}`
+    )
+  }
+
+  return ''
+}
+
 /** KakaoCallbackPage ↔ 오프너(팝업 플로우) postMessage 타입 */
 export const KAKAO_OAUTH_MESSAGE_TYPE = 'alter-kakao-oauth'
 
