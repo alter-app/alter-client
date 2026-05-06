@@ -1,4 +1,7 @@
-import BookmarkIcon from '@/assets/icons/alba/Bookmark.svg?react'
+import BookmarkIcon from '@/assets/icons/job-lookup-map/Bookmark.svg?react'
+import CalendarIcon from '@/assets/icons/job-lookup-map/Calendar.svg?react'
+import ClockIcon from '@/assets/icons/job-lookup-map/Clock.svg?react'
+import ThumbsupIcon from '@/assets/icons/job-lookup-map/Thumbsup.svg?react'
 
 export type AlbaboxProps = {
   storeName: string
@@ -26,9 +29,20 @@ export function Albabox({
   onBookmarkClick,
 }: AlbaboxProps) {
   return (
-    <article className="flex flex-col gap-3 rounded-2xl border border-line-2 bg-white py-4">
-      <div className="flex items-start justify-between gap-3 px-4">
-        <p className="typography-body02-semibold text-text-100">{storeName}</p>
+    <article className="border-b border-line-1 py-5 last:border-b-0">
+      <div className="flex items-start justify-between gap-2">
+        <p className="typography-body02-semibold text-text-70">{storeName}</p>
+        <div className="flex items-center gap-1 typography-body02-regular">
+          <span className="text-text-70">{distance}</span>
+          <span className="text-text-50">·</span>
+          <span className="text-text-70">{postedAgo}</span>
+        </div>
+      </div>
+
+      <div className="mt-1.5 flex items-start justify-between gap-2">
+        <h3 className="typography-body01-semibold line-clamp-2 flex-1 text-text-100">
+          {title}
+        </h3>
         <button
           type="button"
           onClick={onBookmarkClick}
@@ -43,24 +57,28 @@ export function Albabox({
         </button>
       </div>
 
-      <h3 className="typography-body01-semibold text-text-100 line-clamp-2 px-4">
-        {title}
-      </h3>
-
-      <p className="typography-headline03 text-text-100 px-4">
-        시급 {wageAmount}원
+      <p className="mt-2 typography-body02-regular text-text-90">
+        시급 <span className="font-medium text-sub">{wageAmount}</span>원
       </p>
 
-      <div className="flex flex-wrap gap-x-3 gap-y-1 typography-body03-regular text-text-70 px-4">
-        <span>{timeRange}</span>
-        <span>{workDays}</span>
-        <span>{distance}</span>
-      </div>
-
-      <div className="flex items-center justify-between gap-2 border-t border-line-2 px-4 pt-3 typography-body03-regular text-text-50">
-        <span>{postedAgo}</span>
+      <div className="mt-2.5 flex items-end justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-3 typography-body02-regular text-text-90">
+          <div className="flex items-center gap-1">
+            <ClockIcon className="h-5 w-5" aria-hidden />
+            <span>{timeRange}</span>
+          </div>
+          <div className="flex items-center gap-0.5">
+            <CalendarIcon className="h-5 w-5" aria-hidden />
+            <span>{workDays}</span>
+          </div>
+        </div>
         {likeCount != null && likeCount !== '' && (
-          <span className="text-text-70">좋아요 {likeCount}</span>
+          <div className="inline-flex h-6 items-center gap-1 rounded-xl border border-[#d9d9d9] bg-white px-2 shadow-[0px_1px_4px_rgba(0,0,0,0.18)]">
+            <ThumbsupIcon className="h-3 w-3 shrink-0" aria-hidden />
+            <span className="typography-body02-semibold text-text-100 leading-none">
+              {likeCount}
+            </span>
+          </div>
         )}
       </div>
     </article>

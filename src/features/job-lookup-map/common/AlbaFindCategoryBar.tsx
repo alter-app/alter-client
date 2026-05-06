@@ -1,3 +1,5 @@
+import ChevrondownIcon from '@/assets/icons/job-lookup-map/Chevrondown.svg?react'
+
 export type AlbaFindMode = 'nearby' | 'region'
 
 export type AlbaFindFilterId = 'sort' | 'distance' | 'salary'
@@ -23,16 +25,16 @@ export function AlbaFindCategoryBar({
 }: AlbaFindCategoryBarProps) {
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex gap-1 rounded-xl bg-bg-dark p-1" role="tablist">
+      <div className="flex h-12 gap-1 rounded-lg bg-bg-dark p-1" role="tablist">
         <button
           type="button"
           role="tab"
           aria-selected={mode === 'nearby'}
           onClick={() => onModeChange('nearby')}
-          className={`min-h-11 flex-1 rounded-lg typography-body02-semibold transition-colors ${
+          className={`min-h-10 flex-1 rounded-lg typography-body01-semibold transition-colors ${
             mode === 'nearby'
-              ? 'border border-line-2 bg-white text-text-100 shadow-sm'
-              : 'bg-transparent text-text-70'
+              ? 'border border-line-2 bg-white text-text-100 shadow-[0px_1px_4px_0px_rgba(0,0,0,0.12)]'
+              : 'bg-transparent text-text-50'
           }`}
         >
           주변에서 찾기
@@ -42,32 +44,42 @@ export function AlbaFindCategoryBar({
           role="tab"
           aria-selected={mode === 'region'}
           onClick={() => onModeChange('region')}
-          className={`min-h-11 flex-1 rounded-lg typography-body02-semibold transition-colors ${
+          className={`min-h-10 flex-1 rounded-lg typography-body01-semibold transition-colors ${
             mode === 'region'
-              ? 'border border-line-2 bg-white text-text-100 shadow-sm'
-              : 'bg-transparent text-text-70'
+              ? 'border border-line-2 bg-white text-text-100 shadow-[0px_1px_4px_0px_rgba(0,0,0,0.12)]'
+              : 'bg-transparent text-text-50'
           }`}
         >
           지역에서 찾기
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {FILTER_ITEMS.map(({ id, label }) => {
+      <div className="flex flex-wrap items-center gap-2">
+        {FILTER_ITEMS.map(({ id, label }, index) => {
           const active = activeFilter === id
           return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => onFilterChange(id)}
-              className={`inline-flex h-9 min-w-0 items-center gap-1 rounded-full px-3 typography-body03-semibold transition-colors ${
-                active
-                  ? 'bg-main text-white'
-                  : 'border border-line-2 bg-white text-text-70'
-              }`}
-            >
-              <span>{label}</span>
-            </button>
+            <div key={id} className="flex items-center gap-2">
+              {index === 1 ? (
+                <div
+                  className="h-[26px] w-px shrink-0 bg-[#d9d9d9]"
+                  aria-hidden
+                />
+              ) : null}
+              <button
+                type="button"
+                onClick={() => onFilterChange(id)}
+                className={`inline-flex h-[26px] min-w-0 items-center gap-1 rounded-full px-3 transition-colors ${
+                  active
+                    ? 'bg-main typography-body03-semibold text-text-100'
+                    : 'border border-line-2 bg-white typography-body03-regular text-text-90'
+                }`}
+              >
+                <span>{label}</span>
+                <ChevrondownIcon
+                  className={active ? 'text-text-100' : 'text-text-70'}
+                />
+              </button>
+            </div>
           )
         })}
       </div>

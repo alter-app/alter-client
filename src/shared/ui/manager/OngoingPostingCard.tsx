@@ -1,7 +1,7 @@
 // 진행 중인 공고 카드
 import { MoreButton } from '@/shared/ui/common/MoreButton'
-import clockIcon from '@/assets/icons/alba/Clock.svg'
-import calendarIcon from '@/assets/icons/alba/Calendar.svg'
+import clockIcon from '@/assets/icons/job-lookup-map/Clock.svg'
+import calendarIcon from '@/assets/icons/job-lookup-map/Calendar.svg'
 
 export interface JobPostingItem {
   id: string
