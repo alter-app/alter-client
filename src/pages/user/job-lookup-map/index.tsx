@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { animate, motion, useMotionValue } from 'framer-motion'
 import { AlbaFindCategoryBar } from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
+import { ROUTES } from '@/shared/constants/routes'
 import type {
   AlbaFindFilterId,
   AlbaFindMode,
@@ -16,7 +18,13 @@ type NaverMapInstance = {
 type NaverMapsApi = {
   Map: new (
     element: HTMLElement,
-    options?: { center?: object; zoom?: number }
+    options?: {
+      center?: object
+      zoom?: number
+      logoControl?: boolean
+      scaleControl?: boolean
+      mapDataControl?: boolean
+    }
   ) => NaverMapInstance
   LatLng: new (lat: number, lng: number) => object
 }
@@ -28,9 +36,10 @@ function getNaverMaps(): NaverMapsApi | undefined {
 /** 위치 권한 거부·오류 시 임시 중심 (서울시청 근처) */
 const FALLBACK_LAT = 37.5665
 const FALLBACK_LNG = 126.978
-const SHEET_PEEK_HEIGHT = 76
+const SHEET_PEEK_HEIGHT = 20
 
 export function JobLookupMapPage() {
+  const navigate = useNavigate()
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
   const [maxTranslateY, setMaxTranslateY] = useState(0)
@@ -50,6 +59,9 @@ export function JobLookupMapPage() {
     const map = new nmaps.Map(el, {
       center: fallback,
       zoom: 16,
+      logoControl: false,
+      scaleControl: false,
+      mapDataControl: false,
     })
 
     const geo = navigator.geolocation
@@ -154,6 +166,7 @@ export function JobLookupMapPage() {
               saved={savedDemo}
               likeCount="999+"
               onBookmarkClick={() => setSavedDemo(v => !v)}
+              onClick={() => navigate(ROUTES.USER.JOB_LOOKUP_MAP_DETAIL)}
             />
             <Albabox
               storeName="출근하기 싫은 가게 고척점"
