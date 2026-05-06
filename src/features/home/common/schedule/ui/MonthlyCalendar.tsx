@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react'
 import DownIcon from '@/assets/icons/home/chevron-down.svg?react'
 import { useMonthlyCalendarViewModel } from '@/features/home/common/schedule/hooks/useMonthlyCalendarViewModel'
+import { useMonthYearPickerViewModel } from '@/features/home/common/schedule/hooks/useMonthYearPickerViewModel'
 import type { MonthlyCalendarPropsBase } from '@/features/home/common/schedule/types/monthlyCalendar'
 import { MonthlyDateCell } from '@/features/home/common/schedule/ui/MonthlyDateCell'
+import { MonthYearPickerModal } from '@/features/home/common/schedule/ui/MonthYearPickerModal'
 import { cn } from '@/shared/lib/utils'
 
 interface MonthlyCalendarProps extends MonthlyCalendarPropsBase {
@@ -10,6 +12,7 @@ interface MonthlyCalendarProps extends MonthlyCalendarPropsBase {
   hideTitle?: boolean
   rightAction?: ReactNode
   layout?: 'default' | 'manager'
+  onMonthChange?: (date: Date) => void
 }
 
 export function MonthlyCalendar({
@@ -21,6 +24,7 @@ export function MonthlyCalendar({
   hideTitle = false,
   rightAction,
   layout = 'default',
+  onMonthChange,
 }: MonthlyCalendarProps) {
   const {
     title,
@@ -35,6 +39,18 @@ export function MonthlyCalendar({
     workspaceName,
     selectedDateKey,
   })
+
+  const {
+    isPickerOpen,
+    openPicker,
+    closePicker,
+    yearItems,
+    yearIndex,
+    monthIndex,
+    onYearIndexChange,
+    onMonthIndexChange,
+    onPickerConfirm,
+  } = useMonthYearPickerViewModel({ currentDate: baseDate, onMonthChange })
 
   if (isLoading) {
     return (
@@ -53,6 +69,7 @@ export function MonthlyCalendar({
           <button
             type="button"
             className="flex items-center gap-1 typography-body01-regular text-text-90"
+            onClick={openPicker}
           >
             {monthLabel}
             <DownIcon className="w-4 h-4" />
@@ -108,6 +125,17 @@ export function MonthlyCalendar({
           })}
         </div>
       </section>
+
+      <MonthYearPickerModal
+        isOpen={isPickerOpen}
+        yearItems={yearItems}
+        yearIndex={yearIndex}
+        monthIndex={monthIndex}
+        onYearIndexChange={onYearIndexChange}
+        onMonthIndexChange={onMonthIndexChange}
+        onConfirm={onPickerConfirm}
+        onClose={closePicker}
+      />
     </section>
   )
 }

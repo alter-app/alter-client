@@ -21,6 +21,7 @@ export function HomeScheduleCalendar({
   data,
   workspaceName,
   isLoading = false,
+  onDateChange,
 }: HomeScheduleCalendarProps) {
   return (
     <section className="rounded-2xl bg-white px-[11px] py-6 w-full">
@@ -30,6 +31,7 @@ export function HomeScheduleCalendar({
           data={data}
           workspaceName={workspaceName}
           isLoading={isLoading}
+          onMonthChange={onDateChange}
         />
       )}
       {mode === 'weekly' && (
