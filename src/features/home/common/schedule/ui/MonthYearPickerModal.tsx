@@ -22,7 +22,10 @@ function DrumPicker({ items, selectedIndex, onChange }: DrumPickerProps) {
   const rawTranslate = baseTranslate + dragDelta
   const minTranslate = (CENTER - (items.length - 1)) * ITEM_HEIGHT
   const maxTranslate = CENTER * ITEM_HEIGHT
-  const currentTranslate = Math.max(minTranslate, Math.min(maxTranslate, rawTranslate))
+  const currentTranslate = Math.max(
+    minTranslate,
+    Math.min(maxTranslate, rawTranslate)
+  )
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     setIsDragging(true)
@@ -41,7 +44,9 @@ function DrumPicker({ items, selectedIndex, onChange }: DrumPickerProps) {
     setIsDragging(false)
     const totalDelta = e.clientY - startY.current
     const rawIndex = selectedIndex - totalDelta / ITEM_HEIGHT
-    const snapped = Math.round(Math.max(0, Math.min(items.length - 1, rawIndex)))
+    const snapped = Math.round(
+      Math.max(0, Math.min(items.length - 1, rawIndex))
+    )
     setDragDelta(0)
     onChange(snapped)
   }
@@ -71,7 +76,9 @@ function DrumPicker({ items, selectedIndex, onChange }: DrumPickerProps) {
             key={item}
             className={cn(
               'flex items-center justify-center typography-body01-regular',
-              i === selectedIndex ? 'text-text-100 font-semibold' : 'text-text-40'
+              i === selectedIndex
+                ? 'text-text-100 font-semibold'
+                : 'text-text-40'
             )}
             style={{ height: ITEM_HEIGHT }}
           >
