@@ -15,9 +15,9 @@ export function useMonthYearPickerViewModel({
   const [selectedMonth, setSelectedMonth] = useState(getMonth(currentDate))
 
   const years = useMemo(() => {
-    const base = getYear(currentDate)
+    const base = getYear(new Date())
     return Array.from({ length: 11 }, (_, i) => base - 5 + i)
-  }, [currentDate])
+  }, [])
 
   const yearItems = useMemo(() => years.map(y => `${y}년`), [years])
   const yearIndex = useMemo(
