@@ -81,20 +81,25 @@ export function getKakaoOAuthRedirectUri(): string {
 }
 
 /**
- * 카카오가 리다이렉트한 콜백 URL(쿼리·해시 제외) — `authorize`의 redirect_uri와 동일해야 토큰 API가 성공합니다.
- * 전체 탭 콜백에서 `loginSocial`에 넣을 때 env·오프너 origin과 어긋남을 줄입니다.
+ * 전체 탭 리다이렉트로 콜백 페이지에 착지했을 때, 실제 브라우저 URL과 동일한 규칙의 redirect_uri.
+ * `VITE_KAKAO_REDIRECT_URI`가 있으면 그대로 사용하고, 없으면 현재 origin + pathname 기준(authorize 요청과 일치).
  */
 export function getKakaoOAuthRedirectUriFromCallbackLocation(): string {
-  if (typeof window === 'undefined') return ''
-  const { origin, pathname } = window.location
-  const path = pathname.replace(/\/$/, '') || '/'
-  return normalizeAlterAppKakaoRedirectToHttps(`${origin}${path}`)
-}
+  const fromEnv = (
+    import.meta.env.VITE_KAKAO_REDIRECT_URI as string | undefined
+  )?.trim()
+  if (fromEnv) {
+    return normalizeAlterAppKakaoRedirectToHttps(fromEnv)
+  }
 
-export type KakaoAuthorizationCodeResult = {
-  authorizationCode: string
-  /** authorize URL과 동일한 문자열(가능하면 콜백 창 location 기준) */
-  redirectUri: string
+  if (typeof window !== 'undefined') {
+    const path = window.location.pathname || '/oauth/kakao/callback'
+    return normalizeAlterAppKakaoRedirectToHttps(
+      `${window.location.origin}${path.replace(/\/$/, '')}`
+    )
+  }
+
+  return ''
 }
 
 /** KakaoCallbackPage ↔ 오프너(팝업 플로우) postMessage 타입 */
@@ -178,13 +183,8 @@ function kakaoOAuthStateMatchesRequest(
 /**
  * 카카오 인가 코드만 받습니다 (클라이언트에서 `/oauth/token` 교환 없음 → code 1회 사용, A010 방지).
  * 로그인(`KakaoLoginButton`)·회원가입(소셜 가입 직전) 공통: 팝업 → `/oauth/kakao/callback` → postMessage로 code 반환.
- *
- * @param redirectUriOverride — 생략 시 `getKakaoOAuthRedirectUri()`.
- * @returns 콜백 `postMessage`에 실린 `redirectUri`가 있으면 그 값을 우선(카카오가 실제로 연 URL과 일치).
  */
-export function requestFreshKakaoAuthorizationCode(
-  redirectUriOverride?: string
-): Promise<KakaoAuthorizationCodeResult> {
+export function requestFreshKakaoAuthorizationCode(): Promise<string> {
   return new Promise((resolve, reject) => {
     const clientId = import.meta.env.VITE_KAKAO_REST_API_KEY
     if (!clientId) {
@@ -192,10 +192,7 @@ export function requestFreshKakaoAuthorizationCode(
       return
     }
 
-    const trimmedOverride = redirectUriOverride?.trim()
-    const redirectUri = trimmedOverride
-      ? trimmedOverride
-      : getKakaoOAuthRedirectUri()
+    const redirectUri = getKakaoOAuthRedirectUri()
     const oauthState = encodeKakaoOauthState({
       nonce: createNonce(),
       openerOrigin: window.location.origin,
@@ -228,7 +225,6 @@ export function requestFreshKakaoAuthorizationCode(
         type?: string
         authorizationCode?: string
         state?: string
-        redirectUri?: string
       }
       if (
         d?.type !== KAKAO_OAUTH_MESSAGE_TYPE ||
@@ -244,14 +240,7 @@ export function requestFreshKakaoAuthorizationCode(
       } catch {
         /* noop */
       }
-      const fromPopup =
-        typeof d.redirectUri === 'string' && d.redirectUri.trim().length > 0
-          ? normalizeAlterAppKakaoRedirectToHttps(d.redirectUri.trim())
-          : redirectUri
-      resolve({
-        authorizationCode: d.authorizationCode,
-        redirectUri: fromPopup,
-      })
+      resolve(d.authorizationCode)
     }
 
     const timer = setTimeout(() => {

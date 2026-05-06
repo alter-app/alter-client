@@ -24,14 +24,13 @@ export function KakaoLoginButton({ redirectFrom }: KakaoLoginButtonProps) {
     try {
       setIsLoading(true)
 
-      const { authorizationCode, redirectUri } =
-        await requestFreshKakaoAuthorizationCode(getKakaoOAuthRedirectUri())
+      const authorizationCode = await requestFreshKakaoAuthorizationCode()
 
       await loginSocial(
         {
           provider: 'KAKAO',
           authorizationCode,
-          redirectUri,
+          redirectUri: getKakaoOAuthRedirectUri(),
           platformType: 'WEB',
         },
         setAuth,
