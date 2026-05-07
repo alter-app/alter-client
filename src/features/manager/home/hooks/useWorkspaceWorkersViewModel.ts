@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { fetchWorkspaceWorkers } from '@/features/manager/home/api/worker'
-import { adaptWorkerDto } from '@/features/manager/home/types/worker'
+import { adaptWorkerDto } from '@/features/manager/home/lib/worker'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 const PAGE_SIZE = 20
