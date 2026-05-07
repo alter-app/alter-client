@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import { useWorkerScheduleManageViewModel } from '@/features/manager/home/hooks/useWorkerScheduleManageViewModel'
 import chevronDownIcon from '@/assets/icons/home/chevron-down.svg'
+import calendarIcon from '@/assets/icons/nav/calendar.svg'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import type { ScheduleTab } from '@/features/manager'
 import { SCHEDULE_TABS } from '@/features/manager'
@@ -9,15 +10,23 @@ import { SCHEDULE_TABS } from '@/features/manager'
 interface TimeSelectBoxProps {
   value: string
   unit: string
+  onChange: (value: string) => void
 }
 
-function TimeSelectBox({ value, unit }: TimeSelectBoxProps) {
+function TimeSelectBox({ value, unit, onChange }: TimeSelectBoxProps) {
   return (
     <div className="flex h-12 w-[78px] items-center justify-center rounded-2xl bg-white">
-      <span className="typography-body01-semibold text-text-50">{value}</span>
-      <span className="ml-3 typography-body01-semibold text-text-100">
-        {unit}
-      </span>
+      <input
+        type="text"
+        inputMode="numeric"
+        maxLength={2}
+        value={value}
+        placeholder="00"
+        onChange={e => onChange(e.target.value.replace(/\D/g, ''))}
+        className="w-8 bg-transparent text-center typography-body01-semibold text-text-100 placeholder:text-text-50 outline-none"
+        aria-label={unit}
+      />
+      <span className="typography-body01-semibold text-text-100">{unit}</span>
     </div>
   )
 }
@@ -33,6 +42,10 @@ export function ManagerWorkerSchedulePage() {
     startMinute,
     endHour,
     endMinute,
+    setStartHour,
+    setStartMinute,
+    setEndHour,
+    setEndMinute,
     toggleDay,
   } = useWorkerScheduleManageViewModel()
 
@@ -90,26 +103,40 @@ export function ManagerWorkerSchedulePage() {
           </div>
         </section>
 
-        <section className="mt-12">
-          <h2 className="typography-headline03 text-text-100">근무일 선택</h2>
-          <div className="mt-4 flex h-[50px] items-center rounded-[20px] bg-white px-[4px]">
-            {workdayOptions.map(day => {
-              const selected = selectedDays.includes(day)
-              return (
-                <button
-                  key={day}
-                  type="button"
-                  className={`flex h-10 w-[50px] items-center justify-center rounded-2xl typography-body01-semibold ${
-                    selected ? 'bg-main text-text-100' : 'text-text-50'
-                  }`}
-                  onClick={() => toggleDay(day)}
-                >
-                  {day}
-                </button>
-              )
-            })}
-          </div>
-        </section>
+        {activeTab === '고정' ? (
+          <section className="mt-12">
+            <h2 className="typography-headline03 text-text-100">근무일 선택</h2>
+            <div className="mt-4 flex h-[50px] items-center rounded-[20px] bg-white px-[4px]">
+              {workdayOptions.map(day => {
+                const selected = selectedDays.includes(day)
+                return (
+                  <button
+                    key={day}
+                    type="button"
+                    className={`flex h-10 w-[50px] items-center justify-center rounded-2xl typography-body01-semibold ${
+                      selected ? 'bg-main text-text-100' : 'text-text-50'
+                    }`}
+                    onClick={() => toggleDay(day)}
+                  >
+                    {day}
+                  </button>
+                )
+              })}
+            </div>
+          </section>
+        ) : (
+          <section className="mt-12">
+            <button
+              type="button"
+              className="mt-4 flex h-12 w-full items-center gap-1 rounded-2xl bg-white px-4"
+            >
+              <span className="typography-headline03 text-text-100">
+                날짜 선택
+              </span>
+              <img src={calendarIcon} alt="" aria-hidden="true" className="h-6 w-6" />
+            </button>
+          </section>
+        )}
 
         <section className="mt-12">
           <h2 className="typography-headline03 text-text-100">
@@ -124,7 +151,7 @@ export function ManagerWorkerSchedulePage() {
               출근 시간
             </span>
             <div className="flex items-center gap-2">
-              <TimeSelectBox value={startHour} unit="시" />
+              <TimeSelectBox value={startHour} unit="시" onChange={setStartHour} />
               <div className="flex flex-col items-center gap-1">
                 <span
                   className="h-1 w-1 rounded-full bg-text-70"
@@ -135,7 +162,7 @@ export function ManagerWorkerSchedulePage() {
                   aria-hidden="true"
                 />
               </div>
-              <TimeSelectBox value={startMinute} unit="분" />
+              <TimeSelectBox value={startMinute} unit="분" onChange={setStartMinute} />
             </div>
           </div>
 
@@ -144,7 +171,7 @@ export function ManagerWorkerSchedulePage() {
               퇴근 시간
             </span>
             <div className="flex items-center gap-2">
-              <TimeSelectBox value={endHour} unit="시" />
+              <TimeSelectBox value={endHour} unit="시" onChange={setEndHour} />
               <div className="flex flex-col items-center gap-1">
                 <span
                   className="h-1 w-1 rounded-full bg-text-70"
@@ -155,7 +182,7 @@ export function ManagerWorkerSchedulePage() {
                   aria-hidden="true"
                 />
               </div>
-              <TimeSelectBox value={endMinute} unit="분" />
+              <TimeSelectBox value={endMinute} unit="분" onChange={setEndMinute} />
             </div>
           </div>
         </section>
