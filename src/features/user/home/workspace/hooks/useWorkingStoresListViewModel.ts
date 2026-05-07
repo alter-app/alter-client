@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { WorkingStoreItem } from '@/features/user/home/workspace/ui/WorkingStoreCard'
+import type { WorkingStoreItem } from '@/features/user'
 
 export function useWorkingStoresListViewModel(stores: WorkingStoreItem[]) {
   return useMemo(

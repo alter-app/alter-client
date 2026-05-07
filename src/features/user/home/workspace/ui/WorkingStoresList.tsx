@@ -1,9 +1,9 @@
 import { MoreButton } from '@/shared/ui/common/MoreButton'
-import { useWorkingStoresListViewModel } from '@/features/user/home/workspace/hooks/useWorkingStoresListViewModel'
 import {
   WorkingStoreCard,
   type WorkingStoreItem,
-} from '@/features/user/home/workspace/ui/WorkingStoreCard'
+  useWorkingStoresListViewModel,
+} from '@/features/user'
 
 interface WorkingStoresListProps {
   title?: string

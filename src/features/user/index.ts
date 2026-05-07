@@ -12,6 +12,8 @@ export { useWorkspaceWorkersViewModel } from '@/features/user/home/workspace/hoo
 export { useWorkspaceManagersViewModel } from '@/features/user/home/workspace/hooks/useWorkspaceManagersViewModel'
 export { WorkingStoresList } from '@/features/user/home/workspace/ui/WorkingStoresList'
 export { WorkingStoreCard } from '@/features/user/home/workspace/ui/WorkingStoreCard'
+export type { WorkingStoreItem } from '@/features/user/home/workspace/types/workingStore'
+export { useWorkingStoresListViewModel } from '@/features/user/home/workspace/hooks/useWorkingStoresListViewModel'
 export type { WorkspaceWorkerItem } from '@/features/user/home/workspace/types/workspaceMembers'
 export { HomeScheduleCalendar } from '@/features/user/home/schedule/ui/HomeScheduleCalendar'
 export type { HomeCalendarMode } from '@/features/user/home/schedule/types/schedule'
