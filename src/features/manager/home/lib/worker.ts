@@ -1,4 +1,7 @@
-import type { WorkerDto, ManagerWorkerItem } from '@/features/manager/home/types/worker'
+import type {
+  WorkerDto,
+  ManagerWorkerItem,
+} from '@/features/manager/home/types/worker'
 import type { StoreWorkerRole } from '@/features/manager/home/types/storeWorkerRole'
 
 function mapPositionTypeToRole(positionType: string): StoreWorkerRole {
