@@ -1,6 +1,6 @@
 import { differenceInCalendarDays, format, parseISO } from 'date-fns'
 import { useMemo } from 'react'
-import type { WorkingStoreItem } from '@/features/user/home/workspace/ui/WorkingStoreCard'
+import type { WorkingStoreItem } from '@/features/user/home/workspace/types/workingStore'
 
 function formatNextShiftDate(nextShiftDateTime: string) {
   const date = parseISO(nextShiftDateTime)

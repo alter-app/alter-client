@@ -5,7 +5,6 @@ export { WorkingStoresList } from '@/features/user/home/workspace/ui/WorkingStor
 export { WorkingStoreCard } from '@/features/user/home/workspace/ui/WorkingStoreCard'
 export { HomeScheduleCalendar } from '@/features/user/home/schedule/ui/HomeScheduleCalendar'
 export type { HomeCalendarMode } from '@/features/user/home/schedule/types/schedule'
-export type { CalendarViewData } from '@/features/home/common/schedule/types/calendarView'
 export {
   getSelfSchedule,
   adaptScheduleResponse,

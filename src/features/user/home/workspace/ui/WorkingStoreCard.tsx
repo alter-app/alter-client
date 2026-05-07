@@ -1,13 +1,5 @@
 import { useWorkingStoreCardViewModel } from '@/features/user/home/workspace/hooks/useWorkingStoreCardViewModel'
-
-export interface WorkingStoreItem {
-  workspaceId: number
-  businessName: string
-  employedAt: string
-  nextShiftDateTime: string
-  thumbnailUrl?: string
-}
-
+import type { WorkingStoreItem } from '@/features/user/home/workspace/types/workingStore'
 interface WorkingStoreCardProps {
   store: WorkingStoreItem
 }
