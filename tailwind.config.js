@@ -48,6 +48,7 @@ export default {
           500: '#9dccc1',
           300: '#c4e1da',
         },
+        subBlue: '#003BDC'
       },
       // Font Families
       fontFamily: {

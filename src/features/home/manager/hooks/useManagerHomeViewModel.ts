@@ -42,6 +42,7 @@ export function useManagerHomeViewModel() {
     calendarData,
     selectedDateKey,
     isLoading: isScheduleLoading,
+    onDateChange: onScheduleDateChange,
     goToPrevMonth,
     goToNextMonth,
   } = useMonthlySchedulesViewModel(activeWorkspaceId)
@@ -94,6 +95,7 @@ export function useManagerHomeViewModel() {
       selectedDateKey,
       data: calendarData,
       isLoading: isScheduleLoading,
+      onDateChange: onScheduleDateChange,
       goToPrevMonth,
       goToNextMonth,
     },

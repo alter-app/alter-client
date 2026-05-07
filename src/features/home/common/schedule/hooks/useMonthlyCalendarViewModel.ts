@@ -13,7 +13,7 @@ import { useMemo } from 'react'
 import {
   DATE_KEY_FORMAT,
   MONTH_LABEL_FORMAT,
-  WEEKDAY_LABELS_MONDAY_FIRST,
+  WEEKDAY_LABELS,
 } from '@/features/home/common/schedule/constants/calendar'
 import { useMonthlyDateCellsState } from '@/features/home/common/schedule/hooks/useMonthlyDateCellsState'
 import type {
@@ -27,8 +27,8 @@ import type { CalendarViewData } from '@/features/home/common/schedule/types/cal
 function getMonthlyCells(baseDate: Date): MonthlyCellInput[] {
   const monthStart = startOfMonth(baseDate)
   const monthEnd = endOfMonth(baseDate)
-  const intervalStart = startOfWeek(monthStart, { weekStartsOn: 1 })
-  const intervalEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
+  const intervalStart = startOfWeek(monthStart, { weekStartsOn: 0 })
+  const intervalEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
 
   return eachDayOfInterval({ start: intervalStart, end: intervalEnd }).map(
     date => ({
@@ -127,13 +127,21 @@ export function useMonthlyCalendarViewModel({
     selectedKey,
   })
 
+  const estimatedLaborCost = data?.summary.estimatedLaborCost
+
+  const estimatedEarningsText = useMemo(() => {
+    if (estimatedLaborCost == null) return undefined
+    return `약 ${estimatedLaborCost.toLocaleString()}원`
+  }, [estimatedLaborCost])
+
   return {
     title: workspaceName ?? '월간 아르바이트',
     monthLabel: format(baseDate, MONTH_LABEL_FORMAT),
     totalWorkHoursText: String(
       Math.round(data?.summary.totalWorkHours ?? 0)
     ).padStart(2, '0'),
-    weekdayLabels: WEEKDAY_LABELS_MONDAY_FIRST,
+    weekdayLabels: WEEKDAY_LABELS,
     monthlyDateCellsState,
+    estimatedEarningsText,
   }
 }

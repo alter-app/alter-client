@@ -21,7 +21,7 @@ import { queryKeys } from '@/shared/lib/queryKeys'
 function adaptManagerScheduleResponse(
   response: ManagerScheduleApiResponse
 ): CalendarViewData {
-  const { totalWorkHours, schedules } = response.data
+  const { totalWorkHours, estimatedLaborCost, schedules } = response.data
   const events = schedules.map(
     (shift: ManagerScheduleShiftDto): CalendarEvent => ({
       shiftId: shift.shiftId,
@@ -37,7 +37,7 @@ function adaptManagerScheduleResponse(
     })
   )
   return {
-    summary: { totalWorkHours, eventCount: events.length },
+    summary: { totalWorkHours, eventCount: events.length, estimatedLaborCost },
     events,
   }
 }

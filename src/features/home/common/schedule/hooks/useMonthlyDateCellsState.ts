@@ -12,7 +12,8 @@ export function useMonthlyDateCellsState({
         const dayMetrics = dayMetricsByDate[cell.dateKey]
         const dayHours = dayMetrics?.dayHours ?? 0
         const dayProgress = dayMetrics?.dayProgress ?? 0
-        const isWeekend = cell.weekDay === 0 || cell.weekDay === 6
+        const isSaturday = cell.weekDay === 6
+        const isSunday = cell.weekDay === 0
         const isSelected = cell.dateKey === selectedKey
         const isActiveDay = dayHours > 0 && cell.isCurrentMonth
 
@@ -20,7 +21,8 @@ export function useMonthlyDateCellsState({
           ...cell,
           dayHours,
           dayProgress,
-          isWeekend,
+          isSaturday,
+          isSunday,
           isSelected,
           isActiveDay,
         }

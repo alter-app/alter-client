@@ -16,6 +16,7 @@ export interface CalendarEvent {
 export interface CalendarSummary {
   totalWorkHours: number
   eventCount: number
+  estimatedLaborCost?: number
 }
 
 export interface CalendarViewData {
