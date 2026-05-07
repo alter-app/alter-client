@@ -1,5 +1,5 @@
-import type { ScheduleListItem } from '@/features/home/user/schedule/types/scheduleList'
-import { useScheduleListViewModel } from '@/features/home/user/schedule/hooks/useScheduleListViewModel'
+import type { ScheduleListItem } from '@/features/user/home/schedule/types/scheduleList'
+import { useScheduleListViewModel } from '@/features/user'
 import { ScheduleItem } from './components/ScheduleItem'
 import { ChevronLeftIcon } from '@/assets/icons/ChevronLeftIcon'
 import { ChevronRightIcon } from '@/assets/icons/ChevronRightIcon'

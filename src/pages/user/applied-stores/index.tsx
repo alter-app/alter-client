@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Navbar } from '@/shared/ui/common/Navbar'
-import { AppliedStoreListItem } from '@/features/home/user/applied-stores/ui/AppliedStoreListItem'
-import { AppliedStoreDetailModal } from '@/features/home/user/applied-stores/ui/AppliedStoreDetailModal'
-import { useAppliedStoresViewModel } from '@/features/home/user/applied-stores/hooks/useAppliedStoresViewModel'
-import type { AppliedStoreData } from '@/features/home/user/applied-stores/types/appliedStore'
+import {
+  AppliedStoreListItem,
+  AppliedStoreDetailModal,
+  useAppliedStoresViewModel,
+  type AppliedStoreData,
+} from '@/features/user'
 import DownIcon from '@/assets/icons/home/chevron-down.svg?react'
 
 export function AppliedStoresPage() {

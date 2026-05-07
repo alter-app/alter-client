@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
-import { useWorkspaceWorkersViewModel } from '@/features/home/user/workspace/hooks/useWorkspaceWorkersViewModel'
-import { useWorkspaceManagersViewModel } from '@/features/home/user/workspace/hooks/useWorkspaceManagersViewModel'
+import {
+  useWorkspaceWorkersViewModel,
+  useWorkspaceManagersViewModel,
+} from '@/features/user'
 
 type Params = {
   workspaceId?: string

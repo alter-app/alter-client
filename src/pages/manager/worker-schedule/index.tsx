@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
-import { useWorkerScheduleManageViewModel } from '@/features/home/manager/hooks/useWorkerScheduleManageViewModel'
+import { useWorkerScheduleManageViewModel } from '@/features/manager/home/hooks/useWorkerScheduleManageViewModel'
 import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import chevronDownIcon from '@/assets/icons/home/chevron-down.svg'
 

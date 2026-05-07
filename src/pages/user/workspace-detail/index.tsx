@@ -1,11 +1,13 @@
 import { useParams, useLocation } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { Navbar } from '@/shared/ui/common/Navbar'
-import { HomeScheduleCalendar } from '@/features/home'
+import {
+  HomeScheduleCalendar,
+  useWorkspaceManagersViewModel,
+  useWorkspaceWorkersViewModel,
+  useWorkspaceScheduleViewModel,
+} from '@/features/user'
 import { WorkerListItem } from '@/shared/ui/home/WorkerListItem'
-import { useWorkspaceScheduleViewModel } from '@/features/home/user/workspace/hooks/useWorkspaceScheduleViewModel'
-import { useWorkspaceWorkersViewModel } from '@/features/home/user/workspace/hooks/useWorkspaceWorkersViewModel'
-import { useWorkspaceManagersViewModel } from '@/features/home/user/workspace/hooks/useWorkspaceManagersViewModel'
 import CrownIcon from '@/assets/icons/home/crown-solid.svg'
 import UsersIcon from '@/assets/icons/home/users.svg'
 
