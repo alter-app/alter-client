@@ -2,10 +2,12 @@ import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { useNavigate } from 'react-router-dom'
-import { TodayWorkerList } from '@/features/manager/home/ui/TodayWorkerList'
-import { StoreWorkerListItem } from '@/features/manager/home/ui/StoreWorkerListItem'
-import { useManagerHomeViewModel } from '@/features/manager/home/hooks/useManagerHomeViewModel'
-import { WorkspaceChangeList } from '@/features/manager/home/ui/WorkspaceChangeList'
+import {
+  TodayWorkerList,
+  StoreWorkerListItem,
+  WorkspaceChangeList,
+  useManagerHomeViewModel,
+} from '@/features/manager'
 import { MonthlyCalendar } from '@/features/home/common/schedule/ui/MonthlyCalendar'
 import { OngoingPostingCard } from '@/shared/ui/manager/OngoingPostingCard'
 import { SubstituteApprovalCard } from '@/shared/ui/manager/SubstituteApprovalCard'

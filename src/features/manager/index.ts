@@ -2,3 +2,4 @@ export { StoreWorkerListItem } from '@/features/manager/home/ui/StoreWorkerListI
 export { WorkspaceChangeList } from '@/features/manager/home/ui/WorkspaceChangeList'
 export { WorkspaceChangeCard } from '@/features/manager/home/ui/WorkspaceChangeCard'
 export { TodayWorkerList } from '@/features/manager/home/ui/TodayWorkerList'
+export { useManagerHomeViewModel } from '@/features/manager/home/hooks/useManagerHomeViewModel'

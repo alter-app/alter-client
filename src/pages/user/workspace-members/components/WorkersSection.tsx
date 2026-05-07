@@ -1,4 +1,4 @@
-import type { WorkspaceWorkerItem } from '@/features/user/home/workspace/types/workspaceMembers'
+import type { WorkspaceWorkerItem } from '@/features/user'
 import { LoadMoreButton } from './LoadMoreButton'
 
 type Props = {

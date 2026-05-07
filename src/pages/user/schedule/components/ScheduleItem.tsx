@@ -1,4 +1,4 @@
-import type { ScheduleListItem } from '@/features/user/home/schedule/types/scheduleList'
+import type { ScheduleListItem } from '@/features/user'
 
 interface ScheduleItemProps extends ScheduleListItem {
   onClick?: (id: string) => void

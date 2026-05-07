@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Navbar } from '@/shared/ui/common/Navbar'
-import { WorkingStoreCard } from '@/features/user/home/workspace/ui/WorkingStoreCard'
-import { useWorkspacesViewModel } from '@/features/user/home/workspace/hooks/useWorkspacesViewModel'
+import { WorkingStoreCard, useWorkspacesViewModel } from '@/features/user'
 
 export function WorkspacePage() {
   const navigate = useNavigate()
