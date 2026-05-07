@@ -12,7 +12,7 @@ import {
 import { ko } from 'date-fns/locale'
 import type { ScheduleDataDto } from '@/features/user/home/schedule/types/schedule'
 import type { HomeCalendarMode } from '@/features/user/home/schedule/types/schedule'
-import type { SelfScheduleQueryParams } from '@/features/user/home/schedule/api/schedule'
+import type { SelfScheduleQueryParams } from '@/shared/types/schedule'
 import type { ScheduleListItem } from '@/features/user/home/schedule/types/scheduleList'
 import { WEEKDAY_LABELS } from '@/features/user/home/schedule/constants/calendar'
 import {

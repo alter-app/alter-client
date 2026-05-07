@@ -12,18 +12,7 @@ import {
   toDateKey,
   toTimeLabel,
 } from '@/features/user/home/schedule/lib/date'
-
-export interface SelfScheduleQueryParams {
-  year?: number
-  month?: number
-  day?: number
-  fromYear?: number
-  fromMonth?: number
-  fromDay?: number
-  toYear?: number
-  toMonth?: number
-  toDay?: number
-}
+import type { SelfScheduleQueryParams } from '@/shared/types/schedule'
 
 function mapToCalendarEvent(
   data: ScheduleDataDto['schedules'][number]

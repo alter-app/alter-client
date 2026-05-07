@@ -1,4 +1,4 @@
-import type { SelfScheduleQueryParams } from '@/features/user/home/schedule/api/schedule'
+import type { SelfScheduleQueryParams } from '@/shared/types/schedule'
 
 export const queryKeys = {
   schedules: {
