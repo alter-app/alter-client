@@ -4,11 +4,11 @@ import {
   HomeScheduleCalendar,
   WorkingStoresList,
   AppliedStoreList,
-} from '@/features/home'
-import type { AppliedStoreItem } from '@/features/home/user/applied-stores/ui/AppliedStoreList'
-import { useHomeScheduleViewModel } from '@/features/home/user/schedule/hooks/useHomeScheduleViewModel'
-import { useWorkspacesViewModel } from '@/features/home/user/workspace/hooks/useWorkspacesViewModel'
-import { useAppliedStoresViewModel } from '@/features/home/user/applied-stores/hooks/useAppliedStoresViewModel'
+} from '@/features/user'
+import type { AppliedStoreItem } from '@/features/user/home/applied-stores/ui/AppliedStoreList'
+import { useHomeScheduleViewModel } from '@/features/user/home/schedule/hooks/useHomeScheduleViewModel'
+import { useWorkspacesViewModel } from '@/features/user/home/workspace/hooks/useWorkspacesViewModel'
+import { useAppliedStoresViewModel } from '@/features/user/home/applied-stores/hooks/useAppliedStoresViewModel'
 import { Navbar } from '@/shared/ui/common/Navbar'
 
 export function UserHomePage() {
