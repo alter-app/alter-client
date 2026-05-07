@@ -3,3 +3,5 @@ export { WorkspaceChangeList } from '@/features/manager/home/ui/WorkspaceChangeL
 export { WorkspaceChangeCard } from '@/features/manager/home/ui/WorkspaceChangeCard'
 export { TodayWorkerList } from '@/features/manager/home/ui/TodayWorkerList'
 export { useManagerHomeViewModel } from '@/features/manager/home/hooks/useManagerHomeViewModel'
+export type { ScheduleTab } from '@/features/manager/schedule/types/workerSchedule'
+export { SCHEDULE_TABS } from '@/features/manager/schedule/constants/workerSchedule'

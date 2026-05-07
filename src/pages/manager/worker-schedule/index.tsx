@@ -1,8 +1,10 @@
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import { useWorkerScheduleManageViewModel } from '@/features/manager/home/hooks/useWorkerScheduleManageViewModel'
-import chevronLeftIcon from '@/assets/icons/chevron-left.svg'
 import chevronDownIcon from '@/assets/icons/home/chevron-down.svg'
+import { Navbar } from '@/shared/ui/common/Navbar'
+import type { ScheduleTab } from '@/features/manager'
+import { SCHEDULE_TABS } from '@/features/manager'
 
 interface TimeSelectBoxProps {
   value: string
@@ -21,7 +23,7 @@ function TimeSelectBox({ value, unit }: TimeSelectBoxProps) {
 }
 
 export function ManagerWorkerSchedulePage() {
-  const navigate = useNavigate()
+  const [activeTab, setActiveTab] = useState<ScheduleTab>('고정')
   const {
     worker,
     workdayOptions,
@@ -36,24 +38,26 @@ export function ManagerWorkerSchedulePage() {
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-bg-light">
-      <header className="relative flex h-14 items-center border-b border-line-2 px-4">
-        <button
-          type="button"
-          aria-label="뒤로가기"
-          className="flex h-6 w-6 items-center justify-center"
-          onClick={() => navigate(-1)}
-        >
-          <img
-            src={chevronLeftIcon}
-            alt=""
-            aria-hidden="true"
-            className="h-6 w-6"
-          />
-        </button>
-        <h1 className="absolute left-1/2 -translate-x-1/2 typography-headline03 text-text-100">
-          근무자 스케줄 관리
-        </h1>
-      </header>
+      <Navbar variant="detail" title="근무자 스케줄 관리" />
+      <div className="flex w-full border-b border-line-2">
+        {SCHEDULE_TABS.map(tab => {
+          const isActive = activeTab === tab
+          return (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={`flex h-[46px] flex-1 items-center justify-center typography-body01-semibold ${
+                isActive
+                  ? 'border-b-2 border-line-3 text-text-100'
+                  : 'text-text-50'
+              }`}
+            >
+              {tab}
+            </button>
+          )
+        })}
+      </div>
 
       <main className="flex-1 px-4 pb-4 pt-[30px]">
         <section>
