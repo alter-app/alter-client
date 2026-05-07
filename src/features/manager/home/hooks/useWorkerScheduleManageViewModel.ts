@@ -4,7 +4,6 @@ const WORKDAY_OPTIONS = ['월', '화', '수', '목', '금', '토', '일'] as con
 
 const DEFAULT_SELECTED_DAYS = ['수', '금']
 
-
 export function useWorkerScheduleManageViewModel() {
   const [selectedDays, setSelectedDays] = useState<string[]>(
     DEFAULT_SELECTED_DAYS

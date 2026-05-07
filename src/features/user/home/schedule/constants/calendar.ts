@@ -1,7 +1,4 @@
-// constants는 common으로 이동 — 하위 호환 re-export
 export {
-  WEEKDAY_LABELS,
-  WEEKDAY_LABELS_MONDAY_FIRST,
   DATE_KEY_FORMAT,
   MONTH_LABEL_FORMAT,
   DAILY_TIMELINE_HEIGHT,

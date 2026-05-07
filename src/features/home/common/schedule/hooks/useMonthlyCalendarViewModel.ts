@@ -1,44 +1,18 @@
-import {
-  addDays,
-  eachDayOfInterval,
-  endOfMonth,
-  endOfWeek,
-  format,
-  isSameMonth,
-  startOfDay,
-  startOfMonth,
-  startOfWeek,
-} from 'date-fns'
+import { addDays, format, startOfDay } from 'date-fns'
+import { getCalendarCells } from '@/shared/lib/calendarUtils'
 import { useMemo } from 'react'
 import {
   DATE_KEY_FORMAT,
   MONTH_LABEL_FORMAT,
-  WEEKDAY_LABELS,
 } from '@/features/home/common/schedule/constants/calendar'
+import { WEEKDAY_LABELS } from '@/shared/constants/calendar'
 import { useMonthlyDateCellsState } from '@/features/home/common/schedule/hooks/useMonthlyDateCellsState'
 import type {
   MonthlyCalendarViewModel,
-  MonthlyCellInput,
   MonthlyDayMetrics,
   MonthlyCalendarPropsBase,
 } from '@/features/home/common/schedule/types/monthlyCalendar'
 import type { CalendarViewData } from '@/features/home/common/schedule/types/calendarView'
-
-function getMonthlyCells(baseDate: Date): MonthlyCellInput[] {
-  const monthStart = startOfMonth(baseDate)
-  const monthEnd = endOfMonth(baseDate)
-  const intervalStart = startOfWeek(monthStart, { weekStartsOn: 0 })
-  const intervalEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
-
-  return eachDayOfInterval({ start: intervalStart, end: intervalEnd }).map(
-    date => ({
-      dateKey: format(date, DATE_KEY_FORMAT),
-      dayText: format(date, 'd'),
-      isCurrentMonth: isSameMonth(date, baseDate),
-      weekDay: date.getDay(),
-    })
-  )
-}
 
 type MinuteRange = [number, number]
 
@@ -116,7 +90,16 @@ export function useMonthlyCalendarViewModel({
   workspaceName,
   selectedDateKey,
 }: MonthlyCalendarPropsBase): MonthlyCalendarViewModel {
-  const cells = useMemo(() => getMonthlyCells(baseDate), [baseDate])
+  const cells = useMemo(
+    () =>
+      getCalendarCells(baseDate, 0).map(({ date, isCurrentMonth }) => ({
+        dateKey: format(date, DATE_KEY_FORMAT),
+        dayText: format(date, 'd'),
+        isCurrentMonth,
+        weekDay: date.getDay(),
+      })),
+    [baseDate]
+  )
   const selectedKey = selectedDateKey ?? format(baseDate, DATE_KEY_FORMAT)
 
   const dayMetricsByDate = useMemo(() => getDayMetricsByDate(data), [data])

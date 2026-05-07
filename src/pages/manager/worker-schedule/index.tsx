@@ -4,6 +4,7 @@ import { useWorkerScheduleManageViewModel } from '@/features/manager/home/hooks/
 import chevronDownIcon from '@/assets/icons/home/chevron-down.svg'
 import calendarIcon from '@/assets/icons/nav/calendar.svg'
 import { Navbar } from '@/shared/ui/common/Navbar'
+import { ScheduleCalendar } from '@/shared/ui/common/ScheduleCalendar'
 import type { ScheduleTab } from '@/features/manager'
 import { SCHEDULE_TABS } from '@/features/manager'
 
@@ -33,6 +34,8 @@ function TimeSelectBox({ value, unit, onChange }: TimeSelectBoxProps) {
 
 export function ManagerWorkerSchedulePage() {
   const [activeTab, setActiveTab] = useState<ScheduleTab>('고정')
+  const [showCalendar, setShowCalendar] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const {
     worker,
     workdayOptions,
@@ -128,12 +131,22 @@ export function ManagerWorkerSchedulePage() {
           <section className="mt-12">
             <button
               type="button"
+              onClick={() => setShowCalendar(true)}
               className="mt-4 flex h-12 w-full items-center gap-1 rounded-2xl bg-white px-4"
             >
-              <span className="typography-headline03 text-text-100">
-                날짜 선택
+              <span
+                className={`typography-headline03 ${selectedDate ? 'text-text-100' : 'text-text-50'}`}
+              >
+                {selectedDate
+                  ? `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`
+                  : '날짜 선택'}
               </span>
-              <img src={calendarIcon} alt="" aria-hidden="true" className="h-6 w-6" />
+              <img
+                src={calendarIcon}
+                alt=""
+                aria-hidden="true"
+                className="h-6 w-6"
+              />
             </button>
           </section>
         )}
@@ -151,7 +164,11 @@ export function ManagerWorkerSchedulePage() {
               출근 시간
             </span>
             <div className="flex items-center gap-2">
-              <TimeSelectBox value={startHour} unit="시" onChange={setStartHour} />
+              <TimeSelectBox
+                value={startHour}
+                unit="시"
+                onChange={setStartHour}
+              />
               <div className="flex flex-col items-center gap-1">
                 <span
                   className="h-1 w-1 rounded-full bg-text-70"
@@ -162,7 +179,11 @@ export function ManagerWorkerSchedulePage() {
                   aria-hidden="true"
                 />
               </div>
-              <TimeSelectBox value={startMinute} unit="분" onChange={setStartMinute} />
+              <TimeSelectBox
+                value={startMinute}
+                unit="분"
+                onChange={setStartMinute}
+              />
             </div>
           </div>
 
@@ -182,11 +203,35 @@ export function ManagerWorkerSchedulePage() {
                   aria-hidden="true"
                 />
               </div>
-              <TimeSelectBox value={endMinute} unit="분" onChange={setEndMinute} />
+              <TimeSelectBox
+                value={endMinute}
+                unit="분"
+                onChange={setEndMinute}
+              />
             </div>
           </div>
         </section>
       </main>
+
+      {showCalendar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/50"
+            aria-label="닫기"
+            onClick={() => setShowCalendar(false)}
+          />
+          <div className="relative w-[358px]">
+            <ScheduleCalendar
+              selectedDate={selectedDate}
+              onDateChange={date => {
+                setSelectedDate(date)
+                setShowCalendar(false)
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="px-4 pb-8">
         <button
