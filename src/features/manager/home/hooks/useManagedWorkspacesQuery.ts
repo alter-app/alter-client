@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { fetchManagedWorkspaces } from '@/features/manager/home/api/workspace'
+import { fetchManagedWorkspaces } from '@/features/manager/api/workspace'
 import { useWorkspaceStore } from '@/shared/stores/useWorkspaceStore'
 import { queryKeys } from '@/shared/lib/queryKeys'
 

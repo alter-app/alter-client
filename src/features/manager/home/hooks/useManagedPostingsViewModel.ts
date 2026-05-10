@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { fetchManagedPostings } from '@/features/manager/home/api/posting'
+import { fetchManagedPostings } from '@/features/manager/api/posting'
 import { adaptPostingDto } from '@/features/manager/home/types/posting'
 import { queryKeys } from '@/shared/lib/queryKeys'
 

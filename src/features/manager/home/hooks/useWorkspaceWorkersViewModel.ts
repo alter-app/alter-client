@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { fetchWorkspaceWorkers } from '@/features/manager/home/api/worker'
+import { fetchWorkspaceWorkers } from '@/features/manager/api/worker'
 import { adaptWorkerDto } from '@/features/manager/home/lib/worker'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
