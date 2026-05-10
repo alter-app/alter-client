@@ -25,6 +25,7 @@ export interface WorkerDto {
   user: WorkerUserDto
   status: WorkerStatusDto
   position: WorkerPositionDto
+  colorCode: string
   employedAt: string
   resignedAt: string | null
   nextShiftDateTime: string | null
