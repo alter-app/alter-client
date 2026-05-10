@@ -30,7 +30,8 @@ export function ScheduleCalendar({
         setViewMonth(month)
       }
     }
-  }, [selectedDate, viewYear, viewMonth])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate])
 
   const baseDate = new Date(viewYear, viewMonth, 1)
   const cells = getCalendarCells(baseDate, 0)
