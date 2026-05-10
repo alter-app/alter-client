@@ -5,7 +5,7 @@ export interface WorkspaceItemDto {
   workspaceId: number
   businessName: string
   employedAt: string
-  nextShiftDateTime: string
+  nextShiftDateTime?: string | null
 }
 
 export interface WorkspacePageDto {
@@ -26,7 +26,7 @@ export interface WorkspaceItem {
   workspaceId: number
   businessName: string
   employedAt: string
-  nextShiftDateTime: string
+  nextShiftDateTime: string | null
 }
 
 export interface WorkspaceListQueryParams {

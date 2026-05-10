@@ -11,7 +11,8 @@ import { WorkerListItem } from '@/shared/ui/home/WorkerListItem'
 import CrownIcon from '@/assets/icons/home/crown-solid.svg'
 import UsersIcon from '@/assets/icons/home/users.svg'
 
-function formatNextShift(isoDate: string) {
+function formatNextShift(isoDate: string | null | undefined) {
+  if (isoDate == null || isoDate === '') return undefined
   const date = parseISO(isoDate)
   if (Number.isNaN(date.getTime())) return undefined
   return format(date, 'yyyy. M. d.')

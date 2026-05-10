@@ -18,7 +18,7 @@ export type ApplicationApiStatus =
 // ---- DTO ----
 export interface PostingScheduleDto {
   id: number
-  workingDays: string
+  workingDays: string | string[]
   startTime: string
   endTime: string
   position: string
@@ -80,8 +80,20 @@ const WORKING_DAY_MAP: Record<string, WeekdayLabel> = {
   SUNDAY: '일',
 }
 
-export function parseWorkingDays(workingDaysStr: string): WeekdayLabel[] {
-  const matches = workingDaysStr.match(/[A-Z]+/g) ?? []
+export function parseWorkingDays(
+  workingDays: string | string[] | null | undefined
+): WeekdayLabel[] {
+  if (workingDays == null || workingDays === '') return []
+
+  if (Array.isArray(workingDays)) {
+    return workingDays
+      .map(d => WORKING_DAY_MAP[String(d).trim().toUpperCase()])
+      .filter((d): d is WeekdayLabel => d !== undefined)
+  }
+
+  if (typeof workingDays !== 'string') return []
+
+  const matches = workingDays.match(/[A-Z]+/g) ?? []
   return matches
     .map(day => WORKING_DAY_MAP[day])
     .filter((d): d is WeekdayLabel => d !== undefined)
