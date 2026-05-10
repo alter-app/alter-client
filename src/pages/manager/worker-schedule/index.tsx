@@ -5,8 +5,10 @@ import chevronDownIcon from '@/assets/icons/home/chevron-down.svg'
 import calendarIcon from '@/assets/icons/schedule/schedule_calendar.svg'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { ScheduleCalendar } from '@/shared/ui/common/ScheduleCalendar'
+import { ColorPickerDropdown } from '@/shared/ui/schedule/ColorPickerDropdown'
 import type { ScheduleTab } from '@/features/manager'
 import { SCHEDULE_TABS } from '@/features/manager'
+import { ScheduleColor } from '@/features/manager/worker-schedule/types/scheduleColor'
 
 interface TimeSelectBoxProps {
   value: string
@@ -37,6 +39,8 @@ export function ManagerWorkerSchedulePage() {
   const [showCalendar, setShowCalendar] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isWorkerDropdownOpen, setIsWorkerDropdownOpen] = useState(false)
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false)
+  const [selectedColor, setSelectedColor] = useState<ScheduleColor>(ScheduleColor.Pink)
   const {
     worker,
     workers,
@@ -121,7 +125,9 @@ export function ManagerWorkerSchedulePage() {
                     setIsWorkerDropdownOpen(false)
                   }}
                   className={`flex h-[70px] w-full items-center gap-4 rounded-2xl px-3 py-4 transition-colors ${
-                    selectedWorkerIndex === index ? 'bg-main/10' : 'hover:bg-bg-light'
+                    selectedWorkerIndex === index
+                      ? 'bg-main/10'
+                      : 'hover:bg-bg-light'
                   }`}
                 >
                   <div
@@ -162,54 +168,64 @@ export function ManagerWorkerSchedulePage() {
             </div>
           </section>
         ) : (
-          <section className="relative mt-12">
-            <h2 className="typography-headline03 text-text-100">날짜 선택</h2>
-            <button
-              type="button"
-              onClick={() => setShowCalendar(!showCalendar)}
-              className="mt-4 flex h-12 w-full items-center gap-1 rounded-2xl bg-white px-4"
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-1">
-                <span className={`typography-headline03 text-text-100`}>
-                  {selectedDate
-                    ? `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`
-                    : '날짜 선택'}
-                </span>
-                <img
-                  src={calendarIcon}
-                  alt=""
-                  aria-hidden="true"
-                  className="h-6 w-6"
-                />
-              </div>
-              <div className="flex h-6 w-6 items-center justify-center">
-                <img
-                  src={chevronDownIcon}
-                  alt=""
-                  aria-hidden="true"
-                  className={`h-5 w-5 transition-transform ${showCalendar ? 'rotate-180' : ''}`}
-                />
-              </div>
-            </button>
+          <>
+            <section className="relative mt-12">
+              <h2 className="typography-headline03 text-text-100">날짜 선택</h2>
+              <button
+                type="button"
+                onClick={() => setShowCalendar(!showCalendar)}
+                className="mt-4 flex h-12 w-full items-center gap-1 rounded-2xl bg-white px-4"
+              >
+                <div className="flex min-w-0 flex-1 items-center gap-1">
+                  <span className={`typography-headline03 text-text-100`}>
+                    {selectedDate
+                      ? `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`
+                      : '날짜 선택'}
+                  </span>
+                  <img
+                    src={calendarIcon}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-6 w-6"
+                  />
+                </div>
+                <div className="flex h-6 w-6 items-center justify-center">
+                  <img
+                    src={chevronDownIcon}
+                    alt=""
+                    aria-hidden="true"
+                    className={`h-5 w-5 transition-transform ${showCalendar ? 'rotate-180' : ''}`}
+                  />
+                </div>
+              </button>
 
-            {showCalendar && (
-              <div className="absolute top-full left-0 z-10 mt-2 w-full rounded-2xl bg-white p-3">
-                <ScheduleCalendar
-                  selectedDate={selectedDate}
-                  onDateChange={date => {
-                    setSelectedDate(date)
-                    setShowCalendar(false)
-                  }}
-                />
-              </div>
-            )}
-          </section>
+              {showCalendar && (
+                <div className="absolute top-full left-0 z-10 mt-2 w-full rounded-2xl bg-white p-3">
+                  <ScheduleCalendar
+                    selectedDate={selectedDate}
+                    onDateChange={date => {
+                      setSelectedDate(date)
+                      setShowCalendar(false)
+                    }}
+                  />
+                </div>
+              )}
+            </section>
+            <section className="relative mt-4">
+              <ColorPickerDropdown
+                selectedColor={selectedColor}
+                onColorChange={setSelectedColor}
+                isOpen={isColorPickerOpen}
+                onToggle={() => setIsColorPickerOpen(!isColorPickerOpen)}
+              />
+            </section>
+          </>
         )}
-
-        <section className="mt-12">
-          <h2 className="typography-headline03 text-text-100">
-            근무 시간 선택
-          </h2>
+        {!isColorPickerOpen && (
+          <section className="mt-12">
+            <h2 className="typography-headline03 text-text-100">
+              근무 시간 선택
+            </h2>
           <p className="mt-1 typography-body02-regular text-text-100">
             {workTimeRangeLabel}
           </p>
@@ -266,8 +282,8 @@ export function ManagerWorkerSchedulePage() {
             </div>
           </div>
         </section>
+        )}
       </main>
-
 
       <div className="px-4 pb-8">
         <button
