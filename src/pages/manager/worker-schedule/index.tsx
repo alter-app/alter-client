@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
-import { useWorkerScheduleManageViewModel } from '@/features/manager/home/hooks/useWorkerScheduleManageViewModel'
+import { useWorkerScheduleManageViewModel } from '@/features/manager/worker-schedule/hooks/useWorkerScheduleManageViewModel'
 import chevronDownIcon from '@/assets/icons/home/chevron-down.svg'
 import calendarIcon from '@/assets/icons/schedule/schedule_calendar.svg'
 import { Navbar } from '@/shared/ui/common/Navbar'
