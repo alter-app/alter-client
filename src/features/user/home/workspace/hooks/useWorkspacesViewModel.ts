@@ -34,8 +34,11 @@ export function useWorkspacesViewModel() {
   const workspaces =
     data?.pages.flatMap(page => adaptWorkspaceListResponse(page)) ?? []
 
+  const totalCount = data?.pages[0]?.data.page.totalCount ?? 0
+
   return {
     workspaces,
+    totalCount,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,

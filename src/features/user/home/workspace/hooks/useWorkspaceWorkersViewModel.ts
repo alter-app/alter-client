@@ -31,8 +31,11 @@ export function useWorkspaceWorkersViewModel(
   const workers =
     data?.pages.flatMap(page => page.data.data.map(adaptWorkerDto)) ?? []
 
+  const totalCount = data?.pages[0]?.data.page.totalCount ?? 0
+
   return {
     workers,
+    totalCount,
     fetchNextPage,
     hasNextPage: !!hasNextPage,
     isFetchingNextPage,

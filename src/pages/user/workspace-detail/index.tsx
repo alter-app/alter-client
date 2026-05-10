@@ -9,6 +9,7 @@ import {
   useWorkspaceWorkersViewModel,
   useWorkspaceScheduleViewModel,
 } from '@/features/user'
+import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibility'
 import { WorkerListItem } from '@/shared/ui/home/WorkerListItem'
 import CrownIcon from '@/assets/icons/home/crown-solid.svg'
 import UsersIcon from '@/assets/icons/home/users.svg'
@@ -60,6 +61,7 @@ export function WorkspaceDetailPage() {
 
   const {
     managers,
+    totalCount: managersTotalCount,
     fetchNextPage: fetchNextManagers,
     hasNextPage: hasMoreManagers,
     isFetchingNextPage: fetchingManagers,
@@ -68,11 +70,21 @@ export function WorkspaceDetailPage() {
 
   const {
     workers,
+    totalCount: workersTotalCount,
     fetchNextPage: fetchNextWorkers,
     hasNextPage: hasMoreWorkers,
     isFetchingNextPage: fetchingWorkers,
     isLoading: workersLoading,
   } = useWorkspaceWorkersViewModel(id, 5)
+
+  const showManagersLoadMore = shouldShowInfiniteListLoadMore(
+    hasMoreManagers,
+    managersTotalCount
+  )
+  const showWorkersLoadMore = shouldShowInfiniteListLoadMore(
+    hasMoreWorkers,
+    workersTotalCount
+  )
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-bg-light">
@@ -121,7 +133,7 @@ export function WorkspaceDetailPage() {
                   />
                 ))}
               </div>
-              {hasMoreManagers && (
+              {showManagersLoadMore && (
                 <button
                   type="button"
                   className="typography-body02-regular mt-2 w-full py-3 text-center text-text-70"
@@ -170,7 +182,7 @@ export function WorkspaceDetailPage() {
                   />
                 ))}
               </div>
-              {hasMoreWorkers && (
+              {showWorkersLoadMore && (
                 <button
                   type="button"
                   className="typography-body02-regular mt-2 w-full py-3 text-center text-text-70"

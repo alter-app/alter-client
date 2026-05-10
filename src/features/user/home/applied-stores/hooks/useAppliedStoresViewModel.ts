@@ -74,6 +74,8 @@ export function useAppliedStoresViewModel() {
     [data]
   )
 
+  const totalCount = data?.pages[0]?.page.totalCount ?? 0
+
   const grouped = useMemo(
     () =>
       STATUS_SECTIONS.map(section => ({
@@ -116,6 +118,7 @@ export function useAppliedStoresViewModel() {
     toggleDropdown,
     selectFilter,
     getCardStatus,
+    totalCount,
     fetchNextPage,
     hasNextPage: !!hasNextPage,
     isFetchingNextPage,

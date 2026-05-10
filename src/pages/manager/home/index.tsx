@@ -17,12 +17,14 @@ import managerHomeBannerImage from '@/assets/manager-home-banner.jpg'
 import managerHomeBannerPlusIcon from '@/assets/icons/home/manager-home-banner-plus.svg'
 import managerWorkspaceModalPlusIcon from '@/assets/icons/home/manager-workspace-modal-plus.svg'
 import managerScheduleEditIcon from '@/assets/icons/home/edit.svg'
+import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibility'
 
 export function ManagerHomePage() {
   const navigate = useNavigate()
   const {
     todayWorkers,
     storeWorkers,
+    storeWorkersTotalCount,
     fetchMoreWorkers,
     hasMoreWorkers,
     isFetchingMoreWorkers,
@@ -193,7 +195,10 @@ export function ManagerHomePage() {
                 onOptions={() => {}}
               />
             ))}
-            {hasMoreWorkers && (
+            {shouldShowInfiniteListLoadMore(
+              hasMoreWorkers,
+              storeWorkersTotalCount
+            ) && (
               <MoreButton
                 onClick={() => fetchMoreWorkers()}
                 disabled={isFetchingMoreWorkers}
@@ -210,7 +215,14 @@ export function ManagerHomePage() {
         <div className="mx-4">
           <OngoingPostingCard
             postings={ongoingPostings}
-            onViewMore={hasMorePostings ? () => fetchMorePostings() : undefined}
+            onViewMore={
+              shouldShowInfiniteListLoadMore(
+                hasMorePostings,
+                postingsTotalCount
+              )
+                ? () => fetchMorePostings()
+                : undefined
+            }
             onPostingClick={() => {}}
           />
         </div>
@@ -224,7 +236,12 @@ export function ManagerHomePage() {
           <SubstituteApprovalCard
             requests={substituteRequests}
             onViewMore={
-              hasMoreSubstitutes ? () => fetchMoreSubstitutes() : undefined
+              shouldShowInfiniteListLoadMore(
+                hasMoreSubstitutes,
+                substituteTotalCount
+              )
+                ? () => fetchMoreSubstitutes()
+                : undefined
             }
             onRequestClick={() => {}}
           />
