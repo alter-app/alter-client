@@ -4,7 +4,7 @@ import { fetchWorkspaceWorkers } from '@/features/manager/api/worker'
 import { adaptWorkerDto } from '@/features/manager/home/lib/worker'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 50
 
 export function useWorkspaceWorkersViewModel(
   workspaceId: number | null,

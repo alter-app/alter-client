@@ -13,6 +13,7 @@ export function useWorkerScheduleManageViewModel() {
   const activeWorkspaceId = useWorkspaceStore(state => state.activeWorkspaceId)
   const { data: workersResponse, isLoading } = useWorkspaceWorkers({
     workspaceId: activeWorkspaceId ?? undefined,
+    status: 'ACTIVATED',
   })
 
   const workers = useMemo(() => {
