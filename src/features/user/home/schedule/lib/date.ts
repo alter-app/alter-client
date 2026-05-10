@@ -14,15 +14,12 @@ import type { ScheduleDataDto } from '@/features/user/home/schedule/types/schedu
 import type { HomeCalendarMode } from '@/features/user/home/schedule/types/schedule'
 import type { SelfScheduleQueryParams } from '@/shared/types/schedule'
 import type { ScheduleListItem } from '@/features/user/home/schedule/types/scheduleList'
-import { WEEKDAY_LABELS } from '@/features/user/home/schedule/constants/calendar'
+import { WEEKDAY_LABELS } from '@/shared/constants/calendar'
 import {
   toDateKey,
   toTimeLabel,
   getDurationHours,
 } from '@/features/home/common/schedule/lib/date'
-
-// 순수 날짜 유틸은 common으로 이동 — 하위 호환 re-export
-export { toDateKey, toTimeLabel, getDurationHours }
 
 export function getMonthlyDateCells(baseDate: Date) {
   const monthStart = startOfMonth(baseDate)

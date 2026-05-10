@@ -1,4 +1,4 @@
-import type { WEEKDAY_LABELS } from '@/features/home/common/schedule/constants/calendar'
+import type { WEEKDAY_LABELS } from '@/shared/constants/calendar'
 import type { BaseCalendarProps } from '@/features/home/common/schedule/types/calendarBase'
 
 export interface MonthlyCellInput {
