@@ -24,9 +24,12 @@ function normalizeWorkspaceShifts(
   if (payload == null) return []
   if (Array.isArray(payload)) return payload
   if (typeof payload === 'object') {
-    const { schedules, shifts } = payload
-    if (Array.isArray(schedules)) return schedules
-    if (Array.isArray(shifts)) return shifts
+    const rec = payload as {
+      schedules?: WorkspaceShiftDto[]
+      shifts?: WorkspaceShiftDto[]
+    }
+    if (Array.isArray(rec.schedules)) return rec.schedules
+    if (Array.isArray(rec.shifts)) return rec.shifts
   }
   return []
 }
