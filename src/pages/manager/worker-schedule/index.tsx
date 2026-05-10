@@ -40,7 +40,9 @@ export function ManagerWorkerSchedulePage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isWorkerDropdownOpen, setIsWorkerDropdownOpen] = useState(false)
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false)
-  const [selectedColor, setSelectedColor] = useState<ScheduleColor>(ScheduleColor.Pink)
+  const [selectedColor, setSelectedColor] = useState<ScheduleColor>(
+    ScheduleColor.Pink
+  )
   const {
     worker,
     workers,
@@ -226,62 +228,66 @@ export function ManagerWorkerSchedulePage() {
             <h2 className="typography-headline03 text-text-100">
               근무 시간 선택
             </h2>
-          <p className="mt-1 typography-body02-regular text-text-100">
-            {workTimeRangeLabel}
-          </p>
+            <p className="mt-1 typography-body02-regular text-text-100">
+              {workTimeRangeLabel}
+            </p>
 
-          <div className="mt-3 flex items-center justify-between">
-            <span className="typography-body02-semibold text-text-70">
-              출근 시간
-            </span>
-            <div className="flex items-center gap-2">
-              <TimeSelectBox
-                value={startHour}
-                unit="시"
-                onChange={setStartHour}
-              />
-              <div className="flex flex-col items-center gap-1">
-                <span
-                  className="h-1 w-1 rounded-full bg-text-70"
-                  aria-hidden="true"
+            <div className="mt-3 flex items-center justify-between">
+              <span className="typography-body02-semibold text-text-70">
+                출근 시간
+              </span>
+              <div className="flex items-center gap-2">
+                <TimeSelectBox
+                  value={startHour}
+                  unit="시"
+                  onChange={setStartHour}
                 />
-                <span
-                  className="h-1 w-1 rounded-full bg-text-70"
-                  aria-hidden="true"
+                <div className="flex flex-col items-center gap-1">
+                  <span
+                    className="h-1 w-1 rounded-full bg-text-70"
+                    aria-hidden="true"
+                  />
+                  <span
+                    className="h-1 w-1 rounded-full bg-text-70"
+                    aria-hidden="true"
+                  />
+                </div>
+                <TimeSelectBox
+                  value={startMinute}
+                  unit="분"
+                  onChange={setStartMinute}
                 />
               </div>
-              <TimeSelectBox
-                value={startMinute}
-                unit="분"
-                onChange={setStartMinute}
-              />
             </div>
-          </div>
 
-          <div className="mt-2 flex items-center justify-between">
-            <span className="typography-body02-semibold text-text-70">
-              퇴근 시간
-            </span>
-            <div className="flex items-center gap-2">
-              <TimeSelectBox value={endHour} unit="시" onChange={setEndHour} />
-              <div className="flex flex-col items-center gap-1">
-                <span
-                  className="h-1 w-1 rounded-full bg-text-70"
-                  aria-hidden="true"
+            <div className="mt-2 flex items-center justify-between">
+              <span className="typography-body02-semibold text-text-70">
+                퇴근 시간
+              </span>
+              <div className="flex items-center gap-2">
+                <TimeSelectBox
+                  value={endHour}
+                  unit="시"
+                  onChange={setEndHour}
                 />
-                <span
-                  className="h-1 w-1 rounded-full bg-text-70"
-                  aria-hidden="true"
+                <div className="flex flex-col items-center gap-1">
+                  <span
+                    className="h-1 w-1 rounded-full bg-text-70"
+                    aria-hidden="true"
+                  />
+                  <span
+                    className="h-1 w-1 rounded-full bg-text-70"
+                    aria-hidden="true"
+                  />
+                </div>
+                <TimeSelectBox
+                  value={endMinute}
+                  unit="분"
+                  onChange={setEndMinute}
                 />
               </div>
-              <TimeSelectBox
-                value={endMinute}
-                unit="분"
-                onChange={setEndMinute}
-              />
             </div>
-          </div>
-        </section>
+          </section>
         )}
       </main>
 
