@@ -6,9 +6,10 @@ import calendarIcon from '@/assets/icons/schedule/schedule_calendar.svg'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { ScheduleCalendar } from '@/shared/ui/common/ScheduleCalendar'
 import { ColorPickerDropdown } from '@/shared/ui/schedule/ColorPickerDropdown'
+import { Spinner } from '@/shared/ui/Spinner'
+import { cn } from '@/shared/lib/utils'
 import type { ScheduleTab } from '@/features/manager'
 import { SCHEDULE_TABS } from '@/features/manager'
-import { ScheduleColor } from '@/features/manager/worker-schedule/types/scheduleColor'
 
 interface TimeSelectBoxProps {
   value: string
@@ -56,26 +57,18 @@ export function ManagerWorkerSchedulePage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isWorkerDropdownOpen, setIsWorkerDropdownOpen] = useState(false)
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false)
-  const [selectedColor, setSelectedColor] = useState<ScheduleColor>(
-    ScheduleColor.Pink
-  )
   const {
+    isLoading,
     worker,
     workers,
     selectedWorkerIndex,
     setSelectedWorkerIndex,
     workdayOptions,
     selectedDays,
-    workTimeRangeLabel,
-    startHour,
-    startMinute,
-    endHour,
-    endMinute,
-    setStartHour,
-    setStartMinute,
-    setEndHour,
-    setEndMinute,
     toggleDay,
+    workTime,
+    selectedColor,
+    setSelectedColor,
   } = useWorkerScheduleManageViewModel()
 
   return (
@@ -89,11 +82,10 @@ export function ManagerWorkerSchedulePage() {
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`flex h-[46px] flex-1 items-center justify-center typography-body01-semibold ${
-                isActive
-                  ? 'border-b-2 border-line-3 text-text-100'
-                  : 'text-text-50'
-              }`}
+              className={cn(
+                'flex h-[46px] flex-1 items-center justify-center typography-body01-semibold',
+                isActive ? 'border-b-2 border-line-3 text-text-100' : 'text-text-50'
+              )}
             >
               {tab}
             </button>
@@ -102,11 +94,22 @@ export function ManagerWorkerSchedulePage() {
       </div>
 
       <main className="flex-1 px-4 pb-4 pt-[30px]">
+        {isLoading && (
+          <div className="flex h-full items-center justify-center">
+            <Spinner />
+          </div>
+        )}
+        {!isLoading && (
+          <>
         <section className="relative">
           <h2 className="typography-headline03 text-text-100">근무자 선택</h2>
           <button
             type="button"
-            onClick={() => setIsWorkerDropdownOpen(!isWorkerDropdownOpen)}
+            onClick={() => {
+              if (workers.length >= 2) {
+                setIsWorkerDropdownOpen(!isWorkerDropdownOpen)
+              }
+            }}
             aria-label="근무자 펼치기"
             className="mt-4 flex h-[70px] w-full items-center rounded-2xl bg-white px-3"
           >
@@ -127,7 +130,7 @@ export function ManagerWorkerSchedulePage() {
                 src={chevronDownIcon}
                 alt=""
                 aria-hidden="true"
-                className={`h-5 w-5 transition-transform ${isWorkerDropdownOpen ? 'rotate-180' : ''}`}
+                className={cn('h-5 w-5 transition-transform', isWorkerDropdownOpen && 'rotate-180')}
               />
             </div>
           </button>
@@ -142,11 +145,10 @@ export function ManagerWorkerSchedulePage() {
                     setSelectedWorkerIndex(index)
                     setIsWorkerDropdownOpen(false)
                   }}
-                  className={`flex h-[70px] w-full items-center gap-4 rounded-2xl px-3 py-4 transition-colors ${
-                    selectedWorkerIndex === index
-                      ? 'bg-main/10'
-                      : 'hover:bg-bg-light'
-                  }`}
+                  className={cn(
+                    'flex h-[70px] w-full items-center gap-4 rounded-2xl px-3 py-4 transition-colors',
+                    selectedWorkerIndex === index ? 'bg-main/10' : 'hover:bg-bg-light'
+                  )}
                 >
                   <div
                     className="size-[38px] rounded-full bg-[repeating-conic-gradient(#ececec_0%_25%,transparent_0%_50%)] [background-size:8px_8px]"
@@ -174,9 +176,10 @@ export function ManagerWorkerSchedulePage() {
                   <button
                     key={day}
                     type="button"
-                    className={`flex h-10 w-[50px] items-center justify-center rounded-2xl typography-body01-semibold ${
+                    className={cn(
+                      'flex h-10 w-[50px] items-center justify-center rounded-2xl typography-body01-semibold',
                       selected ? 'bg-main text-text-100' : 'text-text-50'
-                    }`}
+                    )}
                     onClick={() => toggleDay(day)}
                   >
                     {day}
@@ -212,7 +215,7 @@ export function ManagerWorkerSchedulePage() {
                     src={chevronDownIcon}
                     alt=""
                     aria-hidden="true"
-                    className={`h-5 w-5 transition-transform ${showCalendar ? 'rotate-180' : ''}`}
+                    className={cn('h-5 w-5 transition-transform', showCalendar && 'rotate-180')}
                   />
                 </div>
               </button>
@@ -245,7 +248,7 @@ export function ManagerWorkerSchedulePage() {
               근무 시간 선택
             </h2>
             <p className="mt-1 typography-body02-regular text-text-100">
-              {workTimeRangeLabel}
+              {workTime.rangeLabel}
             </p>
 
             <div className="mt-3 flex items-center justify-between">
@@ -254,9 +257,9 @@ export function ManagerWorkerSchedulePage() {
               </span>
               <div className="flex items-center gap-2">
                 <TimeSelectBox
-                  value={startHour}
+                  value={workTime.startHour}
                   unit="시"
-                  onChange={setStartHour}
+                  onChange={workTime.setStartHour}
                 />
                 <div className="flex flex-col items-center gap-1">
                   <span
@@ -269,9 +272,9 @@ export function ManagerWorkerSchedulePage() {
                   />
                 </div>
                 <TimeSelectBox
-                  value={startMinute}
+                  value={workTime.startMinute}
                   unit="분"
-                  onChange={setStartMinute}
+                  onChange={workTime.setStartMinute}
                 />
               </div>
             </div>
@@ -282,9 +285,9 @@ export function ManagerWorkerSchedulePage() {
               </span>
               <div className="flex items-center gap-2">
                 <TimeSelectBox
-                  value={endHour}
+                  value={workTime.endHour}
                   unit="시"
-                  onChange={setEndHour}
+                  onChange={workTime.setEndHour}
                 />
                 <div className="flex flex-col items-center gap-1">
                   <span
@@ -297,13 +300,15 @@ export function ManagerWorkerSchedulePage() {
                   />
                 </div>
                 <TimeSelectBox
-                  value={endMinute}
+                  value={workTime.endMinute}
                   unit="분"
-                  onChange={setEndMinute}
+                  onChange={workTime.setEndMinute}
                 />
               </div>
             </div>
           </section>
+        )}
+          </>
         )}
       </main>
 
