@@ -15,6 +15,8 @@ interface MonthlyCalendarProps extends MonthlyCalendarPropsBase {
   rightAction?: ReactNode
   layout?: 'default' | 'manager'
   onMonthChange?: (date: Date) => void
+  /** 현재 표시 월의 날짜만 전달된다. 선택 UI는 MonthlyDateCell이 버튼으로 바뀐다 */
+  onDaySelect?: (dateKey: string) => void
 }
 
 export function MonthlyCalendar({
@@ -28,6 +30,7 @@ export function MonthlyCalendar({
   rightAction,
   layout = 'default',
   onMonthChange,
+  onDaySelect,
 }: MonthlyCalendarProps) {
   const {
     title,
@@ -132,6 +135,11 @@ export function MonthlyCalendar({
                 isSelected={cell.isSelected}
                 isActiveDay={cell.isActiveDay}
                 gaugeRatio={cell.dayProgress}
+                onClick={
+                  onDaySelect && cell.isCurrentMonth
+                    ? () => onDaySelect(cell.dateKey)
+                    : undefined
+                }
               />
             )
           })}
