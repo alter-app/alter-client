@@ -17,6 +17,17 @@ interface TimeSelectBoxProps {
 }
 
 function TimeSelectBox({ value, unit, onChange }: TimeSelectBoxProps) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value.replace(/\D/g, '')
+    if (inputValue === '') {
+      onChange('')
+      return
+    }
+    const maxValue = unit === '시' ? 23 : 59
+    const numValue = Math.min(parseInt(inputValue, 10), maxValue)
+    onChange(numValue.toString().padStart(2, '0'))
+  }
+
   return (
     <div className="flex h-12 w-[78px] items-center justify-center rounded-2xl bg-white">
       <input
@@ -25,7 +36,7 @@ function TimeSelectBox({ value, unit, onChange }: TimeSelectBoxProps) {
         maxLength={2}
         value={value}
         placeholder="00"
-        onChange={e => onChange(e.target.value.replace(/\D/g, ''))}
+        onChange={handleChange}
         className="w-8 bg-transparent text-center typography-body01-semibold text-text-100 placeholder:text-text-50 outline-none"
         aria-label={unit}
       />
