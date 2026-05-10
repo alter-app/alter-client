@@ -1,8 +1,10 @@
+import { useEffect, useMemo } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import {
   HomeScheduleCalendar,
+  useWorkspacesViewModel,
   useWorkspaceManagersViewModel,
   useWorkspaceWorkersViewModel,
   useWorkspaceScheduleViewModel,
@@ -22,7 +24,31 @@ export function WorkspaceDetailPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
   const { state } = useLocation()
   const id = Number(workspaceId)
-  const businessName = (state as { businessName?: string } | null)?.businessName
+  const businessNameFromNav = (state as { businessName?: string } | null)
+    ?.businessName
+
+  const { workspaces, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useWorkspacesViewModel()
+
+  const businessNameFromList = useMemo(
+    () => workspaces.find(w => w.workspaceId === id)?.businessName,
+    [workspaces, id]
+  )
+
+  const storeDisplayName = businessNameFromNav?.trim() || businessNameFromList
+
+  useEffect(() => {
+    if (
+      storeDisplayName ||
+      !hasNextPage ||
+      isFetchingNextPage ||
+      !Number.isFinite(id) ||
+      id <= 0
+    ) {
+      return
+    }
+    void fetchNextPage()
+  }, [storeDisplayName, hasNextPage, isFetchingNextPage, fetchNextPage, id])
 
   const {
     mode,
@@ -57,7 +83,7 @@ export function WorkspaceDetailPage() {
           baseDate={baseDate}
           data={calendarData}
           isLoading={scheduleLoading}
-          workspaceName={businessName}
+          workspaceName={storeDisplayName}
           onDateChange={onDateChange}
         />
 

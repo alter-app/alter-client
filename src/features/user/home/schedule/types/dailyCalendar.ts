@@ -20,6 +20,7 @@ export interface DailyCalendarViewModel {
   title: string
   dateLabel: string
   totalWorkHoursText: string
+  estimatedEarningsText?: string
   timelineHeight: number
   timelineLines: DailyTimelineLineViewModel[]
   eventBlocks: DailyEventBlockViewModel[]

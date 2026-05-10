@@ -55,9 +55,16 @@ export function useWeeklyCalendarViewModel({
       }
     })
 
+    const estimatedLaborCost = data?.summary.estimatedLaborCost
+    const estimatedEarningsText =
+      estimatedLaborCost != null
+        ? `약 ${estimatedLaborCost.toLocaleString()}원`
+        : undefined
+
     return {
       title: workspaceName ?? `${format(baseDate, 'M월')} 주간 아르바이트`,
       totalWorkHoursText: String(Math.round(data?.summary.totalWorkHours ?? 0)),
+      ...(estimatedEarningsText != null ? { estimatedEarningsText } : {}),
       dayCells,
     }
   }, [baseDate, data, workspaceName])

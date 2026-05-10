@@ -11,11 +11,12 @@ export function WeeklyCalendar({
   workspaceName,
   isLoading = false,
 }: WeeklyCalendarProps) {
-  const { title, totalWorkHoursText, dayCells } = useWeeklyCalendarViewModel({
-    baseDate,
-    data,
-    workspaceName,
-  })
+  const { title, totalWorkHoursText, estimatedEarningsText, dayCells } =
+    useWeeklyCalendarViewModel({
+      baseDate,
+      data,
+      workspaceName,
+    })
 
   if (isLoading) {
     return (
@@ -29,14 +30,21 @@ export function WeeklyCalendar({
     <section>
       <div className="px-[13px] gap-2">
         <h3 className="typography-headline01 mb-4">{title}</h3>
-        <div className="flex items-center gap-2 py-1">
-          <span className="typography-body01-semibold text-text-90">주</span>
-          <span className="typography-display text-text-100">
-            {totalWorkHoursText}
-          </span>
-          <span className="typography-body01-semibold text-text-90">
-            시간 근무해요
-          </span>
+        <div className="flex items-center justify-between gap-2 py-1">
+          <div className="flex items-center gap-2">
+            <span className="typography-body01-semibold text-text-90">주</span>
+            <span className="typography-display text-text-100">
+              {totalWorkHoursText}
+            </span>
+            <span className="typography-body01-semibold text-text-90">
+              시간 근무해요
+            </span>
+          </div>
+          {estimatedEarningsText ? (
+            <span className="typography-body01-semibold text-sub shrink-0">
+              {estimatedEarningsText}
+            </span>
+          ) : null}
         </div>
       </div>
 

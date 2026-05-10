@@ -16,5 +16,6 @@ export interface WeeklyDayCellViewModel {
 export interface WeeklyCalendarViewModel {
   title: string
   totalWorkHoursText: string
+  estimatedEarningsText?: string
   dayCells: WeeklyDayCellViewModel[]
 }
