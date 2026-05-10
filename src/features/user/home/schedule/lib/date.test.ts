@@ -6,15 +6,18 @@ import { StatusEnum } from '@/shared/types/enums'
 import {
   getDailyHourTicks,
   getDayHours,
-  getDurationHours,
   getMonthlyDateCells,
   getScheduleParamsByMode,
   getWeekRangeLabel,
   getWeeklyDateCells,
   moveDateByMode,
+} from './date'
+
+import {
   toDateKey,
   toTimeLabel,
-} from './date'
+  getDurationHours,
+} from '@/features/home/common/schedule/lib/date'
 
 describe('toDateKey', () => {
   it('ISO 문자열에서 날짜 부분만 반환한다', () => {
