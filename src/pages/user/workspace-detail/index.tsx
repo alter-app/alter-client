@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { useParams, useLocation } from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import {
@@ -13,6 +13,8 @@ import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibil
 import { WorkerListItem } from '@/shared/ui/home/WorkerListItem'
 import CrownIcon from '@/assets/icons/home/crown-solid.svg'
 import UsersIcon from '@/assets/icons/home/users.svg'
+import CatppuccinChangelogIcon from '@/assets/icons/catppuccin_changelog.svg?react'
+import { ROUTES } from '@/shared/constants/routes'
 
 function formatNextShift(isoDate: string | null | undefined) {
   if (isoDate == null || isoDate === '') return undefined
@@ -22,6 +24,7 @@ function formatNextShift(isoDate: string | null | undefined) {
 }
 
 export function WorkspaceDetailPage() {
+  const navigate = useNavigate()
   const { workspaceId } = useParams<{ workspaceId: string }>()
   const { state } = useLocation()
   const id = Number(workspaceId)
@@ -96,6 +99,24 @@ export function WorkspaceDetailPage() {
           data={calendarData}
           isLoading={scheduleLoading}
           workspaceName={storeDisplayName}
+          calendarTitleRightAction={
+            mode === 'monthly' ? (
+              <button
+                type="button"
+                className="box-border flex h-[36px] w-[114px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-line-2 bg-white"
+                aria-label="대타 요청"
+                onClick={() => navigate(ROUTES.USER.SCHEDULE)}
+              >
+                <CatppuccinChangelogIcon
+                  className="size-5 shrink-0"
+                  aria-hidden
+                />
+                <span className="typography-body03-semibold text-text-100 whitespace-nowrap">
+                  대타 요청
+                </span>
+              </button>
+            ) : null
+          }
           onDateChange={onDateChange}
         />
 
