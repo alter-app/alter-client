@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { isSameDay } from 'date-fns'
 import chevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 import { getCalendarCells } from '@/shared/lib/calendarUtils'
@@ -20,6 +20,17 @@ export function ScheduleCalendar({
   const [viewMonth, setViewMonth] = useState(
     selectedDate?.getMonth() ?? today.getMonth()
   )
+
+  useEffect(() => {
+    if (selectedDate) {
+      const year = selectedDate.getFullYear()
+      const month = selectedDate.getMonth()
+      if (viewYear !== year || viewMonth !== month) {
+        setViewYear(year)
+        setViewMonth(month)
+      }
+    }
+  }, [selectedDate, viewYear, viewMonth])
 
   const baseDate = new Date(viewYear, viewMonth, 1)
   const cells = getCalendarCells(baseDate, 0)
