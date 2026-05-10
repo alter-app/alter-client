@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import { useWorkerScheduleManageViewModel } from '@/features/manager/home/hooks/useWorkerScheduleManageViewModel'
 import chevronDownIcon from '@/assets/icons/home/chevron-down.svg'
-import calendarIcon from '@/assets/icons/nav/calendar.svg'
+import calendarIcon from '@/assets/icons/schedule/schedule_calendar.svg'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { ScheduleCalendar } from '@/shared/ui/common/ScheduleCalendar'
 import type { ScheduleTab } from '@/features/manager'
@@ -36,8 +36,12 @@ export function ManagerWorkerSchedulePage() {
   const [activeTab, setActiveTab] = useState<ScheduleTab>('고정')
   const [showCalendar, setShowCalendar] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [isWorkerDropdownOpen, setIsWorkerDropdownOpen] = useState(false)
   const {
     worker,
+    workers,
+    selectedWorkerIndex,
+    setSelectedWorkerIndex,
     workdayOptions,
     selectedDays,
     workTimeRangeLabel,
@@ -76,9 +80,14 @@ export function ManagerWorkerSchedulePage() {
       </div>
 
       <main className="flex-1 px-4 pb-4 pt-[30px]">
-        <section>
+        <section className="relative">
           <h2 className="typography-headline03 text-text-100">근무자 선택</h2>
-          <div className="mt-4 flex h-[70px] items-center rounded-2xl bg-white px-3">
+          <button
+            type="button"
+            onClick={() => setIsWorkerDropdownOpen(!isWorkerDropdownOpen)}
+            aria-label="근무자 펼치기"
+            className="mt-4 flex h-[70px] w-full items-center rounded-2xl bg-white px-3"
+          >
             <div className="flex min-w-0 flex-1 items-center gap-4">
               <div
                 className="size-[38px] rounded-full bg-[repeating-conic-gradient(#ececec_0%_25%,transparent_0%_50%)] [background-size:8px_8px]"
@@ -91,19 +100,44 @@ export function ManagerWorkerSchedulePage() {
                 <WorkerRoleBadge role={worker.role} />
               </div>
             </div>
-            <button
-              type="button"
-              aria-label="근무자 펼치기"
-              className="flex h-6 w-6 items-center justify-center"
-            >
+            <div className="flex h-6 w-6 items-center justify-center">
               <img
                 src={chevronDownIcon}
                 alt=""
                 aria-hidden="true"
-                className="h-5 w-5"
+                className={`h-5 w-5 transition-transform ${isWorkerDropdownOpen ? 'rotate-180' : ''}`}
               />
-            </button>
-          </div>
+            </div>
+          </button>
+
+          {isWorkerDropdownOpen && (
+            <div className="absolute top-full z-10 mt-2 w-full max-h-[350px] overflow-y-auto rounded-2xl bg-white p-3">
+              {workers.map((w, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => {
+                    setSelectedWorkerIndex(index)
+                    setIsWorkerDropdownOpen(false)
+                  }}
+                  className={`flex h-[70px] w-full items-center gap-4 rounded-2xl px-3 py-4 transition-colors ${
+                    selectedWorkerIndex === index ? 'bg-main/10' : 'hover:bg-bg-light'
+                  }`}
+                >
+                  <div
+                    className="size-[38px] rounded-full bg-[repeating-conic-gradient(#ececec_0%_25%,transparent_0%_50%)] [background-size:8px_8px]"
+                    aria-hidden="true"
+                  />
+                  <div className="flex min-w-0 items-center gap-1">
+                    <p className="typography-body01-semibold text-text-100">
+                      {w.name}
+                    </p>
+                    <WorkerRoleBadge role={w.role} />
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </section>
 
         {activeTab === '고정' ? (
@@ -134,9 +168,7 @@ export function ManagerWorkerSchedulePage() {
               onClick={() => setShowCalendar(true)}
               className="mt-4 flex h-12 w-full items-center gap-1 rounded-2xl bg-white px-4"
             >
-              <span
-                className={`typography-headline03 ${selectedDate ? 'text-text-100' : 'text-text-50'}`}
-              >
+              <span className={`typography-headline03 text-text-100`}>
                 {selectedDate
                   ? `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`
                   : '날짜 선택'}

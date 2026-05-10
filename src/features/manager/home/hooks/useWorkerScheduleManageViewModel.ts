@@ -4,6 +4,14 @@ const WORKDAY_OPTIONS = ['월', '화', '수', '목', '금', '토', '일'] as con
 
 const DEFAULT_SELECTED_DAYS = ['수', '금']
 
+const MOCK_WORKERS = [
+  { name: '이름임', role: 'manager' as const },
+  { name: '김민준', role: 'staff' as const },
+  { name: '박지은', role: 'staff' as const },
+  { name: '이수호', role: 'staff' as const },
+  { name: '정하나', role: 'manager' as const },
+]
+
 export function useWorkerScheduleManageViewModel() {
   const [selectedDays, setSelectedDays] = useState<string[]>(
     DEFAULT_SELECTED_DAYS
@@ -12,6 +20,7 @@ export function useWorkerScheduleManageViewModel() {
   const [startMinute, setStartMinute] = useState('')
   const [endHour, setEndHour] = useState('')
   const [endMinute, setEndMinute] = useState('')
+  const [selectedWorkerIndex, setSelectedWorkerIndex] = useState(0)
 
   const workTimeRangeLabel = useMemo(() => {
     const sh = startHour || '00'
@@ -28,10 +37,10 @@ export function useWorkerScheduleManageViewModel() {
   }
 
   return {
-    worker: {
-      name: '이름임',
-      role: 'manager' as const,
-    },
+    worker: MOCK_WORKERS[selectedWorkerIndex],
+    workers: MOCK_WORKERS,
+    selectedWorkerIndex,
+    setSelectedWorkerIndex,
     workdayOptions: WORKDAY_OPTIONS,
     selectedDays,
     workTimeRangeLabel,
