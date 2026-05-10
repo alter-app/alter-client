@@ -14,7 +14,15 @@
     "storybook": "storybook dev -p 6006 --config-dir storybook",
     "build-storybook": "storybook build --config-dir storybook",
     "test:unit": "vitest --project=unit --run",
-    "test:storybook": "vitest --project=storybook"
+    "test:storybook": "vitest --project=storybook",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "**/*.{js,jsx,json,css}": "prettier --write"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
@@ -47,6 +55,8 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "playwright": "^1.59.1",
     "postcss": "^8.5.6",
     "prettier": "^3.7.4",
