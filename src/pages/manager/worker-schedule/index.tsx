@@ -162,24 +162,47 @@ export function ManagerWorkerSchedulePage() {
             </div>
           </section>
         ) : (
-          <section className="mt-12">
+          <section className="relative mt-12">
+            <h2 className="typography-headline03 text-text-100">날짜 선택</h2>
             <button
               type="button"
-              onClick={() => setShowCalendar(true)}
+              onClick={() => setShowCalendar(!showCalendar)}
               className="mt-4 flex h-12 w-full items-center gap-1 rounded-2xl bg-white px-4"
             >
-              <span className={`typography-headline03 text-text-100`}>
-                {selectedDate
-                  ? `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`
-                  : '날짜 선택'}
-              </span>
-              <img
-                src={calendarIcon}
-                alt=""
-                aria-hidden="true"
-                className="h-6 w-6"
-              />
+              <div className="flex min-w-0 flex-1 items-center gap-1">
+                <span className={`typography-headline03 text-text-100`}>
+                  {selectedDate
+                    ? `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`
+                    : '날짜 선택'}
+                </span>
+                <img
+                  src={calendarIcon}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-6 w-6"
+                />
+              </div>
+              <div className="flex h-6 w-6 items-center justify-center">
+                <img
+                  src={chevronDownIcon}
+                  alt=""
+                  aria-hidden="true"
+                  className={`h-5 w-5 transition-transform ${showCalendar ? 'rotate-180' : ''}`}
+                />
+              </div>
             </button>
+
+            {showCalendar && (
+              <div className="absolute top-full left-0 z-10 mt-2 w-full rounded-2xl bg-white p-3">
+                <ScheduleCalendar
+                  selectedDate={selectedDate}
+                  onDateChange={date => {
+                    setSelectedDate(date)
+                    setShowCalendar(false)
+                  }}
+                />
+              </div>
+            )}
           </section>
         )}
 
@@ -245,25 +268,6 @@ export function ManagerWorkerSchedulePage() {
         </section>
       </main>
 
-      {showCalendar && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/50"
-            aria-label="닫기"
-            onClick={() => setShowCalendar(false)}
-          />
-          <div className="relative w-[358px]">
-            <ScheduleCalendar
-              selectedDate={selectedDate}
-              onDateChange={date => {
-                setSelectedDate(date)
-                setShowCalendar(false)
-              }}
-            />
-          </div>
-        </div>
-      )}
 
       <div className="px-4 pb-8">
         <button
