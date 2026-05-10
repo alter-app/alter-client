@@ -12,7 +12,7 @@ function mapToWorkspaceItem(
     workspaceId: dto.workspaceId,
     businessName: dto.businessName,
     employedAt: dto.employedAt,
-    nextShiftDateTime: dto.nextShiftDateTime,
+    nextShiftDateTime: dto.nextShiftDateTime ?? null,
   }
 }
 

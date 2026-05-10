@@ -2,13 +2,15 @@ import { differenceInCalendarDays, format, parseISO } from 'date-fns'
 import { useMemo } from 'react'
 import type { WorkingStoreItem } from '@/features/user/home/workspace/types/workingStore'
 
-function formatNextShiftDate(nextShiftDateTime: string) {
+function formatNextShiftDate(nextShiftDateTime: string | null | undefined) {
+  if (nextShiftDateTime == null || nextShiftDateTime === '') return '-'
   const date = parseISO(nextShiftDateTime)
   if (Number.isNaN(date.getTime())) return '-'
   return format(date, 'yyyy.MM.dd')
 }
 
-function getDueText(nextShiftDateTime: string) {
+function getDueText(nextShiftDateTime: string | null | undefined) {
+  if (nextShiftDateTime == null || nextShiftDateTime === '') return '-'
   const nextDate = parseISO(nextShiftDateTime)
   if (Number.isNaN(nextDate.getTime())) return '-'
 
