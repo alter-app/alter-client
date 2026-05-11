@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { Navbar } from '@/shared/ui/common/Navbar'
@@ -40,6 +40,9 @@ export function WorkspaceDetailPage() {
 
   const storeDisplayName = businessNameFromNav?.trim() || businessNameFromList
 
+  /** 이름이 목록에 없을 때 자동으로 한 페이지만 더 불러오기 (무한 연속 fetch 방지) */
+  const supplementalListFetchDoneForIdRef = useRef(new Set<number>())
+
   useEffect(() => {
     if (
       storeDisplayName ||
@@ -50,6 +53,10 @@ export function WorkspaceDetailPage() {
     ) {
       return
     }
+    if (supplementalListFetchDoneForIdRef.current.has(id)) {
+      return
+    }
+    supplementalListFetchDoneForIdRef.current.add(id)
     void fetchNextPage()
   }, [storeDisplayName, hasNextPage, isFetchingNextPage, fetchNextPage, id])
 
