@@ -1,78 +1,28 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { format, parse } from 'date-fns'
+import { useEffect } from 'react'
 
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 
-import type { CalendarViewData } from '@/features/home/common/schedule/types/calendarView'
-import { getExchangeableWorkers } from '@/features/user/home/workspace/api/exchangeableWorkers'
-import { createSubstituteRequest } from '@/features/user/home/workspace/api/substituteRequests'
 import { WEEKDAY_LABELS } from '@/features/user/home/applied-stores/types/appliedStore'
-import { DATE_KEY_FORMAT } from '@/features/home/common/schedule/constants/calendar'
 import { SubstituteCalendarPickerPanel } from './SubstituteCalendarPickerPanel'
-import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
-import { queryKeys } from '@/shared/lib/queryKeys'
+import {
+  normalizeHourInput,
+  normalizeMinuteInput,
+  timeDigits,
+  useSubstituteRequestFlow,
+} from '../hooks/useSubstituteRequestFlow'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import { cn } from '@/shared/lib/utils'
 
-type StepId = 1 | 2 | 3 | 4 | 5
+import type { CalendarViewData } from '@/features/home/common/schedule/types/calendarView'
 
-const DEFAULT_INTRO =
+export const DEFAULT_SUBSTITUTE_INTRO_PLACEHOLDER =
   '저는 카페 근처에 거주 하고 있으며, 카페에서 근무한 경험이 있어서 카페에 지원하였습니다.'
-
-function timeDigits(raw: string, maxLen: number) {
-  return raw.replace(/\D/g, '').slice(0, maxLen)
-}
-
-function normalizeHourInput(raw: string) {
-  const d = timeDigits(raw, 2)
-  if (d === '') return '00'
-  const n = parseInt(d, 10)
-  if (Number.isNaN(n)) return '00'
-  return String(Math.min(23, Math.max(0, n))).padStart(2, '0')
-}
-
-function normalizeMinuteInput(raw: string) {
-  const d = timeDigits(raw, 2)
-  if (d === '') return '00'
-  const n = parseInt(d, 10)
-  if (Number.isNaN(n)) return '00'
-  return String(Math.min(59, Math.max(0, n))).padStart(2, '0')
-}
 
 const timeFieldInputClass =
   'min-w-0 flex-1 bg-transparent text-center tabular-nums typography-body01-semibold text-text-90 outline-none placeholder:text-text-50'
 
 const timeSegmentLabelClass =
   'flex h-[50px] min-w-0 flex-1 cursor-text items-center justify-center gap-1.5 rounded-2xl bg-bg-dark px-3 outline-none transition focus-within:ring-2 focus-within:ring-main'
-
-const EXCHANGEABLE_WORKERS_PAGE_SIZE = 50
-
-function workerIdFromCandidateKey(key: string): number | undefined {
-  if (!key.startsWith('ew-')) return undefined
-  const id = Number(key.slice(3))
-  return Number.isFinite(id) ? id : undefined
-}
-
-function pickScheduleIdForSelectedDate(
-  calendarData: CalendarViewData | null | undefined,
-  selected: Date | null
-): number | null {
-  if (selected == null || !calendarData?.events?.length) return null
-  const key = format(selected, DATE_KEY_FORMAT)
-  const sameDay = calendarData.events.filter(e => e.dateKey === key)
-  if (sameDay.length === 0) return null
-  sameDay.sort(
-    (a, b) =>
-      new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
-  )
-  const first = sameDay[0]
-  return first != null &&
-    typeof first.shiftId === 'number' &&
-    Number.isFinite(first.shiftId)
-    ? first.shiftId
-    : null
-}
 
 interface SubstituteRequestModalFlowProps {
   onClose: () => void
@@ -82,7 +32,7 @@ interface SubstituteRequestModalFlowProps {
   calendarData: CalendarViewData | null
   /** 캘린더 단계 초기 표시 월(페이지 스케줄 `baseDate`와 동기) */
   initialMonth?: Date
-  /** 요약(3단계) 자기소개 초기값(비워 두면 textarea는 비우고 플레이스홀더로 `DEFAULT_INTRO` 노출) */
+  /** 요약(3단계) 자기소개 초기값(비워 두면 textarea는 비우고 플레이스홀더로 기본 문구 노출) */
   summarySelfIntroduction?: string
   /** 대타 생성 성공 시 스케줄 목록 무효화용 */
   workspaceId?: number
@@ -97,98 +47,12 @@ export function SubstituteRequestModalFlow({
   summarySelfIntroduction,
   workspaceId,
 }: SubstituteRequestModalFlowProps) {
-  const queryClient = useQueryClient()
-  const [step, setStep] = useState<StepId>(1)
-  const [substituteReason, setSubstituteReason] = useState('')
-  const [substituteSubmitLocalError, setSubstituteSubmitLocalError] = useState<
-    string | null
-  >(null)
-  const [selfIntroduction, setSelfIntroduction] = useState(
-    () => summarySelfIntroduction?.trim() ?? ''
-  )
-  const [substituteCalendarBaseDate, setSubstituteCalendarBaseDate] = useState(
-    () => initialMonth ?? new Date()
-  )
-  const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date | null>(
-    null
-  )
-  const [startHour, setStartHour] = useState('18')
-  const [startMin, setStartMin] = useState('00')
-  const [endHour, setEndHour] = useState('20')
-  const [endMin, setEndMin] = useState('00')
-  const [selectedCandidateKeys, setSelectedCandidateKeys] = useState<
-    Set<string>
-  >(new Set())
-
-  /** step1 달력 선택일 → 월~일 라벨 (WEEKDAY_LABELS 순서와 동일: 월=인덱스0) */
-  const selectedWeekdayLabel = useMemo(() => {
-    if (selectedCalendarDate == null) return null
-    const idx = (selectedCalendarDate.getDay() + 6) % 7
-    return WEEKDAY_LABELS[idx]
-  }, [selectedCalendarDate])
-
-  const summarySelectedTimeLabel = useMemo(() => {
-    const sh = normalizeHourInput(startHour)
-    const sm = normalizeMinuteInput(startMin)
-    const eh = normalizeHourInput(endHour)
-    const em = normalizeMinuteInput(endMin)
-    return `${sh}:${sm} ~ ${eh}:${em}`
-  }, [startHour, startMin, endHour, endMin])
-
-  const substituteScheduleId = useMemo(
-    () => pickScheduleIdForSelectedDate(calendarData, selectedCalendarDate),
-    [calendarData, selectedCalendarDate]
-  )
-
-  const {
-    data: exchangeableResponse,
-    isPending: exchangeableLoading,
-    isError: exchangeableError,
-    refetch: refetchExchangeable,
-  } = useQuery({
-    queryKey:
-      substituteScheduleId != null
-        ? queryKeys.workspace.exchangeableWorkers(
-            substituteScheduleId,
-            EXCHANGEABLE_WORKERS_PAGE_SIZE
-          )
-        : ['workspace', 'exchangeableWorkers', 'disabled'],
-    queryFn: () =>
-      getExchangeableWorkers({
-        scheduleId: substituteScheduleId!,
-        pageSize: EXCHANGEABLE_WORKERS_PAGE_SIZE,
-      }),
-    enabled:
-      step === 4 && substituteScheduleId != null && substituteScheduleId > 0,
-  })
-
-  const exchangeableWorkers = exchangeableResponse?.data.data ?? []
-
-  const substituteRequestMutation = useMutation({
-    mutationFn: (vars: {
-      scheduleId: number
-      targetId: number
-      requestReason: string
-    }) =>
-      createSubstituteRequest({
-        scheduleId: vars.scheduleId,
-        body: {
-          requestType: 'SPECIFIC',
-          targetId: vars.targetId,
-          requestReason: vars.requestReason,
-        },
-      }),
-    onSuccess: async (_, vars) => {
-      if (workspaceId != null && workspaceId > 0) {
-        await queryClient.invalidateQueries({
-          queryKey: ['workspace', 'schedules', workspaceId],
-        })
-      }
-      await queryClient.invalidateQueries({
-        queryKey: ['workspace', 'exchangeableWorkers', vars.scheduleId],
-      })
-      onClose()
-    },
+  const flow = useSubstituteRequestFlow({
+    calendarData,
+    initialMonth,
+    summarySelfIntroduction,
+    workspaceId,
+    onClose,
   })
 
   useEffect(() => {
@@ -207,86 +71,6 @@ export function SubstituteRequestModalFlow({
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onClose])
 
-  const goNext = () => {
-    setStep(s => (s < 5 ? ((s + 1) as StepId) : s))
-  }
-
-  const goBack = () => {
-    setStep(s => {
-      if (s <= 1) return s
-      return (s - 1) as StepId
-    })
-  }
-
-  const submitSubstituteRequest = () => {
-    setSubstituteSubmitLocalError(null)
-    substituteRequestMutation.reset()
-
-    if (substituteScheduleId == null || substituteScheduleId <= 0) {
-      setSubstituteSubmitLocalError('스케줄 정보를 찾을 수 없습니다.')
-      return
-    }
-
-    const reasonTrim = substituteReason.trim()
-    if (reasonTrim === '') {
-      setSubstituteSubmitLocalError('대타 사유를 입력해 주세요.')
-      return
-    }
-
-    if (selectedCandidateKeys.size !== 1) {
-      setSubstituteSubmitLocalError(
-        selectedCandidateKeys.size === 0
-          ? '교환할 근무자를 선택해 주세요.'
-          : '교환 근무자는 한 명만 선택해 주세요.'
-      )
-      return
-    }
-
-    const [onlyKey] = [...selectedCandidateKeys]
-    const targetId =
-      onlyKey != null ? workerIdFromCandidateKey(onlyKey) : undefined
-    if (targetId == null) {
-      setSubstituteSubmitLocalError('선택한 근무자 정보가 올바르지 않습니다.')
-      return
-    }
-
-    substituteRequestMutation.mutate({
-      scheduleId: substituteScheduleId,
-      targetId,
-      requestReason: reasonTrim,
-    })
-  }
-
-  const substituteSubmitErrorDisplay =
-    substituteSubmitLocalError ??
-    (substituteRequestMutation.isError
-      ? getAxiosErrorMessage(
-          substituteRequestMutation.error,
-          '대타 요청에 실패했습니다.'
-        )
-      : null)
-
-  const toggleCandidate = (key: string) => {
-    setSelectedCandidateKeys(prev => {
-      const next = new Set(prev)
-      if (next.has(key)) next.delete(key)
-      else next.add(key)
-      return next
-    })
-  }
-
-  const modalMaxWidthClass =
-    step === 1 ? 'max-w-[min(358px,calc(100vw-32px))]' : 'max-w-[318px]'
-
-  const selectedDateKey =
-    selectedCalendarDate == null
-      ? ''
-      : format(selectedCalendarDate, DATE_KEY_FORMAT)
-
-  const onSubstituteCalendarDaySelect = (dateKey: string) => {
-    setSelectedCalendarDate(parse(dateKey, DATE_KEY_FORMAT, new Date()))
-  }
-
   return (
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center px-4"
@@ -302,28 +86,28 @@ export function SubstituteRequestModalFlow({
       <div
         className={cn(
           'relative w-full overflow-hidden rounded-2xl bg-white shadow-lg',
-          modalMaxWidthClass
+          flow.modalMaxWidthClass
         )}
         role="dialog"
         aria-modal="true"
         onClick={e => e.stopPropagation()}
       >
         {/* 1 — 일 선택 (Figma 1:546 업장 변경/추가 달력) */}
-        {step === 1 ? (
+        {flow.step === 1 ? (
           <>
             <SubstituteCalendarPickerPanel
-              baseDate={substituteCalendarBaseDate}
-              selectedDateKey={selectedDateKey}
-              onMonthChange={setSubstituteCalendarBaseDate}
-              onSelectDateKey={onSubstituteCalendarDaySelect}
+              baseDate={flow.substituteCalendarBaseDate}
+              selectedDateKey={flow.selectedDateKey}
+              onMonthChange={flow.setSubstituteCalendarBaseDate}
+              onSelectDateKey={flow.onSubstituteCalendarDaySelect}
             />
 
             <div className="px-5 pb-5 pt-4">
               <button
                 type="button"
-                disabled={selectedCalendarDate == null}
+                disabled={flow.selectedCalendarDate == null}
                 className="flex h-12 w-full items-center justify-center rounded-2xl bg-main typography-body01-semibold text-text-100 disabled:opacity-50"
-                onClick={goNext}
+                onClick={flow.goNext}
               >
                 다음
               </button>
@@ -332,14 +116,14 @@ export function SubstituteRequestModalFlow({
         ) : null}
 
         {/* 2 — 근무 시간 (Figma 1:815 — 출근·퇴근 시간 시:분 단위 표기) */}
-        {step === 2 ? (
+        {flow.step === 2 ? (
           <>
             <div className="flex min-h-[56px] items-center gap-1 px-4 pb-2 pt-6">
               <button
                 type="button"
                 className="flex size-10 shrink-0 items-center justify-center rounded-lg outline-none transition hover:bg-bg-light/80 focus-visible:ring-2 focus-visible:ring-main"
                 aria-label="이전"
-                onClick={goBack}
+                onClick={flow.goBack}
               >
                 <img src={ChevronLeftIcon} alt="" className="size-5" />
               </button>
@@ -368,11 +152,13 @@ export function SubstituteRequestModalFlow({
                       placeholder="00"
                       aria-label="출근 시"
                       className={timeFieldInputClass}
-                      value={startHour}
+                      value={flow.startHour}
                       onChange={e =>
-                        setStartHour(timeDigits(e.target.value, 2))
+                        flow.setStartHour(timeDigits(e.target.value, 2))
                       }
-                      onBlur={() => setStartHour(h => normalizeHourInput(h))}
+                      onBlur={() =>
+                        flow.setStartHour(h => normalizeHourInput(h))
+                      }
                       onFocus={e => e.currentTarget.select()}
                     />
                     <span className="pointer-events-none shrink-0 typography-body02-regular text-text-70">
@@ -398,9 +184,13 @@ export function SubstituteRequestModalFlow({
                       placeholder="00"
                       aria-label="출근 분"
                       className={timeFieldInputClass}
-                      value={startMin}
-                      onChange={e => setStartMin(timeDigits(e.target.value, 2))}
-                      onBlur={() => setStartMin(m => normalizeMinuteInput(m))}
+                      value={flow.startMin}
+                      onChange={e =>
+                        flow.setStartMin(timeDigits(e.target.value, 2))
+                      }
+                      onBlur={() =>
+                        flow.setStartMin(m => normalizeMinuteInput(m))
+                      }
                       onFocus={e => e.currentTarget.select()}
                     />
                     <span className="pointer-events-none shrink-0 typography-body02-regular text-text-70">
@@ -428,9 +218,11 @@ export function SubstituteRequestModalFlow({
                       placeholder="00"
                       aria-label="퇴근 시"
                       className={timeFieldInputClass}
-                      value={endHour}
-                      onChange={e => setEndHour(timeDigits(e.target.value, 2))}
-                      onBlur={() => setEndHour(h => normalizeHourInput(h))}
+                      value={flow.endHour}
+                      onChange={e =>
+                        flow.setEndHour(timeDigits(e.target.value, 2))
+                      }
+                      onBlur={() => flow.setEndHour(h => normalizeHourInput(h))}
                       onFocus={e => e.currentTarget.select()}
                     />
                     <span className="pointer-events-none shrink-0 typography-body02-regular text-text-70">
@@ -456,9 +248,13 @@ export function SubstituteRequestModalFlow({
                       placeholder="00"
                       aria-label="퇴근 분"
                       className={timeFieldInputClass}
-                      value={endMin}
-                      onChange={e => setEndMin(timeDigits(e.target.value, 2))}
-                      onBlur={() => setEndMin(m => normalizeMinuteInput(m))}
+                      value={flow.endMin}
+                      onChange={e =>
+                        flow.setEndMin(timeDigits(e.target.value, 2))
+                      }
+                      onBlur={() =>
+                        flow.setEndMin(m => normalizeMinuteInput(m))
+                      }
                       onFocus={e => e.currentTarget.select()}
                     />
                     <span className="pointer-events-none shrink-0 typography-body02-regular text-text-70">
@@ -473,7 +269,7 @@ export function SubstituteRequestModalFlow({
               <button
                 type="button"
                 className="flex h-[48px] w-full items-center justify-center rounded-2xl bg-main typography-body01-semibold text-text-100"
-                onClick={goNext}
+                onClick={flow.goNext}
               >
                 선택 완료
               </button>
@@ -482,14 +278,14 @@ export function SubstituteRequestModalFlow({
         ) : null}
 
         {/* 3 — 요약 (지원 상세와 동일 패턴) */}
-        {step === 3 ? (
+        {flow.step === 3 ? (
           <>
             <div className="flex h-[52px] items-center gap-1 px-4 pt-4">
               <button
                 type="button"
                 className="flex size-10 shrink-0 items-center justify-center rounded-lg outline-none transition hover:bg-bg-light/80 focus-visible:ring-2 focus-visible:ring-main"
                 aria-label="이전"
-                onClick={goBack}
+                onClick={flow.goBack}
               >
                 <img src={ChevronLeftIcon} alt="" className="size-5" />
               </button>
@@ -506,7 +302,8 @@ export function SubstituteRequestModalFlow({
               <div className="flex h-[50px] items-center rounded-2xl bg-bg-dark px-1 py-[5px]">
                 {WEEKDAY_LABELS.map(day => {
                   const selected =
-                    selectedWeekdayLabel != null && day === selectedWeekdayLabel
+                    flow.selectedWeekdayLabel != null &&
+                    day === flow.selectedWeekdayLabel
                   return (
                     <div
                       key={day}
@@ -533,7 +330,7 @@ export function SubstituteRequestModalFlow({
               </p>
               <div className="flex h-[50px] items-center rounded-2xl bg-bg-dark px-[17px]">
                 <p className="typography-body03-semibold text-text-100">
-                  {summarySelectedTimeLabel}
+                  {flow.summarySelectedTimeLabel}
                 </p>
               </div>
             </div>
@@ -548,9 +345,9 @@ export function SubstituteRequestModalFlow({
               <textarea
                 id="substitute-self-intro-input"
                 rows={4}
-                value={selfIntroduction}
-                onChange={e => setSelfIntroduction(e.target.value)}
-                placeholder={DEFAULT_INTRO}
+                value={flow.selfIntroduction}
+                onChange={e => flow.setSelfIntroduction(e.target.value)}
+                placeholder={DEFAULT_SUBSTITUTE_INTRO_PLACEHOLDER}
                 className="min-h-[70px] w-full resize-none rounded-2xl border border-transparent bg-bg-dark px-[14px] py-4 typography-body03-regular text-text-100 outline-none placeholder:text-text-50 focus:border-main-300"
               />
             </div>
@@ -559,10 +356,7 @@ export function SubstituteRequestModalFlow({
               <button
                 type="button"
                 className="flex h-12 w-full items-center justify-center rounded-2xl bg-main typography-body01-semibold text-text-100"
-                onClick={() => {
-                  setSelectedCandidateKeys(new Set())
-                  goNext()
-                }}
+                onClick={flow.clearCandidatesAndGoNextFromSummary}
               >
                 다음
               </button>
@@ -571,14 +365,14 @@ export function SubstituteRequestModalFlow({
         ) : null}
 
         {/* 4 — 근무자 목록 */}
-        {step === 4 ? (
+        {flow.step === 4 ? (
           <>
             <div className="flex min-h-[52px] items-center gap-1 px-4 pb-3 pt-4">
               <button
                 type="button"
                 className="flex size-10 shrink-0 items-center justify-center rounded-lg outline-none transition hover:bg-bg-light/80 focus-visible:ring-2 focus-visible:ring-main"
                 aria-label="이전"
-                onClick={goBack}
+                onClick={flow.goBack}
               >
                 <img src={ChevronLeftIcon} alt="" className="size-5" />
               </button>
@@ -589,16 +383,16 @@ export function SubstituteRequestModalFlow({
             </div>
 
             <div className="max-h-[340px] space-y-2 overflow-y-auto px-5 pb-2">
-              {substituteScheduleId == null ? (
+              {flow.substituteScheduleId == null ? (
                 <p className="py-8 text-center typography-body02-regular text-text-70">
                   선택한 날짜에 등록된 스케줄이 없어 교환 가능한 근무자를 불러올
                   수 없습니다.
                 </p>
-              ) : exchangeableLoading ? (
+              ) : flow.exchangeableLoading ? (
                 <p className="py-8 text-center typography-body02-regular text-text-70">
                   교환 가능한 근무자를 불러오는 중...
                 </p>
-              ) : exchangeableError ? (
+              ) : flow.exchangeableError ? (
                 <div className="flex flex-col items-center gap-3 py-6">
                   <p className="text-center typography-body02-regular text-text-70">
                     교환 가능한 근무자 목록을 불러오지 못했습니다.
@@ -606,24 +400,24 @@ export function SubstituteRequestModalFlow({
                   <button
                     type="button"
                     className="typography-body02-semibold text-main underline-offset-2 hover:underline"
-                    onClick={() => void refetchExchangeable()}
+                    onClick={() => void flow.refetchExchangeable()}
                   >
                     다시 시도
                   </button>
                 </div>
-              ) : exchangeableWorkers.length === 0 ? (
+              ) : flow.exchangeableWorkers.length === 0 ? (
                 <p className="py-8 text-center typography-body02-regular text-text-70">
                   교환 가능한 근무자가 없습니다.
                 </p>
               ) : (
-                exchangeableWorkers.map(w => {
+                flow.exchangeableWorkers.map(w => {
                   const key = `ew-${w.workerId}`
-                  const selected = selectedCandidateKeys.has(key)
+                  const selected = flow.selectedCandidateKeys.has(key)
                   return (
                     <button
                       key={key}
                       type="button"
-                      onClick={() => toggleCandidate(key)}
+                      onClick={() => flow.toggleCandidate(key)}
                       aria-pressed={selected}
                       className={cn(
                         'flex w-full items-center gap-3 rounded-2xl border-2 bg-white px-3 py-3 text-left transition-colors',
@@ -649,7 +443,7 @@ export function SubstituteRequestModalFlow({
               <button
                 type="button"
                 className="flex h-12 w-full items-center justify-center rounded-2xl bg-main typography-body01-semibold text-text-100"
-                onClick={goNext}
+                onClick={flow.goNext}
               >
                 다음
               </button>
@@ -658,14 +452,14 @@ export function SubstituteRequestModalFlow({
         ) : null}
 
         {/* 5 — 대타 사유 */}
-        {step === 5 ? (
+        {flow.step === 5 ? (
           <>
             <div className="flex h-[52px] items-center gap-1 px-4 pt-4">
               <button
                 type="button"
                 className="flex size-10 shrink-0 items-center justify-center rounded-lg outline-none transition hover:bg-bg-light/80 focus-visible:ring-2 focus-visible:ring-main"
                 aria-label="이전"
-                onClick={goBack}
+                onClick={flow.goBack}
               >
                 <img src={ChevronLeftIcon} alt="" className="size-5" />
               </button>
@@ -682,31 +476,27 @@ export function SubstituteRequestModalFlow({
               <textarea
                 id="substitute-reason-input"
                 rows={5}
-                value={substituteReason}
-                onChange={e => {
-                  setSubstituteReason(e.target.value)
-                  setSubstituteSubmitLocalError(null)
-                  substituteRequestMutation.reset()
-                }}
+                value={flow.substituteReason}
+                onChange={e => flow.onSubstituteReasonChange(e.target.value)}
                 placeholder="대타 사유를 입력해주세요."
-                disabled={substituteRequestMutation.isPending}
+                disabled={flow.substituteRequestPending}
                 className="min-h-[120px] w-full resize-none rounded-2xl border border-transparent bg-bg-dark px-[14px] py-4 typography-body03-regular text-text-100 outline-none placeholder:text-text-50 focus:border-main-300 disabled:opacity-60"
               />
 
-              {substituteSubmitErrorDisplay != null &&
-              substituteSubmitErrorDisplay !== '' ? (
+              {flow.substituteSubmitErrorDisplay != null &&
+              flow.substituteSubmitErrorDisplay !== '' ? (
                 <p className="mt-3 typography-body02-regular text-red-600">
-                  {substituteSubmitErrorDisplay}
+                  {flow.substituteSubmitErrorDisplay}
                 </p>
               ) : null}
 
               <button
                 type="button"
                 className="mt-6 flex h-12 w-full items-center justify-center rounded-2xl bg-main typography-body01-semibold text-text-100 disabled:cursor-not-allowed disabled:opacity-60"
-                onClick={() => submitSubstituteRequest()}
-                disabled={substituteRequestMutation.isPending}
+                onClick={() => flow.submitSubstituteRequest()}
+                disabled={flow.substituteRequestPending}
               >
-                {substituteRequestMutation.isPending ? '요청 중…' : '요청하기'}
+                {flow.substituteRequestPending ? '요청 중…' : '요청하기'}
               </button>
             </div>
           </>
