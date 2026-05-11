@@ -173,7 +173,7 @@ export function SubstituteRequestModalFlow({
       createSubstituteRequest({
         scheduleId: vars.scheduleId,
         body: {
-          requestType: 'ALL',
+          requestType: 'SPECIFIC',
           targetId: vars.targetId,
           requestReason: vars.requestReason,
         },
