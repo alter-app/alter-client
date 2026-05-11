@@ -130,9 +130,9 @@ export function WorkspaceDetailPage() {
             key={substituteFlowSession}
             onClose={() => setSubstituteFlowOpen(false)}
             storeName={(storeDisplayName ?? '근무 업장').trim()}
-            managers={managers}
-            workers={workers}
+            calendarData={calendarData}
             initialMonth={baseDate}
+            workspaceId={Number.isFinite(id) && id > 0 ? id : undefined}
           />
         ) : null}
 

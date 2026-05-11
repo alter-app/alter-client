@@ -17,6 +17,9 @@ export const queryKeys = {
       workspaceId: number,
       params?: { year?: number; month?: number; day?: number }
     ) => ['workspace', 'schedules', workspaceId, params] as const,
+    /** 선택 스케줄(shift)에 대한 교환 가능 근무자 */
+    exchangeableWorkers: (scheduleId: number, pageSize: number) =>
+      ['workspace', 'exchangeableWorkers', scheduleId, pageSize] as const,
   },
   application: {
     list: (params?: { status?: string[]; pageSize?: number }) =>
