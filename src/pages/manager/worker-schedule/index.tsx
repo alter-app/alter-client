@@ -84,7 +84,9 @@ export function ManagerWorkerSchedulePage() {
               onClick={() => setActiveTab(tab)}
               className={cn(
                 'flex h-[46px] flex-1 items-center justify-center typography-body01-semibold',
-                isActive ? 'border-b-2 border-line-3 text-text-100' : 'text-text-50'
+                isActive
+                  ? 'border-b-2 border-line-3 text-text-100'
+                  : 'text-text-50'
               )}
             >
               {tab}
@@ -101,213 +103,227 @@ export function ManagerWorkerSchedulePage() {
         )}
         {!isLoading && (
           <>
-        <section className="relative">
-          <h2 className="typography-headline03 text-text-100">근무자 선택</h2>
-          <button
-            type="button"
-            onClick={() => {
-              if (workers.length >= 2) {
-                setIsWorkerDropdownOpen(!isWorkerDropdownOpen)
-              }
-            }}
-            aria-label="근무자 펼치기"
-            className="mt-4 flex h-[70px] w-full items-center rounded-2xl bg-white px-3"
-          >
-            <div className="flex min-w-0 flex-1 items-center gap-4">
-              <div
-                className="size-[38px] rounded-full bg-[repeating-conic-gradient(#ececec_0%_25%,transparent_0%_50%)] [background-size:8px_8px]"
-                aria-hidden="true"
-              />
-              <div className="flex min-w-0 items-center gap-1">
-                <p className="typography-body01-semibold text-text-100">
-                  {worker.name}
-                </p>
-                <WorkerRoleBadge role={worker.role} />
-              </div>
-            </div>
-            <div className="flex h-6 w-6 items-center justify-center">
-              <img
-                src={chevronDownIcon}
-                alt=""
-                aria-hidden="true"
-                className={cn('h-5 w-5 transition-transform', isWorkerDropdownOpen && 'rotate-180')}
-              />
-            </div>
-          </button>
-
-          {isWorkerDropdownOpen && (
-            <div className="absolute top-full z-10 mt-2 w-full max-h-[350px] overflow-y-auto rounded-2xl bg-white p-3">
-              {workers.map((w, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => {
-                    setSelectedWorkerIndex(index)
-                    setIsWorkerDropdownOpen(false)
-                  }}
-                  className={cn(
-                    'flex h-[70px] w-full items-center gap-4 rounded-2xl px-3 py-4 transition-colors',
-                    selectedWorkerIndex === index ? 'bg-main/10' : 'hover:bg-bg-light'
-                  )}
-                >
+            <section className="relative">
+              <h2 className="typography-headline03 text-text-100">
+                근무자 선택
+              </h2>
+              <button
+                type="button"
+                onClick={() => {
+                  if (workers.length >= 2) {
+                    setIsWorkerDropdownOpen(!isWorkerDropdownOpen)
+                  }
+                }}
+                aria-label="근무자 펼치기"
+                className="mt-4 flex h-[70px] w-full items-center rounded-2xl bg-white px-3"
+              >
+                <div className="flex min-w-0 flex-1 items-center gap-4">
                   <div
                     className="size-[38px] rounded-full bg-[repeating-conic-gradient(#ececec_0%_25%,transparent_0%_50%)] [background-size:8px_8px]"
                     aria-hidden="true"
                   />
                   <div className="flex min-w-0 items-center gap-1">
                     <p className="typography-body01-semibold text-text-100">
-                      {w.name}
+                      {worker.name}
                     </p>
-                    <WorkerRoleBadge role={w.role} />
+                    <WorkerRoleBadge role={worker.role} />
                   </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {activeTab === '고정' ? (
-          <section className="mt-12">
-            <h2 className="typography-headline03 text-text-100">근무일 선택</h2>
-            <div className="mt-4 flex h-[50px] items-center rounded-[20px] bg-white px-[4px]">
-              {workdayOptions.map(day => {
-                const selected = selectedDays.includes(day)
-                return (
-                  <button
-                    key={day}
-                    type="button"
-                    className={cn(
-                      'flex h-10 w-[50px] items-center justify-center rounded-2xl typography-body01-semibold',
-                      selected ? 'bg-main text-text-100' : 'text-text-50'
-                    )}
-                    onClick={() => toggleDay(day)}
-                  >
-                    {day}
-                  </button>
-                )
-              })}
-            </div>
-          </section>
-        ) : (
-          <>
-            <section className="relative mt-12">
-              <h2 className="typography-headline03 text-text-100">날짜 선택</h2>
-              <button
-                type="button"
-                onClick={() => setShowCalendar(!showCalendar)}
-                className="mt-4 flex h-12 w-full items-center gap-1 rounded-2xl bg-white px-4"
-              >
-                <div className="flex min-w-0 flex-1 items-center gap-1">
-                  <span className={`typography-headline03 text-text-100`}>
-                    {selectedDate
-                      ? `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`
-                      : '날짜 선택'}
-                  </span>
-                  <img
-                    src={calendarIcon}
-                    alt=""
-                    aria-hidden="true"
-                    className="h-6 w-6"
-                  />
                 </div>
                 <div className="flex h-6 w-6 items-center justify-center">
                   <img
                     src={chevronDownIcon}
                     alt=""
                     aria-hidden="true"
-                    className={cn('h-5 w-5 transition-transform', showCalendar && 'rotate-180')}
+                    className={cn(
+                      'h-5 w-5 transition-transform',
+                      isWorkerDropdownOpen && 'rotate-180'
+                    )}
                   />
                 </div>
               </button>
 
-              {showCalendar && (
-                <div className="absolute top-full left-0 z-10 mt-2 w-full rounded-2xl bg-white p-3">
-                  <ScheduleCalendar
-                    selectedDate={selectedDate}
-                    onDateChange={date => {
-                      setSelectedDate(date)
-                      setShowCalendar(false)
-                    }}
-                  />
+              {isWorkerDropdownOpen && (
+                <div className="absolute top-full z-10 mt-2 w-full max-h-[350px] overflow-y-auto rounded-2xl bg-white p-3">
+                  {workers.map((w, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => {
+                        setSelectedWorkerIndex(index)
+                        setIsWorkerDropdownOpen(false)
+                      }}
+                      className={cn(
+                        'flex h-[70px] w-full items-center gap-4 rounded-2xl px-3 py-4 transition-colors',
+                        selectedWorkerIndex === index
+                          ? 'bg-main/10'
+                          : 'hover:bg-bg-light'
+                      )}
+                    >
+                      <div
+                        className="size-[38px] rounded-full bg-[repeating-conic-gradient(#ececec_0%_25%,transparent_0%_50%)] [background-size:8px_8px]"
+                        aria-hidden="true"
+                      />
+                      <div className="flex min-w-0 items-center gap-1">
+                        <p className="typography-body01-semibold text-text-100">
+                          {w.name}
+                        </p>
+                        <WorkerRoleBadge role={w.role} />
+                      </div>
+                    </button>
+                  ))}
                 </div>
               )}
             </section>
-            <section className="relative mt-4">
-              <ColorPickerDropdown
-                selectedColor={selectedColor}
-                onColorChange={setSelectedColor}
-                isOpen={isColorPickerOpen}
-                onToggle={() => setIsColorPickerOpen(!isColorPickerOpen)}
-              />
-            </section>
-          </>
-        )}
-        {!isColorPickerOpen && (
-          <section className="mt-12">
-            <h2 className="typography-headline03 text-text-100">
-              근무 시간 선택
-            </h2>
-            <p className="mt-1 typography-body02-regular text-text-100">
-              {workTime.rangeLabel}
-            </p>
 
-            <div className="mt-3 flex items-center justify-between">
-              <span className="typography-body02-semibold text-text-70">
-                출근 시간
-              </span>
-              <div className="flex items-center gap-2">
-                <TimeSelectBox
-                  value={workTime.startHour}
-                  unit="시"
-                  onChange={workTime.setStartHour}
-                />
-                <div className="flex flex-col items-center gap-1">
-                  <span
-                    className="h-1 w-1 rounded-full bg-text-70"
-                    aria-hidden="true"
-                  />
-                  <span
-                    className="h-1 w-1 rounded-full bg-text-70"
-                    aria-hidden="true"
-                  />
+            {activeTab === '고정' ? (
+              <section className="mt-12">
+                <h2 className="typography-headline03 text-text-100">
+                  근무일 선택
+                </h2>
+                <div className="mt-4 flex h-[50px] items-center rounded-[20px] bg-white px-[4px]">
+                  {workdayOptions.map(day => {
+                    const selected = selectedDays.includes(day)
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        className={cn(
+                          'flex h-10 w-[50px] items-center justify-center rounded-2xl typography-body01-semibold',
+                          selected ? 'bg-main text-text-100' : 'text-text-50'
+                        )}
+                        onClick={() => toggleDay(day)}
+                      >
+                        {day}
+                      </button>
+                    )
+                  })}
                 </div>
-                <TimeSelectBox
-                  value={workTime.startMinute}
-                  unit="분"
-                  onChange={workTime.setStartMinute}
-                />
-              </div>
-            </div>
+              </section>
+            ) : (
+              <>
+                <section className="relative mt-12">
+                  <h2 className="typography-headline03 text-text-100">
+                    날짜 선택
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => setShowCalendar(!showCalendar)}
+                    className="mt-4 flex h-12 w-full items-center gap-1 rounded-2xl bg-white px-4"
+                  >
+                    <div className="flex min-w-0 flex-1 items-center gap-1">
+                      <span className={`typography-headline03 text-text-100`}>
+                        {selectedDate
+                          ? `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`
+                          : '날짜 선택'}
+                      </span>
+                      <img
+                        src={calendarIcon}
+                        alt=""
+                        aria-hidden="true"
+                        className="h-6 w-6"
+                      />
+                    </div>
+                    <div className="flex h-6 w-6 items-center justify-center">
+                      <img
+                        src={chevronDownIcon}
+                        alt=""
+                        aria-hidden="true"
+                        className={cn(
+                          'h-5 w-5 transition-transform',
+                          showCalendar && 'rotate-180'
+                        )}
+                      />
+                    </div>
+                  </button>
 
-            <div className="mt-2 flex items-center justify-between">
-              <span className="typography-body02-semibold text-text-70">
-                퇴근 시간
-              </span>
-              <div className="flex items-center gap-2">
-                <TimeSelectBox
-                  value={workTime.endHour}
-                  unit="시"
-                  onChange={workTime.setEndHour}
-                />
-                <div className="flex flex-col items-center gap-1">
-                  <span
-                    className="h-1 w-1 rounded-full bg-text-70"
-                    aria-hidden="true"
+                  {showCalendar && (
+                    <div className="absolute top-full left-0 z-10 mt-2 w-full rounded-2xl bg-white p-3">
+                      <ScheduleCalendar
+                        selectedDate={selectedDate}
+                        onDateChange={date => {
+                          setSelectedDate(date)
+                          setShowCalendar(false)
+                        }}
+                      />
+                    </div>
+                  )}
+                </section>
+                <section className="relative mt-4">
+                  <ColorPickerDropdown
+                    selectedColor={selectedColor}
+                    onColorChange={setSelectedColor}
+                    isOpen={isColorPickerOpen}
+                    onToggle={() => setIsColorPickerOpen(!isColorPickerOpen)}
                   />
-                  <span
-                    className="h-1 w-1 rounded-full bg-text-70"
-                    aria-hidden="true"
-                  />
+                </section>
+              </>
+            )}
+            {!isColorPickerOpen && (
+              <section className="mt-12">
+                <h2 className="typography-headline03 text-text-100">
+                  근무 시간 선택
+                </h2>
+                <p className="mt-1 typography-body02-regular text-text-100">
+                  {workTime.rangeLabel}
+                </p>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="typography-body02-semibold text-text-70">
+                    출근 시간
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <TimeSelectBox
+                      value={workTime.startHour}
+                      unit="시"
+                      onChange={workTime.setStartHour}
+                    />
+                    <div className="flex flex-col items-center gap-1">
+                      <span
+                        className="h-1 w-1 rounded-full bg-text-70"
+                        aria-hidden="true"
+                      />
+                      <span
+                        className="h-1 w-1 rounded-full bg-text-70"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <TimeSelectBox
+                      value={workTime.startMinute}
+                      unit="분"
+                      onChange={workTime.setStartMinute}
+                    />
+                  </div>
                 </div>
-                <TimeSelectBox
-                  value={workTime.endMinute}
-                  unit="분"
-                  onChange={workTime.setEndMinute}
-                />
-              </div>
-            </div>
-          </section>
-        )}
+
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="typography-body02-semibold text-text-70">
+                    퇴근 시간
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <TimeSelectBox
+                      value={workTime.endHour}
+                      unit="시"
+                      onChange={workTime.setEndHour}
+                    />
+                    <div className="flex flex-col items-center gap-1">
+                      <span
+                        className="h-1 w-1 rounded-full bg-text-70"
+                        aria-hidden="true"
+                      />
+                      <span
+                        className="h-1 w-1 rounded-full bg-text-70"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <TimeSelectBox
+                      value={workTime.endMinute}
+                      unit="분"
+                      onChange={workTime.setEndMinute}
+                    />
+                  </div>
+                </div>
+              </section>
+            )}
           </>
         )}
       </main>

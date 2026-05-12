@@ -4,10 +4,7 @@ import { useWorkspaceStore } from '@/shared/stores/useWorkspaceStore'
 import type { StoreWorkerRole } from '@/features/manager/home/types/storeWorkerRole'
 import { ScheduleColor } from '@/features/manager/worker-schedule/types/scheduleColor'
 import type { ScheduleColor as ScheduleColorType } from '@/features/manager/worker-schedule/types/scheduleColor'
-
-const WORKDAY_OPTIONS = ['월', '화', '수', '목', '금', '토', '일'] as const
-
-const DEFAULT_SELECTED_DAYS = ['수', '금']
+import { WEEKDAY_LABELS } from '@/shared/constants/calendar'
 
 export function useWorkerScheduleManageViewModel() {
   const activeWorkspaceId = useWorkspaceStore(state => state.activeWorkspaceId)
@@ -28,9 +25,7 @@ export function useWorkerScheduleManageViewModel() {
     }))
   }, [workersResponse])
 
-  const [selectedDays, setSelectedDays] = useState<string[]>(
-    DEFAULT_SELECTED_DAYS
-  )
+  const [selectedDays, setSelectedDays] = useState<string[]>([])
   const [startHour, setStartHour] = useState('')
   const [startMinute, setStartMinute] = useState('')
   const [endHour, setEndHour] = useState('')
@@ -40,8 +35,15 @@ export function useWorkerScheduleManageViewModel() {
     ScheduleColor.Pink
   )
 
-  const validIndex = Math.min(selectedWorkerIndex, Math.max(0, workers.length - 1))
-  const selectedWorker = workers[validIndex] || { id: 0, name: '', role: 'staff' as const }
+  const validIndex = Math.min(
+    selectedWorkerIndex,
+    Math.max(0, workers.length - 1)
+  )
+  const selectedWorker = workers[validIndex] || {
+    id: 0,
+    name: '',
+    role: 'staff' as const,
+  }
   const selectedWorkerColorCode = selectedWorker.colorCode || undefined
   useEffect(() => {
     if (selectedWorkerColorCode) {
@@ -77,7 +79,7 @@ export function useWorkerScheduleManageViewModel() {
     setSelectedWorkerIndex,
     selectedColor,
     setSelectedColor,
-    workdayOptions: WORKDAY_OPTIONS,
+    workdayOptions: WEEKDAY_LABELS,
     selectedDays,
     toggleDay,
     workTime: {
