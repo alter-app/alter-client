@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import React from 'react'
-import { MonthlyDateCell } from '../../src/features/home/user/schedule/ui/MonthlyDateCell'
+import { MonthlyDateCell } from '../../src/features/user/home/schedule/ui/MonthlyDateCell'
 
 const meta = {
   title: 'features/home/user/MonthlyDateCell',
@@ -11,7 +11,7 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <div className='rounded-xl border p-6'>
+      <div className="rounded-xl border p-6">
         <Story />
       </div>
     ),

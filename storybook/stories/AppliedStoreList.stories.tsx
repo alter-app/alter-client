@@ -3,7 +3,7 @@ import React from 'react'
 import {
   AppliedStoreList,
   type AppliedStoreItem,
-} from '../../src/features/home/user/applied-stores/ui/AppliedStoreList'
+} from '../../src/features/user/home/applied-stores/ui/AppliedStoreList'
 
 const sampleStores: AppliedStoreItem[] = [
   { id: 1, storeName: '지원한 매장 이름입니다.', status: 'applied' },
@@ -22,7 +22,7 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <div className='w-[358px] bg-bg-light p-3'>
+      <div className="w-[358px] bg-bg-light p-3">
         <Story />
       </div>
     ),

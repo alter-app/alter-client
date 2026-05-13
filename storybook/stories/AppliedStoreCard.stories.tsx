@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import React from 'react'
-import { AppliedStoreCard } from '../../src/features/home/user/applied-stores/ui/AppliedStoreCard'
+import { AppliedStoreCard } from '../../src/features/user/home/applied-stores/ui/AppliedStoreCard'
 
 const meta = {
   title: 'features/home/user/AppliedStoreCard',
@@ -11,7 +11,7 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <div className='bg-bg-light p-4'>
+      <div className="bg-bg-light p-4">
         <Story />
       </div>
     ),
