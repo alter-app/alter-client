@@ -9,6 +9,8 @@ import type {
 } from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
 import { AlbaFindList } from '@/features/job-lookup-map/common/AlbaFindList'
 import { Albabox } from '@/features/job-lookup-map/common/Albabox'
+import { usePostings } from '@/features/job-lookup-map/hooks/usePosting'
+import { postingToAlbaboxProps } from '@/features/job-lookup-map/lib/postingToAlbaboxProps'
 
 type NaverMapInstance = {
   destroy(): void
@@ -45,8 +47,28 @@ export function JobLookupMapPage() {
   const [maxTranslateY, setMaxTranslateY] = useState(0)
   const [mode, setMode] = useState<AlbaFindMode>('nearby')
   const [activeFilter, setActiveFilter] = useState<AlbaFindFilterId>('sort')
-  const [savedDemo, setSavedDemo] = useState(false)
+  const [bookmarkById, setBookmarkById] = useState<Record<number, boolean>>({})
+  const loadMoreRef = useRef<HTMLDivElement>(null)
   const y = useMotionValue(0)
+
+  const { postings, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    usePostings()
+
+  useEffect(() => {
+    const el = loadMoreRef.current
+    if (!el || !hasNextPage) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isFetchingNextPage) {
+          void fetchNextPage()
+        }
+      },
+      { rootMargin: '120px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
   useEffect(() => {
     const el = mapContainerRef.current
@@ -143,53 +165,45 @@ export function JobLookupMapPage() {
             info.velocity.y < -120 || current < maxTranslateY * 0.5
           snapTo(shouldExpand ? 0 : maxTranslateY)
         }}
-        className="absolute inset-x-0 bottom-[30px] z-[40] mx-auto flex max-h-[calc(100dvh-78px)] w-full max-w-[428px] flex-col rounded-t-[32px] border border-line-2 border-b-0 bg-white"
+        className="absolute inset-x-0 bottom-[30px] z-[40] mx-auto flex h-[calc(100dvh-78px)] max-h-[calc(100dvh-78px)] w-full max-w-[428px] flex-col overflow-hidden rounded-t-[32px] border border-line-2 border-b-0 bg-white"
       >
-        <div className="mx-auto mt-4 h-1 w-[50px] rounded-full bg-line-2" />
+        <div className="mx-auto mt-4 h-1 w-[50px] shrink-0 rounded-full bg-line-2" />
 
-        <div className="px-4 pb-[calc(1.5rem+78px+env(safe-area-inset-bottom))] pt-3">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-[calc(1.5rem+78px+env(safe-area-inset-bottom))] pt-3">
           <AlbaFindCategoryBar
             mode={mode}
             onModeChange={setMode}
             activeFilter={activeFilter}
             onFilterChange={setActiveFilter}
           />
-          <AlbaFindList className="mt-3 gap-0">
-            <Albabox
-              storeName="출근하기 싫은 가게 고척점"
-              title="[가게이름] 평일 저녁 마감 근무자 모집"
-              wageAmount="10,030"
-              timeRange="07:00 ~ 13:00"
-              workDays="월, 화, 수"
-              distance="800m"
-              postedAgo="12시간 전"
-              saved={savedDemo}
-              likeCount="999+"
-              onBookmarkClick={() => setSavedDemo(v => !v)}
-              onClick={() => navigate(ROUTES.USER.JOB_LOOKUP_MAP_DETAIL)}
-            />
-            <Albabox
-              storeName="출근하기 싫은 가게 고척점"
-              title="[가게이름] 평일 저녁 마감 근무자 모집"
-              wageAmount="10,030"
-              timeRange="07:00 ~ 13:00"
-              workDays="월, 화, 수"
-              distance="800m"
-              postedAgo="1일 전"
-              likeCount="999+"
-              saved
-            />
-            <Albabox
-              storeName="출근하기 싫은 가게 고척점"
-              title="[가게이름] 평일 저녁 마감 근무자 모집"
-              wageAmount="10,030"
-              timeRange="07:00 ~ 13:00"
-              workDays="월, 화, 수"
-              distance="800m"
-              postedAgo="1일 전"
-              likeCount="999+"
-              saved={false}
-            />
+          <AlbaFindList className="mt-3 min-h-0 flex-1 gap-0">
+            {postings.map(posting => {
+              const base = postingToAlbaboxProps(posting)
+              const saved = bookmarkById[posting.id] ?? posting.scrapped
+              return (
+                <Albabox
+                  key={posting.id}
+                  {...base}
+                  saved={saved}
+                  onBookmarkClick={() =>
+                    setBookmarkById(prev => ({
+                      ...prev,
+                      [posting.id]: !saved,
+                    }))
+                  }
+                  onClick={() => navigate(ROUTES.USER.JOB_LOOKUP_MAP_DETAIL)}
+                />
+              )
+            })}
+            {hasNextPage && (
+              <div
+                ref={loadMoreRef}
+                className="typography-body02-regular flex min-h-10 items-center justify-center py-3 text-text-50"
+                aria-hidden
+              >
+                {isFetchingNextPage ? '더 불러오는 중…' : ''}
+              </div>
+            )}
           </AlbaFindList>
         </div>
       </motion.section>
