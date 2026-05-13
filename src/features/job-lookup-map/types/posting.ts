@@ -2,6 +2,19 @@ export interface PostingListResponse {
   page: Page
   data: Posting[]
 }
+
+export interface PostingDetailResponse {
+  id: number
+  workspace: Workspace
+  title: string
+  description: string
+  payAmount: number
+  paymentType: string
+  createdAt: string
+  keywords: Keyword[]
+  schedules: Schedule[]
+  scrapped: boolean
+}
 export interface Page {
   cursor: string
   pageSize: number
@@ -36,8 +49,9 @@ export interface Schedule {
 }
 
 export interface Workspace {
-  id: number
   businessName: string
+  id: number
   latitude: number
   longitude: number
+  fullAddress: string
 }

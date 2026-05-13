@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 import { animate, motion, useMotionValue } from 'framer-motion'
 import { AlbaFindCategoryBar } from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
 import { ROUTES } from '@/shared/constants/routes'
@@ -191,7 +191,13 @@ export function JobLookupMapPage() {
                       [posting.id]: !saved,
                     }))
                   }
-                  onClick={() => navigate(ROUTES.USER.JOB_LOOKUP_MAP_DETAIL)}
+                  onClick={() =>
+                    navigate(
+                      generatePath(ROUTES.USER.JOB_LOOKUP_MAP_DETAIL, {
+                        postingId: String(posting.id),
+                      })
+                    )
+                  }
                 />
               )
             })}

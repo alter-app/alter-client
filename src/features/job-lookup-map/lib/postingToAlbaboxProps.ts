@@ -4,7 +4,7 @@ import { ko } from 'date-fns/locale'
 import type { AlbaboxProps } from '@/features/job-lookup-map/common/Albabox'
 import type { Posting } from '@/features/job-lookup-map/types/posting'
 
-function formatPostedAgo(createdAt: string): string {
+export function formatPostedAgo(createdAt: string): string {
   const d = new Date(createdAt)
   if (Number.isNaN(d.getTime())) return '-'
   return `${formatDistanceToNowStrict(d, { locale: ko })} 전`
@@ -53,7 +53,7 @@ function toKoreanWeekdayLabel(raw: string): string | null {
   return null
 }
 
-function formatWorkDaysForDisplay(days: string[]): string {
+export function formatWorkDaysForDisplay(days: string[]): string {
   const labels = [
     ...new Set(
       days.map(toKoreanWeekdayLabel).filter((v): v is string => v != null)
