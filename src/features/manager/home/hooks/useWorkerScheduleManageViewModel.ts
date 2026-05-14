@@ -1,27 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { splitClockToParts } from '@/features/home/common/schedule/lib/date'
+import { fetchWorkerFixedSchedules } from '@/features/manager/home/api/workerFixedSchedule'
+import { MANAGER_WEEKDAY_KO_ORDER } from '@/features/manager/home/constants/managerWeekdayKo'
+import type { ManagerWeekdayKo } from '@/features/manager/home/constants/managerWeekdayKo'
+import { mapFixedScheduleSlotsToByWeekdayKo } from '@/features/manager/home/lib/mapWorkerFixedScheduleSlots'
 import { useWorkspaceWorkersViewModel } from '@/features/manager/home/hooks/useWorkspaceWorkersViewModel'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
+import { queryKeys } from '@/shared/lib/queryKeys'
 
-const WORKDAY_OPTIONS = ['월', '화', '수', '목', '금', '토', '일'] as const
-
-type WeekdayKo = (typeof WORKDAY_OPTIONS)[number]
-
-const DEFAULT_SELECTED_DAYS: WeekdayKo[] = ['수', '금']
-
-/** Step 5-2에서 API 응답으로 교체 예정 */
-const MOCK_WEEKLY_SCHEDULE: Partial<
-  Record<WeekdayKo, { startTime: string; endTime: string }>
-> = {
-  월: { startTime: '09:00', endTime: '18:00' },
-  화: { startTime: '10:00', endTime: '19:00' },
-  수: { startTime: '08:30', endTime: '14:00' },
-  목: { startTime: '13:00', endTime: '22:00' },
-  금: { startTime: '09:00', endTime: '17:00' },
-  토: { startTime: '12:00', endTime: '21:00' },
-  일: { startTime: '11:00', endTime: '16:00' },
-}
+const DEFAULT_SELECTED_DAYS: ManagerWeekdayKo[] = ['수', '금']
 
 const ZERO_DISPLAY = {
   startHour: '00',
@@ -32,8 +21,8 @@ const ZERO_DISPLAY = {
 
 function primaryWeekdayAmongSelected(
   selectedDays: string[],
-  order: readonly WeekdayKo[]
-): WeekdayKo | null {
+  order: readonly ManagerWeekdayKo[]
+): ManagerWeekdayKo | null {
   for (const d of order) {
     if (selectedDays.includes(d)) return d
   }
@@ -68,6 +57,24 @@ export function useWorkerScheduleManageViewModel(args: {
 
   const worker = workers[selectedWorkerIndex]
 
+  const {
+    data: fixedScheduleApi,
+    isPending: fixedScheduleLoading,
+    isError: fixedScheduleError,
+  } = useQuery({
+    queryKey: queryKeys.managerWorkspace.workerFixedSchedule(
+      workspaceId,
+      workerId
+    ),
+    queryFn: () => fetchWorkerFixedSchedules(workspaceId, workerId),
+    enabled: workspaceId > 0 && workerId > 0,
+  })
+
+  const scheduleByWeekday = useMemo(
+    () => mapFixedScheduleSlotsToByWeekdayKo(fixedScheduleApi?.data ?? []),
+    [fixedScheduleApi]
+  )
+
   useEffect(() => {
     if (workersLoading) return
     if (workers.length === 0) {
@@ -90,12 +97,15 @@ export function useWorkerScheduleManageViewModel(args: {
 
   const templateTimes = useMemo(() => {
     if (selectedDays.length === 0) return ZERO_DISPLAY
-    const primary = primaryWeekdayAmongSelected(selectedDays, WORKDAY_OPTIONS)
+    const primary = primaryWeekdayAmongSelected(
+      selectedDays,
+      MANAGER_WEEKDAY_KO_ORDER
+    )
     if (!primary) return ZERO_DISPLAY
-    const slot = MOCK_WEEKLY_SCHEDULE[primary]
+    const slot = scheduleByWeekday[primary]
     if (!slot) return ZERO_DISPLAY
     return displayFromSchedule(slot)
-  }, [selectedDays])
+  }, [scheduleByWeekday, selectedDays])
 
   const templateKey = `${templateTimes.startHour}:${templateTimes.startMinute}:${templateTimes.endHour}:${templateTimes.endMinute}`
   const [syncedTemplateKey, setSyncedTemplateKey] = useState<string | null>(
@@ -131,8 +141,10 @@ export function useWorkerScheduleManageViewModel(args: {
     worker,
     workers,
     workersLoading,
+    fixedScheduleLoading,
+    fixedScheduleError,
     goToWorker,
-    workdayOptions: WORKDAY_OPTIONS,
+    workdayOptions: MANAGER_WEEKDAY_KO_ORDER,
     selectedDays,
     workTimeRangeLabel,
     startHour,

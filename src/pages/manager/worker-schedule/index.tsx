@@ -99,6 +99,8 @@ function ManagerWorkerSchedulePageContent({
     worker,
     workers,
     workersLoading,
+    fixedScheduleLoading,
+    fixedScheduleError,
     goToWorker,
     workdayOptions,
     selectedDays,
@@ -291,6 +293,17 @@ function ManagerWorkerSchedulePageContent({
             <h2 className="typography-headline03 text-text-100">
               근무 시간 선택
             </h2>
+            {fixedScheduleLoading && (
+              <p className="mt-1 typography-body02-regular text-text-70">
+                고정 근무 시간을 불러오는 중입니다.
+              </p>
+            )}
+            {fixedScheduleError && !fixedScheduleLoading && (
+              <p className="mt-1 typography-body02-regular text-red-600">
+                고정 근무 시간을 불러오지 못했습니다. 잠시 후 다시 시도해
+                주세요.
+              </p>
+            )}
             <p className="mt-1 typography-body02-regular text-text-100">
               {workTimeRangeLabel}
             </p>

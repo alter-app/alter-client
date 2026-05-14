@@ -33,6 +33,13 @@ export const queryKeys = {
       workspaceId: number,
       params?: { status?: string; name?: string; pageSize?: number }
     ) => ['managerWorkspace', 'workers', workspaceId, params] as const,
+    workerFixedSchedule: (workspaceId: number, workerId: number) =>
+      [
+        'managerWorkspace',
+        'workerFixedSchedule',
+        workspaceId,
+        workerId,
+      ] as const,
   },
   posting: {
     list: (params?: {
