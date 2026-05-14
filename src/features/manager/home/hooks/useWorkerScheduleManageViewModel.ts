@@ -1,14 +1,19 @@
 import { useMemo, useState } from 'react'
-import {
-  formatClockRangeLabel,
-  splitClockToParts,
-} from '@/features/home/common/schedule/lib/date'
+import { splitClockToParts } from '@/features/home/common/schedule/lib/date'
 
 const WORKDAY_OPTIONS = ['월', '화', '수', '목', '금', '토', '일'] as const
 
 type WeekdayKo = (typeof WORKDAY_OPTIONS)[number]
 
 const DEFAULT_SELECTED_DAYS: WeekdayKo[] = ['수', '금']
+
+const MOCK_WORKERS = [
+  { name: '이름임', role: 'manager' as const },
+  { name: '김민준', role: 'staff' as const },
+  { name: '박지은', role: 'staff' as const },
+  { name: '이수호', role: 'staff' as const },
+  { name: '정하나', role: 'manager' as const },
+]
 
 /** API 연동 전: 근무자 주간 템플릿 (추후 서버 DTO로 교체) */
 const MOCK_WEEKLY_SCHEDULE: Partial<
@@ -28,7 +33,6 @@ const ZERO_DISPLAY = {
   startMinute: '00',
   endHour: '00',
   endMinute: '00',
-  workTimeRangeLabel: '00:00 ~ 00:00',
 }
 
 function primaryWeekdayAmongSelected(
@@ -49,7 +53,6 @@ function displayFromSchedule(slot: { startTime: string; endTime: string }) {
     startMinute: sh.minute,
     endHour: eh.hour,
     endMinute: eh.minute,
-    workTimeRangeLabel: formatClockRangeLabel(slot.startTime, slot.endTime),
   }
 }
 
@@ -57,16 +60,40 @@ export function useWorkerScheduleManageViewModel() {
   const [selectedDays, setSelectedDays] = useState<string[]>(
     DEFAULT_SELECTED_DAYS
   )
+  const [startHour, setStartHour] = useState('')
+  const [startMinute, setStartMinute] = useState('')
+  const [endHour, setEndHour] = useState('')
+  const [endMinute, setEndMinute] = useState('')
+  const [selectedWorkerIndex, setSelectedWorkerIndex] = useState(0)
 
-  const { startHour, startMinute, endHour, endMinute, workTimeRangeLabel } =
-    useMemo(() => {
-      if (selectedDays.length === 0) return ZERO_DISPLAY
-      const primary = primaryWeekdayAmongSelected(selectedDays, WORKDAY_OPTIONS)
-      if (!primary) return ZERO_DISPLAY
-      const slot = MOCK_WEEKLY_SCHEDULE[primary]
-      if (!slot) return ZERO_DISPLAY
-      return displayFromSchedule(slot)
-    }, [selectedDays])
+  const templateTimes = useMemo(() => {
+    if (selectedDays.length === 0) return ZERO_DISPLAY
+    const primary = primaryWeekdayAmongSelected(selectedDays, WORKDAY_OPTIONS)
+    if (!primary) return ZERO_DISPLAY
+    const slot = MOCK_WEEKLY_SCHEDULE[primary]
+    if (!slot) return ZERO_DISPLAY
+    return displayFromSchedule(slot)
+  }, [selectedDays])
+
+  const templateKey = `${templateTimes.startHour}:${templateTimes.startMinute}:${templateTimes.endHour}:${templateTimes.endMinute}`
+  const [syncedTemplateKey, setSyncedTemplateKey] = useState<string | null>(
+    null
+  )
+  if (syncedTemplateKey !== templateKey) {
+    setSyncedTemplateKey(templateKey)
+    setStartHour(templateTimes.startHour)
+    setStartMinute(templateTimes.startMinute)
+    setEndHour(templateTimes.endHour)
+    setEndMinute(templateTimes.endMinute)
+  }
+
+  const workTimeRangeLabel = useMemo(() => {
+    const sh = startHour || '00'
+    const sm = startMinute || '00'
+    const eh = endHour || '00'
+    const em = endMinute || '00'
+    return `${sh}:${sm} ~ ${eh}:${em}`
+  }, [startHour, startMinute, endHour, endMinute])
 
   function toggleDay(day: string) {
     setSelectedDays(prev =>
@@ -75,10 +102,10 @@ export function useWorkerScheduleManageViewModel() {
   }
 
   return {
-    worker: {
-      name: '이름임',
-      role: 'manager' as const,
-    },
+    worker: MOCK_WORKERS[selectedWorkerIndex],
+    workers: MOCK_WORKERS,
+    selectedWorkerIndex,
+    setSelectedWorkerIndex,
     workdayOptions: WORKDAY_OPTIONS,
     selectedDays,
     workTimeRangeLabel,
@@ -86,6 +113,10 @@ export function useWorkerScheduleManageViewModel() {
     startMinute,
     endHour,
     endMinute,
+    setStartHour,
+    setStartMinute,
+    setEndHour,
+    setEndMinute,
     toggleDay,
   }
 }

@@ -1,19 +1,3 @@
-export const WEEKDAY_LABELS = [
-  '일',
-  '월',
-  '화',
-  '수',
-  '목',
-  '금',
-  '토',
-] as const
-
-/** 월요일 시작 주( date-fns weekStartsOn: 1 )와 그리드 열 순서를 맞춤 */
-export const WEEKDAY_LABELS_MONDAY_FIRST = [
-  ...WEEKDAY_LABELS.slice(1),
-  WEEKDAY_LABELS[0],
-] as const
-
 export const DATE_KEY_FORMAT = 'yyyy-MM-dd'
 export const MONTH_LABEL_FORMAT = 'yyyy년 M월'
 

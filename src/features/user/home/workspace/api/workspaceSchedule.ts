@@ -4,11 +4,11 @@ import type {
   CalendarViewData,
 } from '@/features/user/home/schedule/types/schedule'
 import {
+  getDurationHours,
   toDateKey,
   toTimeLabel,
-  getDurationHours,
-  formatScheduleTimeRange,
-} from '@/features/user/home/schedule/lib/date'
+} from '@/features/home/common/schedule/lib/date'
+import { formatScheduleTimeRange } from '@/features/user/home/schedule/lib/date'
 import type {
   WorkspaceScheduleApiResponse,
   WorkspaceScheduleDataPayload,

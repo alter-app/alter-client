@@ -109,7 +109,7 @@ export function MonthlyCalendar({
         className={layout === 'manager' ? 'mt-5 px-[11px] pb-4' : 'mt-4'}
       >
         <div className="grid grid-cols-7 text-center">
-          {weekdayLabels.map((label, index) => (
+          {weekdayLabels.map((label: string, index: number) => (
             <span
               key={label}
               className={cn(
