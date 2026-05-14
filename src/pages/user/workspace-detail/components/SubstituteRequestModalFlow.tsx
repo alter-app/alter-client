@@ -15,9 +15,6 @@ import { cn } from '@/shared/lib/utils'
 
 import type { CalendarViewData } from '@/features/home/common/schedule/types/calendarView'
 
-export const DEFAULT_SUBSTITUTE_INTRO_PLACEHOLDER =
-  '저는 카페 근처에 거주 하고 있으며, 카페에서 근무한 경험이 있어서 카페에 지원하였습니다.'
-
 const timeFieldInputClass =
   'min-w-0 flex-1 bg-transparent text-center tabular-nums typography-body01-semibold text-text-90 outline-none placeholder:text-text-50'
 
@@ -347,7 +344,7 @@ export function SubstituteRequestModalFlow({
                 rows={4}
                 value={flow.selfIntroduction}
                 onChange={e => flow.setSelfIntroduction(e.target.value)}
-                placeholder={DEFAULT_SUBSTITUTE_INTRO_PLACEHOLDER}
+                placeholder="필요하신 시간에 맞춰 성실히 근무하겠습니다. 근처라 호출 시 대응도 빠릅니다. 연락 부탁드립니다!"
                 className="min-h-[70px] w-full resize-none rounded-2xl border border-transparent bg-bg-dark px-[14px] py-4 typography-body03-regular text-text-100 outline-none placeholder:text-text-50 focus:border-main-300"
               />
             </div>
