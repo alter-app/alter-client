@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom'
 import { ManagerHomePage } from '@/pages/manager/home'
 import { ManagerWorkerSchedulePage } from '@/pages/manager/worker-schedule'
+import { ManagerWorkerScheduleLegacyEntryRedirect } from '@/pages/manager/worker-schedule/LegacyEntryRedirect'
 import { SocialPage } from '@/pages/manager/social'
 import { SocialChatPage } from '@/pages/manager/social-chat'
 import { LoginPage } from '@/pages/login'
@@ -94,6 +95,10 @@ export function App() {
           <Route path={ROUTES.MY.PROFILE} element={<ProfileEditPage />} />
           <Route
             path={ROUTES.MANAGER.WORKER_SCHEDULE}
+            element={<ManagerWorkerScheduleLegacyEntryRedirect />}
+          />
+          <Route
+            path={ROUTES.MANAGER.WORKER_SCHEDULE_PATTERN}
             element={<ManagerWorkerSchedulePage />}
           />
           <Route

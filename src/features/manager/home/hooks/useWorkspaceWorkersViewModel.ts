@@ -41,8 +41,11 @@ export function useWorkspaceWorkersViewModel(
     [data]
   )
 
+  const totalCount = data?.pages[0]?.data.page.totalCount ?? 0
+
   return {
     workers,
+    totalCount,
     fetchNextPage,
     hasNextPage: !!hasNextPage,
     isFetchingNextPage,

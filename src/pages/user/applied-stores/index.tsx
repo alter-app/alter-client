@@ -7,6 +7,7 @@ import {
   type AppliedStoreData,
 } from '@/features/user'
 import DownIcon from '@/assets/icons/home/chevron-down.svg?react'
+import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibility'
 
 export function AppliedStoresPage() {
   const [selectedStore, setSelectedStore] = useState<AppliedStoreData | null>(
@@ -22,6 +23,7 @@ export function AppliedStoresPage() {
     toggleDropdown,
     selectFilter,
     getCardStatus,
+    totalCount,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -111,7 +113,7 @@ export function AppliedStoresPage() {
               ))}
             </div>
 
-            {hasNextPage && (
+            {shouldShowInfiniteListLoadMore(hasNextPage, totalCount) && (
               <button
                 type="button"
                 className="typography-body02-regular mt-6 w-full py-3 text-center text-text-70"

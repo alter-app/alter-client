@@ -16,6 +16,7 @@ export function DailyCalendar({
     title,
     dateLabel,
     totalWorkHoursText,
+    estimatedEarningsText,
     timelineHeight,
     timelineLines,
     eventBlocks,
@@ -41,13 +42,20 @@ export function DailyCalendar({
           <p className="typography-body01-regular text-text-90">{dateLabel}</p>
           <DownIcon className="h-4 w-4 text-text-90" />
         </button>
-        <div className="flex items-center gap-2 py-1 mt-5">
-          <span className="typography-display text-text-100">
-            {totalWorkHoursText}
-          </span>
-          <span className="typography-body01-semibold text-text-90">
-            시간 근무해요
-          </span>
+        <div className="flex items-center justify-between gap-2 py-1 mt-5">
+          <div className="flex items-center gap-2">
+            <span className="typography-display text-text-100">
+              {totalWorkHoursText}
+            </span>
+            <span className="typography-body01-semibold text-text-90">
+              시간 근무해요
+            </span>
+          </div>
+          {estimatedEarningsText ? (
+            <span className="typography-body01-semibold text-sub shrink-0">
+              {estimatedEarningsText}
+            </span>
+          ) : null}
         </div>
       </div>
 

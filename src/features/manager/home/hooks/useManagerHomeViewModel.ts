@@ -18,6 +18,7 @@ export function useManagerHomeViewModel() {
 
   const {
     workers: storeWorkers,
+    totalCount: storeWorkersTotalCount,
     fetchNextPage: fetchMoreWorkers,
     hasNextPage: hasMoreWorkers,
     isFetchingNextPage: isFetchingMoreWorkers,
@@ -77,8 +78,10 @@ export function useManagerHomeViewModel() {
   }, [isWorkspaceChangeModalOpen])
 
   return {
+    activeWorkspaceId,
     todayWorkers,
     storeWorkers,
+    storeWorkersTotalCount,
     fetchMoreWorkers,
     hasMoreWorkers,
     isFetchingMoreWorkers,

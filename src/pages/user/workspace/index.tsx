@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { WorkingStoreCard, useWorkspacesViewModel } from '@/features/user'
+import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibility'
 
 export function WorkspacePage() {
   const navigate = useNavigate()
   const {
     workspaces,
+    totalCount,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -64,7 +66,7 @@ export function WorkspacePage() {
                 </button>
               </div>
             )}
-            {hasNextPage && (
+            {shouldShowInfiniteListLoadMore(hasNextPage, totalCount) && (
               <button
                 type="button"
                 className="typography-body02-regular py-3 text-center text-text-70"

@@ -88,6 +88,12 @@ export function useDailyCalendarViewModel({
       totalMinutes,
     })
 
+    const estimatedLaborCost = data?.summary.estimatedLaborCost
+    const estimatedEarningsText =
+      estimatedLaborCost != null
+        ? `약 ${estimatedLaborCost.toLocaleString()}원`
+        : undefined
+
     return {
       title: workspaceName ?? '오늘의 아르바이트',
       dateLabel: format(baseDate, 'yyyy년 M월 d일'),
@@ -95,6 +101,7 @@ export function useDailyCalendarViewModel({
         2,
         '0'
       ),
+      ...(estimatedEarningsText != null ? { estimatedEarningsText } : {}),
       timelineHeight,
       timelineLines,
       eventBlocks,

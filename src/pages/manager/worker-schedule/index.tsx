@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Navigate, useParams } from 'react-router-dom'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import { useWorkerScheduleManageViewModel } from '@/features/manager/home/hooks/useWorkerScheduleManageViewModel'
 import chevronDownIcon from '@/assets/icons/home/chevron-down.svg'
@@ -9,6 +10,13 @@ import { ColorPickerDropdown } from '@/shared/ui/schedule/ColorPickerDropdown'
 import type { ScheduleTab } from '@/features/manager'
 import { SCHEDULE_TABS } from '@/features/manager'
 import { ScheduleColor } from '@/features/manager/worker-schedule/types/scheduleColor'
+import { ROUTES } from '@/shared/constants/routes'
+
+function parsePositiveRouteInt(raw: string | undefined): number | null {
+  if (raw === undefined) return null
+  const n = Number.parseInt(raw, 10)
+  return Number.isFinite(n) && n > 0 ? n : null
+}
 
 interface TimeSelectBoxProps {
   value: string
@@ -51,6 +59,34 @@ function TimeSelectBox({ value, unit, onChange }: TimeSelectBoxProps) {
 }
 
 export function ManagerWorkerSchedulePage() {
+  const { workspaceId: workspaceIdParam, workerId: workerIdParam } = useParams<{
+    workspaceId: string
+    workerId: string
+  }>()
+  const workspaceId = parsePositiveRouteInt(workspaceIdParam)
+  const workerId = parsePositiveRouteInt(workerIdParam)
+
+  if (workspaceId === null || workerId === null) {
+    return <Navigate to={ROUTES.MANAGER.HOME} replace />
+  }
+
+  return (
+    <ManagerWorkerSchedulePageContent
+      workspaceId={workspaceId}
+      workerId={workerId}
+    />
+  )
+}
+
+type ManagerWorkerSchedulePageContentProps = {
+  workspaceId: number
+  workerId: number
+}
+
+function ManagerWorkerSchedulePageContent({
+  workspaceId,
+  workerId,
+}: ManagerWorkerSchedulePageContentProps) {
   const [activeTab, setActiveTab] = useState<ScheduleTab>('고정')
   const [showCalendar, setShowCalendar] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -62,8 +98,10 @@ export function ManagerWorkerSchedulePage() {
   const {
     worker,
     workers,
-    selectedWorkerIndex,
-    setSelectedWorkerIndex,
+    workersLoading,
+    fixedScheduleLoading,
+    fixedScheduleError,
+    goToWorker,
     workdayOptions,
     selectedDays,
     workTimeRangeLabel,
@@ -76,7 +114,18 @@ export function ManagerWorkerSchedulePage() {
     setEndHour,
     setEndMinute,
     toggleDay,
-  } = useWorkerScheduleManageViewModel()
+  } = useWorkerScheduleManageViewModel({ workspaceId, workerId })
+
+  if (workersLoading || !worker) {
+    return (
+      <div className="flex min-h-[100dvh] flex-col bg-bg-light">
+        <Navbar variant="detail" title="근무자 스케줄 관리" />
+        <p className="px-4 pt-8 typography-body01-regular text-text-70">
+          불러오는 중…
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-bg-light">
@@ -134,18 +183,17 @@ export function ManagerWorkerSchedulePage() {
 
           {isWorkerDropdownOpen && (
             <div className="absolute top-full z-10 mt-2 w-full max-h-[350px] overflow-y-auto rounded-2xl bg-white p-3">
-              {workers.map((w, index) => (
+              {workers.map(w => (
                 <button
-                  key={index}
+                  key={w.id}
                   type="button"
+                  aria-pressed={w.id === worker.id}
                   onClick={() => {
-                    setSelectedWorkerIndex(index)
+                    goToWorker(w.id)
                     setIsWorkerDropdownOpen(false)
                   }}
                   className={`flex h-[70px] w-full items-center gap-4 rounded-2xl px-3 py-4 transition-colors ${
-                    selectedWorkerIndex === index
-                      ? 'bg-main/10'
-                      : 'hover:bg-bg-light'
+                    w.id === worker.id ? 'bg-main/10' : 'hover:bg-bg-light'
                   }`}
                 >
                   <div
@@ -174,6 +222,7 @@ export function ManagerWorkerSchedulePage() {
                   <button
                     key={day}
                     type="button"
+                    aria-pressed={selected}
                     className={`flex h-10 w-[50px] items-center justify-center rounded-2xl typography-body01-semibold ${
                       selected ? 'bg-main text-text-100' : 'text-text-50'
                     }`}
@@ -244,6 +293,17 @@ export function ManagerWorkerSchedulePage() {
             <h2 className="typography-headline03 text-text-100">
               근무 시간 선택
             </h2>
+            {fixedScheduleLoading && (
+              <p className="mt-1 typography-body02-regular text-text-70">
+                고정 근무 시간을 불러오는 중입니다.
+              </p>
+            )}
+            {fixedScheduleError && !fixedScheduleLoading && (
+              <p className="mt-1 typography-body02-regular text-red-600">
+                고정 근무 시간을 불러오지 못했습니다. 잠시 후 다시 시도해
+                주세요.
+              </p>
+            )}
             <p className="mt-1 typography-body02-regular text-text-100">
               {workTimeRangeLabel}
             </p>

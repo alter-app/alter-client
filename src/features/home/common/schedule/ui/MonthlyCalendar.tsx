@@ -10,9 +10,13 @@ import { cn } from '@/shared/lib/utils'
 interface MonthlyCalendarProps extends MonthlyCalendarPropsBase {
   isLoading?: boolean
   hideTitle?: boolean
+  /** 제목(예: 업장명) 줄 우측 — 카드 헤더 액션 */
+  titleRightAction?: ReactNode
   rightAction?: ReactNode
   layout?: 'default' | 'manager'
   onMonthChange?: (date: Date) => void
+  /** 현재 표시 월의 날짜만 전달된다. 선택 UI는 MonthlyDateCell이 버튼으로 바뀐다 */
+  onDaySelect?: (dateKey: string) => void
 }
 
 export function MonthlyCalendar({
@@ -22,9 +26,11 @@ export function MonthlyCalendar({
   isLoading = false,
   selectedDateKey,
   hideTitle = false,
+  titleRightAction,
   rightAction,
   layout = 'default',
   onMonthChange,
+  onDaySelect,
 }: MonthlyCalendarProps) {
   const {
     title,
@@ -63,7 +69,16 @@ export function MonthlyCalendar({
   return (
     <section className="rounded-2xl bg-white">
       <div className={layout === 'manager' ? 'px-6 pt-5' : 'px-[13px]'}>
-        {!hideTitle && <h3 className="typography-headline01 mb-4">{title}</h3>}
+        {!hideTitle && (
+          <div className="mb-4 flex items-center justify-between gap-2">
+            <h3 className="typography-headline01 min-w-0 flex-1 truncate">
+              {title}
+            </h3>
+            {titleRightAction ? (
+              <div className="shrink-0">{titleRightAction}</div>
+            ) : null}
+          </div>
+        )}
 
         <div className="flex items-center justify-between">
           <button
@@ -120,6 +135,11 @@ export function MonthlyCalendar({
                 isSelected={cell.isSelected}
                 isActiveDay={cell.isActiveDay}
                 gaugeRatio={cell.dayProgress}
+                onClick={
+                  onDaySelect && cell.isCurrentMonth
+                    ? () => onDaySelect(cell.dateKey)
+                    : undefined
+                }
               />
             )
           })}

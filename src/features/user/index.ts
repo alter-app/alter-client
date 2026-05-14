@@ -8,6 +8,13 @@ export type { AppliedStoreData } from '@/features/user/home/applied-stores/types
 export { useHomeScheduleViewModel } from '@/features/user/home/schedule/hooks/useHomeScheduleViewModel'
 export { useWorkspacesViewModel } from '@/features/user/home/workspace/hooks/useWorkspacesViewModel'
 export { useWorkspaceScheduleViewModel } from '@/features/user/home/workspace/hooks/useWorkspaceScheduleViewModel'
+export {
+  useSubstituteRequestFlow,
+  timeDigits,
+  normalizeHourInput,
+  normalizeMinuteInput,
+} from '@/features/user/home/workspace/hooks/useSubstituteRequestFlow'
+export type { SubstituteRequestStepId } from '@/features/user/home/workspace/hooks/useSubstituteRequestFlow'
 export { useWorkspaceWorkersViewModel } from '@/features/user/home/workspace/hooks/useWorkspaceWorkersViewModel'
 export { useWorkspaceManagersViewModel } from '@/features/user/home/workspace/hooks/useWorkspaceManagersViewModel'
 export { WorkingStoresList } from '@/features/user/home/workspace/ui/WorkingStoresList'

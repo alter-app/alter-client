@@ -31,8 +31,11 @@ export function useWorkspaceManagersViewModel(
   const managers =
     data?.pages.flatMap(page => page.data.data.map(adaptManagerDto)) ?? []
 
+  const totalCount = data?.pages[0]?.data.page.totalCount ?? 0
+
   return {
     managers,
+    totalCount,
     fetchNextPage,
     hasNextPage: !!hasNextPage,
     isFetchingNextPage,

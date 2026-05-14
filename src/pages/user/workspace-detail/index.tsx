@@ -1,15 +1,20 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import {
   HomeScheduleCalendar,
+  useWorkspacesViewModel,
   useWorkspaceManagersViewModel,
   useWorkspaceWorkersViewModel,
   useWorkspaceScheduleViewModel,
 } from '@/features/user'
+import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibility'
 import { WorkerListItem } from '@/shared/ui/home/WorkerListItem'
 import CrownIcon from '@/assets/icons/home/crown-solid.svg'
 import UsersIcon from '@/assets/icons/home/users.svg'
+import CatppuccinChangelogIcon from '@/assets/icons/catppuccin_changelog.svg?react'
+import { SubstituteRequestModalFlow } from './components/SubstituteRequestModalFlow'
 
 function formatNextShift(isoDate: string | null | undefined) {
   if (isoDate == null || isoDate === '') return undefined
@@ -22,7 +27,38 @@ export function WorkspaceDetailPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
   const { state } = useLocation()
   const id = Number(workspaceId)
-  const businessName = (state as { businessName?: string } | null)?.businessName
+  const businessNameFromNav = (state as { businessName?: string } | null)
+    ?.businessName
+
+  const { workspaces, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useWorkspacesViewModel()
+
+  const businessNameFromList = useMemo(
+    () => workspaces.find(w => w.workspaceId === id)?.businessName,
+    [workspaces, id]
+  )
+
+  const storeDisplayName = businessNameFromNav?.trim() || businessNameFromList
+
+  /** 이름이 목록에 없을 때 자동으로 한 페이지만 더 불러오기 (무한 연속 fetch 방지) */
+  const supplementalListFetchDoneForIdRef = useRef(new Set<number>())
+
+  useEffect(() => {
+    if (
+      storeDisplayName ||
+      !hasNextPage ||
+      isFetchingNextPage ||
+      !Number.isFinite(id) ||
+      id <= 0
+    ) {
+      return
+    }
+    if (supplementalListFetchDoneForIdRef.current.has(id)) {
+      return
+    }
+    supplementalListFetchDoneForIdRef.current.add(id)
+    void fetchNextPage()
+  }, [storeDisplayName, hasNextPage, isFetchingNextPage, fetchNextPage, id])
 
   const {
     mode,
@@ -34,6 +70,7 @@ export function WorkspaceDetailPage() {
 
   const {
     managers,
+    totalCount: managersTotalCount,
     fetchNextPage: fetchNextManagers,
     hasNextPage: hasMoreManagers,
     isFetchingNextPage: fetchingManagers,
@@ -42,11 +79,24 @@ export function WorkspaceDetailPage() {
 
   const {
     workers,
+    totalCount: workersTotalCount,
     fetchNextPage: fetchNextWorkers,
     hasNextPage: hasMoreWorkers,
     isFetchingNextPage: fetchingWorkers,
     isLoading: workersLoading,
   } = useWorkspaceWorkersViewModel(id, 5)
+
+  const showManagersLoadMore = shouldShowInfiniteListLoadMore(
+    hasMoreManagers,
+    managersTotalCount
+  )
+  const showWorkersLoadMore = shouldShowInfiniteListLoadMore(
+    hasMoreWorkers,
+    workersTotalCount
+  )
+
+  const [substituteFlowOpen, setSubstituteFlowOpen] = useState(false)
+  const [substituteFlowSession, setSubstituteFlowSession] = useState(0)
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-bg-light">
@@ -57,9 +107,41 @@ export function WorkspaceDetailPage() {
           baseDate={baseDate}
           data={calendarData}
           isLoading={scheduleLoading}
-          workspaceName={businessName}
+          workspaceName={storeDisplayName}
+          calendarTitleRightAction={
+            mode === 'monthly' ? (
+              <button
+                type="button"
+                className="box-border flex h-[36px] w-[114px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-line-2 bg-white"
+                aria-label="대타 요청"
+                onClick={() => {
+                  setSubstituteFlowSession(s => s + 1)
+                  setSubstituteFlowOpen(true)
+                }}
+              >
+                <CatppuccinChangelogIcon
+                  className="size-5 shrink-0"
+                  aria-hidden
+                />
+                <span className="typography-body03-semibold text-text-100 whitespace-nowrap">
+                  대타 요청
+                </span>
+              </button>
+            ) : null
+          }
           onDateChange={onDateChange}
         />
+
+        {substituteFlowOpen ? (
+          <SubstituteRequestModalFlow
+            key={substituteFlowSession}
+            onClose={() => setSubstituteFlowOpen(false)}
+            storeName={(storeDisplayName ?? '근무 업장').trim()}
+            calendarData={calendarData}
+            initialMonth={baseDate}
+            workspaceId={Number.isFinite(id) && id > 0 ? id : undefined}
+          />
+        ) : null}
 
         {/* 관리자 섹션 */}
         <section className="w-full">
@@ -95,7 +177,7 @@ export function WorkspaceDetailPage() {
                   />
                 ))}
               </div>
-              {hasMoreManagers && (
+              {showManagersLoadMore && (
                 <button
                   type="button"
                   className="typography-body02-regular mt-2 w-full py-3 text-center text-text-70"
@@ -144,7 +226,7 @@ export function WorkspaceDetailPage() {
                   />
                 ))}
               </div>
-              {hasMoreWorkers && (
+              {showWorkersLoadMore && (
                 <button
                   type="button"
                   className="typography-body02-regular mt-2 w-full py-3 text-center text-text-70"

@@ -17,12 +17,15 @@ import managerHomeBannerImage from '@/assets/manager-home-banner.jpg'
 import managerHomeBannerPlusIcon from '@/assets/icons/home/manager-home-banner-plus.svg'
 import managerWorkspaceModalPlusIcon from '@/assets/icons/home/manager-workspace-modal-plus.svg'
 import managerScheduleEditIcon from '@/assets/icons/home/edit.svg'
+import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibility'
+import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
 
 export function ManagerHomePage() {
   const navigate = useNavigate()
   const {
     todayWorkers,
     storeWorkers,
+    storeWorkersTotalCount,
     fetchMoreWorkers,
     hasMoreWorkers,
     isFetchingMoreWorkers,
@@ -35,6 +38,7 @@ export function ManagerHomePage() {
     fetchMoreSubstitutes,
     hasMoreSubstitutes,
     schedule,
+    activeWorkspaceId,
     workspaceDetail,
     workspaceChangeModal,
     openWorkspaceChangeModal,
@@ -163,7 +167,21 @@ export function ManagerHomePage() {
               type="button"
               aria-label="업장 스케줄 수정"
               className="flex h-6 w-6 items-center justify-center"
-              onClick={() => navigate('/manager/worker-schedule')}
+              onClick={() => {
+                if (
+                  activeWorkspaceId === null ||
+                  storeWorkers[0] === undefined
+                ) {
+                  navigate(ROUTES.MANAGER.WORKER_SCHEDULE)
+                  return
+                }
+                navigate(
+                  managerWorkerSchedulePath(
+                    activeWorkspaceId,
+                    storeWorkers[0].id
+                  )
+                )
+              }}
             >
               <img
                 src={managerScheduleEditIcon}
@@ -193,7 +211,10 @@ export function ManagerHomePage() {
                 onOptions={() => {}}
               />
             ))}
-            {hasMoreWorkers && (
+            {shouldShowInfiniteListLoadMore(
+              hasMoreWorkers,
+              storeWorkersTotalCount
+            ) && (
               <MoreButton
                 onClick={() => fetchMoreWorkers()}
                 disabled={isFetchingMoreWorkers}
@@ -210,7 +231,14 @@ export function ManagerHomePage() {
         <div className="mx-4">
           <OngoingPostingCard
             postings={ongoingPostings}
-            onViewMore={hasMorePostings ? () => fetchMorePostings() : undefined}
+            onViewMore={
+              shouldShowInfiniteListLoadMore(
+                hasMorePostings,
+                postingsTotalCount
+              )
+                ? () => fetchMorePostings()
+                : undefined
+            }
             onPostingClick={() => {}}
           />
         </div>
@@ -224,7 +252,12 @@ export function ManagerHomePage() {
           <SubstituteApprovalCard
             requests={substituteRequests}
             onViewMore={
-              hasMoreSubstitutes ? () => fetchMoreSubstitutes() : undefined
+              shouldShowInfiniteListLoadMore(
+                hasMoreSubstitutes,
+                substituteTotalCount
+              )
+                ? () => fetchMoreSubstitutes()
+                : undefined
             }
             onRequestClick={() => {}}
           />

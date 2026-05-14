@@ -3,6 +3,7 @@ import {
   useWorkspaceWorkersViewModel,
   useWorkspaceManagersViewModel,
 } from '@/features/user'
+import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibility'
 
 type Params = {
   workspaceId?: string
@@ -22,6 +23,7 @@ export function useWorkspaceMembers(params: Params) {
 
   const {
     workers,
+    totalCount: workersTotalCount,
     fetchNextPage: fetchNextWorkers,
     hasNextPage: hasMoreWorkers,
     isLoading: workersLoading,
@@ -30,6 +32,7 @@ export function useWorkspaceMembers(params: Params) {
 
   const {
     managers,
+    totalCount: managersTotalCount,
     fetchNextPage: fetchNextManagers,
     hasNextPage: hasMoreManagers,
     isLoading: managersLoading,
@@ -42,8 +45,14 @@ export function useWorkspaceMembers(params: Params) {
     hasError: workersError || managersError,
     workers,
     managers,
-    hasMoreWorkers,
-    hasMoreManagers,
+    hasMoreWorkers: shouldShowInfiniteListLoadMore(
+      hasMoreWorkers,
+      workersTotalCount
+    ),
+    hasMoreManagers: shouldShowInfiniteListLoadMore(
+      hasMoreManagers,
+      managersTotalCount
+    ),
     loadMoreWorkers: fetchNextWorkers,
     loadMoreManagers: fetchNextManagers,
   }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import AlterLogo from '@/assets/Alter-logo.png'
 import BellIcon from '@/assets/icons/nav/bell.svg'
 import MenuIcon from '@/assets/icons/nav/menu.svg'
@@ -12,12 +12,15 @@ interface NavbarProps {
   variant?: NavbarVariant
   title?: string
   onBackClick?: () => void
+  /** 상세 헤더(`variant="detail"`) 우측 영역 — 알림·메뉴 자리에 커스텀 노출 시 사용 */
+  rightAction?: ReactNode
 }
 
 export function Navbar({
   variant = 'main',
   title = '',
   onBackClick,
+  rightAction,
 }: NavbarProps) {
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -61,7 +64,7 @@ export function Navbar({
         </div>
 
         <div className="ml-auto flex min-w-[84px] items-center justify-end gap-4">
-          {isMain && (
+          {isMain ? (
             <>
               <button
                 type="button"
@@ -81,6 +84,8 @@ export function Navbar({
                 <img src={MenuIcon} alt="" aria-hidden className="h-6 w-6" />
               </button>
             </>
+          ) : (
+            rightAction
           )}
         </div>
       </header>

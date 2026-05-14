@@ -11,10 +11,42 @@ import {
 import { formatScheduleTimeRange } from '@/features/user/home/schedule/lib/date'
 import type {
   WorkspaceScheduleApiResponse,
+  WorkspaceScheduleDataPayload,
   WorkspaceScheduleQueryParams,
+  WorkspaceShiftDto,
   WorkspaceShiftItem,
   WorkspaceWorkerItem,
 } from '@/features/user/home/workspace/types/workspaceSchedule'
+
+function normalizeWorkspaceShifts(
+  payload: WorkspaceScheduleDataPayload | null | undefined
+): WorkspaceShiftDto[] {
+  if (payload == null) return []
+  if (Array.isArray(payload)) return payload
+  if (typeof payload === 'object') {
+    const rec = payload as {
+      schedules?: WorkspaceShiftDto[]
+      shifts?: WorkspaceShiftDto[]
+    }
+    if (Array.isArray(rec.schedules)) return rec.schedules
+    if (Array.isArray(rec.shifts)) return rec.shifts
+  }
+  return []
+}
+
+function extractWorkspaceScheduleTotals(payload: WorkspaceScheduleDataPayload) {
+  if (payload == null || Array.isArray(payload)) return {}
+  if (typeof payload !== 'object') return {}
+  const totalWorkHours =
+    typeof payload.totalWorkHours === 'number'
+      ? payload.totalWorkHours
+      : undefined
+  const estimatedSalary =
+    typeof payload.estimatedSalary === 'number'
+      ? payload.estimatedSalary
+      : undefined
+  return { totalWorkHours, estimatedSalary }
+}
 
 async function fetchWorkspaceScheduleByMonth(
   workspaceId: number,
@@ -22,12 +54,15 @@ async function fetchWorkspaceScheduleByMonth(
   month?: number,
   day?: number
 ): Promise<WorkspaceScheduleApiResponse> {
+  if (year === undefined || month === undefined) {
+    throw new Error('업장 스케줄 조회에는 year와 month가 필요합니다.')
+  }
   const response = await axiosInstance.get<WorkspaceScheduleApiResponse>(
     `/app/schedules/workspaces/${workspaceId}`,
     {
       params: {
-        ...(year !== undefined && { year }),
-        ...(month !== undefined && { month }),
+        year,
+        month,
         ...(day !== undefined && { day }),
       },
     }
@@ -57,7 +92,38 @@ export async function getWorkspaceSchedule(
       ),
       fetchWorkspaceScheduleByMonth(workspaceId, params.toYear, params.toMonth),
     ])
-    return { ...fromData, data: [...fromData.data, ...toData.data] }
+    const shiftsFrom = normalizeWorkspaceShifts(fromData.data)
+    const shiftsTo = normalizeWorkspaceShifts(toData.data)
+    const fromTotals = extractWorkspaceScheduleTotals(fromData.data)
+    const toTotals = extractWorkspaceScheduleTotals(toData.data)
+
+    const hasHours =
+      fromTotals.totalWorkHours !== undefined ||
+      toTotals.totalWorkHours !== undefined
+    const hasSalary =
+      fromTotals.estimatedSalary !== undefined ||
+      toTotals.estimatedSalary !== undefined
+
+    return {
+      ...fromData,
+      data: {
+        ...(hasHours
+          ? {
+              totalWorkHours:
+                (fromTotals.totalWorkHours ?? 0) +
+                (toTotals.totalWorkHours ?? 0),
+            }
+          : {}),
+        ...(hasSalary
+          ? {
+              estimatedSalary:
+                (fromTotals.estimatedSalary ?? 0) +
+                (toTotals.estimatedSalary ?? 0),
+            }
+          : {}),
+        schedules: [...shiftsFrom, ...shiftsTo],
+      },
+    }
   }
   return fetchWorkspaceScheduleByMonth(
     workspaceId,
@@ -70,7 +136,8 @@ export async function getWorkspaceSchedule(
 export function adaptWorkspaceScheduleToCalendar(
   response: WorkspaceScheduleApiResponse
 ): CalendarViewData {
-  const shifts = response.data
+  const shifts = normalizeWorkspaceShifts(response.data)
+  const apiTotals = extractWorkspaceScheduleTotals(response.data)
 
   const events: CalendarEvent[] = shifts.map(shift => ({
     shiftId: shift.shiftId,
@@ -85,10 +152,16 @@ export function adaptWorkspaceScheduleToCalendar(
     durationHours: getDurationHours(shift.startDateTime, shift.endDateTime),
   }))
 
-  const totalWorkHours = events.reduce((acc, e) => acc + e.durationHours, 0)
+  const computedHours = events.reduce((acc, e) => acc + e.durationHours, 0)
 
   return {
-    summary: { totalWorkHours, eventCount: events.length },
+    summary: {
+      totalWorkHours: apiTotals.totalWorkHours ?? computedHours,
+      eventCount: events.length,
+      ...(apiTotals.estimatedSalary !== undefined
+        ? { estimatedLaborCost: apiTotals.estimatedSalary }
+        : {}),
+    },
     events,
   }
 }
@@ -96,7 +169,7 @@ export function adaptWorkspaceScheduleToCalendar(
 export function adaptWorkspaceScheduleToShifts(
   response: WorkspaceScheduleApiResponse
 ): WorkspaceShiftItem[] {
-  return response.data.map(shift => {
+  return normalizeWorkspaceShifts(response.data).map(shift => {
     const { time } = formatScheduleTimeRange(
       shift.startDateTime,
       shift.endDateTime
@@ -121,7 +194,7 @@ export function deriveWorkerList(
   const workerMap = new Map<number, WorkspaceWorkerItem>()
   const now = Date.now()
 
-  const sorted = response.data
+  const sorted = normalizeWorkspaceShifts(response.data)
     .filter(shift => new Date(shift.startDateTime).getTime() >= now)
     .sort(
       (a, b) =>

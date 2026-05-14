@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type {
   CalendarViewData,
   HomeCalendarMode,
@@ -11,6 +12,8 @@ interface HomeScheduleCalendarProps {
   baseDate: Date
   data: CalendarViewData | null
   workspaceName?: string
+  /** 월간 뷰에서 제목(업장명) 줄 우측 */
+  calendarTitleRightAction?: ReactNode
   isLoading?: boolean
   onDateChange: (nextDate: Date) => void
 }
@@ -20,6 +23,7 @@ export function HomeScheduleCalendar({
   baseDate,
   data,
   workspaceName,
+  calendarTitleRightAction,
   isLoading = false,
   onDateChange,
 }: HomeScheduleCalendarProps) {
@@ -30,6 +34,7 @@ export function HomeScheduleCalendar({
           baseDate={baseDate}
           data={data}
           workspaceName={workspaceName}
+          titleRightAction={calendarTitleRightAction}
           isLoading={isLoading}
           onMonthChange={onDateChange}
         />

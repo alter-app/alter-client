@@ -2,12 +2,8 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchTodaySchedules } from '@/features/manager/home/api/schedule'
 import { queryKeys } from '@/shared/lib/queryKeys'
-import { toTimeLabel } from '@/features/home/common/schedule/lib/date'
+import { formatIsoTimeRangeLabel } from '@/features/home/common/schedule/lib/date'
 import type { TodayWorkerItem } from '@/features/manager/home/ui/TodayWorkerList'
-
-function formatWorkTime(startDateTime: string, endDateTime: string): string {
-  return `${toTimeLabel(startDateTime)} ~ ${toTimeLabel(endDateTime)}`
-}
 
 export function useTodaySchedulesViewModel(workspaceId: number | null) {
   const { data, isPending } = useQuery({
@@ -23,7 +19,7 @@ export function useTodaySchedulesViewModel(workspaceId: number | null) {
       name: worker.workerName,
       profileImageUrl: worker.profileImageUrl,
       workTime: worker.shifts[0]
-        ? formatWorkTime(
+        ? formatIsoTimeRangeLabel(
             worker.shifts[0].startDateTime,
             worker.shifts[0].endDateTime
           )

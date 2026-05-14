@@ -21,7 +21,10 @@ export const ROUTES = {
   },
   MANAGER: {
     HOME: '/manager/home',
+    /** @deprecated 신규 화면은 WORKER_SCHEDULE_PATTERN + managerWorkerSchedulePath 사용 */
     WORKER_SCHEDULE: '/manager/worker-schedule',
+    WORKER_SCHEDULE_PATTERN:
+      '/manager/workspaces/:workspaceId/workers/:workerId/schedule',
     STORE_REGISTER: '/manager/store-register',
     SOCIAL: '/manager/social',
     SOCIAL_CHAT: '/manager/social/chat',
@@ -31,3 +34,10 @@ export const ROUTES = {
     PROFILE: '/my/profile',
   },
 } as const
+
+export function managerWorkerSchedulePath(
+  workspaceId: number,
+  workerId: number
+) {
+  return `/manager/workspaces/${workspaceId}/workers/${workerId}/schedule`
+}
