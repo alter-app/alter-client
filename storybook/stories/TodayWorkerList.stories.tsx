@@ -3,7 +3,7 @@ import React from 'react'
 import {
   TodayWorkerList,
   type TodayWorkerItem,
-} from '../../src/features/home/manager/ui/TodayWorkerList'
+} from '../../src/features/manager/home/ui/TodayWorkerList'
 
 const sampleWorkers: TodayWorkerItem[] = [
   { id: 1, name: '알바생1', workTime: '00:00 ~ 00:00' },
@@ -20,7 +20,7 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <div className='w-[468px] bg-bg-light p-3'>
+      <div className="w-[468px] bg-bg-light p-3">
         <Story />
       </div>
     ),

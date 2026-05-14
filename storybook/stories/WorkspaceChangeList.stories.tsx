@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { WorkspaceChangeList } from '@/features/home/manager/ui/WorkspaceChangeList'
+import { WorkspaceChangeList } from '@/features/manager/home/ui/WorkspaceChangeList'
 
 const MOCK_WORKSPACES = [
   {
@@ -33,7 +33,7 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <div className='w-[320px] bg-white p-2'>
+      <div className="w-[320px] bg-white p-2">
         <Story />
       </div>
     ),

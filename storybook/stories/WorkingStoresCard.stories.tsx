@@ -3,7 +3,7 @@ import React from 'react'
 import {
   WorkingStoresList,
   type WorkingStoreItem,
-} from '../../src/features/home/user/workspace/ui/WorkingStoresList'
+} from '../../src/features/user/home/workspace/ui/WorkingStoresList'
 
 const sampleStores: WorkingStoreItem[] = [
   {
@@ -35,7 +35,7 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <div className='w-[358px] bg-bg-light p-3'>
+      <div className="w-[358px] bg-bg-light p-3">
         <Story />
       </div>
     ),

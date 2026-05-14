@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import React, { useMemo, useState } from 'react'
-import { HomeScheduleCalendar } from '../../src/features/home/user/schedule/ui/HomeScheduleCalendar'
+import { HomeScheduleCalendar } from '../../src/features/user/home/schedule/ui/HomeScheduleCalendar'
 import type {
   CalendarViewData,
   HomeCalendarMode,
-} from '../../src/features/home/user/schedule/types/schedule'
+} from '../../src/features/user/home/schedule/types/schedule'
 
 const baseDate = new Date('2026-01-19T09:00:00+09:00')
 
@@ -134,8 +134,8 @@ type Story = StoryObj<typeof meta>
 export const Monthly: Story = {
   render: () => (
     <StatefulCalendar
-      mode='monthly'
-      workspaceName='스타벅스 강남점'
+      mode="monthly"
+      workspaceName="스타벅스 강남점"
       data={mockData}
     />
   ),
@@ -144,8 +144,8 @@ export const Monthly: Story = {
 export const Weekly: Story = {
   render: () => (
     <StatefulCalendar
-      mode='weekly'
-      workspaceName='스타벅스 강남점'
+      mode="weekly"
+      workspaceName="스타벅스 강남점"
       data={mockData}
     />
   ),
@@ -154,17 +154,17 @@ export const Weekly: Story = {
 export const Daily: Story = {
   render: () => (
     <StatefulCalendar
-      mode='daily'
-      workspaceName='스타벅스 강남점'
+      mode="daily"
+      workspaceName="스타벅스 강남점"
       data={mockData}
     />
   ),
 }
 
 export const EmptyDaily: Story = {
-  render: () => <StatefulCalendar mode='daily' data={emptyData} />,
+  render: () => <StatefulCalendar mode="daily" data={emptyData} />,
 }
 
 export const LoadingMonthly: Story = {
-  render: () => <StatefulCalendar mode='monthly' data={null} isLoading />,
+  render: () => <StatefulCalendar mode="monthly" data={null} isLoading />,
 }

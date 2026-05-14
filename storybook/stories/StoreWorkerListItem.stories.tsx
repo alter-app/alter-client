@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { StoreWorkerListItem } from '@/features/home/manager/ui/StoreWorkerListItem'
+import { StoreWorkerListItem } from '@/features/manager/home/ui/StoreWorkerListItem'
 
 const meta = {
   title: 'features/home/manager/StoreWorkerListItem',
@@ -10,7 +10,7 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <div className='w-[320px] bg-[#efefef] p-3'>
+      <div className="w-[320px] bg-[#efefef] p-3">
         <Story />
       </div>
     ),
