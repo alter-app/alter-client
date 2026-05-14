@@ -14,10 +14,7 @@ export {
   normalizeHourInput,
   normalizeMinuteInput,
 } from '@/features/user/home/workspace/hooks/useSubstituteRequestFlow'
-export type {
-  SubstituteRequestStepId,
-  UseSubstituteRequestFlowParams,
-} from '@/features/user/home/workspace/hooks/useSubstituteRequestFlow'
+export type { SubstituteRequestStepId } from '@/features/user/home/workspace/hooks/useSubstituteRequestFlow'
 export { useWorkspaceWorkersViewModel } from '@/features/user/home/workspace/hooks/useWorkspaceWorkersViewModel'
 export { useWorkspaceManagersViewModel } from '@/features/user/home/workspace/hooks/useWorkspaceManagersViewModel'
 export { WorkingStoresList } from '@/features/user/home/workspace/ui/WorkingStoresList'

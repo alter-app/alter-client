@@ -60,7 +60,7 @@ function pickScheduleIdForSelectedDate(
     : null
 }
 
-export interface UseSubstituteRequestFlowParams {
+interface UseSubstituteRequestFlowParams {
   calendarData: CalendarViewData | null
   initialMonth?: Date
   summarySelfIntroduction?: string
