@@ -9,7 +9,7 @@ import {
   normalizeMinuteInput,
   timeDigits,
   useSubstituteRequestFlow,
-} from '../hooks/useSubstituteRequestFlow'
+} from '@/features/user'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import { cn } from '@/shared/lib/utils'
 
