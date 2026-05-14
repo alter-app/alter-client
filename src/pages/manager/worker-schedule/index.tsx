@@ -95,6 +95,7 @@ export function ManagerWorkerSchedulePage() {
                 <button
                   key={day}
                   type="button"
+                  aria-pressed={selected}
                   className={`flex h-10 w-[50px] items-center justify-center rounded-2xl typography-body01-semibold ${
                     selected ? 'bg-main text-text-100' : 'text-text-50'
                   }`}
