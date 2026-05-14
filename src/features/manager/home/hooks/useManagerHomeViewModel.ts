@@ -78,6 +78,7 @@ export function useManagerHomeViewModel() {
   }, [isWorkspaceChangeModalOpen])
 
   return {
+    activeWorkspaceId,
     todayWorkers,
     storeWorkers,
     storeWorkersTotalCount,
