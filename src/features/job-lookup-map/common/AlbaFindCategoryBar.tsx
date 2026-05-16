@@ -11,11 +11,21 @@ type AlbaFindCategoryBarProps = {
   onFilterChange: (id: AlbaFindFilterId) => void
 }
 
-const FILTER_ITEMS: { id: AlbaFindFilterId; label: string }[] = [
+const NEARBY_FILTER_ITEMS: { id: AlbaFindFilterId; label: string }[] = [
   { id: 'sort', label: '최신순' },
   { id: 'distance', label: '거리' },
   { id: 'salary', label: '급여' },
 ]
+
+const REGION_FILTER_ITEMS: { id: AlbaFindFilterId; label: string }[] = [
+  { id: 'sort', label: '최신순' },
+  { id: 'distance', label: '서울' },
+  { id: 'salary', label: '전체' },
+]
+
+function getFilterItems(mode: AlbaFindMode) {
+  return mode === 'region' ? REGION_FILTER_ITEMS : NEARBY_FILTER_ITEMS
+}
 
 export function AlbaFindCategoryBar({
   mode,
@@ -23,6 +33,8 @@ export function AlbaFindCategoryBar({
   activeFilter,
   onFilterChange,
 }: AlbaFindCategoryBarProps) {
+  const filterItems = getFilterItems(mode)
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex h-12 gap-1 rounded-lg bg-bg-dark p-1" role="tablist">
@@ -55,8 +67,9 @@ export function AlbaFindCategoryBar({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {FILTER_ITEMS.map(({ id, label }, index) => {
+        {filterItems.map(({ id, label }, index) => {
           const active = activeFilter === id
+          const showChevron = mode === 'nearby' || id === 'sort'
           return (
             <div key={id} className="flex items-center gap-2">
               {index === 1 ? (
@@ -75,9 +88,11 @@ export function AlbaFindCategoryBar({
                 }`}
               >
                 <span>{label}</span>
-                <ChevrondownIcon
-                  className={active ? 'text-text-100' : 'text-text-70'}
-                />
+                {showChevron ? (
+                  <ChevrondownIcon
+                    className={active ? 'text-text-100' : 'text-text-70'}
+                  />
+                ) : null}
               </button>
             </div>
           )

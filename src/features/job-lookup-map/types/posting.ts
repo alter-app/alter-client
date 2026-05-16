@@ -50,8 +50,14 @@ export interface Schedule {
 
 export interface Workspace {
   businessName: string
+  name: string
   id: number
   latitude: number
   longitude: number
   fullAddress: string
+}
+
+export interface ApplyPostingRequest {
+  postingScheduleId: number
+  description: string
 }

@@ -1,6 +1,7 @@
 import axiosInstance from '@/shared/lib/axiosInstance'
 import type { CommonApiResponse } from '@/shared/types/common'
 import type {
+  ApplyPostingRequest,
   PostingListResponse,
   PostingDetailResponse,
 } from '@/features/job-lookup-map/types/posting'
@@ -44,4 +45,15 @@ export async function fetchPostingDetail(
     return (body as CommonApiResponse<PostingDetailResponse>).data
   }
   return body as PostingDetailResponse
+}
+
+/** POST /app/postings/apply/{postingId} — 공고 지원 */
+export async function applyPosting(
+  postingId: number,
+  body: ApplyPostingRequest
+): Promise<void> {
+  await axiosInstance.post<CommonApiResponse<Record<string, never>>>(
+    `/app/postings/apply/${postingId}`,
+    body
+  )
 }

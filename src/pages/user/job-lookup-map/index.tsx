@@ -11,6 +11,8 @@ import { AlbaFindList } from '@/features/job-lookup-map/common/AlbaFindList'
 import { Albabox } from '@/features/job-lookup-map/common/Albabox'
 import { usePostings } from '@/features/job-lookup-map/hooks/usePosting'
 import { postingToAlbaboxProps } from '@/features/job-lookup-map/lib/postingToAlbaboxProps'
+import { MapFloatingActions } from '@/features/job-lookup-map/common/MapFloatingActions'
+import { SearchBar } from '@/shared/ui/common/SearchBar'
 
 type NaverMapInstance = {
   destroy(): void
@@ -43,11 +45,14 @@ const SHEET_PEEK_HEIGHT = 80
 export function JobLookupMapPage() {
   const navigate = useNavigate()
   const mapContainerRef = useRef<HTMLDivElement>(null)
+  const mapInstanceRef = useRef<NaverMapInstance | null>(null)
+  const lastPositionRef = useRef<{ lat: number; lng: number } | null>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
   const [maxTranslateY, setMaxTranslateY] = useState(0)
   const [mode, setMode] = useState<AlbaFindMode>('nearby')
   const [activeFilter, setActiveFilter] = useState<AlbaFindFilterId>('sort')
   const [bookmarkById, setBookmarkById] = useState<Record<number, boolean>>({})
+  const [searchQuery, setSearchQuery] = useState('')
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const y = useMotionValue(0)
 
@@ -85,16 +90,22 @@ export function JobLookupMapPage() {
       scaleControl: false,
       mapDataControl: false,
     })
+    mapInstanceRef.current = map
 
     const geo = navigator.geolocation
     if (!geo) {
       return () => {
+        mapInstanceRef.current = null
         map.destroy()
       }
     }
 
     const watchId = geo.watchPosition(
       pos => {
+        lastPositionRef.current = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        }
         map.setCenter(
           new nmaps.LatLng(pos.coords.latitude, pos.coords.longitude)
         )
@@ -109,9 +120,22 @@ export function JobLookupMapPage() {
 
     return () => {
       geo.clearWatch(watchId)
+      mapInstanceRef.current = null
       map.destroy()
     }
   }, [])
+
+  const handleMyLocationClick = () => {
+    const nmaps = getNaverMaps()
+    const map = mapInstanceRef.current
+    const pos = lastPositionRef.current
+    if (!nmaps || !map || !pos) return
+    map.setCenter(new nmaps.LatLng(pos.lat, pos.lng))
+  }
+
+  const handleListClick = () => {
+    snapTo(0)
+  }
 
   useLayoutEffect(() => {
     const sheet = sheetRef.current
@@ -151,6 +175,22 @@ export function JobLookupMapPage() {
         className="h-full w-full shrink-0"
         aria-label="일자리 지도"
       />
+
+      <motion.div className="pointer-events-none absolute inset-x-0 top-0 z-30 mx-auto max-w-[428px] px-4 pt-4">
+        <div className="pointer-events-auto">
+          <SearchBar
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </motion.div>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-[calc(30px+80px+1rem)] z-[35] mx-auto flex max-w-[428px] justify-end px-4">
+        <MapFloatingActions
+          onListClick={handleListClick}
+          onMyLocationClick={handleMyLocationClick}
+        />
+      </div>
 
       <motion.section
         ref={sheetRef}

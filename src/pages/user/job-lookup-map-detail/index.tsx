@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg?react'
 import { usePostingDetail } from '@/features/job-lookup-map/hooks/usePostingDetail'
@@ -116,7 +116,7 @@ export function JobLookupMapDetailPage() {
         <main className="flex-1 overflow-y-auto pb-[calc(1rem+78px+env(safe-area-inset-bottom))]">
           <section className="bg-white px-4 py-2">
             <div className="mb-1 flex items-center justify-between typography-body03-regular text-text-70">
-              <span>{data.workspace.businessName}</span>
+              <span>{data.workspace.name}</span>
               <span>{formatPostedAgo(data.createdAt)}</span>
             </div>
             <h2 className="typography-body01-semibold text-text-100">
@@ -218,16 +218,11 @@ export function JobLookupMapDetailPage() {
             <button
               type="button"
               onClick={() =>
-                navigate(ROUTES.USER.JOB_LOOKUP_MAP_APPLY, {
-                  state: {
-                    postingId: data.id,
-                    storeName: data.workspace.businessName,
-                    title: data.title,
-                    wageAmount: data.payAmount.toLocaleString('ko-KR'),
-                    postedAgo: formatPostedAgo(data.createdAt),
-                    detail: data.description,
-                  },
-                })
+                navigate(
+                  generatePath(ROUTES.USER.JOB_LOOKUP_MAP_APPLY, {
+                    postingId: String(data.id),
+                  })
+                )
               }
               className="h-12 w-full rounded-2xl bg-main typography-body01-semibold text-text-100"
             >
