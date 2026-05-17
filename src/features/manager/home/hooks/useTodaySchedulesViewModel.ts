@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { fetchTodaySchedules } from '@/features/manager/home/api/schedule'
+import { fetchTodaySchedules } from '@/features/manager/api/schedule'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { formatIsoTimeRangeLabel } from '@/features/home/common/schedule/lib/date'
 import type { TodayWorkerItem } from '@/features/manager/home/ui/TodayWorkerList'

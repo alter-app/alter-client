@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { fetchSubstituteRequests } from '@/features/manager/home/api/substitute'
+import { fetchSubstituteRequests } from '@/features/manager/api/substitute'
 import { adaptSubstituteRequestDto } from '@/features/manager/home/types/substitute'
 import { queryKeys } from '@/shared/lib/queryKeys'
 

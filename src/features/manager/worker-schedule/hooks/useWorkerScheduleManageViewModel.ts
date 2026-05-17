@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { splitClockToParts } from '@/features/home/common/schedule/lib/date'
-import { fetchWorkerFixedSchedules } from '@/features/manager/home/api/workerFixedSchedule'
+import { fetchWorkerFixedSchedules } from '@/features/manager/worker-schedule/api/workerFixedSchedule'
 import { MANAGER_WEEKDAY_KO_ORDER } from '@/features/manager/home/constants/managerWeekdayKo'
 import type { ManagerWeekdayKo } from '@/features/manager/home/constants/managerWeekdayKo'
 import { mapFixedScheduleSlotsToByWeekdayKo } from '@/features/manager/home/lib/mapWorkerFixedScheduleSlots'
@@ -138,23 +138,25 @@ export function useWorkerScheduleManageViewModel(args: {
   }
 
   return {
+    workersLoading,
     worker,
     workers,
-    workersLoading,
     fixedScheduleLoading,
     fixedScheduleError,
     goToWorker,
     workdayOptions: MANAGER_WEEKDAY_KO_ORDER,
     selectedDays,
-    workTimeRangeLabel,
-    startHour,
-    startMinute,
-    endHour,
-    endMinute,
-    setStartHour,
-    setStartMinute,
-    setEndHour,
-    setEndMinute,
     toggleDay,
+    workTime: {
+      rangeLabel: workTimeRangeLabel,
+      startHour,
+      startMinute,
+      endHour,
+      endMinute,
+      setStartHour,
+      setStartMinute,
+      setEndHour,
+      setEndMinute,
+    },
   }
 }

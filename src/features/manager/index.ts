@@ -1,3 +1,16 @@
+export {
+  getFixedWorkerSchdules,
+  postFixedWorkerSchdules,
+  deleteFixedWorkerSchdule,
+  patchFixedWorkerSchdule,
+} from '@/features/manager/worker-schedule/api/fixedWorkerSchdule'
+export type {
+  ResponseGetFixedWorkerSchdules,
+  RequestPostFixedWorkerSchdules,
+  ResponsePostFixedWorkerSchdules,
+  ResponseDeleteFixedWorkerSchdules,
+  RequestPatchFixedWorkerSchdules,
+} from '@/features/manager/worker-schedule/types/fixedWorkerSchdules'
 export { StoreWorkerListItem } from '@/features/manager/home/ui/StoreWorkerListItem'
 export { WorkspaceChangeList } from '@/features/manager/home/ui/WorkspaceChangeList'
 export { WorkspaceChangeCard } from '@/features/manager/home/ui/WorkspaceChangeCard'

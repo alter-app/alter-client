@@ -64,4 +64,8 @@ export const queryKeys = {
   user: {
     me: () => ['user', 'me'] as const,
   },
+  fixedWorkerSchedule: {
+    list: (workspaceId: number) =>
+      ['fixedWorkerSchedule', 'list', workspaceId] as const,
+  },
 } as const
