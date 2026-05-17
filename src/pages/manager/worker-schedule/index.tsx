@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
-import { useWorkerScheduleManageViewModel } from '@/features/manager/worker-schedule/hooks/useWorkerScheduleManageViewModel'
 import chevronDownIcon from '@/assets/icons/home/chevron-down.svg'
 import calendarIcon from '@/assets/icons/schedule/schedule_calendar.svg'
 import { Navbar } from '@/shared/ui/common/Navbar'
@@ -10,8 +9,11 @@ import { ColorPickerDropdown } from '@/shared/ui/schedule/ColorPickerDropdown'
 import { Spinner } from '@/shared/ui/Spinner'
 import { cn } from '@/shared/lib/utils'
 import type { ScheduleTab } from '@/features/manager'
-import { SCHEDULE_TABS } from '@/features/manager'
-import { ScheduleColor } from '@/features/manager/worker-schedule/types/scheduleColor'
+import {
+  SCHEDULE_TABS,
+  ScheduleColor,
+  useWorkerScheduleManageViewModel,
+} from '@/features/manager'
 import { ROUTES } from '@/shared/constants/routes'
 
 function parsePositiveRouteInt(raw: string | undefined): number | null {
