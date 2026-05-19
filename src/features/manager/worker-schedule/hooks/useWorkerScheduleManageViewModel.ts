@@ -34,6 +34,33 @@ import {
 
 const DEFAULT_SELECTED_DAYS: ManagerWeekdayKo[] = ['수', '금']
 
+type ScheduleFormState = {
+  selectedDays: ManagerWeekdayKo[]
+  startHour: string
+  startMinute: string
+  endHour: string
+  endMinute: string
+  generalShiftId: number | null
+}
+
+const EMPTY_SCHEDULE_FORM: ScheduleFormState = {
+  selectedDays: DEFAULT_SELECTED_DAYS,
+  startHour: '00',
+  startMinute: '00',
+  endHour: '00',
+  endMinute: '00',
+  generalShiftId: null,
+}
+
+function buildFixedFormFromSlots(
+  slots: WorkerFixedSlotByWeekday[]
+): ScheduleFormState {
+  const selectedDays =
+    slots.length > 0 ? selectedDaysFromSlots(slots) : DEFAULT_SELECTED_DAYS
+  const times = displayTimesFromSlots(slots, selectedDays)
+  return { selectedDays, ...times, generalShiftId: null }
+}
+
 function findWorkerShiftOnDate(
   schedules: ManagerScheduleShiftDto[],
   workerId: number,
@@ -108,49 +135,36 @@ export function useWorkerScheduleManageViewModel(args: {
     return listFixedSchedulesForWorker(list, workerId)
   }, [fixedScheduleResponse, workerId])
 
-  const [selectedDays, setSelectedDays] = useState<ManagerWeekdayKo[]>(
-    DEFAULT_SELECTED_DAYS
-  )
-  const [startHour, setStartHour] = useState('')
-  const [startMinute, setStartMinute] = useState('')
-  const [endHour, setEndHour] = useState('')
-  const [endMinute, setEndMinute] = useState('')
-  const [generalShiftId, setGeneralShiftId] = useState<number | null>(null)
-  const [selectedColor, setSelectedColor] = useState<ScheduleColor>(
-    resolveSchedulePickerColor('')
-  )
+  const [fixedFormOverride, setFixedFormOverride] = useState<{
+    key: string
+    form: ScheduleFormState
+  } | null>(null)
+  const [generalFormOverride, setGeneralFormOverride] = useState<{
+    key: string
+    form: ScheduleFormState
+  } | null>(null)
+  const [colorOverride, setColorOverride] = useState<{
+    workerId: number
+    color: ScheduleColor
+  } | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
 
-  const [syncedWorkerId, setSyncedWorkerId] = useState<number | null>(null)
-  const [syncedColorWorkerId, setSyncedColorWorkerId] = useState<number | null>(
-    null
+  const fixedDataKey = useMemo(
+    () => `${workerId}:${loadedFixedSlots.map(s => s.id).join(',')}`,
+    [workerId, loadedFixedSlots]
   )
-  const [syncedFixedKey, setSyncedFixedKey] = useState<string | null>(null)
-  const [syncedGeneralKey, setSyncedGeneralKey] = useState<string | null>(null)
 
-  if (worker && !workersLoading && syncedColorWorkerId !== worker.id) {
-    setSyncedColorWorkerId(worker.id)
-    setSelectedColor(resolveSchedulePickerColor(worker.colorCode))
-  }
+  const serverFixedForm = useMemo((): ScheduleFormState | null => {
+    if (fixedScheduleLoading) return null
+    return buildFixedFormFromSlots(loadedFixedSlots)
+  }, [fixedScheduleLoading, loadedFixedSlots])
 
-  const fixedDataKey = `${workerId}:${loadedFixedSlots.map(s => s.id).join(',')}`
-  if (
-    !fixedScheduleLoading &&
-    (syncedWorkerId !== workerId || syncedFixedKey !== fixedDataKey)
-  ) {
-    setSyncedWorkerId(workerId)
-    setSyncedFixedKey(fixedDataKey)
-    const days =
-      loadedFixedSlots.length > 0
-        ? selectedDaysFromSlots(loadedFixedSlots)
-        : DEFAULT_SELECTED_DAYS
-    setSelectedDays(days)
-    const times = displayTimesFromSlots(loadedFixedSlots, days)
-    setStartHour(times.startHour)
-    setStartMinute(times.startMinute)
-    setEndHour(times.endHour)
-    setEndMinute(times.endMinute)
-  }
+  const fixedForm = useMemo((): ScheduleFormState => {
+    if (fixedFormOverride?.key === fixedDataKey) {
+      return fixedFormOverride.form
+    }
+    return serverFixedForm ?? EMPTY_SCHEDULE_FORM
+  }, [fixedFormOverride, fixedDataKey, serverFixedForm])
 
   const generalDataKey = useMemo(() => {
     if (!generalSelectedDate) return null
@@ -162,36 +176,83 @@ export function useWorkerScheduleManageViewModel(args: {
     return `${workerId}:${format(generalSelectedDate, 'yyyy-MM-dd')}:${shift?.shiftId ?? 'none'}`
   }, [generalSelectedDate, monthlyScheduleResponse, workerId])
 
-  if (
-    activeTab === '일반' &&
-    generalSelectedDate &&
-    !monthlyScheduleLoading &&
-    generalDataKey !== null &&
-    syncedGeneralKey !== generalDataKey
-  ) {
-    setSyncedGeneralKey(generalDataKey)
+  const serverGeneralForm = useMemo((): ScheduleFormState | null => {
+    if (
+      activeTab !== '일반' ||
+      !generalSelectedDate ||
+      monthlyScheduleLoading ||
+      generalDataKey === null
+    ) {
+      return null
+    }
     const shift = findWorkerShiftOnDate(
       monthlyScheduleResponse?.data.schedules ?? [],
       workerId,
       generalSelectedDate
     )
     if (shift) {
-      setGeneralShiftId(shift.shiftId)
       const start = dateTimeToHourMinute(shift.startDateTime)
       const end = dateTimeToHourMinute(shift.endDateTime)
-      setStartHour(start.hour)
-      setStartMinute(start.minute)
-      setEndHour(end.hour)
-      setEndMinute(end.minute)
-    } else {
-      setGeneralShiftId(null)
-      const times = displayTimesFromSlots(loadedFixedSlots, selectedDays)
-      setStartHour(times.startHour)
-      setStartMinute(times.startMinute)
-      setEndHour(times.endHour)
-      setEndMinute(times.endMinute)
+      return {
+        selectedDays: fixedForm.selectedDays,
+        startHour: start.hour,
+        startMinute: start.minute,
+        endHour: end.hour,
+        endMinute: end.minute,
+        generalShiftId: shift.shiftId,
+      }
     }
-  }
+    const times = displayTimesFromSlots(
+      loadedFixedSlots,
+      fixedForm.selectedDays
+    )
+    return {
+      selectedDays: fixedForm.selectedDays,
+      ...times,
+      generalShiftId: null,
+    }
+  }, [
+    activeTab,
+    generalSelectedDate,
+    monthlyScheduleLoading,
+    generalDataKey,
+    monthlyScheduleResponse,
+    workerId,
+    loadedFixedSlots,
+    fixedForm.selectedDays,
+  ])
+
+  const generalForm = useMemo((): ScheduleFormState => {
+    if (generalDataKey === null) return fixedForm
+    if (generalFormOverride?.key === generalDataKey) {
+      return generalFormOverride.form
+    }
+    return serverGeneralForm ?? fixedForm
+  }, [generalDataKey, generalFormOverride, serverGeneralForm, fixedForm])
+
+  const activeForm = activeTab === '고정' ? fixedForm : generalForm
+
+  const serverColor = useMemo(
+    () =>
+      worker
+        ? resolveSchedulePickerColor(worker.colorCode)
+        : resolveSchedulePickerColor(''),
+    [worker]
+  )
+
+  const selectedColor =
+    worker && colorOverride?.workerId === worker.id
+      ? colorOverride.color
+      : serverColor
+
+  const {
+    selectedDays,
+    startHour,
+    startMinute,
+    endHour,
+    endMinute,
+    generalShiftId,
+  } = activeForm
 
   useEffect(() => {
     if (workersLoading) return
@@ -213,21 +274,60 @@ export function useWorkerScheduleManageViewModel(args: {
     return `${sh}:${sm} ~ ${eh}:${em}`
   }, [startHour, startMinute, endHour, endMinute])
 
+  const patchFixedForm = useCallback(
+    (patch: Partial<ScheduleFormState>) => {
+      setFixedFormOverride({
+        key: fixedDataKey,
+        form: { ...fixedForm, ...patch },
+      })
+    },
+    [fixedDataKey, fixedForm]
+  )
+
+  const patchGeneralForm = useCallback(
+    (patch: Partial<ScheduleFormState>) => {
+      if (generalDataKey === null) return
+      setGeneralFormOverride({
+        key: generalDataKey,
+        form: { ...generalForm, ...patch },
+      })
+    },
+    [generalDataKey, generalForm]
+  )
+
+  const patchActiveForm = useCallback(
+    (patch: Partial<ScheduleFormState>) => {
+      if (activeTab === '고정') {
+        patchFixedForm(patch)
+      } else {
+        patchGeneralForm(patch)
+      }
+    },
+    [activeTab, patchFixedForm, patchGeneralForm]
+  )
+
   function toggleDay(day: string) {
-    setSelectedDays(prev => {
-      const ko = day as ManagerWeekdayKo
-      return prev.includes(ko)
-        ? prev.filter(item => item !== ko)
-        : [...prev, ko]
+    const ko = day as ManagerWeekdayKo
+    patchFixedForm({
+      selectedDays: selectedDays.includes(ko)
+        ? selectedDays.filter(item => item !== ko)
+        : [...selectedDays, ko],
     })
   }
 
   function goToWorker(nextWorkerId: number) {
-    setSyncedFixedKey(null)
-    setSyncedGeneralKey(null)
-    setSyncedColorWorkerId(null)
+    setFixedFormOverride(null)
+    setGeneralFormOverride(null)
+    setColorOverride(null)
     navigate(managerWorkerSchedulePath(workspaceId, nextWorkerId))
   }
+
+  const setSelectedColor = useCallback(
+    (color: ScheduleColor) => {
+      setColorOverride({ workerId, color })
+    },
+    [workerId]
+  )
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -264,8 +364,11 @@ export function useWorkerScheduleManageViewModel(args: {
           endHour,
           endMinute,
         })
-        if (shiftId !== null) {
-          setGeneralShiftId(shiftId)
+        if (shiftId !== null && generalDataKey !== null) {
+          setGeneralFormOverride({
+            key: generalDataKey,
+            form: { ...generalForm, generalShiftId: shiftId },
+          })
         }
       }
 
@@ -288,9 +391,9 @@ export function useWorkerScheduleManageViewModel(args: {
       void queryClient.invalidateQueries({
         queryKey: ['managerWorkspace', 'workers', workspaceId],
       })
-      setSyncedFixedKey(null)
-      setSyncedGeneralKey(null)
-      setSyncedColorWorkerId(null)
+      setFixedFormOverride(null)
+      setGeneralFormOverride(null)
+      setColorOverride(null)
     },
     onError: (error: unknown) => {
       setSaveError(getAxiosErrorMessage(error, '저장에 실패했습니다.'))
@@ -318,10 +421,11 @@ export function useWorkerScheduleManageViewModel(args: {
       startMinute,
       endHour,
       endMinute,
-      setStartHour,
-      setStartMinute,
-      setEndHour,
-      setEndMinute,
+      setStartHour: (hour: string) => patchActiveForm({ startHour: hour }),
+      setStartMinute: (minute: string) =>
+        patchActiveForm({ startMinute: minute }),
+      setEndHour: (hour: string) => patchActiveForm({ endHour: hour }),
+      setEndMinute: (minute: string) => patchActiveForm({ endMinute: minute }),
     },
     handleSave,
     isSaving: saveMutation.isPending,
