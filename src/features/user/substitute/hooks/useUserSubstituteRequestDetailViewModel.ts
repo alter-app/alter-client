@@ -19,6 +19,17 @@ import type {
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
+function requireRequestId(requestId: number | null): number {
+  if (requestId == null || !Number.isFinite(requestId) || requestId <= 0) {
+    throw new Error('유효하지 않은 대타 요청 ID입니다.')
+  }
+  return requestId
+}
+
+function isActionableRequestId(requestId: number | null): requestId is number {
+  return requestId != null && Number.isFinite(requestId) && requestId > 0
+}
+
 export function useUserSubstituteRequestDetailViewModel(
   requestId: number | null,
   direction: SubstituteRequestDirection,
@@ -54,8 +65,10 @@ export function useUserSubstituteRequestDetailViewModel(
     }
   }
 
+  const canMutate = isActionableRequestId(requestId)
+
   const acceptMutation = useMutation({
-    mutationFn: () => acceptUserSubstituteRequest(requestId!),
+    mutationFn: () => acceptUserSubstituteRequest(requireRequestId(requestId)),
     onSuccess: async () => {
       await invalidateLists()
       options?.onActionSuccess?.()
@@ -64,7 +77,9 @@ export function useUserSubstituteRequestDetailViewModel(
 
   const rejectMutation = useMutation({
     mutationFn: (targetRejectionReason: string) =>
-      rejectUserSubstituteRequest(requestId!, { targetRejectionReason }),
+      rejectUserSubstituteRequest(requireRequestId(requestId), {
+        targetRejectionReason,
+      }),
     onSuccess: async () => {
       await invalidateLists()
       options?.onActionSuccess?.()
@@ -72,7 +87,7 @@ export function useUserSubstituteRequestDetailViewModel(
   })
 
   const cancelMutation = useMutation({
-    mutationFn: () => cancelUserSubstituteRequest(requestId!),
+    mutationFn: () => cancelUserSubstituteRequest(requireRequestId(requestId)),
     onSuccess: async () => {
       await invalidateLists()
       options?.onActionSuccess?.()
@@ -118,9 +133,18 @@ export function useUserSubstituteRequestDetailViewModel(
     isError:
       (isSent && sentError && sentDetail == null) ||
       (!isSent && options?.receivedFallback == null),
-    accept: () => acceptMutation.mutate(),
-    reject: (reason: string) => rejectMutation.mutate(reason),
-    cancel: () => cancelMutation.mutate(),
+    accept: () => {
+      if (!canMutate) return
+      acceptMutation.mutate()
+    },
+    reject: (reason: string) => {
+      if (!canMutate) return
+      rejectMutation.mutate(reason)
+    },
+    cancel: () => {
+      if (!canMutate) return
+      cancelMutation.mutate()
+    },
     isAccepting: acceptMutation.isPending,
     isRejecting: rejectMutation.isPending,
     isCancelling: cancelMutation.isPending,
