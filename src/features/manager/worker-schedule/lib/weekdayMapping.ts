@@ -29,6 +29,16 @@ export function weekdayKoToApi(
   return KO_TO_API[ko]
 }
 
+export function nextWeekdayKoToApi(
+  ko: ManagerWeekdayKo
+): ManagerFixedScheduleWorkingDay {
+  const idx = MANAGER_WEEKDAY_KO_ORDER.indexOf(ko)
+  const nextKo = MANAGER_WEEKDAY_KO_ORDER[
+    (idx + 1) % MANAGER_WEEKDAY_KO_ORDER.length
+  ] as ManagerWeekdayKo
+  return weekdayKoToApi(nextKo)
+}
+
 export function weekdayApiToKo(
   day: ManagerFixedScheduleWorkingDay
 ): ManagerWeekdayKo | null {

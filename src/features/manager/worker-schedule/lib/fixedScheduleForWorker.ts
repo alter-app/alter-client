@@ -2,6 +2,7 @@ import type { ManagerWeekdayKo } from '@/features/manager/home/constants/manager
 import { MANAGER_WEEKDAY_KO_ORDER } from '@/features/manager/home/constants/managerWeekdayKo'
 import type { FixedWorkerScheduleDto } from '@/features/manager/worker-schedule/types/fixedWorkerSchdules'
 import {
+  nextWeekdayKoToApi,
   sortWeekdaysKo,
   weekdayApiToKo,
   weekdayKoToApi,
@@ -97,12 +98,17 @@ export function buildSlotInputForWeekday(
   endHour: string,
   endMinute: string
 ): FixedWorkerScheduleSlotInput {
-  const day = weekdayKoToApi(weekdayKo)
+  const startDayOfWeek = weekdayKoToApi(weekdayKo)
+  const startTime = toApiLocalTime(startHour, startMinute)
+  const endTime = toApiLocalTime(endHour, endMinute)
+  const endDayOfWeek =
+    endTime <= startTime ? nextWeekdayKoToApi(weekdayKo) : startDayOfWeek
+
   return {
-    startDayOfWeek: day,
-    startTime: toApiLocalTime(startHour, startMinute),
-    endDayOfWeek: day,
-    endTime: toApiLocalTime(endHour, endMinute),
+    startDayOfWeek,
+    startTime,
+    endDayOfWeek,
+    endTime,
   }
 }
 
