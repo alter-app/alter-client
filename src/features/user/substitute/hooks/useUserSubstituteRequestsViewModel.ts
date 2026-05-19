@@ -67,7 +67,7 @@ export function useUserSubstituteRequestsViewModel(
         : fetchSentSubstituteRequests(params)
     },
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: lastPage => lastPage?.data?.page?.cursor ?? undefined,
+    getNextPageParam: lastPage => lastPage?.data?.page?.cursor || undefined,
   })
 
   const items = useMemo(
