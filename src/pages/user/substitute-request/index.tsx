@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom'
 
 import {
   acceptUserSubstituteRequest,
@@ -32,15 +37,38 @@ type CreateFlowState = {
   session: number
 }
 
-type DetailLocationState = {
+type SubstituteRequestLocationState = {
+  direction?: SubstituteDirectionTab
+  directionTab?: SubstituteDirectionTab
   receivedDto?: ReceivedSubstituteRequestDto
+}
+
+function parseDirectionTab(
+  value: string | null | undefined
+): SubstituteDirectionTab | null {
+  if (value === 'sent' || value === 'received') return value
+  return null
+}
+
+function resolveDetailDirectionTab(
+  searchDirection: SubstituteDirectionTab | null,
+  locationState: SubstituteRequestLocationState | null
+): SubstituteDirectionTab {
+  return (
+    searchDirection ??
+    locationState?.direction ??
+    (locationState?.receivedDto != null ? 'received' : 'sent')
+  )
 }
 
 export function SubstituteRequestPage() {
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
   const { requestId: requestIdParam } = useParams<{ requestId?: string }>()
   const queryClient = useQueryClient()
+
+  const locationState = location.state as SubstituteRequestLocationState | null
 
   const parsedRequestId =
     requestIdParam != null && requestIdParam !== ''
@@ -53,8 +81,12 @@ export function SubstituteRequestPage() {
       ? parsedRequestId
       : null
 
-  const [directionTab, setDirectionTab] =
-    useState<SubstituteDirectionTab>('sent')
+  const [directionTab, setDirectionTab] = useState<SubstituteDirectionTab>(
+    () =>
+      parseDirectionTab(
+        locationState?.directionTab ?? locationState?.direction
+      ) ?? 'sent'
+  )
   const [storePickerOpen, setStorePickerOpen] = useState(false)
   const [createFlow, setCreateFlow] = useState<CreateFlowState | null>(null)
   const [rejectRequestId, setRejectRequestId] = useState<number | null>(null)
@@ -118,27 +150,44 @@ export function SubstituteRequestPage() {
 
   const handleItemClick = (item: UserSubstituteListItem) => {
     if (directionTab === 'received') {
-      navigate(`${ROUTES.USER.SUBSTITUTE_REQUEST}/${item.id}`, {
-        state: {
-          receivedDto: item.dto as ReceivedSubstituteRequestDto,
-        },
-      })
+      navigate(
+        `${ROUTES.USER.SUBSTITUTE_REQUEST}/${item.id}?direction=received`,
+        {
+          state: {
+            direction: 'received',
+            receivedDto: item.dto as ReceivedSubstituteRequestDto,
+          },
+        }
+      )
       return
     }
-    navigate(`${ROUTES.USER.SUBSTITUTE_REQUEST}/${item.id}`)
+    navigate(`${ROUTES.USER.SUBSTITUTE_REQUEST}/${item.id}?direction=sent`, {
+      state: { direction: 'sent' },
+    })
   }
 
-  const detailState = location.state as DetailLocationState | null
-  const receivedFallback =
-    directionTab === 'received' ? detailState?.receivedDto : undefined
+  const detailDirectionTab =
+    detailRequestId == null
+      ? null
+      : resolveDetailDirectionTab(
+          parseDirectionTab(searchParams.get('direction')),
+          locationState
+        )
 
-  if (detailRequestId != null) {
+  const receivedFallback =
+    detailDirectionTab === 'received' ? locationState?.receivedDto : undefined
+
+  if (detailRequestId != null && detailDirectionTab != null) {
     return (
       <SubstituteRequestDetailView
         requestId={detailRequestId}
-        directionTab={directionTab}
+        directionTab={detailDirectionTab}
         receivedFallback={receivedFallback}
-        onBack={() => navigate(ROUTES.USER.SUBSTITUTE_REQUEST)}
+        onBack={() =>
+          navigate(ROUTES.USER.SUBSTITUTE_REQUEST, {
+            state: { directionTab: detailDirectionTab },
+          })
+        }
       />
     )
   }
