@@ -147,6 +147,14 @@ export function App() {
           />
           <Route path={ROUTES.MY.ROOT} element={<MyPage />} />
           <Route
+            path={ROUTES.USER.SUBSTITUTE_REQUEST_DETAIL_PATTERN}
+            element={
+              <HomeRouteGuard expected="USER">
+                <SubstituteRequestPage />
+              </HomeRouteGuard>
+            }
+          />
+          <Route
             path={ROUTES.USER.SUBSTITUTE_REQUEST}
             element={
               <HomeRouteGuard expected="USER">

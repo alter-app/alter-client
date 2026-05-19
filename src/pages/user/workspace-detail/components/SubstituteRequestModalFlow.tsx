@@ -25,8 +25,8 @@ interface SubstituteRequestModalFlowProps {
   onClose: () => void
   /** 모달 상단에 표시할 업장명 */
   storeName: string
-  /** 스케줄 ID(교환 가능 근무자 API) — 선택일에 맞는 이벤트는 캘린더 데이터에서 매칭 */
-  calendarData: CalendarViewData | null
+  /** 스케줄 ID(교환 가능 근무자 API) — `workspaceId`가 있으면 플로우 내부에서 교환 가능 스케줄 API로 조회 */
+  calendarData?: CalendarViewData | null
   /** 캘린더 단계 초기 표시 월(페이지 스케줄 `baseDate`와 동기) */
   initialMonth?: Date
   /** 요약(3단계) 자기소개 초기값(비워 두면 textarea는 비우고 플레이스홀더로 기본 문구 노출) */
