@@ -13,6 +13,8 @@ export const ROUTES = {
     HOME: '/user/home',
     SCHEDULE: '/user/schedule',
     JOB_LOOKUP_MAP: '/user/job-lookup-map',
+    JOB_LOOKUP_MAP_DETAIL: '/user/job-lookup-map-detail/:postingId',
+    JOB_LOOKUP_MAP_APPLY: '/user/job-lookup-map-apply/:postingId',
     WORKSPACE: '/user/workspace',
     WORKSPACE_JOIN: '/user/workspace/join',
     APPLIED_STORES: '/user/applied-stores',

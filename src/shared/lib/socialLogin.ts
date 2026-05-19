@@ -102,6 +102,12 @@ export function getKakaoOAuthRedirectUriFromCallbackLocation(): string {
   return ''
 }
 
+export type KakaoAuthorizationCodeResult = {
+  authorizationCode: string
+  /** authorize URL과 동일한 문자열(가능하면 콜백 창 location 기준) */
+  redirectUri: string
+}
+
 /** KakaoCallbackPage ↔ 오프너(팝업 플로우) postMessage 타입 */
 export const KAKAO_OAUTH_MESSAGE_TYPE = 'alter-kakao-oauth'
 
@@ -183,8 +189,13 @@ function kakaoOAuthStateMatchesRequest(
 /**
  * 카카오 인가 코드만 받습니다 (클라이언트에서 `/oauth/token` 교환 없음 → code 1회 사용, A010 방지).
  * 로그인(`KakaoLoginButton`)·회원가입(소셜 가입 직전) 공통: 팝업 → `/oauth/kakao/callback` → postMessage로 code 반환.
+ *
+ * @param redirectUriOverride — 생략 시 `getKakaoOAuthRedirectUri()`.
+ * @returns 콜백 `postMessage`에 실린 `redirectUri`가 있으면 그 값을 우선(카카오가 실제로 연 URL과 일치).
  */
-export function requestFreshKakaoAuthorizationCode(): Promise<string> {
+export function requestFreshKakaoAuthorizationCode(
+  redirectUriOverride?: string
+): Promise<KakaoAuthorizationCodeResult> {
   return new Promise((resolve, reject) => {
     const clientId = import.meta.env.VITE_KAKAO_REST_API_KEY
     if (!clientId) {
@@ -192,7 +203,10 @@ export function requestFreshKakaoAuthorizationCode(): Promise<string> {
       return
     }
 
-    const redirectUri = getKakaoOAuthRedirectUri()
+    const trimmedOverride = redirectUriOverride?.trim()
+    const redirectUri = trimmedOverride
+      ? trimmedOverride
+      : getKakaoOAuthRedirectUri()
     const oauthState = encodeKakaoOauthState({
       nonce: createNonce(),
       openerOrigin: window.location.origin,
@@ -225,6 +239,7 @@ export function requestFreshKakaoAuthorizationCode(): Promise<string> {
         type?: string
         authorizationCode?: string
         state?: string
+        redirectUri?: string
       }
       if (
         d?.type !== KAKAO_OAUTH_MESSAGE_TYPE ||
@@ -240,7 +255,14 @@ export function requestFreshKakaoAuthorizationCode(): Promise<string> {
       } catch {
         /* noop */
       }
-      resolve(d.authorizationCode)
+      const fromPopup =
+        typeof d.redirectUri === 'string' && d.redirectUri.trim().length > 0
+          ? normalizeAlterAppKakaoRedirectToHttps(d.redirectUri.trim())
+          : redirectUri
+      resolve({
+        authorizationCode: d.authorizationCode,
+        redirectUri: fromPopup,
+      })
     }
 
     const timer = setTimeout(() => {
