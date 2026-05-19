@@ -4,8 +4,10 @@ import { format, parse } from 'date-fns'
 
 import type { CalendarViewData } from '@/features/home/common/schedule/types/calendarView'
 import { DATE_KEY_FORMAT } from '@/features/home/common/schedule/constants/calendar'
-import { getExchangeableSchedules } from '@/features/user/substitute/api/exchangeableSchedules'
-import { adaptExchangeableSchedulesToCalendar } from '@/features/user/substitute/lib/adaptExchangeableSchedules'
+import {
+  adaptExchangeableSchedulesToCalendar,
+  getExchangeableSchedules,
+} from '@/features/user/substitute'
 import { getExchangeableWorkers } from '@/features/user/home/workspace/api/exchangeableWorkers'
 import { createSubstituteRequest } from '@/features/user/home/workspace/api/substituteRequests'
 import { WEEKDAY_LABELS } from '@/shared/constants/calendar'
