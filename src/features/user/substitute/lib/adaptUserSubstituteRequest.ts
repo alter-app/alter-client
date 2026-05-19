@@ -1,7 +1,7 @@
 import { format, parseISO } from 'date-fns'
 import { ko } from 'date-fns/locale'
 
-import type { WorkerRole } from '@/shared/ui/home/WorkerRoleBadge'
+import type { WorkerRole } from '@/shared/types/workerRole'
 
 import type {
   ReceivedSubstituteRequestDto,

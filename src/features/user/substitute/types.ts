@@ -1,6 +1,6 @@
 import type { CommonApiResponse } from '@/shared/types/common'
 import type { StatusEnum } from '@/shared/types/enums'
-import type { WorkerRole } from '@/shared/ui/home/WorkerRoleBadge'
+import type { WorkerRole } from '@/shared/types/workerRole'
 
 export type SubstituteRequestDirection = 'SENT' | 'RECEIVED'
 

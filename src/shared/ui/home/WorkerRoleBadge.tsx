@@ -1,4 +1,4 @@
-type WorkerRole = 'staff' | 'manager' | 'owner'
+import type { WorkerRole } from '@/shared/types/workerRole'
 
 interface WorkerRoleBadgeProps {
   role: WorkerRole

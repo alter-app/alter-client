@@ -1,3 +1,3 @@
-import type { WorkerRole } from '@/shared/ui/home/WorkerRoleBadge'
+import type { WorkerRole } from '@/shared/types/workerRole'
 
 export type StoreWorkerRole = WorkerRole
