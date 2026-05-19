@@ -28,11 +28,24 @@ export function SubstituteRequestCard({
     onAccept != null &&
     onReject != null
 
+  const isClickable = onClick != null
+
   return (
-    <button
-      type="button"
+    <div
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
       onClick={onClick}
-      className="flex h-[72px] w-full items-center gap-4 rounded-2xl border border-line-1 bg-white px-5 text-left transition-colors active:bg-bg-light"
+      onKeyDown={
+        isClickable
+          ? e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onClick()
+              }
+            }
+          : undefined
+      }
+      className={`flex h-[72px] w-full items-center gap-4 rounded-2xl border border-line-1 bg-white px-5 text-left transition-colors active:bg-bg-light${isClickable ? ' cursor-pointer' : ''}`}
     >
       <SubstituteProfileAvatar
         imageUrl={item.imageUrl}
@@ -62,6 +75,6 @@ export function SubstituteRequestCard({
           label={item.statusLabel}
         />
       )}
-    </button>
+    </div>
   )
 }
