@@ -11,6 +11,54 @@ export type FetchPostingsParams = {
   cursor?: string
 }
 
+function isCommonApiEnvelope(
+  value: unknown
+): value is CommonApiResponse<unknown> {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    'timestamp' in value &&
+    'data' in value
+  )
+}
+
+function isPostingDetailResponse(
+  value: unknown
+): value is PostingDetailResponse {
+  if (value === null || typeof value !== 'object') return false
+  const record = value as Record<string, unknown>
+  const workspace = record.workspace
+  return (
+    typeof record.id === 'number' &&
+    typeof record.title === 'string' &&
+    typeof record.description === 'string' &&
+    typeof record.payAmount === 'number' &&
+    typeof record.paymentType === 'string' &&
+    typeof record.createdAt === 'string' &&
+    typeof record.scrapped === 'boolean' &&
+    Array.isArray(record.keywords) &&
+    Array.isArray(record.schedules) &&
+    workspace !== null &&
+    typeof workspace === 'object' &&
+    typeof (workspace as { id?: unknown }).id === 'number'
+  )
+}
+
+function unwrapPostingDetailBody(body: unknown): PostingDetailResponse {
+  if (isCommonApiEnvelope(body)) {
+    if (!isPostingDetailResponse(body.data)) {
+      throw new Error('공고 상세 응답 형식이 올바르지 않습니다.')
+    }
+    return body.data
+  }
+
+  if (isPostingDetailResponse(body)) {
+    return body
+  }
+
+  throw new Error('공고 상세를 불러오지 못했습니다.')
+}
+
 export async function fetchPostings(
   params: FetchPostingsParams
 ): Promise<PostingListResponse> {
@@ -30,21 +78,10 @@ export async function fetchPostings(
 export async function fetchPostingDetail(
   postingId: number
 ): Promise<PostingDetailResponse> {
-  const response = await axiosInstance.get<
-    PostingDetailResponse | CommonApiResponse<PostingDetailResponse>
-  >(`/app/postings/${postingId}`)
-  const body = response.data
-  if (
-    body &&
-    typeof body === 'object' &&
-    'timestamp' in body &&
-    'data' in body &&
-    body.data != null &&
-    typeof body.data === 'object'
-  ) {
-    return (body as CommonApiResponse<PostingDetailResponse>).data
-  }
-  return body as PostingDetailResponse
+  const response = await axiosInstance.get<unknown>(
+    `/app/postings/${postingId}`
+  )
+  return unwrapPostingDetailBody(response.data)
 }
 
 /** POST /app/postings/apply/{postingId} — 공고 지원 */
