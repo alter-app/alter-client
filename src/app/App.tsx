@@ -108,7 +108,6 @@ export function App() {
             path={ROUTES.MANAGER.STORE_REGISTER}
             element={<StoreRegisterPage />}
           />
-          <Route path={ROUTES.ERROR} element={<ErrorPageRoute />} />
         </Route>
 
         <Route element={<MobileRouteLayoutWithDocbar />}>

@@ -3,6 +3,7 @@ import { cn } from '@/shared/lib/utils'
 
 export interface ErrorPageProps {
   message?: string
+  errorCode?: string
   retryLabel?: string
   reportLabel?: string
   onRetry?: () => void
@@ -13,6 +14,7 @@ export interface ErrorPageProps {
 
 export function ErrorPage({
   message = '정보를 불러올 수 없어요',
+  errorCode,
   retryLabel = '다시 불러오기',
   reportLabel = '불편사항 신고',
   onRetry,
@@ -37,9 +39,12 @@ export function ErrorPage({
         aria-hidden
       />
 
-      <p className="mb-8 text-center typography-body01-semibold text-text-100">
-        {message}
-      </p>
+      <div className="mb-8 flex flex-col items-center gap-1 text-center">
+        <p className="typography-body01-semibold text-text-100">{message}</p>
+        {errorCode != null && errorCode !== '' && (
+          <p className="typography-body03-regular text-text-50">{errorCode}</p>
+        )}
+      </div>
 
       <div className="flex w-[148px] flex-col gap-3">
         {onRetry != null && (
