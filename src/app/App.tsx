@@ -26,6 +26,7 @@ import { StoreRegisterPage } from '@/pages/manager/store-register'
 import { WorkspaceJoinPage } from '@/pages/user/workspace-join'
 import { MyPage } from '@/pages/my'
 import { ProfileEditPage } from '@/pages/my/profile'
+import { ErrorPageRoute } from '@/pages/error'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { MobileLayoutWithDocbar } from '@/shared/ui/MobileLayoutWithDocbar'
 import { HomeRouteGuard } from '@/shared/ui/common/HomeRouteGuard'
@@ -107,6 +108,7 @@ export function App() {
             path={ROUTES.MANAGER.STORE_REGISTER}
             element={<StoreRegisterPage />}
           />
+          <Route path={ROUTES.ERROR} element={<ErrorPageRoute />} />
         </Route>
 
         <Route element={<MobileRouteLayoutWithDocbar />}>
@@ -147,6 +149,7 @@ export function App() {
         </Route>
 
         <Route path="/" element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
+        <Route path="*" element={<ErrorPageRoute />} />
       </Routes>
     </BrowserRouter>
   )

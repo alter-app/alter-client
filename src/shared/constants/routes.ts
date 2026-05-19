@@ -35,6 +35,7 @@ export const ROUTES = {
     ROOT: '/my',
     PROFILE: '/my/profile',
   },
+  ERROR: '/error',
 } as const
 
 export function managerWorkerSchedulePath(
