@@ -22,10 +22,10 @@ export function getAxiosErrorMessage(error: unknown, fallback: string): string {
           }>)
       | undefined
     const code = raw?.code
+    if (typeof raw?.message === 'string' && raw.message) return raw.message
     if (code && FALLBACK_CODES[code]) {
       return FALLBACK_CODES[code]
     }
-    if (typeof raw?.message === 'string' && raw.message) return raw.message
     if (typeof raw?.error === 'string' && raw.error) {
       const pathSuffix = typeof raw?.path === 'string' ? ` (${raw.path})` : ''
       return `${raw.error}${pathSuffix}`

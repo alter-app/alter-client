@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { fetchWorkspaceDetail } from '@/features/manager/home/api/workspace'
+import { fetchWorkspaceDetail } from '@/features/manager/api/workspace'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 export function useWorkspaceDetailQuery(workspaceId: number | null) {

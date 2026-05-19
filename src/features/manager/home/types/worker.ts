@@ -25,6 +25,7 @@ export interface WorkerDto {
   user: WorkerUserDto
   status: WorkerStatusDto
   position: WorkerPositionDto
+  colorCode: string
   employedAt: string
   resignedAt: string | null
   nextShiftDateTime: string | null
@@ -55,6 +56,10 @@ export interface ManagerWorkerItem {
   id: number
   name: string
   role: StoreWorkerRole
+  /** 스케줄 생성·수정 API `position` 필드 */
+  position: string
+  /** `PATCH …/workers/{id}/color` */
+  colorCode: string
   nextWorkDate: string
   profileImageUrl?: string
 }

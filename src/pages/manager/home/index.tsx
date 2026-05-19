@@ -1,7 +1,9 @@
+import { useEffect, useRef } from 'react'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { Navbar } from '@/shared/ui/common/Navbar'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import type { ManagerHomeLocationState } from '@/features/manager/home/types/managerHomeLocationState'
 import {
   TodayWorkerList,
   StoreWorkerListItem,
@@ -20,8 +22,17 @@ import managerScheduleEditIcon from '@/assets/icons/home/edit.svg'
 import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibility'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
 
+const STORE_WORKERS_SECTION_ID = 'manager-store-workers'
+const SCHEDULE_SAVE_SUCCESS_MESSAGE = '스케줄이 성공적으로 저장되었습니다.'
+
 export function ManagerHomePage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const scheduleSaveScrollHandled = useRef(false)
+
+  const navigationState = location.state as ManagerHomeLocationState | null
+  const showScheduleSaveSuccess =
+    navigationState?.workerScheduleSaveSuccess === true
   const {
     todayWorkers,
     storeWorkers,
@@ -46,9 +57,29 @@ export function ManagerHomePage() {
     selectWorkspace,
   } = useManagerHomeViewModel()
 
+  useEffect(() => {
+    if (!showScheduleSaveSuccess || scheduleSaveScrollHandled.current) return
+
+    scheduleSaveScrollHandled.current = true
+    requestAnimationFrame(() => {
+      document
+        .getElementById(STORE_WORKERS_SECTION_ID)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [showScheduleSaveSuccess])
+
   return (
     <div className="flex min-h-[100dvh] flex-col box-border bg-bg-light">
       <Navbar />
+
+      {showScheduleSaveSuccess ? (
+        <p
+          className="mx-4 mt-3 rounded-2xl bg-main-100 px-4 py-3 typography-body02-regular text-text-100"
+          role="status"
+        >
+          {SCHEDULE_SAVE_SUCCESS_MESSAGE}
+        </p>
+      ) : null}
 
       <div className="relative h-[200px] w-full overflow-hidden">
         <img
@@ -194,7 +225,7 @@ export function ManagerHomePage() {
         />
       </section>
 
-      <div className="pt-6 pb-8">
+      <div id={STORE_WORKERS_SECTION_ID} className="scroll-mt-4 pt-6 pb-8">
         <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
           우리 매장 근무자
         </h2>

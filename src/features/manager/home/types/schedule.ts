@@ -35,7 +35,7 @@ export interface ManagerScheduleStatusDto {
 export interface ManagerScheduleShiftDto {
   shiftId: number
   workspace: ManagerScheduleWorkspaceDto
-  assignedWorker: ManagerScheduleWorkerDto
+  assignedWorker?: ManagerScheduleWorkerDto | null
   startDateTime: string
   endDateTime: string
   position: string

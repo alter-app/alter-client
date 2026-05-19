@@ -1,4 +1,5 @@
 import axiosInstance from '@/shared/lib/axiosInstance'
+import type { UpdateWorkspaceWorkerColorRequest } from '@/features/manager/worker-schedule/types/workerColor'
 import type {
   WorkersApiResponse,
   WorkspaceWorkersQueryParams,
@@ -20,4 +21,15 @@ export async function fetchWorkspaceWorkers(
     }
   )
   return response.data
+}
+
+export async function patchWorkspaceWorkerColor(
+  workspaceId: number,
+  workerId: number,
+  body: UpdateWorkspaceWorkerColorRequest
+): Promise<void> {
+  await axiosInstance.patch(
+    `/manager/workspaces/${workspaceId}/workers/${workerId}/color`,
+    body
+  )
 }

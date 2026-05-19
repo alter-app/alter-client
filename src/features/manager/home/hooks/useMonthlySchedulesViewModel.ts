@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { addMonths, format } from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
-import { fetchMonthlySchedules } from '@/features/manager/home/api/schedule'
+import { fetchMonthlySchedules } from '@/features/manager/api/schedule'
 import type {
   ManagerScheduleApiResponse,
   ManagerScheduleShiftDto,
