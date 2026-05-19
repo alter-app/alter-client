@@ -90,15 +90,10 @@ export function ScheduleCalendar({
       </div>
 
       {/* Weekday headers */}
-      <div className="flex px-6 py-0">
+      <div className="grid grid-cols-7 px-6 py-0">
         {WEEKDAY_LABELS.map(day => (
-          <div
-            key={day}
-            className="flex h-[50px] flex-1 items-center justify-center"
-          >
-            <span className={`typography-body01-semibold ${'text-main'}`}>
-              {day}
-            </span>
+          <div key={day} className="flex h-[50px] items-center justify-center">
+            <span className="typography-body01-semibold text-main">{day}</span>
           </div>
         ))}
       </div>
@@ -106,7 +101,7 @@ export function ScheduleCalendar({
       {/* Date grid */}
       <div className="px-6 pb-6">
         {weeks.map((week, wi) => (
-          <div key={wi} className="flex">
+          <div key={wi} className="grid grid-cols-7">
             {week.map(({ date, isCurrentMonth }, di) => {
               const isSelected = selectedDate
                 ? isSameDay(date, selectedDate)
@@ -122,10 +117,10 @@ export function ScheduleCalendar({
                   key={di}
                   type="button"
                   onClick={() => onDateChange(date)}
-                  className="flex h-[50px] flex-1 items-center justify-center"
+                  className="flex h-[50px] items-center justify-center"
                 >
                   <span
-                    className={`flex w-full h-full items-center justify-center rounded-[10px] ${
+                    className={`flex size-10 items-center justify-center rounded-[10px] tabular-nums ${
                       isSelected
                         ? 'bg-main-300 text-text-100 typography-body01-semibold'
                         : `typography-body01-regular ${textColor}`

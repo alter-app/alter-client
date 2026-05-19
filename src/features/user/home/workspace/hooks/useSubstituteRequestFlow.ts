@@ -8,7 +8,7 @@ import { getExchangeableSchedules } from '@/features/user/substitute/api/exchang
 import { adaptExchangeableSchedulesToCalendar } from '@/features/user/substitute/lib/adaptExchangeableSchedules'
 import { getExchangeableWorkers } from '@/features/user/home/workspace/api/exchangeableWorkers'
 import { createSubstituteRequest } from '@/features/user/home/workspace/api/substituteRequests'
-import { WEEKDAY_LABELS } from '@/features/user/home/applied-stores/types/appliedStore'
+import { WEEKDAY_LABELS } from '@/shared/constants/calendar'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
@@ -134,8 +134,7 @@ export function useSubstituteRequestFlow({
 
   const selectedWeekdayLabel = useMemo(() => {
     if (selectedCalendarDate == null) return null
-    const idx = (selectedCalendarDate.getDay() + 6) % 7
-    return WEEKDAY_LABELS[idx]
+    return WEEKDAY_LABELS[selectedCalendarDate.getDay()]
   }, [selectedCalendarDate])
 
   const summarySelectedTimeLabel = useMemo(() => {

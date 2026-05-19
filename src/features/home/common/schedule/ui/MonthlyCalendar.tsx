@@ -113,7 +113,7 @@ export function MonthlyCalendar({
             <span
               key={label}
               className={cn(
-                'w-12 typography-body03-regular text-text-50',
+                'flex h-12 items-center justify-center typography-body03-regular text-text-50',
                 index === 0 && 'text-error',
                 index === 6 && 'text-subBlue'
               )}
@@ -123,7 +123,7 @@ export function MonthlyCalendar({
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-y-2">
+        <div className="grid grid-cols-7 gap-y-2 justify-items-center">
           {monthlyDateCellsState.map(cell => {
             return (
               <MonthlyDateCell

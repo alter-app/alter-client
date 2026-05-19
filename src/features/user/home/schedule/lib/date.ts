@@ -24,8 +24,8 @@ import {
 export function getMonthlyDateCells(baseDate: Date) {
   const monthStart = startOfMonth(baseDate)
   const monthEnd = endOfMonth(baseDate)
-  const intervalStart = startOfWeek(monthStart, { weekStartsOn: 1 })
-  const intervalEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
+  const intervalStart = startOfWeek(monthStart, { weekStartsOn: 0 })
+  const intervalEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
 
   return eachDayOfInterval({ start: intervalStart, end: intervalEnd }).map(
     date => ({

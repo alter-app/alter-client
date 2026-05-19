@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 
-import { WEEKDAY_LABELS } from '@/features/user/home/applied-stores/types/appliedStore'
+import { WEEKDAY_LABELS } from '@/shared/constants/calendar'
 import { SubstituteCalendarPickerPanel } from './SubstituteCalendarPickerPanel'
 import {
   normalizeHourInput,

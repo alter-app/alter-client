@@ -14,7 +14,7 @@ import { ko } from 'date-fns/locale'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 import ChevronRightIcon from '@/assets/icons/my/chevron-right.svg'
 
-import { WEEKDAY_LABELS } from '@/features/user/home/applied-stores/types/appliedStore'
+import { WEEKDAY_LABELS } from '@/shared/constants/calendar'
 import {
   DATE_KEY_FORMAT,
   MONTH_LABEL_FORMAT,
@@ -22,6 +22,11 @@ import {
 import { cn } from '@/shared/lib/utils'
 
 const HEADER_NAV_ICON_CLASS = 'size-5 shrink-0 brightness-0 invert'
+
+const DAY_CELL_CLASS =
+  'flex h-[50px] min-h-[50px] min-w-0 items-center justify-center'
+
+const DAY_NUMBER_BASE = 'tabular-nums'
 
 export interface SubstituteCalendarPickerPanelProps {
   /** 표시 월 안의 아무 날짜 */
@@ -44,8 +49,8 @@ export function SubstituteCalendarPickerPanel({
 }: SubstituteCalendarPickerPanelProps) {
   const monthStart = startOfMonth(baseDate)
   const monthEnd = endOfMonth(baseDate)
-  const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 })
-  const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
+  const gridStart = startOfWeek(monthStart, { weekStartsOn: 0 })
+  const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
 
   const flatDays = eachDayOfInterval({
     start: gridStart,
@@ -80,11 +85,14 @@ export function SubstituteCalendarPickerPanel({
   }
 
   const dayNumberClassFor = (cell: DayCell, selected: boolean): string => {
-    if (selected) return 'typography-body01-semibold text-text-100'
-    if (!cell.inMonth) return 'typography-body01-regular text-text-50'
-    if (cell.weekday === 6) return 'typography-body01-regular text-subBlue'
-    if (cell.weekday === 0) return 'typography-body01-regular text-error'
-    return 'typography-body01-regular text-text-90'
+    const base = DAY_NUMBER_BASE
+    if (selected) return cn(base, 'typography-body01-semibold text-text-100')
+    if (!cell.inMonth) return cn(base, 'typography-body01-regular text-text-50')
+    if (cell.weekday === 6)
+      return cn(base, 'typography-body01-regular text-subBlue')
+    if (cell.weekday === 0)
+      return cn(base, 'typography-body01-regular text-error')
+    return cn(base, 'typography-body01-regular text-text-90')
   }
 
   return (
@@ -116,23 +124,25 @@ export function SubstituteCalendarPickerPanel({
       </div>
 
       <div className="box-border px-6 pb-5 pt-1">
-        {/* 요일 — 흰 둥근 바 안에 문자만 메인색 (Figma 1:546) */}
-        <div className="flex h-[50px] w-full items-center gap-0.5 overflow-hidden rounded-[20px] bg-white">
+        <div className="grid h-[50px] w-full grid-cols-7 rounded-[20px] bg-white">
           {WEEKDAY_LABELS.map(d => (
             <div
               key={d}
-              className="flex min-w-0 flex-1 items-center justify-center typography-body01-semibold text-main"
+              className={cn(
+                DAY_CELL_CLASS,
+                'typography-body01-semibold text-main'
+              )}
             >
               {d}
             </div>
           ))}
         </div>
 
-        <div className="flex w-full flex-col gap-0">
+        <div className="flex w-full flex-col">
           {rows.map(row => (
             <div
               key={row.map(c => c.dateKey).join('-')}
-              className="flex h-[50px] w-full items-center gap-0.5 overflow-hidden rounded-[20px] bg-white"
+              className="grid h-[50px] w-full grid-cols-7 rounded-[20px] bg-white"
             >
               {row.map(cell => {
                 const selected =
@@ -141,17 +151,14 @@ export function SubstituteCalendarPickerPanel({
                   cell.dateKey === selectedDateKey
 
                 return (
-                  <div
-                    key={cell.dateKey}
-                    className="flex h-[50px] min-w-0 flex-1 items-stretch overflow-hidden px-px"
-                  >
+                  <div key={cell.dateKey} className={DAY_CELL_CLASS}>
                     {cell.inMonth ? (
                       <button
                         type="button"
                         onClick={() => onSelectDateKey(cell.dateKey)}
                         aria-pressed={selected}
                         className={cn(
-                          'flex h-[50px] w-full min-w-0 items-center justify-center rounded-[10px] transition-colors',
+                          'flex size-10 items-center justify-center rounded-[10px] transition-colors',
                           selected
                             ? 'bg-main-300 active:bg-main-300'
                             : 'hover:bg-bg-light active:bg-bg-dark'
@@ -164,7 +171,10 @@ export function SubstituteCalendarPickerPanel({
                     ) : (
                       <span
                         aria-hidden
-                        className={`flex items-center justify-center ${dayNumberClassFor(cell, false)}`}
+                        className={cn(
+                          'flex size-10 items-center justify-center',
+                          dayNumberClassFor(cell, false)
+                        )}
                       >
                         {cell.dayNum}
                       </span>
