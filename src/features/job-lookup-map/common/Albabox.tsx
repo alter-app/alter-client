@@ -1,3 +1,4 @@
+import type { KeyboardEvent } from 'react'
 import BookmarkIcon from '@/assets/icons/job-lookup-map/Bookmark.svg?react'
 import CalendarIcon from '@/assets/icons/job-lookup-map/Calendar.svg?react'
 import ClockIcon from '@/assets/icons/job-lookup-map/Clock.svg?react'
@@ -30,10 +31,23 @@ export function Albabox({
   onBookmarkClick,
   onClick,
 }: AlbaboxProps) {
+  const isInteractive = onClick != null
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (!onClick) return
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onClick()
+    }
+  }
+
   return (
     <article
-      className="border-b border-line-1 py-5 last:border-b-0 cursor-pointer"
+      className={`border-b border-line-1 py-5 last:border-b-0 ${isInteractive ? 'cursor-pointer' : ''}`}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={isInteractive ? 0 : undefined}
+      role={isInteractive ? 'button' : undefined}
     >
       <div className="flex items-start justify-between gap-2">
         <p className="typography-body02-semibold text-text-70">{storeName}</p>
