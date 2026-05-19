@@ -144,7 +144,11 @@ export function JobLookupMapPage() {
     const updateBounds = () => {
       const nextMax = Math.max(0, sheet.offsetHeight - SHEET_PEEK_HEIGHT)
       setMaxTranslateY(nextMax)
-      y.set(nextMax)
+      const currentY = y.get()
+      const clampedY = Math.min(nextMax, Math.max(0, currentY))
+      if (clampedY !== currentY) {
+        y.set(clampedY)
+      }
     }
 
     updateBounds()
