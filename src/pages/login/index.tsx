@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { KakaoLoginButton, AppleLoginButton } from '@/features/auth'
+import { AuthButton } from '@/shared/ui/common/AuthButton'
 import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { loginIDPW } from '@/shared/api/auth'
 import { ROUTES } from '@/shared/constants/routes'
@@ -110,17 +111,13 @@ export function LoginPage() {
           />
         </div>
 
-        <button
-          className="w-full h-14 border-none bg-main text-white text-5 font-pretendard font-semibold rounded-xl cursor-pointer transition-all duration-200 shadow-[0_2px_8px_rgba(7,192,121,0.3)]
-            hover:brightness-[0.92] hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(7,192,121,0.4)]
-            active:brightness-[0.85] active:translate-y-0 active:shadow-[0_2px_6px_rgba(7,192,121,0.3)]
-            disabled:bg-text-50 disabled:text-white disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none
-            sm:h-[52px] sm:text-[17px] sm:rounded-[10px] xs:h-12 xs:text-4 xs:rounded-lg"
+        <AuthButton
+          className="sm:text-[17px] xs:text-4"
           onClick={handleLogin}
           disabled={!phone.trim() || !password.trim()}
         >
           로그인
-        </button>
+        </AuthButton>
 
         {(phoneError || passwordError || errorMessage) && (
           <div className="text-error font-pretendard font-regular text-1 leading-[18px] text-left w-full sm:text-[11px] sm:leading-[17px] xs:text-0 xs:leading-4">

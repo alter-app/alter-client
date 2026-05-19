@@ -132,7 +132,7 @@ export function MyPage() {
           <button
             type="button"
             onClick={handleLogout}
-            className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-main-900 text-text-100 typography-body01-regular"
+            className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-main text-white typography-body01-regular"
           >
             로그아웃
           </button>

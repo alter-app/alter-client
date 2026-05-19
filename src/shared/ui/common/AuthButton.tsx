@@ -1,31 +1,28 @@
 import type { ButtonHTMLAttributes } from 'react'
-import { colors, fontFamilies, fontSizes, fontWeights } from '../../lib/tokens'
+import { cn } from '@/shared/lib/utils'
 
 type AuthButtonProps = ButtonHTMLAttributes<HTMLButtonElement>
 
 export function AuthButton({
   className = '',
   children,
+  disabled,
   ...props
 }: AuthButtonProps) {
   return (
     <button
-      className={className}
-      style={{
-        width: '100%',
-        height: '56px',
-        border: 'none',
-        background: colors.main.DEFAULT,
-        color: '#fff',
-        fontSize: fontSizes[5],
-        fontFamily: fontFamilies.pretendard,
-        fontWeight: fontWeights.semibold,
-        borderRadius: '12px',
-        cursor: props.disabled ? 'not-allowed' : 'pointer',
-        transition: 'all 0.2s ease',
-        boxShadow: props.disabled ? 'none' : '0 2px 8px rgba(7, 192, 121, 0.3)',
-        opacity: props.disabled ? 0.6 : 1,
-      }}
+      type="button"
+      disabled={disabled}
+      className={cn(
+        'w-full h-14 cursor-pointer rounded-xl border-none bg-main font-pretendard text-5 font-semibold text-white',
+        'transition-all duration-200 shadow-[0_2px_8px_rgba(7,192,121,0.3)]',
+        'hover:brightness-[0.92] hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(7,192,121,0.4)]',
+        'active:translate-y-0 active:brightness-[0.85] active:shadow-[0_2px_6px_rgba(7,192,121,0.3)]',
+        'disabled:transform-none disabled:cursor-not-allowed disabled:bg-text-50 disabled:shadow-none',
+        'sm:h-[52px] sm:rounded-[10px]',
+        'xs:h-12 xs:rounded-lg',
+        className
+      )}
       {...props}
     >
       {children}
