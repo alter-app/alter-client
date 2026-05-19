@@ -36,10 +36,10 @@ export function Step1UserInfo({
     <div className="flex flex-col items-center w-full max-w-[400px]">
       {/* 헤더 */}
       <div className="w-full mb-8 sm:mb-7 xs:mb-6">
-        <h1 className="font-pretendard font-semibold text-[24px] leading-8 text-[#111111] text-left mb-4 sm:text-[22px] sm:leading-[30px] xs:text-[20px] xs:leading-[28px]">
+        <h1 className="font-pretendard font-semibold text-[24px] leading-8 text-text-100 text-left mb-4 sm:text-[22px] sm:leading-[30px] xs:text-[20px] xs:leading-[28px]">
           회원님의 정보를 알려주세요!
         </h1>
-        <p className="font-pretendard font-regular text-[14px] leading-5 text-[#767676] text-left sm:text-[13px] sm:leading-[19px] xs:text-[12px] xs:leading-[18px]">
+        <p className="font-pretendard font-regular text-[14px] leading-5 text-text-70 text-left sm:text-[13px] sm:leading-[19px] xs:text-[12px] xs:leading-[18px]">
           알터가 회원님이 동의해 주신 내용을 바탕으로 작성했어요.
           <br />
           틀리거나 빈 정보가 있다면 알려주시겠어요?
@@ -58,17 +58,17 @@ export function Step1UserInfo({
             />
           </div>
           <div className="flex items-center">
-            <div className="flex border border-[#d9d9d9] rounded-xl h-14 overflow-hidden sm:h-[52px] xs:h-12">
+            <div className="flex border border-line-2 rounded-xl h-14 overflow-hidden sm:h-[52px] xs:h-12">
               <button
                 type="button"
-                className={`px-4 font-pretendard text-4 ${gender === '남' ? 'bg-main text-white font-semibold' : 'bg-white text-[#767676]'}`}
+                className={`px-4 font-pretendard text-4 ${gender === '남' ? 'bg-main text-white font-semibold' : 'bg-white text-text-70'}`}
                 onClick={() => onGenderChange('남')}
               >
                 남
               </button>
               <button
                 type="button"
-                className={`px-4 font-pretendard text-4 border-l border-[#d9d9d9] ${gender === '여' ? 'bg-main text-white font-semibold' : 'bg-white text-[#767676]'}`}
+                className={`px-4 font-pretendard text-4 border-l border-line-2 ${gender === '여' ? 'bg-main text-white font-semibold' : 'bg-white text-text-70'}`}
                 onClick={() => onGenderChange('여')}
               >
                 여
@@ -90,7 +90,7 @@ export function Step1UserInfo({
         />
       </div>
 
-      <p className="font-pretendard font-regular text-[12px] leading-[18px] text-[#767676] text-center w-full mb-6 sm:text-[11px] sm:mb-5 xs:text-[10px] xs:mb-4">
+      <p className="font-pretendard font-regular text-[12px] leading-[18px] text-text-70 text-center w-full mb-6 sm:text-[11px] sm:mb-5 xs:text-[10px] xs:mb-4">
         만약 내용이 없다면 모든 내용을 기입해 주세요!
       </p>
 

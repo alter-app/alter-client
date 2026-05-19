@@ -29,7 +29,7 @@ export function SocialList({
 }: SocialProfileProps) {
   return (
     <div className="flex items-center gap-3 border-b border-line-1 py-3">
-      <div className="h-12 w-12 shrink-0 rounded-full bg-[#efefef]" />
+      <div className="h-12 w-12 shrink-0 rounded-full bg-bg-dark" />
 
       <div className="w-full flex flex-col gap-1">
         <div className="flex justify-between ">

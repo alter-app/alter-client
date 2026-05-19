@@ -111,10 +111,10 @@ export function LoginPage() {
         </div>
 
         <button
-          className="w-full h-14 border-none bg-main text-white text-5 font-pretendard font-semibold rounded-xl cursor-pointer transition-all duration-200 shadow-[0_2px_8px_rgba(45,226,131,0.3)]
-            hover:bg-[#25c973] hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(45,226,131,0.4)]
-            active:bg-[#1fb865] active:translate-y-0 active:shadow-[0_2px_6px_rgba(45,226,131,0.3)]
-            disabled:bg-[#cbcbcb] disabled:text-white disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none
+          className="w-full h-14 border-none bg-main text-white text-5 font-pretendard font-semibold rounded-xl cursor-pointer transition-all duration-200 shadow-[0_2px_8px_rgba(7,192,121,0.3)]
+            hover:brightness-[0.92] hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(7,192,121,0.4)]
+            active:brightness-[0.85] active:translate-y-0 active:shadow-[0_2px_6px_rgba(7,192,121,0.3)]
+            disabled:bg-text-50 disabled:text-white disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none
             sm:h-[52px] sm:text-[17px] sm:rounded-[10px] xs:h-12 xs:text-4 xs:rounded-lg"
           onClick={handleLogin}
           disabled={!phone.trim() || !password.trim()}
@@ -130,18 +130,18 @@ export function LoginPage() {
       </div>
 
       <div className="flex items-center w-full max-w-[400px] my-8 sm:my-7 sm:max-w-full xs:my-6">
-        <div className="flex-1 h-px bg-[#d9d9d9]" />
-        <span className="font-pretendard font-regular text-4 leading-5 text-[#999999] mx-[15px] sm:text-3 sm:mx-2.5 xs:text-2 xs:mx-2">
+        <div className="flex-1 h-px bg-line-2" />
+        <span className="font-pretendard font-regular text-4 leading-5 text-text-50 mx-[15px] sm:text-3 sm:mx-2.5 xs:text-2 xs:mx-2">
           간편 로그인
         </span>
-        <div className="flex-1 h-px bg-[#d9d9d9]" />
+        <div className="flex-1 h-px bg-line-2" />
       </div>
 
       <div className="flex flex-col gap-4 w-full max-w-[400px] items-center sm:gap-[14px] sm:max-w-full xs:gap-3">
         <KakaoLoginButton redirectFrom={redirectFrom} />
         <AppleLoginButton redirectFrom={redirectFrom} />
 
-        <div className="flex justify-center items-center gap-2 font-pretendard font-regular text-3 leading-[18px] text-[#767676] mt-2.5 sm:text-2 sm:gap-1.5 xs:text-1 xs:gap-1">
+        <div className="flex justify-center items-center gap-2 font-pretendard font-regular text-3 leading-[18px] text-text-70 mt-2.5 sm:text-2 sm:gap-1.5 xs:text-1 xs:gap-1">
           <span
             className="cursor-pointer transition-colors duration-200 hover:text-main"
             onClick={() => navigate('/find-password')}

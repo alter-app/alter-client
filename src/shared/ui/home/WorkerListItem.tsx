@@ -1,3 +1,5 @@
+import { colors } from '@/shared/lib/tokens'
+
 export type WorkerVariant = 'manager' | 'worker'
 
 export interface WorkerListItemProps {
@@ -23,9 +25,9 @@ function EllipsisIcon() {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden
     >
-      <circle cx="14" cy="9" r="1.5" fill="#828282" />
-      <circle cx="14" cy="14" r="1.5" fill="#828282" />
-      <circle cx="14" cy="19" r="1.5" fill="#828282" />
+      <circle cx="14" cy="9" r="1.5" fill={colors.text[70]} />
+      <circle cx="14" cy="14" r="1.5" fill={colors.text[70]} />
+      <circle cx="14" cy="19" r="1.5" fill={colors.text[70]} />
     </svg>
   )
 }

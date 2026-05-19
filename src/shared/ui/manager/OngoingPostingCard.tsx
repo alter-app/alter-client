@@ -67,7 +67,7 @@ function PostingRow({
       <div className="mb-1.5 flex items-center gap-2">
         <span
           className={`inline-flex h-[22px] items-center rounded-[100px] px-2.5 typography-body03-semibold ${
-            isUrgent ? 'bg-[#42E590] text-white' : 'bg-[#EAFDF3] text-[#42E590]'
+            isUrgent ? 'bg-main-900 text-white' : 'bg-main-100 text-main-900'
           }`}
         >
           {posting.dDay}

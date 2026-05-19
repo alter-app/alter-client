@@ -162,9 +162,7 @@ export function ManagerMonthCalendar({
                     className={cn(
                       'flex size-12 items-center justify-center typography-body03-semibold',
                       isPicker ? 'rounded-2xl' : 'rounded-lg',
-                      isPicker &&
-                        isSelected &&
-                        'border border-[#07c079] text-[#07c079]',
+                      isPicker && isSelected && 'border border-main text-main',
                       !isPicker && isSelected && 'bg-bg-dark text-text-100',
                       !isSelected &&
                         isCurrentMonth &&

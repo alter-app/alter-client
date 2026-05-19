@@ -12,7 +12,7 @@ export function ScheduleSaveButton({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="h-12 w-full rounded-2xl bg-[#07c079] typography-body01-semibold text-white disabled:opacity-50"
+      className="h-12 w-full rounded-2xl bg-main typography-body01-semibold text-white disabled:opacity-50"
     >
       저장
     </button>

@@ -16,16 +16,14 @@ export function AuthButton({
         height: '56px',
         border: 'none',
         background: colors.main.DEFAULT,
-        color: '#ffffff',
+        color: '#fff',
         fontSize: fontSizes[5],
         fontFamily: fontFamilies.pretendard,
         fontWeight: fontWeights.semibold,
         borderRadius: '12px',
         cursor: props.disabled ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s ease',
-        boxShadow: props.disabled
-          ? 'none'
-          : '0 2px 8px rgba(45, 226, 131, 0.3)',
+        boxShadow: props.disabled ? 'none' : '0 2px 8px rgba(7, 192, 121, 0.3)',
         opacity: props.disabled ? 0.6 : 1,
       }}
       {...props}

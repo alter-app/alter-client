@@ -87,7 +87,7 @@ export function WorkTimePickerDrawer({
               aria-label="시"
             />
             <span
-              className="shrink-0 pb-1 typography-headline01 text-[#232323]"
+              className="shrink-0 pb-1 typography-headline01 text-text-100"
               aria-hidden="true"
             >
               :

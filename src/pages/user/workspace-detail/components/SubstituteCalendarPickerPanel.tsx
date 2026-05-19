@@ -34,7 +34,7 @@ export interface SubstituteCalendarPickerPanelProps {
 
 /**
  * Figma `1:546` — 업장 변경/추가 스타일의 월달력 패널
- * — 초록 헤더, 요일 줄(메인색), 행 높이 50px 그리드, 선택일 `#c0f7da`(main-300).
+ * — 초록 헤더, 요일 줄(메인색), 행 높이 50px 그리드, 선택일 `main-300`.
  */
 export function SubstituteCalendarPickerPanel({
   baseDate,

@@ -95,7 +95,7 @@ export function Albabox({
           </div>
         </div>
         {likeCount != null && likeCount !== '' && (
-          <div className="inline-flex h-6 items-center gap-1 rounded-xl border border-[#d9d9d9] bg-white px-2 shadow-[0px_1px_4px_rgba(0,0,0,0.18)]">
+          <div className="inline-flex h-6 items-center gap-1 rounded-xl border border-line-2 bg-white px-2 shadow-[0px_1px_4px_rgba(0,0,0,0.18)]">
             <ThumbsupIcon className="h-3 w-3 shrink-0" aria-hidden />
             <span className="typography-body02-semibold text-text-100 leading-none">
               {likeCount}

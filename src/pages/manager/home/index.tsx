@@ -87,7 +87,7 @@ export function ManagerHomePage() {
           alt="가게 배너 이미지"
           className="h-full w-full object-cover"
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[rgba(35,35,35,0)] to-[#232323]" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-text-100" />
 
         <div className="absolute bottom-8 left-[20px] text-white">
           <div className="mb-1 flex items-center gap-2">
