@@ -24,5 +24,10 @@ export { TodayWorkerList } from '@/features/manager/home/ui/TodayWorkerList'
 export { useManagerHomeViewModel } from '@/features/manager/home/hooks/useManagerHomeViewModel'
 export { useWorkerScheduleManageViewModel } from '@/features/manager/worker-schedule/hooks/useWorkerScheduleManageViewModel'
 export { ScheduleColor } from '@/features/manager/worker-schedule/types/scheduleColor'
+export {
+  WORKER_DEFAULT_COLOR_CODE,
+  resolveSchedulePickerColor,
+} from '@/features/manager/worker-schedule/types/workerColor'
+export { patchWorkspaceWorkerColor } from '@/features/manager/api/worker'
 export type { ScheduleTab } from '@/features/manager/schedule/types/workerSchedule'
 export { SCHEDULE_TABS } from '@/features/manager/schedule/constants/workerSchedule'

@@ -3,10 +3,7 @@ import { Navigate, useParams } from 'react-router-dom'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
 import type { ScheduleTab } from '@/features/manager'
-import {
-  ScheduleColor,
-  useWorkerScheduleManageViewModel,
-} from '@/features/manager'
+import { useWorkerScheduleManageViewModel } from '@/features/manager'
 import { ROUTES } from '@/shared/constants/routes'
 import { ColorSelectSection } from '@/pages/manager/worker-schedule/components/ColorSelectSection'
 import { FixedScheduleDateSection } from '@/pages/manager/worker-schedule/components/FixedScheduleDateSection'
@@ -59,10 +56,6 @@ function ManagerWorkerSchedulePageContent({
   const [startDate, setStartDate] = useState(() => new Date())
   const [endDate, setEndDate] = useState(() => new Date())
   const [recurrence, setRecurrence] = useState<ScheduleRecurrence>('매주')
-  const [selectedColor, setSelectedColor] = useState<ScheduleColor>(
-    ScheduleColor.Pink
-  )
-
   const {
     workersLoading,
     worker,
@@ -76,6 +69,8 @@ function ManagerWorkerSchedulePageContent({
     handleSave,
     isSaving,
     saveError,
+    selectedColor,
+    setSelectedColor,
   } = useWorkerScheduleManageViewModel({
     workspaceId,
     workerId,

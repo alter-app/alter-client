@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { fetchMonthlySchedules } from '@/features/manager/api/schedule'
+import { patchWorkspaceWorkerColor } from '@/features/manager/api/worker'
 import { getFixedWorkerSchdules } from '@/features/manager/worker-schedule/api/fixedWorkerSchdule'
 import type { ScheduleTab } from '@/features/manager/schedule/types/workerSchedule'
 import { useWorkspaceWorkersViewModel } from '@/features/manager/home/hooks/useWorkspaceWorkersViewModel'
@@ -23,6 +24,13 @@ import { queryKeys } from '@/shared/lib/queryKeys'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { toDateKey } from '@/features/home/common/schedule/lib/date'
 import type { ManagerScheduleShiftDto } from '@/features/manager/home/types/schedule'
+import type { ScheduleColor } from '@/features/manager/worker-schedule/types/scheduleColor'
+import {
+  colorCodesEqual,
+  isValidWorkerColorCode,
+  normalizeColorCodeForApi,
+  resolveSchedulePickerColor,
+} from '@/features/manager/worker-schedule/types/workerColor'
 
 const DEFAULT_SELECTED_DAYS: ManagerWeekdayKo[] = ['수', '금']
 
@@ -108,11 +116,22 @@ export function useWorkerScheduleManageViewModel(args: {
   const [endHour, setEndHour] = useState('')
   const [endMinute, setEndMinute] = useState('')
   const [generalShiftId, setGeneralShiftId] = useState<number | null>(null)
+  const [selectedColor, setSelectedColor] = useState<ScheduleColor>(
+    resolveSchedulePickerColor('')
+  )
   const [saveError, setSaveError] = useState<string | null>(null)
 
   const [syncedWorkerId, setSyncedWorkerId] = useState<number | null>(null)
+  const [syncedColorWorkerId, setSyncedColorWorkerId] = useState<number | null>(
+    null
+  )
   const [syncedFixedKey, setSyncedFixedKey] = useState<string | null>(null)
   const [syncedGeneralKey, setSyncedGeneralKey] = useState<string | null>(null)
+
+  if (worker && !workersLoading && syncedColorWorkerId !== worker.id) {
+    setSyncedColorWorkerId(worker.id)
+    setSelectedColor(resolveSchedulePickerColor(worker.colorCode))
+  }
 
   const fixedDataKey = `${workerId}:${loadedFixedSlots.map(s => s.id).join(',')}`
   if (
@@ -206,6 +225,7 @@ export function useWorkerScheduleManageViewModel(args: {
   function goToWorker(nextWorkerId: number) {
     setSyncedFixedKey(null)
     setSyncedGeneralKey(null)
+    setSyncedColorWorkerId(null)
     navigate(managerWorkerSchedulePath(workspaceId, nextWorkerId))
   }
 
@@ -228,26 +248,35 @@ export function useWorkerScheduleManageViewModel(args: {
           endHour,
           endMinute,
         })
-        return
+      } else {
+        if (!generalSelectedDate) {
+          throw new Error('날짜를 선택해 주세요.')
+        }
+
+        const shiftId = await saveGeneralWorkerSchedule({
+          workspaceId,
+          workerId,
+          position: worker.position,
+          shiftId: generalShiftId,
+          date: generalSelectedDate,
+          startHour,
+          startMinute,
+          endHour,
+          endMinute,
+        })
+        if (shiftId !== null) {
+          setGeneralShiftId(shiftId)
+        }
       }
 
-      if (!generalSelectedDate) {
-        throw new Error('날짜를 선택해 주세요.')
+      const nextColorCode = normalizeColorCodeForApi(selectedColor)
+      if (!isValidWorkerColorCode(nextColorCode)) {
+        throw new Error('올바른 색상 형식이 아닙니다.')
       }
-
-      const shiftId = await saveGeneralWorkerSchedule({
-        workspaceId,
-        workerId,
-        position: worker.position,
-        shiftId: generalShiftId,
-        date: generalSelectedDate,
-        startHour,
-        startMinute,
-        endHour,
-        endMinute,
-      })
-      if (shiftId !== null) {
-        setGeneralShiftId(shiftId)
+      if (!colorCodesEqual(nextColorCode, worker.colorCode)) {
+        await patchWorkspaceWorkerColor(workspaceId, workerId, {
+          colorCode: nextColorCode,
+        })
       }
     },
     onSuccess: () => {
@@ -256,11 +285,15 @@ export function useWorkerScheduleManageViewModel(args: {
       const month =
         (generalSelectedDate?.getMonth() ?? new Date().getMonth()) + 1
       invalidateManagerScheduleQueries(queryClient, workspaceId, year, month)
+      void queryClient.invalidateQueries({
+        queryKey: ['managerWorkspace', 'workers', workspaceId],
+      })
       setSyncedFixedKey(null)
       setSyncedGeneralKey(null)
+      setSyncedColorWorkerId(null)
     },
     onError: (error: unknown) => {
-      setSaveError(getAxiosErrorMessage(error, '스케줄 저장에 실패했습니다.'))
+      setSaveError(getAxiosErrorMessage(error, '저장에 실패했습니다.'))
     },
   })
 
@@ -293,5 +326,7 @@ export function useWorkerScheduleManageViewModel(args: {
     handleSave,
     isSaving: saveMutation.isPending,
     saveError,
+    selectedColor,
+    setSelectedColor,
   }
 }
