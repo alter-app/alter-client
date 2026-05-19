@@ -75,7 +75,7 @@ export function SubstituteRequestDetailView({
   return (
     <>
       <div className="fixed inset-0 z-[70] flex min-h-[100dvh] flex-col bg-white">
-        <header className="relative flex h-14 shrink-0 items-center border-b border-line-1 px-4">
+        <header className="relative flex h-14 shrink-0 items-center px-4">
           <button
             type="button"
             aria-label="뒤로"

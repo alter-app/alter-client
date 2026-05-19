@@ -69,7 +69,7 @@ export function SubstituteStoreSelectModal({
         aria-labelledby="substitute-store-select-title"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex h-14 shrink-0 items-center justify-center border-b border-line-1 px-4">
+        <div className="flex h-14 shrink-0 items-center justify-center px-4">
           <h2
             id="substitute-store-select-title"
             className="typography-headline03 text-text-100"

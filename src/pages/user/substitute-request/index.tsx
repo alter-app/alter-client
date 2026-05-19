@@ -146,7 +146,7 @@ export function SubstituteRequestPage() {
   return (
     <div className="flex min-h-[100dvh] flex-col bg-white">
       <div className="sticky top-0 z-10 bg-white">
-        <Navbar />
+        <Navbar showBorder={false} />
         <SubstituteRequestTabs
           activeTab={directionTab}
           onTabChange={setDirectionTab}

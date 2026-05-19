@@ -5,6 +5,7 @@ import MenuIcon from '@/assets/icons/nav/menu.svg'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 import { useNavigate } from 'react-router-dom'
 import { HamburgerMenuDrawer } from '@/shared/ui/common/HamburgerMenuDrawer'
+import { cn } from '@/shared/lib/utils'
 
 type NavbarVariant = 'main' | 'detail'
 
@@ -14,6 +15,8 @@ interface NavbarProps {
   onBackClick?: () => void
   /** 상세 헤더(`variant="detail"`) 우측 영역 — 알림·메뉴 자리에 커스텀 노출 시 사용 */
   rightAction?: ReactNode
+  /** 하단 구분선 — 기본 true */
+  showBorder?: boolean
 }
 
 export function Navbar({
@@ -21,6 +24,7 @@ export function Navbar({
   title = '',
   onBackClick,
   rightAction,
+  showBorder = true,
 }: NavbarProps) {
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -36,7 +40,12 @@ export function Navbar({
 
   return (
     <>
-      <header className="relative flex h-14 w-full items-center border-b border-line-2  px-4 py-3.5">
+      <header
+        className={cn(
+          'relative flex h-14 w-full items-center px-4 py-3.5',
+          showBorder && 'border-b border-line-2'
+        )}
+      >
         <div className="flex min-w-[84px] items-center">
           {isMain ? (
             <div className="flex items-center gap-2">

@@ -12,7 +12,7 @@ export function SubstituteRequestTabs({
   onTabChange,
 }: SubstituteRequestTabsProps) {
   return (
-    <div className="flex h-[46px] w-full border-b border-line-1 bg-white">
+    <div className="flex h-[46px] w-full bg-white">
       <button
         type="button"
         className={cn(

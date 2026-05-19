@@ -75,7 +75,7 @@ export function SubstituteRejectReasonModal({
         aria-modal="true"
         onClick={e => e.stopPropagation()}
       >
-        <div className="relative flex h-14 items-center justify-center border-b border-line-1 px-4">
+        <div className="flex h-14 items-center justify-center px-4">
           <button
             type="button"
             aria-label="뒤로"
