@@ -1,8 +1,9 @@
 import HomeIcon from '@/assets/icons/doc/Home.svg?react'
 import MYIcon from '@/assets/icons/doc/MY.svg?react'
 import SearchIcon from '@/assets/icons/doc/Search.svg?react'
+import SubstituteIcon from '@/assets/icons/doc/Substitute.svg?react'
 import type { ComponentType, SVGProps } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useDocStore } from '@/shared/stores/useDocStore'
 import { typography } from '@/shared/lib/tokens'
@@ -29,7 +30,7 @@ function DocContent({
   return (
     <button
       type="button"
-      className="flex flex-col items-center gap-1 cursor-pointer w-[78px] h-[78px] pt-2.5 pb-3"
+      className="flex min-w-0 flex-1 flex-col items-center gap-1 cursor-pointer h-[78px] pt-2.5 pb-3"
       onClick={onClick}
     >
       <Icon
@@ -56,33 +57,37 @@ export type DocbarSelectedTab = Record<TabKey, boolean>
 interface DocbarViewProps {
   selectedTab: DocbarSelectedTab
   onTabClick: (tab: TabKey) => void
+  tabs: TabKey[]
 }
 
-export function DocbarView({ selectedTab, onTabClick }: DocbarViewProps) {
+export function DocbarView({ selectedTab, onTabClick, tabs }: DocbarViewProps) {
+  const iconByTab: Record<TabKey, ComponentType<SVGProps<SVGSVGElement>>> = {
+    home: HomeIcon,
+    search: SearchIcon,
+    substitute: SubstituteIcon,
+    my: MYIcon,
+  }
+
+  const altByTab: Record<TabKey, string> = {
+    home: 'Home',
+    search: 'Search',
+    substitute: 'Substitute',
+    my: 'MY',
+  }
+
   return (
     <div className="flex items-center justify-between w-full px-4 bg-white shadow-[0px_-4px_10px_rgba(0,_0,_0,_0.1)]">
       <div className="flex items-center justify-between w-full">
-        <DocContent
-          icon={HomeIcon}
-          alt="Home"
-          isSelected={selectedTab.home}
-          titleKey="home"
-          onClick={() => onTabClick('home')}
-        />
-        <DocContent
-          icon={SearchIcon}
-          alt="Search"
-          isSelected={selectedTab.search}
-          titleKey="search"
-          onClick={() => onTabClick('search')}
-        />
-        <DocContent
-          icon={MYIcon}
-          alt="MY"
-          isSelected={selectedTab.my}
-          titleKey="my"
-          onClick={() => onTabClick('my')}
-        />
+        {tabs.map(tab => (
+          <DocContent
+            key={tab}
+            icon={iconByTab[tab]}
+            alt={altByTab[tab]}
+            isSelected={selectedTab[tab]}
+            titleKey={tab}
+            onClick={() => onTabClick(tab)}
+          />
+        ))}
       </div>
     </div>
   )
@@ -101,15 +106,29 @@ export function Docbar() {
     setSelectedTabByPathname(pathname)
   }, [pathname, setSelectedTabByPathname])
 
-  const pathByTab: Record<TabKey, string> = {
-    home: homePathForScope(scope),
-    search: ROUTES.USER.JOB_LOOKUP_MAP,
-    my: ROUTES.MY.ROOT,
-  }
+  const tabs = useMemo<TabKey[]>(
+    () =>
+      scope === 'MANAGER'
+        ? ['home', 'search', 'my']
+        : ['home', 'search', 'substitute', 'my'],
+    [scope]
+  )
+
+  const pathByTab: Record<TabKey, string> = useMemo(
+    () => ({
+      home: homePathForScope(scope),
+      search: ROUTES.USER.JOB_LOOKUP_MAP,
+      substitute: ROUTES.USER.SUBSTITUTE_REQUEST,
+      my: ROUTES.MY.ROOT,
+    }),
+    [scope]
+  )
 
   const onTabClick = (tab: TabKey) => {
     navigate(pathByTab[tab])
   }
 
-  return <DocbarView selectedTab={selectedTab} onTabClick={onTabClick} />
+  return (
+    <DocbarView selectedTab={selectedTab} onTabClick={onTabClick} tabs={tabs} />
+  )
 }

@@ -5,6 +5,7 @@ const PATHNAME_TAB_MAP: Array<{ matcher: RegExp; tab: TabKey }> = [
   { matcher: /(^|\/)home(\/|$)/, tab: 'home' },
   { matcher: /(^|\/)my(\/|$)/, tab: 'my' },
   { matcher: /(^|\/)search(\/|$)/, tab: 'search' },
+  { matcher: /^\/user\/substitute-request/, tab: 'substitute' },
   { matcher: /^\/manager\/home/, tab: 'home' },
   { matcher: /^\/user\/job-lookup-map/, tab: 'search' },
 ]
@@ -13,6 +14,7 @@ const createSelectedTab = (activeTab?: TabKey) => ({
   home: activeTab === 'home',
   my: activeTab === 'my',
   search: activeTab === 'search',
+  substitute: activeTab === 'substitute',
 })
 
 interface DocStoreState {
@@ -20,6 +22,7 @@ interface DocStoreState {
     home: boolean
     my: boolean
     search: boolean
+    substitute: boolean
   }
   setSelectedTab: (selectedTab: DocStoreState['selectedTab']) => void
   setSelectedTabByPathname: (pathname: string) => void
