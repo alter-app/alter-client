@@ -1,6 +1,5 @@
 import PlusIcon from '@/assets/icons/Plus.svg?react'
 
-const CONTENT_MAX_WIDTH = '390px'
 const DOCBAR_HEIGHT_PX = 78
 const FAB_OFFSET_BOTTOM_PX = 22
 
@@ -16,10 +15,7 @@ export function SubstituteCreateFab({ onClick }: SubstituteCreateFabProps) {
         bottom: `calc(${DOCBAR_HEIGHT_PX}px + ${FAB_OFFSET_BOTTOM_PX}px)`,
       }}
     >
-      <div
-        className="pointer-events-auto flex w-full justify-end"
-        style={{ maxWidth: CONTENT_MAX_WIDTH }}
-      >
+      <div className="pointer-events-auto mx-auto flex w-full max-w-[390px] justify-end px-4 sm:px-0">
         <button
           type="button"
           aria-label="새 대타 요청"
