@@ -29,7 +29,7 @@ const statusConfig: Record<
   pending: {
     label: '대기중',
     className:
-      'border-[#E28D2C] bg-[#FDF8EA] text-[#E28D2C] typography-body02-semibold',
+      'border-warning bg-warning-100 text-warning typography-body02-semibold',
   },
 }
 
