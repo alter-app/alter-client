@@ -30,7 +30,10 @@ export function RecurrenceSelect({ value, onChange }: RecurrenceSelectProps) {
             onClick={() => onChange(option)}
             className={cn(
               'transition-colors',
-              value === option ? 'text-text-100' : 'text-text-50'
+              value === option ? 'text-text-90' : 'text-text-50',
+              value === option
+                ? 'typography-body02-semibold'
+                : 'typography-body02-regular'
             )}
           >
             {option}

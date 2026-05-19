@@ -2,17 +2,29 @@ import { useEffect, useState } from 'react'
 import { isSameDay } from 'date-fns'
 import chevronDownIcon from '@/assets/icons/home/chevron-down.svg'
 import { getCalendarCells } from '@/shared/lib/calendarUtils'
-import { WEEKDAY_LABELS_MONDAY_FIRST } from '@/shared/constants/calendar'
+import {
+  WEEKDAY_LABELS,
+  WEEKDAY_LABELS_MONDAY_FIRST,
+} from '@/shared/constants/calendar'
 import { cn } from '@/shared/lib/utils'
 
 export interface ManagerMonthCalendarProps {
   selectedDate?: Date | null
   onDateChange: (date: Date) => void
+  /** 0: 일요일 시작(Figma 피커), 1: 월요일 시작(기본) */
+  weekStartsOn?: 0 | 1
+  /** embedded: 일반 탭 인라인, picker: 고정 스케줄 바텀시트 */
+  variant?: 'embedded' | 'picker'
+  /** monthYear: "4월 2026", yearMonth: "2026년 4월" */
+  headerFormat?: 'yearMonth' | 'monthYear'
 }
 
 export function ManagerMonthCalendar({
   selectedDate,
   onDateChange,
+  weekStartsOn = 1,
+  variant = 'embedded',
+  headerFormat = 'yearMonth',
 }: ManagerMonthCalendarProps) {
   const today = new Date()
   const [viewYear, setViewYear] = useState(
@@ -34,7 +46,14 @@ export function ManagerMonthCalendar({
   }, [selectedDate])
 
   const baseDate = new Date(viewYear, viewMonth, 1)
-  const cells = getCalendarCells(baseDate, 1)
+  const cells = getCalendarCells(baseDate, weekStartsOn)
+  const weekdayLabels =
+    weekStartsOn === 0 ? WEEKDAY_LABELS : WEEKDAY_LABELS_MONDAY_FIRST
+  const isPicker = variant === 'picker'
+  const headerLabel =
+    headerFormat === 'monthYear'
+      ? `${viewMonth + 1}월 ${viewYear}`
+      : `${viewYear}년 ${viewMonth + 1}월`
   const weeks: (typeof cells)[] = []
   for (let i = 0; i < cells.length; i += 7) {
     weeks.push(cells.slice(i, i + 7))
@@ -58,8 +77,13 @@ export function ManagerMonthCalendar({
     }
   }
 
+  const saturdayIndex = weekStartsOn === 0 ? 6 : 5
+  const sundayIndex = weekStartsOn === 0 ? 0 : 6
+
   return (
-    <div className="flex w-full flex-col gap-[29px]">
+    <div
+      className={cn('flex w-full flex-col', isPicker ? 'gap-4' : 'gap-[29px]')}
+    >
       <div className="flex items-center justify-center gap-3">
         <button
           type="button"
@@ -74,8 +98,13 @@ export function ManagerMonthCalendar({
             className="size-6 rotate-90"
           />
         </button>
-        <p className="typography-headline01 text-text-100">
-          {viewYear}년 {viewMonth + 1}월
+        <p
+          className={cn(
+            'text-text-100',
+            isPicker ? 'typography-headline03' : 'typography-headline01'
+          )}
+        >
+          {headerLabel}
         </p>
         <button
           type="button"
@@ -94,7 +123,7 @@ export function ManagerMonthCalendar({
 
       <div className="flex w-full flex-col gap-1">
         <div className="flex w-full">
-          {WEEKDAY_LABELS_MONDAY_FIRST.map((label, index) => (
+          {weekdayLabels.map((label, index) => (
             <div
               key={label}
               className="flex h-[26px] flex-1 items-center justify-center"
@@ -102,9 +131,11 @@ export function ManagerMonthCalendar({
               <span
                 className={cn(
                   'typography-body03-regular',
-                  index === 5 && 'text-subBlue',
-                  index === 6 && 'text-error',
-                  index < 5 && 'text-text-100'
+                  index === saturdayIndex && 'text-subBlue',
+                  index === sundayIndex && 'text-error',
+                  index !== saturdayIndex &&
+                    index !== sundayIndex &&
+                    'text-text-100'
                 )}
               >
                 {label}
@@ -129,19 +160,24 @@ export function ManagerMonthCalendar({
                 >
                   <span
                     className={cn(
-                      'flex size-12 items-center justify-center rounded-lg typography-body03-semibold',
-                      isSelected && 'bg-bg-dark',
+                      'flex size-12 items-center justify-center typography-body03-semibold',
+                      isPicker ? 'rounded-2xl' : 'rounded-lg',
+                      isPicker &&
+                        isSelected &&
+                        'border border-[#07c079] text-[#07c079]',
+                      !isPicker && isSelected && 'bg-bg-dark text-text-100',
                       !isSelected &&
                         isCurrentMonth &&
-                        dayIndex === 5 &&
+                        dayIndex === saturdayIndex &&
                         'text-subBlue',
                       !isSelected &&
                         isCurrentMonth &&
-                        dayIndex === 6 &&
+                        dayIndex === sundayIndex &&
                         'text-error',
                       !isSelected &&
                         isCurrentMonth &&
-                        dayIndex < 5 &&
+                        dayIndex !== saturdayIndex &&
+                        dayIndex !== sundayIndex &&
                         'text-text-100',
                       !isSelected && !isCurrentMonth && 'text-text-50'
                     )}

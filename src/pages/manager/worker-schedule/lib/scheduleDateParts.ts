@@ -27,3 +27,8 @@ export function dateToPartStrings(date: Date) {
     day: String(date.getDate()).padStart(2, '0'),
   }
 }
+
+/** Figma 고정 스케줄 날짜 표시 (예: 2026년 4월 1일) */
+export function formatKoreanScheduleDate(date: Date): string {
+  return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`
+}
