@@ -13,8 +13,13 @@ export function SearchBar({
   className = '',
   wrapperClassName = '',
   placeholder = '',
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledby,
   ...props
 }: SearchBarProps) {
+  const inputAriaLabel =
+    ariaLabel ?? (ariaLabelledby ? undefined : placeholder || '검색')
+
   return (
     <div
       className={`relative flex h-12 w-full items-center rounded-[16px] border border-line-2 bg-white shadow-[0px_2px_8px_rgba(0,0,0,0.08)] ${wrapperClassName}`}
@@ -29,6 +34,8 @@ export function SearchBar({
         type="search"
         placeholder={placeholder}
         className={`h-full w-full rounded-full bg-transparent py-0 pl-11 pr-4 typography-body03-regular text-text-100 placeholder:text-text-50 outline-none ${className}`}
+        aria-labelledby={ariaLabelledby}
+        aria-label={inputAriaLabel}
         {...props}
       />
     </div>
