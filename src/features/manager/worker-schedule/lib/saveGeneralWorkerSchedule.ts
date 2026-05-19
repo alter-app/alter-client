@@ -1,4 +1,3 @@
-import { format } from 'date-fns'
 import { fetchMonthlySchedules } from '@/features/manager/api/schedule'
 import {
   postAssignWorkerToSchedule,
@@ -61,26 +60,16 @@ export async function saveGeneralWorkerSchedule(args: {
   const year = date.getFullYear()
   const month = date.getMonth() + 1
   const monthly = await fetchMonthlySchedules({ workspaceId, year, month })
-  const dateKey = format(date, 'yyyy-MM-dd')
 
   const created = monthly.data.schedules.find(
     s =>
       s.startDateTime === startDateTime &&
       s.endDateTime === endDateTime &&
-      s.status.value === 'PLANNED'
+      s.status.value === 'PLANNED' &&
+      !s.assignedWorker
   )
 
   if (!created) {
-    const sameDay = monthly.data.schedules.find(
-      s =>
-        s.startDateTime.startsWith(dateKey) &&
-        s.status.value === 'PLANNED' &&
-        !s.assignedWorker
-    )
-    if (sameDay) {
-      await postAssignWorkerToSchedule(sameDay.shiftId, { workerId })
-      return sameDay.shiftId
-    }
     return null
   }
 
