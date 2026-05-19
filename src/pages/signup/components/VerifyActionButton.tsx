@@ -14,9 +14,9 @@ export function VerifyActionButton({ children, ...props }: Props) {
         min-w-[100px] h-14 border-none
         bg-main text-white text-[14px] font-pretendard font-medium
         rounded-xl cursor-pointer transition-all duration-200
-        hover:bg-[#25c973] hover:-translate-y-px
-        active:bg-[#1fb865] active:translate-y-0
-        disabled:bg-[#cbcbcb] disabled:cursor-not-allowed disabled:transform-none
+        hover:brightness-[0.92] hover:-translate-y-px
+        active:brightness-[0.85] active:translate-y-0
+        disabled:bg-text-50 disabled:cursor-not-allowed disabled:transform-none
         sm:h-[52px] sm:text-[13px] sm:rounded-[10px] sm:min-w-[90px]
         xs:h-12 xs:text-[12px] xs:rounded-lg xs:min-w-[80px]
       "

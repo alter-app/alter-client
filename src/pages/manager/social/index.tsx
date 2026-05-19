@@ -55,7 +55,7 @@ export function SocialPage() {
           >
             <button
               type="button"
-              className="w-full rounded-[16px] gap-2 bg-[#e7e7e7] h-12 px-5 flex items-center border border-[#d8d8d8]"
+              className="flex h-12 w-full items-center gap-2 rounded-[16px] border border-line-2 bg-bg-dark px-5"
             >
               <img src={SearchIcon} alt="search" />
               <span className="typography-body01-regular text-text-50">
@@ -69,7 +69,7 @@ export function SocialPage() {
                   key={item.id}
                   className="py-4 border-b border-line-1 flex items-center gap-3"
                 >
-                  <div className="h-12 w-12 rounded-full bg-[#f4f4f4] border border-[#e6e6e6]" />
+                  <div className="h-12 w-12 rounded-full border border-line-2 bg-bg-light" />
                   <div className="flex-1">
                     <div className="typography-body01-semibold text-text-100">
                       {item.name}

@@ -24,13 +24,12 @@ const statusConfig: Record<
 > = {
   accepted: {
     label: '수락됨',
-    className:
-      'border-[#2CE283] bg-[#EAFDF3] text-[#2CE283] typography-body02-semibold',
+    className: 'border-main bg-main-100 text-main typography-body02-semibold',
   },
   pending: {
     label: '대기중',
     className:
-      'border-[#E28D2C] bg-[#FDF8EA] text-[#E28D2C] typography-body02-semibold',
+      'border-warning bg-warning-100 text-warning typography-body02-semibold',
   },
 }
 
@@ -52,7 +51,7 @@ function RequestRow({
       className={`flex w-full items-center justify-between py-4 text-left transition-colors hover:bg-gray-50/50 ${!isLast ? 'border-b border-line-1' : ''}`}
     >
       <div className="flex min-w-0 items-center gap-4">
-        <div className="flex size-[38px] shrink-0 items-center justify-center overflow-hidden rounded-full border border-line-1 bg-[#F7F7F7]">
+        <div className="flex size-[38px] shrink-0 items-center justify-center overflow-hidden rounded-full border border-line-1 bg-bg-light">
           {item.imageUrl ? (
             <img
               src={item.imageUrl}
@@ -71,7 +70,7 @@ function RequestRow({
             <span className="typography-body01-semibold text-black">
               {item.name}
             </span>
-            <span className="inline-flex h-5 items-center rounded-[80px] bg-[#C0F7DA] px-2 typography-bg text-text-90">
+            <span className="inline-flex h-5 items-center rounded-[80px] bg-main-300 px-2 typography-bg text-text-90">
               {item.role}
             </span>
           </div>

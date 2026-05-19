@@ -66,7 +66,7 @@ function ShiftCard({
           : undefined
       }
       className={`rounded-2xl border p-4 ${
-        selected ? 'border-[#6CEBA9] bg-[#C0F7DA]' : 'border-line-2 bg-white'
+        selected ? 'border-main-700 bg-main-300' : 'border-line-2 bg-white'
       } ${onSelect ? 'cursor-pointer' : ''}`}
     >
       <h4 className="typography-body01-semibold text-text-100">{title}</h4>

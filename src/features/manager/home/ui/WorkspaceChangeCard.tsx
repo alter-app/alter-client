@@ -18,7 +18,7 @@ export function WorkspaceChangeCard({
     <div
       onClick={() => onClick?.(workspace.id)}
       className={`flex h-[86px] w-[310px] relative items-start rounded-2xl px-4 py-4 text-left ${
-        isSelected ? 'border border-sub bg-sub-300' : 'bg-bg-dark'
+        isSelected ? 'border border-sub bg-sub-900/25' : 'bg-bg-dark'
       } ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2 pr-10">

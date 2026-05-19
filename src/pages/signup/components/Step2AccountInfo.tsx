@@ -75,7 +75,7 @@ export function Step2AccountInfo({
       <div className="flex justify-start w-full mb-6 sm:mb-5 xs:mb-4">
         <button
           type="button"
-          className="w-12 h-12 sm:w-11 sm:h-11 xs:w-10 xs:h-10 border border-[#e5e5e5] bg-white rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-[#f8f9fa] hover:border-main hover:-translate-y-px active:bg-[#e9ecef] active:translate-y-0"
+          className="w-12 h-12 sm:w-11 sm:h-11 xs:w-10 xs:h-10 border border-line-1 bg-white rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-bg-light hover:border-main hover:-translate-y-px active:bg-bg-dark active:translate-y-0"
           onClick={onBack}
         >
           <svg
@@ -84,18 +84,23 @@ export function Step2AccountInfo({
             viewBox="0 0 30 30"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            className="text-text-70"
           >
-            <path d="M18 9L12 15L18 21" stroke="#767676" strokeWidth="1.7" />
+            <path
+              d="M18 9L12 15L18 21"
+              stroke="currentColor"
+              strokeWidth="1.7"
+            />
           </svg>
         </button>
       </div>
 
       {/* 헤더 */}
       <div className="w-full mb-8 sm:mb-7 xs:mb-6">
-        <h1 className="font-pretendard font-semibold text-[24px] leading-8 text-[#111111] text-left mb-4 sm:text-[22px] sm:leading-[30px] xs:text-[20px] xs:leading-[28px]">
+        <h1 className="font-pretendard font-semibold text-[24px] leading-8 text-text-100 text-left mb-4 sm:text-[22px] sm:leading-[30px] xs:text-[20px] xs:leading-[28px]">
           이제 마지막이에요!
         </h1>
-        <p className="font-pretendard font-regular text-[14px] leading-5 text-[#767676] text-left mb-8 sm:text-[13px] sm:leading-[19px] sm:mb-7 xs:text-[12px] xs:leading-[18px] xs:mb-6">
+        <p className="font-pretendard font-regular text-[14px] leading-5 text-text-70 text-left mb-8 sm:text-[13px] sm:leading-[19px] sm:mb-7 xs:text-[12px] xs:leading-[18px] xs:mb-6">
           {isSocialSignup ? (
             <>
               회원님이 알터에서 불릴 닉네임을 알려주세요.

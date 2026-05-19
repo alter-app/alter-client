@@ -26,7 +26,7 @@ export function EmailVerification({
 }: Props) {
   return (
     <div className="flex flex-col gap-2 w-full">
-      <p className="font-pretendard font-regular text-[12px] leading-[18px] text-[#767676] sm:text-[11px] xs:text-[10px]">
+      <p className="font-pretendard font-regular text-[12px] leading-[18px] text-text-70 sm:text-[11px] xs:text-[10px]">
         <span className="mr-1">(선택)</span>
         이메일 — 인증 후 알림 수신 및 비밀번호 찾기에 활용돼요.
       </p>

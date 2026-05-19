@@ -73,10 +73,7 @@ export function AlbaFindCategoryBar({
           return (
             <div key={id} className="flex items-center gap-2">
               {index === 1 ? (
-                <div
-                  className="h-[26px] w-px shrink-0 bg-[#d9d9d9]"
-                  aria-hidden
-                />
+                <div className="h-[26px] w-px shrink-0 bg-line-2" aria-hidden />
               ) : null}
               <button
                 type="button"

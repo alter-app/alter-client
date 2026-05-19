@@ -36,10 +36,10 @@ export function SchedulePage() {
             <button
               type="button"
               onClick={handlePreviousMonth}
-              className="flex items-center justify-center w-10 h-10 bg-bg-light rounded-lg border-0 cursor-pointer transition-colors hover:bg-[#e9ecef] active:scale-95"
+              className="flex items-center justify-center w-10 h-10 bg-bg-light rounded-lg border-0 cursor-pointer transition-colors hover:bg-bg-dark active:scale-95"
               aria-label="이전 달"
             >
-              <ChevronLeftIcon />
+              <ChevronLeftIcon className="text-text-70" />
             </button>
             <h2 className="font-pretendard font-semibold text-5 text-text-100 m-0">
               {currentYear}년 {currentMonth}월
@@ -47,10 +47,10 @@ export function SchedulePage() {
             <button
               type="button"
               onClick={handleNextMonth}
-              className="flex items-center justify-center w-10 h-10 bg-bg-light rounded-lg border-0 cursor-pointer transition-colors hover:bg-[#e9ecef] active:scale-95"
+              className="flex items-center justify-center w-10 h-10 bg-bg-light rounded-lg border-0 cursor-pointer transition-colors hover:bg-bg-dark active:scale-95"
               aria-label="다음 달"
             >
-              <ChevronRightIcon />
+              <ChevronRightIcon className="text-text-70" />
             </button>
           </div>
 
@@ -74,7 +74,7 @@ export function SchedulePage() {
           ) : (
             <div className="flex flex-col items-center justify-center py-[60px] px-5 text-center">
               <div className="mb-4 opacity-60">
-                <CalendarEmptyIcon />
+                <CalendarEmptyIcon className="text-line-2" />
               </div>
               <h3 className="font-pretendard font-semibold text-5 text-text-100 m-0 mb-2">
                 일정이 없습니다

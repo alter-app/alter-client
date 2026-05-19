@@ -21,7 +21,7 @@ export function ChevronLeftIcon({
     >
       <path
         d="M15 18L9 12L15 6"
-        stroke="#666666"
+        stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -53,7 +53,7 @@ export function WeeklyCalendar({
           <div
             key={cell.dateKey}
             className={`mx-auto flex h-[46px] w-[46px] items-center justify-center rounded-2xl ${
-              cell.isSelected ? 'bg-sub-300' : 'bg-white'
+              cell.isSelected ? 'bg-sub-900/25' : 'bg-white'
             }`}
           >
             <span

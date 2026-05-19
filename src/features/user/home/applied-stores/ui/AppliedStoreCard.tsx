@@ -13,10 +13,8 @@ export function AppliedStoreCard({
 
   return (
     <div
-      className={`relative h-[156px] w-[130px] overflow-hidden rounded-2xl ${
-        isRejected
-          ? 'bg-[linear-gradient(152deg,#3a9982_5.7%,#9dccc1_92.6%)]'
-          : 'bg-[linear-gradient(152deg,#2ce283_5.7%,#c0f7da_92.6%)]'
+      className={`relative h-[156px] w-[130px] overflow-hidden rounded-2xl bg-gradient-to-br ${
+        isRejected ? 'from-sub to-sub-900' : 'from-main to-main-300'
       }`}
     >
       <p

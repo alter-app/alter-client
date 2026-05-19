@@ -1,3 +1,5 @@
+import { colors } from '@/shared/lib/tokens'
+
 interface MonthlyDateGaugeProps {
   gaugeRatio: number
   size?: number
@@ -10,8 +12,8 @@ export function MonthlyDateGauge({
   gaugeRatio,
   size = 32,
   strokeWidth = 4,
-  backgroundStroke = '#EFEFEF',
-  progressStroke = '#2CE283',
+  backgroundStroke = colors.bgDark,
+  progressStroke = colors.main.DEFAULT,
 }: MonthlyDateGaugeProps) {
   const normalizedRatio = Math.min(Math.max(gaugeRatio, 0), 1)
   const center = size / 2

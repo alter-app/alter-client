@@ -1,15 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       // Custom breakpoints
       screens: {
-        'xs': '360px',
-        'sm': '480px',
+        xs: '360px',
+        sm: '480px',
       },
       // Colors
       colors: {
@@ -27,28 +24,25 @@ export default {
         },
         // 라인 색상
         line: {
-          1: '#f1f1f1',
-          2: '#e5e5e5',
+          1: '#e5e5e5',
+          2: '#c3c3c3',
           3: '#232323',
         },
         // Main 색상
         main: {
-          DEFAULT: '#2ce283',
-          900: '#42e590',
-          700: '#6ceba9',
-          500: '#96f1c1',
-          300: '#c0f7da',
-          100: '#eafdf3',
+          DEFAULT: '#07c079',
+          900: '#20c686',
+          700: '#51d3a1',
+          500: '#83dfbc',
+          300: '#b5ecd7',
+          100: '#e6f9f2',
         },
         // Sub 색상
         sub: {
-          DEFAULT: '#3a9982',
-          900: '#4ea48f',
-          700: '#76b8a8',
-          500: '#9dccc1',
-          300: '#c4e1da',
+          DEFAULT: '#0f7745',
+          900: '#278558',
         },
-        subBlue: '#003BDC'
+        subBlue: '#003BDC',
       },
       // Font Families
       fontFamily: {
@@ -119,4 +113,3 @@ export default {
   },
   plugins: [],
 }
-
