@@ -101,7 +101,7 @@ export function WheelPicker({
             className={cn(
               'flex items-center justify-center px-2.5 typography-headline01',
               i === highlightedIndex
-                ? 'relative z-30 text-[#232323]'
+                ? 'relative z-30 text-text-100'
                 : 'text-text-50'
             )}
             style={{ height: itemHeight }}
