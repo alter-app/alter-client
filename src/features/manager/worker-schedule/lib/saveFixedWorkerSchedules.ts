@@ -41,6 +41,8 @@ export async function saveFixedWorkerSchedules(args: {
   startMinute: string
   endHour: string
   endMinute: string
+  /** 부분 실패 시 서버 데이터로 폼을 되돌리기 위한 콜백 */
+  onRollback?: () => Promise<void>
 }): Promise<void> {
   const {
     workspaceId,
@@ -51,15 +53,13 @@ export async function saveFixedWorkerSchedules(args: {
     startMinute,
     endHour,
     endMinute,
+    onRollback,
   } = args
 
   const selectedSet = new Set(selectedDays)
   const loadedByDay = new Map(loadedSlots.map(s => [s.weekdayKo, s] as const))
 
   const toDelete = loadedSlots.filter(s => !selectedSet.has(s.weekdayKo))
-  for (const slot of toDelete) {
-    await deleteFixedWorkerSchdule(workspaceId, slot.id)
-  }
 
   const toCreate: FixedWorkerScheduleSlotInput[] = []
   const toUpdate: { id: number; body: FixedWorkerScheduleSlotInput }[] = []
@@ -82,14 +82,24 @@ export async function saveFixedWorkerSchedules(args: {
     }
   }
 
-  for (const { id, body } of toUpdate) {
-    await patchFixedWorkerSchdule(workspaceId, id, body)
-  }
+  try {
+    await Promise.all([
+      ...toDelete.map(slot => deleteFixedWorkerSchdule(workspaceId, slot.id)),
+      ...toUpdate.map(({ id, body }) =>
+        patchFixedWorkerSchdule(workspaceId, id, body)
+      ),
+    ])
 
-  if (toCreate.length > 0) {
-    await postFixedWorkerSchdules(workspaceId, {
-      workspaceWorkerId,
-      schedules: toCreate,
-    })
+    if (toCreate.length > 0) {
+      await postFixedWorkerSchdules(workspaceId, {
+        workspaceWorkerId,
+        schedules: toCreate,
+      })
+    }
+  } catch (error) {
+    if (onRollback) {
+      await onRollback()
+    }
+    throw error
   }
 }

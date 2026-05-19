@@ -70,15 +70,32 @@ export function WheelPicker({
     onChange(snapped)
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      e.stopPropagation()
+      setDragDelta(0)
+      onChange(Math.max(0, selectedIndex - 1))
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      e.stopPropagation()
+      setDragDelta(0)
+      onChange(Math.min(items.length - 1, selectedIndex + 1))
+    }
+  }
+
   return (
     <div
       data-vaul-no-drag
       className={cn(
-        'relative touch-none select-none overflow-hidden',
+        'relative touch-none select-none overflow-hidden focus:outline-none',
         className
       )}
       style={{ height: itemHeight * visibleCount }}
       aria-label={ariaLabel}
+      role="listbox"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}

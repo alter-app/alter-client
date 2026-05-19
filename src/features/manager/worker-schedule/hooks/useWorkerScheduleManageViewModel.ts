@@ -347,6 +347,12 @@ export function useWorkerScheduleManageViewModel(args: {
           startMinute,
           endHour,
           endMinute,
+          onRollback: async () => {
+            await queryClient.invalidateQueries({
+              queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
+            })
+            setFixedFormOverride(null)
+          },
         })
       } else {
         if (!generalSelectedDate) {
@@ -400,8 +406,14 @@ export function useWorkerScheduleManageViewModel(args: {
       setGeneralFormOverride(null)
       setColorOverride(null)
     },
-    onError: (error: unknown) => {
+    onError: async (error: unknown) => {
       setSaveError(getAxiosErrorMessage(error, '저장에 실패했습니다.'))
+      if (activeTab === '고정') {
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
+        })
+        setFixedFormOverride(null)
+      }
     },
   })
 
