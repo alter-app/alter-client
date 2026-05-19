@@ -7,10 +7,16 @@ import {
 } from '@/features/user/substitute/api/userSubstituteRequests'
 import { adaptUserSubstituteListItem } from '@/features/user/substitute/lib/adaptUserSubstituteRequest'
 import type {
+  ReceivedSubstituteListApiResponse,
+  SentSubstituteListApiResponse,
   SubstituteRequestDirection,
   SubstituteUiStatus,
   UserSubstituteListItem,
 } from '@/features/user/substitute/types'
+
+type SubstituteListPage =
+  | ReceivedSubstituteListApiResponse
+  | SentSubstituteListApiResponse
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 const PAGE_LIMIT = 20
@@ -40,7 +46,13 @@ export function useUserSubstituteRequestsViewModel(
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery({
+  } = useInfiniteQuery<
+    SubstituteListPage,
+    Error,
+    { pages: SubstituteListPage[]; pageParams: (string | undefined)[] },
+    ReturnType<typeof queryKeys.userSubstitute.list>,
+    string | undefined
+  >({
     queryKey: queryKeys.userSubstitute.list({
       direction,
       pageSize: PAGE_LIMIT,
@@ -62,7 +74,7 @@ export function useUserSubstituteRequestsViewModel(
     () =>
       data?.pages.flatMap(
         page =>
-          page?.data?.data?.map(dto =>
+          page.data.data.map(dto =>
             adaptUserSubstituteListItem(dto, direction)
           ) ?? []
       ) ?? [],

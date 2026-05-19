@@ -18,6 +18,25 @@ export type SubstituteRequestType = 'ALL' | 'SPECIFIC'
 
 export type SubstituteUiStatus = 'pending' | 'accepted' | 'cancelled'
 
+/** API enum 래퍼 — `{ value, description }` */
+export interface SubstituteEnumValueDto<T extends string = string> {
+  value: T
+  description: string
+}
+
+export interface SubstituteTargetWorkerDto {
+  workerId: number
+  workerName: string
+}
+
+/** GET sent/{requestId} — targets[] 항목 */
+export interface SubstituteTargetItemApiDto {
+  target: SubstituteTargetWorkerDto
+  status: SubstituteEnumValueDto | string
+  rejectionReason?: string | null
+  respondedAt?: string | null
+}
+
 export interface SubstituteScheduleDto {
   scheduleId: number
   startDateTime: string
@@ -40,10 +59,14 @@ export interface SubstituteAcceptedWorkerDto {
   workerName: string
 }
 
+/** 어댑터용 정규화된 대상 */
 export interface SubstituteTargetDto {
   targetId: number
-  targetName: string
+  workerName: string
+  targetName?: string
   status: string
+  rejectionReason?: string | null
+  respondedAt?: string | null
 }
 
 export interface ReceivedSubstituteRequestDto {
@@ -64,16 +87,51 @@ export interface SentSubstituteRequestListItemDto {
   id: number
   schedule: SubstituteScheduleDto
   workspace: SubstituteWorkspaceDto
-  requestType: SubstituteRequestType
-  status: SubstituteRequestStatus | string
+  requestType:
+    | SubstituteRequestType
+    | SubstituteEnumValueDto<SubstituteRequestType>
+  status:
+    | SubstituteRequestStatus
+    | SubstituteEnumValueDto<SubstituteRequestStatus>
+    | string
   createdAt: string
+  targets?: SubstituteTargetDto[]
+  acceptedWorker?: SubstituteAcceptedWorkerDto | null
 }
 
-export interface SentSubstituteRequestDetailDto extends SentSubstituteRequestListItemDto {
+/** GET /app/users/me/substitute-requests/sent/{requestId} — 원본 응답 */
+export interface SentSubstituteRequestDetailApiDto {
+  id: number
+  schedule: SubstituteScheduleDto
+  workspace: SubstituteWorkspaceDto
   requester: SubstituteRequesterDto
+  requestType:
+    | SubstituteEnumValueDto<SubstituteRequestType>
+    | SubstituteRequestType
+  targets: SubstituteTargetItemApiDto[]
+  acceptedWorker?: SubstituteAcceptedWorkerDto | null
+  status:
+    | SubstituteEnumValueDto<SubstituteRequestStatus>
+    | SubstituteRequestStatus
+    | string
+  requestReason?: string | null
+  createdAt: string
+  acceptedAt?: string | null
+  processedAt?: string | null
+}
+
+/** 상세 어댑터 입력 — enum·target 정규화 후 */
+export interface SentSubstituteRequestDetailDto {
+  id: number
+  schedule: SubstituteScheduleDto
+  workspace: SubstituteWorkspaceDto
+  requester: SubstituteRequesterDto
+  requestType: SubstituteRequestType
   targets: SubstituteTargetDto[]
   acceptedWorker?: SubstituteAcceptedWorkerDto | null
+  status: string
   requestReason?: string | null
+  createdAt: string
   acceptedAt?: string | null
   processedAt?: string | null
 }
@@ -98,7 +156,7 @@ export type SentSubstituteListApiResponse = CommonApiResponse<
 >
 
 export type SentSubstituteDetailApiResponse =
-  CommonApiResponse<SentSubstituteRequestDetailDto>
+  CommonApiResponse<SentSubstituteRequestDetailApiDto>
 
 export interface SubstituteListQueryParams {
   status?: string

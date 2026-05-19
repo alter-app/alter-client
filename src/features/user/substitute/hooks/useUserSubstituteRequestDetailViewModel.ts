@@ -10,6 +10,7 @@ import {
   adaptReceivedSubstituteDetail,
   adaptSentSubstituteDetail,
   formatDetailMinutes,
+  normalizeSentSubstituteDetailDto,
 } from '@/features/user/substitute/lib/adaptUserSubstituteRequest'
 import type {
   ReceivedSubstituteRequestDto,
@@ -37,7 +38,7 @@ export function useUserSubstituteRequestDetailViewModel(
     queryKey: queryKeys.userSubstitute.sentDetail(requestId ?? 0),
     queryFn: async () => {
       const response = await fetchSentSubstituteRequestDetail(requestId!)
-      return response.data
+      return normalizeSentSubstituteDetailDto(response.data)
     },
     enabled: isSent && requestId != null && requestId > 0,
   })

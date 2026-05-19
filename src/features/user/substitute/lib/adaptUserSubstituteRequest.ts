@@ -5,14 +5,53 @@ import type { WorkerRole } from '@/shared/ui/home/WorkerRoleBadge'
 
 import type {
   ReceivedSubstituteRequestDto,
+  SentSubstituteRequestDetailApiDto,
   SentSubstituteRequestDetailDto,
   SentSubstituteRequestListItemDto,
+  SubstituteEnumValueDto,
   SubstituteRequestDirection,
+  SubstituteRequestType,
+  SubstituteTargetDto,
   SubstituteUiStatus,
   UserSubstituteDetailViewModel,
   UserSubstituteListDto,
   UserSubstituteListItem,
 } from '@/features/user/substitute/types'
+
+export function unwrapSubstituteEnum<T extends string>(
+  field: SubstituteEnumValueDto<T> | T | string | null | undefined
+): string {
+  if (field == null) return ''
+  if (typeof field === 'object' && 'value' in field) return field.value
+  return String(field)
+}
+
+/** GET sent/{requestId} 응답 → 어댑터용 DTO */
+export function normalizeSentSubstituteDetailDto(
+  api: SentSubstituteRequestDetailApiDto
+): SentSubstituteRequestDetailDto {
+  return {
+    id: api.id,
+    schedule: api.schedule,
+    workspace: api.workspace,
+    requester: api.requester,
+    requestType: unwrapSubstituteEnum(api.requestType) as SubstituteRequestType,
+    targets: (api.targets ?? []).map(item => ({
+      targetId: item.target.workerId,
+      workerName: item.target.workerName,
+      targetName: item.target.workerName,
+      status: unwrapSubstituteEnum(item.status),
+      rejectionReason: item.rejectionReason,
+      respondedAt: item.respondedAt,
+    })),
+    acceptedWorker: api.acceptedWorker ?? null,
+    status: unwrapSubstituteEnum(api.status),
+    requestReason: api.requestReason,
+    createdAt: api.createdAt,
+    acceptedAt: api.acceptedAt,
+    processedAt: api.processedAt,
+  }
+}
 
 export function normalizeSubstituteStatus(status: string): string {
   return status.toUpperCase()
@@ -102,6 +141,37 @@ function totalHoursLabel(startIso: string, endIso: string): string {
   return `총 ${display}시간`
 }
 
+function resolveTargetWorkerName(
+  target?: SubstituteTargetDto | null
+): string | null {
+  if (target == null) return null
+  const name = target.workerName?.trim() || target.targetName?.trim()
+  return name != null && name !== '' ? name : null
+}
+
+function resolveSentPersonName(dto: {
+  requestType:
+    | SubstituteRequestType
+    | SubstituteEnumValueDto<SubstituteRequestType>
+  targets?: SubstituteTargetDto[]
+  acceptedWorker?: { workerName?: string } | null
+}): string {
+  const requestType = unwrapSubstituteEnum(
+    dto.requestType
+  ) as SubstituteRequestType
+  const accepted = dto.acceptedWorker?.workerName?.trim()
+  if (accepted) return accepted
+  const targetName = resolveTargetWorkerName(dto.targets?.[0])
+  if (targetName) return targetName
+  return requestType === 'ALL' ? '전체 공개' : '대상'
+}
+
+function resolveSentRequestType(
+  dto: Pick<SentSubstituteRequestListItemDto, 'requestType'>
+): SubstituteRequestType {
+  return unwrapSubstituteEnum(dto.requestType) as SubstituteRequestType
+}
+
 function adaptReceivedListItem(
   dto: ReceivedSubstituteRequestDto
 ): UserSubstituteListItem {
@@ -127,13 +197,17 @@ function adaptSentListItem(
   dto: SentSubstituteRequestListItemDto
 ): UserSubstituteListItem {
   const storeName = dto.workspace.workspaceName?.trim() ?? '매장'
-  const rawStatus = String(dto.status)
+  const requestType = resolveSentRequestType(dto)
+  const rawStatus = unwrapSubstituteEnum(dto.status)
   const uiStatus = mapApiStatusToUi(rawStatus)
-  const typeLabel = dto.requestType === 'ALL' ? '전체 공개' : '특정 대상'
+  const personName = resolveSentPersonName(dto)
 
   return {
     id: dto.id,
-    displayName: `${storeName} · ${typeLabel}`,
+    displayName:
+      requestType === 'ALL'
+        ? `${storeName} · ${personName}`
+        : `${storeName} / ${personName}`,
     role: positionToRole(dto.schedule.position),
     scheduledDateLabel: formatScheduledDate(dto.schedule.startDateTime),
     uiStatus,
@@ -206,11 +280,7 @@ export function adaptReceivedSubstituteDetail(
 export function adaptSentSubstituteDetail(
   dto: SentSubstituteRequestDetailDto
 ): UserSubstituteDetailViewModel {
-  const primaryTarget = dto.targets[0]
-  const personName =
-    dto.acceptedWorker?.workerName?.trim() ??
-    primaryTarget?.targetName?.trim() ??
-    '대상'
+  const personName = resolveSentPersonName(dto)
 
   return {
     ...detailFromSchedulePerson(dto, personName, 'SENT'),
