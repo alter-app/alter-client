@@ -2,6 +2,7 @@ import PlusIcon from '@/assets/icons/Plus.svg?react'
 
 const CONTENT_MAX_WIDTH = '390px'
 const DOCBAR_HEIGHT_PX = 78
+const FAB_OFFSET_BOTTOM_PX = 22
 
 interface SubstituteCreateFabProps {
   onClick: () => void
@@ -12,11 +13,11 @@ export function SubstituteCreateFab({ onClick }: SubstituteCreateFabProps) {
     <div
       className="pointer-events-none fixed inset-x-0 z-40 flex justify-center"
       style={{
-        bottom: `calc(${DOCBAR_HEIGHT_PX}px + 16px)`,
+        bottom: `calc(${DOCBAR_HEIGHT_PX}px + ${FAB_OFFSET_BOTTOM_PX}px)`,
       }}
     >
       <div
-        className="pointer-events-auto flex w-full justify-end px-4"
+        className="pointer-events-auto flex w-full justify-end"
         style={{ maxWidth: CONTENT_MAX_WIDTH }}
       >
         <button

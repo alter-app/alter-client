@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 import type { WorkingStoreItem } from '@/features/user/home/workspace/types/workingStore'
 import { SubstituteProfileAvatar } from '@/pages/user/substitute-request/components/SubstituteProfileAvatar'
 import { cn } from '@/shared/lib/utils'
@@ -70,15 +69,7 @@ export function SubstituteStoreSelectModal({
         aria-labelledby="substitute-store-select-title"
         onClick={e => e.stopPropagation()}
       >
-        <div className="relative flex h-14 shrink-0 items-center justify-center border-b border-line-1 px-4">
-          <button
-            type="button"
-            aria-label="뒤로"
-            className="absolute left-4 flex size-6 items-center justify-center"
-            onClick={handleClose}
-          >
-            <img src={ChevronLeftIcon} alt="" className="size-6 rotate-90" />
-          </button>
+        <div className="flex h-14 shrink-0 items-center justify-center border-b border-line-1 px-4">
           <h2
             id="substitute-store-select-title"
             className="typography-headline03 text-text-100"

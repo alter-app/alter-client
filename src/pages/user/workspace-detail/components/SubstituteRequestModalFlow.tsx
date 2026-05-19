@@ -440,9 +440,11 @@ export function SubstituteRequestModalFlow({
               <button
                 type="button"
                 className="flex h-12 w-full items-center justify-center rounded-2xl bg-main typography-body01-semibold text-text-100"
-                onClick={flow.goNext}
+                onClick={
+                  flow.substituteScheduleId == null ? flow.goBack : flow.goNext
+                }
               >
-                다음
+                {flow.substituteScheduleId == null ? '뒤로가기' : '다음'}
               </button>
             </div>
           </>
