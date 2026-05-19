@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
-import { splitClockToParts } from '@/features/home/common/schedule/lib/date'
-import { snapMinuteToTen } from '@/pages/manager/worker-schedule/lib/formatKoreanWorkTime'
+import { splitClockToParts } from '@/shared/lib/clock'
+import { snapMinuteToTen } from '@/shared/lib/snapMinuteToTen'
 
 /** UI 시·분 → API LocalTime (`HH:mm:ss`) */
 export function toApiLocalTime(hour: string, minute: string): string {
