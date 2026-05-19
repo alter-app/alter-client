@@ -1,19 +1,21 @@
 import type { QueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
-export function invalidateManagerScheduleQueries(
+export async function invalidateManagerScheduleQueries(
   queryClient: QueryClient,
   workspaceId: number,
   year: number,
   month: number
-) {
-  void queryClient.invalidateQueries({
-    queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
-  })
-  void queryClient.invalidateQueries({
-    queryKey: queryKeys.manager.schedules(workspaceId, year, month),
-  })
-  void queryClient.invalidateQueries({
-    queryKey: queryKeys.manager.todaySchedules(workspaceId),
-  })
+): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.manager.schedules(workspaceId, year, month),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.manager.todaySchedules(workspaceId),
+    }),
+  ])
 }

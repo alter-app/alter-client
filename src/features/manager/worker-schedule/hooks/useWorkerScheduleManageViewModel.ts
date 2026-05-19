@@ -382,13 +382,18 @@ export function useWorkerScheduleManageViewModel(args: {
         })
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       const year =
         generalSelectedDate?.getFullYear() ?? new Date().getFullYear()
       const month =
         (generalSelectedDate?.getMonth() ?? new Date().getMonth()) + 1
-      invalidateManagerScheduleQueries(queryClient, workspaceId, year, month)
-      void queryClient.invalidateQueries({
+      await invalidateManagerScheduleQueries(
+        queryClient,
+        workspaceId,
+        year,
+        month
+      )
+      await queryClient.invalidateQueries({
         queryKey: ['managerWorkspace', 'workers', workspaceId],
       })
       setFixedFormOverride(null)
