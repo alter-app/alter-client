@@ -15,8 +15,11 @@ export function useUpdateFixedWorkerSchedule(workspaceId: number) {
     mutationFn: ({ workerScheduleId, body }: UpdateFixedWorkerScheduleParams) =>
       patchFixedWorkerSchdule(workspaceId, workerScheduleId, body),
     onSuccess: () => {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: ['manager', 'schedules', workspaceId],
       })
     },
   })

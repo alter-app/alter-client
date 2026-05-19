@@ -1,40 +1,36 @@
 import type { CommonApiResponse } from '@/shared/types/common'
+import type { ManagerFixedScheduleWorkingDay } from '@/features/manager/home/types/workerFixedSchedule'
 
-export type ResponseGetFixedWorkerSchdules = CommonApiResponse<{
+export type WorkspaceWorkerScheduleStatus = 'ACTIVATED' | 'DELETED'
+
+export interface FixedWorkerScheduleDto {
   id: number
   workspaceWorkerId: number
-  startDayofWeek: string
+  startDayOfWeek: ManagerFixedScheduleWorkingDay
   startTime: string
-  endDayOfWeek: string
+  endDayOfWeek: ManagerFixedScheduleWorkingDay
   endTime: string
-  status: string
-}>
+  status: WorkspaceWorkerScheduleStatus
+}
+
+export type ResponseGetFixedWorkerSchdules = CommonApiResponse<
+  FixedWorkerScheduleDto[]
+>
+
+export type FixedWorkerScheduleSlotInput = {
+  startDayOfWeek: ManagerFixedScheduleWorkingDay
+  startTime: string
+  endDayOfWeek: ManagerFixedScheduleWorkingDay
+  endTime: string
+}
 
 export type RequestPostFixedWorkerSchdules = {
-  workspaceId: number
-  schedules: {
-    startDayOfWeek: string
-    startTime: string
-    endDayOfWeek: string
-    endTime: string
-  }
+  workspaceWorkerId: number
+  schedules: FixedWorkerScheduleSlotInput[]
 }
 
-export type ResponsePostFixedWorkerSchdules = {
-  timestamp?: string
-  data?: object
-  code?: string
-}
+export type ResponsePostFixedWorkerSchdules = CommonApiResponse<unknown>
 
-export type ResponseDeleteFixedWorkerSchdules = {
-  timestamp?: string
-  data?: object
-  code?: string
-}
+export type ResponseDeleteFixedWorkerSchdules = CommonApiResponse<unknown>
 
-export type RequestPatchFixedWorkerSchdules = {
-  startDayOfWeek: string
-  startTime: string
-  endDayOfWeek: string
-  endTime: string
-}
+export type RequestPatchFixedWorkerSchdules = FixedWorkerScheduleSlotInput

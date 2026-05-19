@@ -9,8 +9,11 @@ export function useDeleteFixedWorkerSchedule(workspaceId: number) {
     mutationFn: (workerScheduleId: number) =>
       deleteFixedWorkerSchdule(workspaceId, workerScheduleId),
     onSuccess: () => {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: ['manager', 'schedules', workspaceId],
       })
     },
   })

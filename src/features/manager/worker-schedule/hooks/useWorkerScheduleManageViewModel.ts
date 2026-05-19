@@ -1,51 +1,57 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { format } from 'date-fns'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { splitClockToParts } from '@/features/home/common/schedule/lib/date'
-import { fetchWorkerFixedSchedules } from '@/features/manager/worker-schedule/api/workerFixedSchedule'
-import { MANAGER_WEEKDAY_KO_ORDER } from '@/features/manager/home/constants/managerWeekdayKo'
-import type { ManagerWeekdayKo } from '@/features/manager/home/constants/managerWeekdayKo'
-import { mapFixedScheduleSlotsToByWeekdayKo } from '@/features/manager/home/lib/mapWorkerFixedScheduleSlots'
+import { fetchMonthlySchedules } from '@/features/manager/api/schedule'
+import { getFixedWorkerSchdules } from '@/features/manager/worker-schedule/api/fixedWorkerSchdule'
+import type { ScheduleTab } from '@/features/manager/schedule/types/workerSchedule'
 import { useWorkspaceWorkersViewModel } from '@/features/manager/home/hooks/useWorkspaceWorkersViewModel'
+import type { ManagerWeekdayKo } from '@/features/manager/home/constants/managerWeekdayKo'
+import { MANAGER_WEEKDAY_KO_ORDER } from '@/features/manager/home/constants/managerWeekdayKo'
+import {
+  displayTimesFromSlots,
+  listFixedSchedulesForWorker,
+  selectedDaysFromSlots,
+  type WorkerFixedSlotByWeekday,
+} from '@/features/manager/worker-schedule/lib/fixedScheduleForWorker'
+import { invalidateManagerScheduleQueries } from '@/features/manager/worker-schedule/lib/invalidateScheduleQueries'
+import { saveFixedWorkerSchedules } from '@/features/manager/worker-schedule/lib/saveFixedWorkerSchedules'
+import { saveGeneralWorkerSchedule } from '@/features/manager/worker-schedule/lib/saveGeneralWorkerSchedule'
+import { dateTimeToHourMinute } from '@/features/manager/worker-schedule/lib/scheduleDateTime'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
 import { queryKeys } from '@/shared/lib/queryKeys'
+import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
+import { toDateKey } from '@/features/home/common/schedule/lib/date'
+import type { ManagerScheduleShiftDto } from '@/features/manager/home/types/schedule'
 
 const DEFAULT_SELECTED_DAYS: ManagerWeekdayKo[] = ['수', '금']
 
-const ZERO_DISPLAY = {
-  startHour: '00',
-  startMinute: '00',
-  endHour: '00',
-  endMinute: '00',
-}
-
-function primaryWeekdayAmongSelected(
-  selectedDays: string[],
-  order: readonly ManagerWeekdayKo[]
-): ManagerWeekdayKo | null {
-  for (const d of order) {
-    if (selectedDays.includes(d)) return d
-  }
-  return null
-}
-
-function displayFromSchedule(slot: { startTime: string; endTime: string }) {
-  const sh = splitClockToParts(slot.startTime)
-  const eh = splitClockToParts(slot.endTime)
-  return {
-    startHour: sh.hour,
-    startMinute: sh.minute,
-    endHour: eh.hour,
-    endMinute: eh.minute,
-  }
+function findWorkerShiftOnDate(
+  schedules: ManagerScheduleShiftDto[],
+  workerId: number,
+  date: Date
+): ManagerScheduleShiftDto | null {
+  const dateKey = format(date, 'yyyy-MM-dd')
+  return (
+    schedules.find(
+      s =>
+        toDateKey(s.startDateTime) === dateKey &&
+        s.assignedWorker?.workerId === workerId &&
+        s.status.value !== 'DELETED' &&
+        s.status.value !== 'CANCELLED'
+    ) ?? null
+  )
 }
 
 export function useWorkerScheduleManageViewModel(args: {
   workspaceId: number
   workerId: number
+  activeTab: ScheduleTab
+  generalSelectedDate: Date | null
 }) {
   const navigate = useNavigate()
-  const { workspaceId, workerId } = args
+  const queryClient = useQueryClient()
+  const { workspaceId, workerId, activeTab, generalSelectedDate } = args
 
   const { workers, isLoading: workersLoading } =
     useWorkspaceWorkersViewModel(workspaceId)
@@ -58,22 +64,115 @@ export function useWorkerScheduleManageViewModel(args: {
   const worker = workers[selectedWorkerIndex]
 
   const {
-    data: fixedScheduleApi,
+    data: fixedScheduleResponse,
     isPending: fixedScheduleLoading,
     isError: fixedScheduleError,
   } = useQuery({
-    queryKey: queryKeys.managerWorkspace.workerFixedSchedule(
-      workspaceId,
-      workerId
-    ),
-    queryFn: () => fetchWorkerFixedSchedules(workspaceId, workerId),
-    enabled: workspaceId > 0 && workerId > 0,
+    queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
+    queryFn: () => getFixedWorkerSchdules(workspaceId),
+    enabled: workspaceId > 0,
   })
 
-  const scheduleByWeekday = useMemo(
-    () => mapFixedScheduleSlotsToByWeekdayKo(fixedScheduleApi?.data ?? []),
-    [fixedScheduleApi]
+  const generalYear =
+    generalSelectedDate?.getFullYear() ?? new Date().getFullYear()
+  const generalMonth =
+    (generalSelectedDate?.getMonth() ?? new Date().getMonth()) + 1
+
+  const { data: monthlyScheduleResponse, isPending: monthlyScheduleLoading } =
+    useQuery({
+      queryKey: queryKeys.manager.schedules(
+        workspaceId,
+        generalYear,
+        generalMonth
+      ),
+      queryFn: () =>
+        fetchMonthlySchedules({
+          workspaceId,
+          year: generalYear,
+          month: generalMonth,
+        }),
+      enabled:
+        workspaceId > 0 && activeTab === '일반' && generalSelectedDate !== null,
+    })
+
+  const loadedFixedSlots = useMemo((): WorkerFixedSlotByWeekday[] => {
+    const list = fixedScheduleResponse?.data ?? []
+    return listFixedSchedulesForWorker(list, workerId)
+  }, [fixedScheduleResponse, workerId])
+
+  const [selectedDays, setSelectedDays] = useState<ManagerWeekdayKo[]>(
+    DEFAULT_SELECTED_DAYS
   )
+  const [startHour, setStartHour] = useState('')
+  const [startMinute, setStartMinute] = useState('')
+  const [endHour, setEndHour] = useState('')
+  const [endMinute, setEndMinute] = useState('')
+  const [generalShiftId, setGeneralShiftId] = useState<number | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
+
+  const [syncedWorkerId, setSyncedWorkerId] = useState<number | null>(null)
+  const [syncedFixedKey, setSyncedFixedKey] = useState<string | null>(null)
+  const [syncedGeneralKey, setSyncedGeneralKey] = useState<string | null>(null)
+
+  const fixedDataKey = `${workerId}:${loadedFixedSlots.map(s => s.id).join(',')}`
+  if (
+    !fixedScheduleLoading &&
+    (syncedWorkerId !== workerId || syncedFixedKey !== fixedDataKey)
+  ) {
+    setSyncedWorkerId(workerId)
+    setSyncedFixedKey(fixedDataKey)
+    const days =
+      loadedFixedSlots.length > 0
+        ? selectedDaysFromSlots(loadedFixedSlots)
+        : DEFAULT_SELECTED_DAYS
+    setSelectedDays(days)
+    const times = displayTimesFromSlots(loadedFixedSlots, days)
+    setStartHour(times.startHour)
+    setStartMinute(times.startMinute)
+    setEndHour(times.endHour)
+    setEndMinute(times.endMinute)
+  }
+
+  const generalDataKey = useMemo(() => {
+    if (!generalSelectedDate) return null
+    const shift = findWorkerShiftOnDate(
+      monthlyScheduleResponse?.data.schedules ?? [],
+      workerId,
+      generalSelectedDate
+    )
+    return `${workerId}:${format(generalSelectedDate, 'yyyy-MM-dd')}:${shift?.shiftId ?? 'none'}`
+  }, [generalSelectedDate, monthlyScheduleResponse, workerId])
+
+  if (
+    activeTab === '일반' &&
+    generalSelectedDate &&
+    !monthlyScheduleLoading &&
+    generalDataKey !== null &&
+    syncedGeneralKey !== generalDataKey
+  ) {
+    setSyncedGeneralKey(generalDataKey)
+    const shift = findWorkerShiftOnDate(
+      monthlyScheduleResponse?.data.schedules ?? [],
+      workerId,
+      generalSelectedDate
+    )
+    if (shift) {
+      setGeneralShiftId(shift.shiftId)
+      const start = dateTimeToHourMinute(shift.startDateTime)
+      const end = dateTimeToHourMinute(shift.endDateTime)
+      setStartHour(start.hour)
+      setStartMinute(start.minute)
+      setEndHour(end.hour)
+      setEndMinute(end.minute)
+    } else {
+      setGeneralShiftId(null)
+      const times = displayTimesFromSlots(loadedFixedSlots, selectedDays)
+      setStartHour(times.startHour)
+      setStartMinute(times.startMinute)
+      setEndHour(times.endHour)
+      setEndMinute(times.endMinute)
+    }
+  }
 
   useEffect(() => {
     if (workersLoading) return
@@ -87,38 +186,6 @@ export function useWorkerScheduleManageViewModel(args: {
     })
   }, [navigate, workerId, workers, workersLoading, workspaceId])
 
-  const [selectedDays, setSelectedDays] = useState<string[]>(
-    DEFAULT_SELECTED_DAYS
-  )
-  const [startHour, setStartHour] = useState('')
-  const [startMinute, setStartMinute] = useState('')
-  const [endHour, setEndHour] = useState('')
-  const [endMinute, setEndMinute] = useState('')
-
-  const templateTimes = useMemo(() => {
-    if (selectedDays.length === 0) return ZERO_DISPLAY
-    const primary = primaryWeekdayAmongSelected(
-      selectedDays,
-      MANAGER_WEEKDAY_KO_ORDER
-    )
-    if (!primary) return ZERO_DISPLAY
-    const slot = scheduleByWeekday[primary]
-    if (!slot) return ZERO_DISPLAY
-    return displayFromSchedule(slot)
-  }, [scheduleByWeekday, selectedDays])
-
-  const templateKey = `${templateTimes.startHour}:${templateTimes.startMinute}:${templateTimes.endHour}:${templateTimes.endMinute}`
-  const [syncedTemplateKey, setSyncedTemplateKey] = useState<string | null>(
-    null
-  )
-  if (syncedTemplateKey !== templateKey) {
-    setSyncedTemplateKey(templateKey)
-    setStartHour(templateTimes.startHour)
-    setStartMinute(templateTimes.startMinute)
-    setEndHour(templateTimes.endHour)
-    setEndMinute(templateTimes.endMinute)
-  }
-
   const workTimeRangeLabel = useMemo(() => {
     const sh = startHour || '00'
     const sm = startMinute || '00'
@@ -128,14 +195,78 @@ export function useWorkerScheduleManageViewModel(args: {
   }, [startHour, startMinute, endHour, endMinute])
 
   function toggleDay(day: string) {
-    setSelectedDays(prev =>
-      prev.includes(day) ? prev.filter(item => item !== day) : [...prev, day]
-    )
+    setSelectedDays(prev => {
+      const ko = day as ManagerWeekdayKo
+      return prev.includes(ko)
+        ? prev.filter(item => item !== ko)
+        : [...prev, ko]
+    })
   }
 
   function goToWorker(nextWorkerId: number) {
+    setSyncedFixedKey(null)
+    setSyncedGeneralKey(null)
     navigate(managerWorkerSchedulePath(workspaceId, nextWorkerId))
   }
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      setSaveError(null)
+      if (!worker) throw new Error('근무자 정보를 불러오지 못했습니다.')
+
+      if (activeTab === '고정') {
+        if (selectedDays.length === 0) {
+          throw new Error('최소 한 개의 요일을 선택해 주세요.')
+        }
+        await saveFixedWorkerSchedules({
+          workspaceId,
+          workspaceWorkerId: workerId,
+          loadedSlots: loadedFixedSlots,
+          selectedDays,
+          startHour,
+          startMinute,
+          endHour,
+          endMinute,
+        })
+        return
+      }
+
+      if (!generalSelectedDate) {
+        throw new Error('날짜를 선택해 주세요.')
+      }
+
+      const shiftId = await saveGeneralWorkerSchedule({
+        workspaceId,
+        workerId,
+        position: worker.position,
+        shiftId: generalShiftId,
+        date: generalSelectedDate,
+        startHour,
+        startMinute,
+        endHour,
+        endMinute,
+      })
+      if (shiftId !== null) {
+        setGeneralShiftId(shiftId)
+      }
+    },
+    onSuccess: () => {
+      const year =
+        generalSelectedDate?.getFullYear() ?? new Date().getFullYear()
+      const month =
+        (generalSelectedDate?.getMonth() ?? new Date().getMonth()) + 1
+      invalidateManagerScheduleQueries(queryClient, workspaceId, year, month)
+      setSyncedFixedKey(null)
+      setSyncedGeneralKey(null)
+    },
+    onError: (error: unknown) => {
+      setSaveError(getAxiosErrorMessage(error, '스케줄 저장에 실패했습니다.'))
+    },
+  })
+
+  const handleSave = useCallback(() => {
+    saveMutation.mutate()
+  }, [saveMutation])
 
   return {
     workersLoading,
@@ -143,6 +274,7 @@ export function useWorkerScheduleManageViewModel(args: {
     workers,
     fixedScheduleLoading,
     fixedScheduleError,
+    monthlyScheduleLoading,
     goToWorker,
     workdayOptions: MANAGER_WEEKDAY_KO_ORDER,
     selectedDays,
@@ -158,5 +290,8 @@ export function useWorkerScheduleManageViewModel(args: {
       setEndHour,
       setEndMinute,
     },
+    handleSave,
+    isSaving: saveMutation.isPending,
+    saveError,
   }
 }

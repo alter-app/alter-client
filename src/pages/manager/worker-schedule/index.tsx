@@ -73,7 +73,15 @@ function ManagerWorkerSchedulePageContent({
     selectedDays,
     toggleDay,
     workTime,
-  } = useWorkerScheduleManageViewModel({ workspaceId, workerId })
+    handleSave,
+    isSaving,
+    saveError,
+  } = useWorkerScheduleManageViewModel({
+    workspaceId,
+    workerId,
+    activeTab,
+    generalSelectedDate: selectedDate,
+  })
 
   if (workersLoading || !worker) {
     return (
@@ -138,10 +146,18 @@ function ManagerWorkerSchedulePageContent({
           onToggle={() => setIsColorSectionOpen(prev => !prev)}
         />
 
+        {saveError ? (
+          <p
+            className="px-1 typography-body02-regular text-red-500"
+            role="alert"
+          >
+            {saveError}
+          </p>
+        ) : null}
+
         <ScheduleSaveButton
-          onClick={() => {
-            // Todo: 저장 기능 추가
-          }}
+          onClick={handleSave}
+          disabled={isSaving || workersLoading || fixedScheduleLoading}
         />
       </main>
     </div>

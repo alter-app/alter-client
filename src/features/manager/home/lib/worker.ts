@@ -25,6 +25,7 @@ export function adaptWorkerDto(dto: WorkerDto): ManagerWorkerItem {
     id: dto.id,
     name: dto.user.name,
     role: mapPositionTypeToRole(dto.position.type),
+    position: dto.position.description || dto.position.type,
     nextWorkDate: formatNextShiftDate(dto.nextShiftDateTime),
   }
 }

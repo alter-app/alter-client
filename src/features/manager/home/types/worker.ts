@@ -56,6 +56,8 @@ export interface ManagerWorkerItem {
   id: number
   name: string
   role: StoreWorkerRole
+  /** 스케줄 생성·수정 API `position` 필드 */
+  position: string
   nextWorkDate: string
   profileImageUrl?: string
 }
