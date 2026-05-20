@@ -118,7 +118,7 @@ export function ManagerSubstituteRequestPage() {
     <div className="flex min-h-[100dvh] flex-col bg-white">
       <Navbar showBorder={false} />
 
-      <main className="mx-auto w-full max-w-[390px] flex-1">
+      <main className="mx-auto w-full flex-1">
         {isLoading ? (
           <div className="flex justify-center py-16">
             <Spinner />
