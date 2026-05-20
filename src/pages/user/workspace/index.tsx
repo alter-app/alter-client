@@ -62,7 +62,7 @@ export function WorkspacePage() {
                   className="rounded-xl bg-main px-5 py-3 typography-body02-semibold text-white"
                   onClick={() => navigate('/user/workspace/join')}
                 >
-                  업장 합류하기
+                  받은 초대 확인
                 </button>
               </div>
             )}
