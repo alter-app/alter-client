@@ -50,6 +50,7 @@ export function NotificationItem({
   const [offset, setOffset] = useState(0)
   const startXRef = useRef<number | null>(null)
   const isDragging = useRef(false)
+  const offsetRef = useRef(0)
 
   const startDrag = (clientX: number) => {
     if (!onDelete) return
@@ -60,14 +61,23 @@ export function NotificationItem({
   const moveDrag = (clientX: number) => {
     if (!isDragging.current || startXRef.current === null) return
     const diff = clientX - startXRef.current
-    setOffset(Math.min(0, Math.max(-DELETE_WIDTH, diff)))
+    const next = Math.min(0, Math.max(-DELETE_WIDTH, diff))
+    offsetRef.current = next
+    setOffset(next)
   }
 
   const endDrag = () => {
     if (!isDragging.current) return
     isDragging.current = false
-    setOffset(offset < -SWIPE_THRESHOLD ? -DELETE_WIDTH : 0)
     startXRef.current = null
+    if (offsetRef.current < -SWIPE_THRESHOLD) {
+      offsetRef.current = 0
+      setOffset(0)
+      onDelete?.()
+    } else {
+      offsetRef.current = 0
+      setOffset(0)
+    }
   }
 
   const handleTouchStart = (e: React.TouchEvent) =>
@@ -76,31 +86,34 @@ export function NotificationItem({
     moveDrag(e.touches[0].clientX)
   const handleTouchEnd = endDrag
 
-  const handleMouseDown = (e: React.MouseEvent) => startDrag(e.clientX)
-  const handleMouseMove = (e: React.MouseEvent) => moveDrag(e.clientX)
-  const handleMouseUp = endDrag
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    startDrag(e.clientX)
 
-  const handleDelete = () => {
-    setOffset(0)
-    onDelete?.()
+    const onMove = (ev: MouseEvent) => moveDrag(ev.clientX)
+    const onUp = () => {
+      endDrag()
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
   }
 
   return (
     <div className="relative w-full overflow-hidden">
       {onDelete && (
-        <button
-          type="button"
+        <div
           className="absolute bottom-0 right-0 top-0 flex w-[60px] items-center justify-center bg-error"
-          aria-label="알림 삭제"
-          onClick={handleDelete}
+          aria-hidden
         >
           <TrashIcon className="size-5 text-white" />
-        </button>
+        </div>
       )}
 
       <button
         type="button"
-        className={`flex w-full items-start text-left transition-transform ${isRead ? 'bg-white' : 'bg-main-100'}`}
+        className={`relative z-[1] flex w-full items-start text-left transition-transform ${isRead ? 'bg-white' : 'bg-main-100'}`}
         style={
           offset !== 0
             ? { transform: `translateX(${offset}px)`, transition: 'none' }
@@ -110,9 +123,6 @@ export function NotificationItem({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
         onClick={() => {
           if (offset !== 0) {
             setOffset(0)

@@ -26,7 +26,7 @@ function TabButton({
     >
       {label}
       {hasUnread && (
-        <span className="ml-1 size-2 rounded-full bg-error" aria-hidden />
+        <span className="ml-1 mb-3 size-2 rounded-full bg-error" aria-hidden />
       )}
     </button>
   )
