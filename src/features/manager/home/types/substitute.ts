@@ -18,7 +18,7 @@ export interface SubstituteRequesterDto {
 }
 
 export interface SubstituteStatusDto {
-  value: string
+  value: ManagerSubstituteApiStatus
   description: string
 }
 
@@ -63,7 +63,7 @@ function mapApiWorkerRole(raw: string | undefined): WorkerRole {
 }
 
 function mapApiStatusToUiStatus(
-  apiStatus: string
+  apiStatus: ManagerSubstituteApiStatus
 ): SubstituteRequestItem['status'] {
   if (apiStatus === ManagerSubstituteApiStatus.APPROVED) return 'accepted'
   return 'pending'
