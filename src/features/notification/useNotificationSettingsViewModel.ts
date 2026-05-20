@@ -19,6 +19,7 @@ export function useNotificationSettingsViewModel() {
 
   const items = data?.data.items ?? []
   const allEnabled = getConsent(items, CONSENT_TYPE.GENERAL)
+  const nightEnabled = getConsent(items, CONSENT_TYPE.NIGHT)
 
   const [substituteEnabled, setSubstituteEnabled] = useState(true)
   const [reputationEnabled, setReputationEnabled] = useState(true)
@@ -29,12 +30,18 @@ export function useNotificationSettingsViewModel() {
     setReputationEnabled(checked)
   }
 
+  const handleNightChange = (checked: boolean) => {
+    mutate({ type: CONSENT_TYPE.NIGHT, consent: checked })
+  }
+
   return {
     isLoading,
     allEnabled,
+    nightEnabled,
     substituteEnabled,
     reputationEnabled,
     handleAllChange,
+    handleNightChange,
     setSubstituteEnabled,
     setReputationEnabled,
   }

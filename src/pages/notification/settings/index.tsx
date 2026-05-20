@@ -7,9 +7,11 @@ export function NotificationSettingsPage() {
   const {
     isLoading,
     allEnabled,
+    nightEnabled,
     substituteEnabled,
     reputationEnabled,
     handleAllChange,
+    handleNightChange,
     setSubstituteEnabled,
     setReputationEnabled,
   } = useNotificationSettingsViewModel()
@@ -72,6 +74,16 @@ export function NotificationSettingsPage() {
 
         <section className="flex flex-col gap-6">
           <h2 className="typography-headline03 text-text-100">시간 설정</h2>
+          <div className="flex items-center justify-between">
+            <span className="typography-body01-regular text-text-100">
+              야간 알림 켜기
+            </span>
+            <Toggle
+              checked={nightEnabled}
+              onChange={handleNightChange}
+              ariaLabel="야간 알림 켜기"
+            />
+          </div>
           <div className="flex items-center justify-between">
             <span className="typography-body01-regular text-text-100">
               방해금지 시간
