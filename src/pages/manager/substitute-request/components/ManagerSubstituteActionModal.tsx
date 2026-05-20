@@ -110,9 +110,16 @@ export function ManagerSubstituteActionModal({
             rows={4}
             className="w-full resize-none rounded-2xl bg-bg-dark p-4 typography-body02-regular text-text-100 outline-none placeholder:text-text-50"
           />
-          {error ? (
-            <p className="mt-2 typography-body02-regular text-error">{error}</p>
-          ) : null}
+          <div className="mt-1 flex items-start justify-between">
+            {error ? (
+              <p className="typography-body02-regular text-error">{error}</p>
+            ) : (
+              <span />
+            )}
+            <p className="typography-body02-regular text-text-50">
+              {comment.length}/500
+            </p>
+          </div>
         </div>
         <div className="px-5 pb-5">
           <button

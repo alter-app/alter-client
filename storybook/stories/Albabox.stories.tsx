@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import React from 'react'
 
-import { Albabox } from '../../src/shared/ui/manager/alba-find/Albabox'
+import { Albabox } from '../../src/features/job-lookup-map/common/Albabox'
 
 const meta = {
   title: 'shared/ui/alba-find/Albabox',
