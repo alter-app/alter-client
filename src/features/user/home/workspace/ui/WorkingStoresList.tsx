@@ -68,7 +68,7 @@ export function WorkingStoresList({
             className="mt-3 w-full typography-body02-semibold text-main"
             onClick={onJoinWorkspaceClick}
           >
-            새 업장 합류하기
+            받은 업장 초대 확인
           </button>
         ) : null}
       </div>
