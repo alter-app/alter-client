@@ -1,39 +1,15 @@
 import type { CommonApiResponse } from '@/shared/types/common'
-import type { WorkspaceInvitationStatus } from '@/features/workspace-join/types/membership'
 
-export interface WorkspaceInvitationCursorPageDto {
-  cursor: string | null
-  pageSize: number
-  totalCount: number
-}
-
-export interface ManagerInvitationItemDto {
-  invitationId: number
-  phoneNumber: string
-  inviteeName?: string | null
-  status: WorkspaceInvitationStatus
-  invitedAt: string
-  expiresAt?: string
-}
-
-export interface ManagerInvitationsListDto {
-  page: WorkspaceInvitationCursorPageDto
-  data: ManagerInvitationItemDto[]
-}
-
-export type ManagerInvitationsApiResponse =
-  CommonApiResponse<ManagerInvitationsListDto>
-
-export interface ManagerInvitationsQueryParams {
-  pageSize: number
-  cursor?: string
-  status?: WorkspaceInvitationStatus
-}
-
+/** POST /manager/workspaces/{workspaceId}/invitations */
 export interface SendWorkspaceInvitationRequest {
-  phoneNumber: string
+  phoneNumbers: string[]
 }
 
 export type SendWorkspaceInvitationApiResponse = CommonApiResponse<
   Record<string, never>
 >
+
+/** B001 등 발송 실패 시 data에 포함될 수 있는 발송 불가 번호 목록 */
+export type InvalidInvitePhoneNumbersPayload =
+  | string[]
+  | { phoneNumbers?: string[]; invalidPhoneNumbers?: string[] }

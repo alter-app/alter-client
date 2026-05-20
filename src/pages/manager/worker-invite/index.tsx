@@ -3,7 +3,6 @@ import { Navbar } from '@/shared/ui/common/Navbar'
 import { useManagedWorkspacesQuery } from '@/features/manager/home/hooks/useManagedWorkspacesQuery'
 import { useWorkspaceDetailQuery } from '@/features/manager/home/hooks/useWorkspaceDetailQuery'
 import { WorkerPhoneInviteForm } from '@/features/manager/workspace-invite/ui/WorkerPhoneInviteForm'
-import { SentInvitationsList } from '@/features/manager/workspace-invite/ui/SentInvitationsList'
 import { ROUTES } from '@/shared/constants/routes'
 
 export function ManagerWorkerInvitePage() {
@@ -60,19 +59,12 @@ export function ManagerWorkerInvitePage() {
           </h1>
           <p className="typography-body02-regular text-text-70">
             <span className="font-semibold text-text-90">{storeName}</span>에
-            합류할 알바생 휴대폰 번호를 입력해 주세요. 해당 번호로 가입한 계정에
-            초대가 전달돼요.
+            합류할 알바생 휴대폰 번호를 추가한 뒤 한 번에 초대해 주세요. 가입·
+            인증한 번호와 일치해야 초대를 받을 수 있어요.
           </p>
         </header>
 
         <WorkerPhoneInviteForm workspaceId={activeWorkspaceId} />
-
-        <section className="mt-10">
-          <h2 className="mb-3 typography-headline02 text-text-100">
-            보낸 초대 (대기)
-          </h2>
-          <SentInvitationsList workspaceId={activeWorkspaceId} />
-        </section>
       </div>
     </div>
   )

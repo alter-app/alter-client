@@ -6,6 +6,12 @@ export function isCompleteKoreanMobilePhone(value: string): boolean {
   return digits.length === 11 && digits.startsWith('010')
 }
 
+/** 초대 발송 API(8.1) — 숫자 10~11자리 (@Size(min=10, max=11)) */
+export function isValidInvitePhoneNumber(value: string): boolean {
+  const digits = normalizePhone(value)
+  return digits.length >= 10 && digits.length <= 11
+}
+
 /** API 요청용 숫자만 전화번호 */
 export function toApiPhoneNumber(value: string): string {
   return normalizePhone(value)
