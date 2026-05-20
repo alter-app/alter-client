@@ -86,4 +86,10 @@ export const queryKeys = {
     list: (workspaceId: number) =>
       ['fixedWorkerSchedule', 'list', workspaceId] as const,
   },
+  notification: {
+    list: (scope: 'MANAGER' | 'USER' | null) =>
+      ['notifications', scope] as const,
+    consent: (scope: 'MANAGER' | 'USER' | null) =>
+      ['notificationConsent', scope] as const,
+  },
 } as const

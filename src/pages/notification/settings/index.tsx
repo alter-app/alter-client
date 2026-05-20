@@ -1,9 +1,11 @@
 import { Navbar } from '@/shared/ui/common/Navbar'
+import { Spinner } from '@/shared/ui/Spinner'
 import { Toggle } from '@/shared/ui/common/Toggle'
 import { useNotificationSettingsViewModel } from '@/features/notification/useNotificationSettingsViewModel'
 
 export function NotificationSettingsPage() {
   const {
+    isLoading,
     allEnabled,
     substituteEnabled,
     reputationEnabled,
@@ -11,6 +13,17 @@ export function NotificationSettingsPage() {
     setSubstituteEnabled,
     setReputationEnabled,
   } = useNotificationSettingsViewModel()
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[100dvh] flex-col bg-white">
+        <Navbar variant="detail" title="알림 설정" />
+        <div className="flex flex-1 items-center justify-center">
+          <Spinner />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-white">

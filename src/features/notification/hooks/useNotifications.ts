@@ -3,6 +3,7 @@ import {
   fetchUserNotifications,
   fetchManagerNotifications,
 } from '@/features/notification/api/notifications'
+import { queryKeys } from '@/shared/lib/queryKeys'
 
 const PAGE_SIZE = 20
 
@@ -11,7 +12,7 @@ export function useNotifications(scope: 'MANAGER' | 'USER' | null) {
     scope === 'MANAGER' ? fetchManagerNotifications : fetchUserNotifications
 
   return useInfiniteQuery({
-    queryKey: ['notifications', scope] as const,
+    queryKey: queryKeys.notification.list(scope),
     queryFn: ({ pageParam }) =>
       fetcher({ pageSize: PAGE_SIZE, cursor: pageParam as string | undefined }),
     initialPageParam: undefined as string | undefined,
