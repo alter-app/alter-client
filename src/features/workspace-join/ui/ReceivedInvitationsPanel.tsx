@@ -14,6 +14,14 @@ type Props = {
 
 const PAGE_SIZE = 20
 
+type InvitationAction = 'ACCEPT' | 'DECLINE'
+
+type InvitationMutationVariables = {
+  invitationId: number
+  action: InvitationAction
+  businessName: string
+}
+
 function formatDateTime(iso: string) {
   return new Date(iso).toLocaleString('ko-KR', {
     dateStyle: 'medium',
@@ -34,36 +42,42 @@ export function ReceivedInvitationsPanel({ onAccepted }: Props) {
 
   const items = invitationsQuery.data?.data ?? []
 
-  const acceptMut = useMutation({
+  const invitationMut = useMutation({
     mutationFn: async ({
       invitationId,
-      businessName,
-    }: {
-      invitationId: number
-      businessName: string
-    }) => {
-      await acceptWorkspaceInvitation(invitationId)
-      return businessName
+      action,
+    }: InvitationMutationVariables) => {
+      if (action === 'ACCEPT') {
+        await acceptWorkspaceInvitation(invitationId)
+      } else {
+        await declineWorkspaceInvitation(invitationId)
+      }
     },
-    onSuccess: async businessName => {
+    onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.workspaceMembership.all,
       })
       await queryClient.invalidateQueries({ queryKey: ['workspace'] })
-      onAccepted(businessName)
+      if (variables.action === 'ACCEPT') {
+        onAccepted(variables.businessName)
+      }
     },
   })
 
-  const declineMut = useMutation({
-    mutationFn: declineWorkspaceInvitation,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.workspaceMembership.all,
-      })
-    },
-  })
+  const active = invitationMut.variables
+  const isListBusy = invitationMut.isPending
 
-  const isRowBusy = acceptMut.isPending || declineMut.isPending
+  function isActiveRow(invitationId: number) {
+    return active?.invitationId === invitationId
+  }
+
+  function isActionLoading(invitationId: number, action: InvitationAction) {
+    return (
+      invitationMut.isPending &&
+      active?.invitationId === invitationId &&
+      active.action === action
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -122,21 +136,13 @@ export function ReceivedInvitationsPanel({ onAccepted }: Props) {
               </p>
             </div>
 
-            {acceptMut.isError &&
-            acceptMut.variables?.invitationId === row.invitationId ? (
+            {invitationMut.isError && isActiveRow(row.invitationId) ? (
               <p className="typography-body02-regular text-red-600">
                 {getAxiosErrorMessage(
-                  acceptMut.error,
-                  '수락 처리에 실패했습니다.'
-                )}
-              </p>
-            ) : null}
-
-            {declineMut.isError && declineMut.variables === row.invitationId ? (
-              <p className="typography-body02-regular text-red-600">
-                {getAxiosErrorMessage(
-                  declineMut.error,
-                  '거절 처리에 실패했습니다.'
+                  invitationMut.error,
+                  active?.action === 'ACCEPT'
+                    ? '수락 처리에 실패했습니다.'
+                    : '거절 처리에 실패했습니다.'
                 )}
               </p>
             ) : null}
@@ -145,27 +151,32 @@ export function ReceivedInvitationsPanel({ onAccepted }: Props) {
               <AuthButton
                 type="button"
                 className="flex-1"
-                disabled={isRowBusy}
+                disabled={isListBusy}
                 onClick={() =>
-                  acceptMut.mutate({
+                  invitationMut.mutate({
                     invitationId: row.invitationId,
+                    action: 'ACCEPT',
                     businessName: row.businessName,
                   })
                 }
               >
-                {acceptMut.isPending &&
-                acceptMut.variables?.invitationId === row.invitationId
+                {isActionLoading(row.invitationId, 'ACCEPT')
                   ? '처리 중…'
                   : '수락'}
               </AuthButton>
               <button
                 type="button"
                 className="flex-1 rounded-xl border border-line-2 py-3 typography-body02-semibold text-text-90 disabled:opacity-50"
-                disabled={isRowBusy}
-                onClick={() => declineMut.mutate(row.invitationId)}
+                disabled={isListBusy}
+                onClick={() =>
+                  invitationMut.mutate({
+                    invitationId: row.invitationId,
+                    action: 'DECLINE',
+                    businessName: row.businessName,
+                  })
+                }
               >
-                {declineMut.isPending &&
-                declineMut.variables === row.invitationId
+                {isActionLoading(row.invitationId, 'DECLINE')
                   ? '처리 중…'
                   : '거절'}
               </button>
