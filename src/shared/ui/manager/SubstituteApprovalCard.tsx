@@ -1,10 +1,12 @@
 // 대타 승인 요청 카드
 import { MoreButton } from '@/shared/ui/common/MoreButton'
 import type { WorkerRole } from '@/shared/types/workerRole'
-import { MANAGER_SUBSTITUTE_STATUS_LABEL } from '@/shared/types/substituteStatus'
-import type { ManagerSubstituteApiStatus as ManagerSubstituteApiStatusType } from '@/shared/types/substituteStatus'
+import {
+  SUBSTITUTE_STATUS_LABEL,
+  type SubstituteApiStatus,
+} from '@/shared/types/substituteStatus'
 
-export type SubstituteRequestStatus = 'accepted' | 'pending'
+export type SubstituteRequestStatus = 'accepted' | 'pending' | 'cancelled'
 
 export interface SubstituteRequestItem {
   id: string
@@ -15,7 +17,7 @@ export interface SubstituteRequestItem {
   scheduledDate: string
   status: SubstituteRequestStatus
   imageUrl?: string | null
-  rawStatus?: ManagerSubstituteApiStatusType
+  rawStatus?: SubstituteApiStatus
 }
 
 interface SubstituteApprovalCardProps {
@@ -28,11 +30,12 @@ const statusBadgeClass: Record<SubstituteRequestStatus, string> = {
   accepted: 'border-main bg-main-100 text-main typography-body02-semibold',
   pending:
     'border-warning bg-warning-100 text-warning typography-body02-semibold',
+  cancelled: 'border-line-1 bg-bg-dark text-text-50 typography-body02-semibold',
 }
 
 function resolveStatusLabel(item: SubstituteRequestItem): string {
   if (item.rawStatus != null) {
-    return MANAGER_SUBSTITUTE_STATUS_LABEL[item.rawStatus]
+    return SUBSTITUTE_STATUS_LABEL[item.rawStatus]
   }
   return item.status === 'accepted' ? '승인' : '대기중'
 }

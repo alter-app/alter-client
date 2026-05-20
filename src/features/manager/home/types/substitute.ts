@@ -1,7 +1,7 @@
 import type { CommonApiResponse } from '@/shared/types/common'
 import type { SubstituteRequestItem } from '@/shared/ui/manager/SubstituteApprovalCard'
 import type { WorkerRole } from '@/shared/types/workerRole'
-import { ManagerSubstituteApiStatus } from '@/shared/types/substituteStatus'
+import { SubstituteApiStatus } from '@/shared/types/substituteStatus'
 
 // ---- API DTOs ----
 export interface SubstituteScheduleDto {
@@ -18,7 +18,7 @@ export interface SubstituteRequesterDto {
 }
 
 export interface SubstituteStatusDto {
-  value: ManagerSubstituteApiStatus
+  value: SubstituteApiStatus
   description: string
 }
 
@@ -63,9 +63,10 @@ function mapApiWorkerRole(raw: string | undefined): WorkerRole {
 }
 
 function mapApiStatusToUiStatus(
-  apiStatus: ManagerSubstituteApiStatus
+  apiStatus: SubstituteApiStatus
 ): SubstituteRequestItem['status'] {
-  if (apiStatus === ManagerSubstituteApiStatus.APPROVED) return 'accepted'
+  if (apiStatus === SubstituteApiStatus.APPROVED) return 'accepted'
+  if (apiStatus === SubstituteApiStatus.REJECTED_BY_APPROVER) return 'cancelled'
   return 'pending'
 }
 

@@ -1,4 +1,4 @@
-export const ManagerSubstituteApiStatus = {
+export const SubstituteApiStatus = {
   PENDING: 'PENDING',
   ACCEPTED: 'ACCEPTED',
   REJECTED_BY_TARGET: 'REJECTED_BY_TARGET',
@@ -8,18 +8,15 @@ export const ManagerSubstituteApiStatus = {
   EXPIRED: 'EXPIRED',
 } as const
 
-export type ManagerSubstituteApiStatus =
-  (typeof ManagerSubstituteApiStatus)[keyof typeof ManagerSubstituteApiStatus]
+export type SubstituteApiStatus =
+  (typeof SubstituteApiStatus)[keyof typeof SubstituteApiStatus]
 
-export const MANAGER_SUBSTITUTE_STATUS_LABEL: Record<
-  ManagerSubstituteApiStatus,
-  string
-> = {
-  [ManagerSubstituteApiStatus.PENDING]: '대기중',
-  [ManagerSubstituteApiStatus.ACCEPTED]: '요청 수락',
-  [ManagerSubstituteApiStatus.REJECTED_BY_TARGET]: '요청 거절',
-  [ManagerSubstituteApiStatus.APPROVED]: '승인',
-  [ManagerSubstituteApiStatus.REJECTED_BY_APPROVER]: '거절',
-  [ManagerSubstituteApiStatus.CANCELLED]: '취소됨',
-  [ManagerSubstituteApiStatus.EXPIRED]: '만료됨',
+export const SUBSTITUTE_STATUS_LABEL: Record<SubstituteApiStatus, string> = {
+  [SubstituteApiStatus.PENDING]: '대기중',
+  [SubstituteApiStatus.ACCEPTED]: '요청 수락',
+  [SubstituteApiStatus.REJECTED_BY_TARGET]: '요청 거절',
+  [SubstituteApiStatus.APPROVED]: '승인',
+  [SubstituteApiStatus.REJECTED_BY_APPROVER]: '거절',
+  [SubstituteApiStatus.CANCELLED]: '취소됨',
+  [SubstituteApiStatus.EXPIRED]: '만료됨',
 }

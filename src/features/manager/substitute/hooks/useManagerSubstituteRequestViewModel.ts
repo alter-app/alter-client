@@ -9,7 +9,7 @@ import {
 } from '@/features/manager/api/substitute'
 import type { SubstituteRequestItem } from '@/shared/ui/manager/SubstituteApprovalCard'
 import type { SubstituteActionType } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
-import { ManagerSubstituteApiStatus } from '@/shared/types/substituteStatus'
+import { SubstituteApiStatus } from '@/shared/types/substituteStatus'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 const SUBSTITUTE_ACTION_ERROR_MESSAGES: Record<string, string> = {
@@ -39,9 +39,8 @@ function groupByStatus(requests: SubstituteRequestItem[]) {
   const cancelled: SubstituteRequestItem[] = []
 
   for (const item of requests) {
-    if (item.rawStatus === ManagerSubstituteApiStatus.ACCEPTED)
-      pending.push(item)
-    else if (item.rawStatus === ManagerSubstituteApiStatus.APPROVED)
+    if (item.rawStatus === SubstituteApiStatus.ACCEPTED) pending.push(item)
+    else if (item.rawStatus === SubstituteApiStatus.APPROVED)
       accepted.push(item)
     else cancelled.push(item)
   }
