@@ -70,10 +70,12 @@ authInstance.interceptors.response.use(
       !isAuthTokenRequest
     ) {
       if (isRefreshing) {
+        originalRequest._retry = true
         return new Promise<string>((resolve, reject) => {
           failedQueue.push({ resolve, reject })
         })
           .then(token => {
+            originalRequest._retry = true
             originalRequest.headers.Authorization = `Bearer ${token}`
             return authInstance(originalRequest)
           })
