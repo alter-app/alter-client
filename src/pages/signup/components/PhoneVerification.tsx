@@ -1,8 +1,21 @@
 import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { VerifyActionButton } from './VerifyActionButton'
-import type { usePhoneVerification } from '../hooks/usePhoneVerification'
+type PhoneVerificationProps = {
+  phone: string
+  smsSent: boolean
+  smsCode: string
+  setSmsCode: (value: string) => void
+  verified: boolean
+  message: string
+  isSending: boolean
+  isVerifying: boolean
+  resendCooldown: number
+  handlePhoneChange: (value: string) => void
+  sendSms: () => void | Promise<void>
+  verifySms: () => void | Promise<void>
+}
 
-type Props = ReturnType<typeof usePhoneVerification>
+type Props = PhoneVerificationProps
 
 /**
  * 전화번호 SMS 인증 UI

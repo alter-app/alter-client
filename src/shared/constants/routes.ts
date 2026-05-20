@@ -5,6 +5,7 @@ export const ROUTES = {
   AUTH: {
     LOGIN: '/login',
     SIGNUP: '/signup',
+    FIND_PASSWORD: '/find-password',
   },
   OAUTH: {
     KAKAO_CALLBACK: '/oauth/kakao/callback',

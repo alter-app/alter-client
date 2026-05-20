@@ -1,27 +1,24 @@
 import { useState, useRef, useEffect } from 'react'
 import type { ConfirmationResult } from 'firebase/auth'
+import { createPasswordResetSession } from '@/shared/api/auth'
 import {
   sendPhoneVerification,
   toInternationalPhone,
   clearRecaptcha,
 } from '@/shared/lib/firebase'
-import { checkContactDuplicate } from '@/shared/api/auth'
 import {
   normalizePhone,
   formatPhone,
 } from '@/shared/lib/utils/signupValidation'
-import { useTimer } from './useTimer'
+import { useTimer } from '@/pages/signup/hooks/useTimer'
 
-export const RECAPTCHA_CONTAINER_ID = 'recaptcha-container'
+export const FIND_PASSWORD_RECAPTCHA_ID = 'find-password-recaptcha-container'
 const RESEND_COOLDOWN = 30
 
 /**
- * 전화번호 Firebase SMS 인증 훅
- * - 인증번호 발송 / 재발송 (reCAPTCHA 포함)
- * - 쿨다운 타이머 (useTimer 활용)
- * - 인증번호 확인 → Firebase ID 토큰 발급
+ * 비밀번호 찾기 2단계 — Firebase SMS 인증 후 재설정 세션 생성
  */
-export function usePhoneVerification() {
+export function useFindPasswordPhoneVerification(email: string) {
   const [phone, setPhone] = useState('')
   const [smsSent, setSmsSent] = useState(false)
   const [smsCode, setSmsCode] = useState('')
@@ -29,7 +26,7 @@ export function usePhoneVerification() {
   const [message, setMessage] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
-  const [firebaseIdToken, setFirebaseIdToken] = useState('')
+  const [sessionId, setSessionId] = useState('')
 
   const smsConfirmationRef = useRef<ConfirmationResult | null>(null)
   const {
@@ -38,27 +35,24 @@ export function usePhoneVerification() {
     clear: clearCooldown,
   } = useTimer()
 
-  // 언마운트 시 reCAPTCHA 정리
   useEffect(() => {
     return () => clearRecaptcha()
   }, [])
 
-  /** 전화번호 입력 변경 — 인증 상태 초기화 */
   const handlePhoneChange = (value: string) => {
     setPhone(formatPhone(value))
     setSmsSent(false)
     setSmsCode('')
     setVerified(false)
-    setFirebaseIdToken('')
+    setSessionId('')
     setMessage('')
     clearCooldown()
   }
 
-  /** 인증번호 발송 */
   const sendSms = async () => {
     const normalized = normalizePhone(phone)
     if (normalized.length !== 11 || isSending || resendCooldown > 0) {
-      if (normalized.length !== 11 && phone.trim()) {
+      if (normalized.length !== 11) {
         setMessage('전화번호 11자리를 입력해주세요.')
       }
       return
@@ -67,17 +61,11 @@ export function usePhoneVerification() {
     try {
       setIsSending(true)
       setMessage('')
-      const available = await checkContactDuplicate(normalized)
-      if (!available) {
-        setMessage('이미 가입된 휴대폰 번호입니다.')
-        return
-      }
-
-      clearRecaptcha() // 재발송 시 reCAPTCHA 재생성
+      clearRecaptcha()
       const intlPhone = toInternationalPhone(normalized)
       const confirmation = await sendPhoneVerification(
         intlPhone,
-        RECAPTCHA_CONTAINER_ID
+        FIND_PASSWORD_RECAPTCHA_ID
       )
       smsConfirmationRef.current = confirmation
       setSmsSent(true)
@@ -94,21 +82,26 @@ export function usePhoneVerification() {
     }
   }
 
-  /** 인증번호 확인 */
   const verifySms = async () => {
     if (!smsCode.trim() || isVerifying || !smsConfirmationRef.current) return
     try {
       setIsVerifying(true)
       setMessage('')
-      const result = await smsConfirmationRef.current.confirm(smsCode)
-      const idToken = await result.user.getIdToken()
-      setFirebaseIdToken(idToken)
+      await smsConfirmationRef.current.confirm(smsCode)
+      const newSessionId = await createPasswordResetSession(
+        email.trim(),
+        normalizePhone(phone)
+      )
+      setSessionId(newSessionId)
       setVerified(true)
-      setMessage('전화번호 인증이 완료됐어요!')
+      setMessage('휴대폰 인증이 완료됐어요!')
       clearCooldown()
-    } catch {
+    } catch (error) {
       setVerified(false)
-      setMessage('인증번호가 올바르지 않습니다. 다시 확인해주세요.')
+      const e = error as { message?: string }
+      setMessage(
+        e.message || '인증번호가 올바르지 않습니다. 다시 확인해주세요.'
+      )
     } finally {
       setIsVerifying(false)
     }
@@ -124,7 +117,7 @@ export function usePhoneVerification() {
     isSending,
     isVerifying,
     resendCooldown,
-    firebaseIdToken,
+    sessionId,
     handlePhoneChange,
     sendSms,
     verifySms,
