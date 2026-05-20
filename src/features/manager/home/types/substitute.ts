@@ -1,5 +1,5 @@
 import type { CommonApiResponse } from '@/shared/types/common'
-import type { SubstituteRequestItem } from '@/shared/ui/manager/SubstituteApprovalCard'
+import type { SubstituteRequestItem } from '@/shared/types/substituteRequest'
 import type { WorkerRole } from '@/shared/types/workerRole'
 import { SubstituteApiStatus } from '@/shared/types/substituteStatus'
 

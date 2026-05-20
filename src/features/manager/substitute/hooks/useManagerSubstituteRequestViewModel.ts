@@ -7,7 +7,7 @@ import {
   approveSubstituteRequest,
   rejectSubstituteRequest,
 } from '@/features/manager/api/substitute'
-import type { SubstituteRequestItem } from '@/shared/ui/manager/SubstituteApprovalCard'
+import type { SubstituteRequestItem } from '@/shared/types/substituteRequest'
 import type { SubstituteActionType } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
 import { SubstituteApiStatus } from '@/shared/types/substituteStatus'
 import { queryKeys } from '@/shared/lib/queryKeys'

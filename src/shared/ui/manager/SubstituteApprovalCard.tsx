@@ -1,24 +1,12 @@
 // 대타 승인 요청 카드
 import { MoreButton } from '@/shared/ui/common/MoreButton'
-import type { WorkerRole } from '@/shared/types/workerRole'
-import {
-  SUBSTITUTE_STATUS_LABEL,
-  type SubstituteApiStatus,
-} from '@/shared/types/substituteStatus'
+import { SUBSTITUTE_STATUS_LABEL } from '@/shared/types/substituteStatus'
+import type {
+  SubstituteRequestItem,
+  SubstituteRequestStatus,
+} from '@/shared/types/substituteRequest'
 
-export type SubstituteRequestStatus = 'accepted' | 'pending' | 'cancelled'
-
-export interface SubstituteRequestItem {
-  id: string
-  name: string
-  role: string
-  workerRole: WorkerRole
-  dateRange: string
-  scheduledDate: string
-  status: SubstituteRequestStatus
-  imageUrl?: string | null
-  rawStatus?: SubstituteApiStatus
-}
+export type { SubstituteRequestItem, SubstituteRequestStatus }
 
 interface SubstituteApprovalCardProps {
   requests: SubstituteRequestItem[]

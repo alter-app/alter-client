@@ -7,7 +7,7 @@ import { SubstituteRequestStatusBadge } from '@/pages/user/substitute-request/co
 import { useManagerSubstituteRequestViewModel } from '@/features/manager/substitute/hooks/useManagerSubstituteRequestViewModel'
 import { ManagerSubstituteActionModal } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
-import type { SubstituteRequestItem } from '@/shared/ui/manager/SubstituteApprovalCard'
+import type { SubstituteRequestItem } from '@/shared/types/substituteRequest'
 
 function CardBase({ item }: { item: SubstituteRequestItem }) {
   return (
