@@ -30,10 +30,14 @@ function getSubstituteActionErrorMessage(error: unknown): string {
 
 type ActionTarget = { id: number; type: SubstituteActionType }
 
+const EMPTY_GROUPS = { pending: [], accepted: [], cancelled: [] }
+
 // ACCEPTED = 워커가 수락해 사장 승인 대기 중 → 요청됨
 // APPROVED = 사장이 승인 → 수락됨
-// 나머지(REJECTED_BY_APPROVER, REJECTED_BY_TARGET, CANCELLED, EXPIRED 등) → 취소됨
+// REJECTED_BY_APPROVER = 사장이 거절 → 취소됨
 function groupByStatus(requests: SubstituteRequestItem[]) {
+  if (requests.length === 0) return EMPTY_GROUPS
+
   const pending: SubstituteRequestItem[] = []
   const accepted: SubstituteRequestItem[] = []
   const cancelled: SubstituteRequestItem[] = []
@@ -42,7 +46,8 @@ function groupByStatus(requests: SubstituteRequestItem[]) {
     if (item.rawStatus === SubstituteApiStatus.ACCEPTED) pending.push(item)
     else if (item.rawStatus === SubstituteApiStatus.APPROVED)
       accepted.push(item)
-    else cancelled.push(item)
+    else if (item.rawStatus === SubstituteApiStatus.REJECTED_BY_APPROVER)
+      cancelled.push(item)
   }
 
   return { pending, accepted, cancelled }
