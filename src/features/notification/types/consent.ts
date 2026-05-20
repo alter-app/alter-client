@@ -1,3 +1,10 @@
+export const CONSENT_TYPE = {
+  GENERAL: 'GENERAL',
+  NIGHT: 'NIGHT',
+} as const
+
+export type ConsentType = (typeof CONSENT_TYPE)[keyof typeof CONSENT_TYPE]
+
 export interface NotificationConsentType {
   value: string
   description: string
@@ -16,11 +23,6 @@ export interface NotificationConsentResponse {
 }
 
 export interface UpdateNotificationConsentRequest {
-  type: string
+  type: ConsentType
   consent: boolean
 }
-
-export const CONSENT_TYPE = {
-  GENERAL: 'GENERAL',
-  NIGHT: 'NIGHT',
-} as const
