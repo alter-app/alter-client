@@ -4,6 +4,7 @@ import {
   declineWorkspaceInvitation,
   getMyInvitations,
 } from '@/features/workspace-join/api/membership'
+import type { MyInvitationsListDto } from '@/features/workspace-join/types/membership'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { AuthButton } from '@/shared/ui/common/AuthButton'
@@ -22,6 +23,15 @@ type InvitationMutationVariables = {
   businessName: string
 }
 
+type InvitationMutationContext = {
+  previous: MyInvitationsListDto | undefined
+}
+
+const pendingInvitationsQueryKey = queryKeys.workspaceMembership.invitations({
+  pageSize: PAGE_SIZE,
+  status: 'PENDING',
+})
+
 function formatDateTime(iso: string) {
   return new Date(iso).toLocaleString('ko-KR', {
     dateStyle: 'medium',
@@ -33,10 +43,7 @@ export function ReceivedInvitationsPanel({ onAccepted }: Props) {
   const queryClient = useQueryClient()
 
   const invitationsQuery = useQuery({
-    queryKey: queryKeys.workspaceMembership.invitations({
-      pageSize: PAGE_SIZE,
-      status: 'PENDING',
-    }),
+    queryKey: pendingInvitationsQueryKey,
     queryFn: () => getMyInvitations({ pageSize: PAGE_SIZE, status: 'PENDING' }),
   })
 
@@ -53,14 +60,48 @@ export function ReceivedInvitationsPanel({ onAccepted }: Props) {
         await declineWorkspaceInvitation(invitationId)
       }
     },
-    onSuccess: async (_data, variables) => {
+    onMutate: async variables => {
+      await queryClient.cancelQueries({ queryKey: pendingInvitationsQueryKey })
+
+      const previous = queryClient.getQueryData<MyInvitationsListDto>(
+        pendingInvitationsQueryKey
+      )
+
+      queryClient.setQueryData<MyInvitationsListDto>(
+        pendingInvitationsQueryKey,
+        old => {
+          if (!old) return old
+          const nextData = old.data.filter(
+            item => item.invitationId !== variables.invitationId
+          )
+          return {
+            ...old,
+            data: nextData,
+            page: {
+              ...old.page,
+              totalCount: Math.max(0, old.page.totalCount - 1),
+            },
+          }
+        }
+      )
+
+      return { previous } satisfies InvitationMutationContext
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(pendingInvitationsQueryKey, context.previous)
+      }
+    },
+    onSuccess: (_data, variables) => {
+      if (variables.action === 'ACCEPT') {
+        onAccepted(variables.businessName)
+      }
+    },
+    onSettled: async () => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.workspaceMembership.all,
       })
       await queryClient.invalidateQueries({ queryKey: ['workspace'] })
-      if (variables.action === 'ACCEPT') {
-        onAccepted(variables.businessName)
-      }
     },
   })
 
