@@ -141,7 +141,7 @@ export function LoginPage() {
         <div className="flex justify-center items-center gap-2 font-pretendard font-regular text-3 leading-[18px] text-text-70 mt-2.5 sm:text-2 sm:gap-1.5 xs:text-1 xs:gap-1">
           <span
             className="cursor-pointer transition-colors duration-200 hover:text-main"
-            onClick={() => navigate('/find-password')}
+            onClick={() => navigate(ROUTES.AUTH.FIND_PASSWORD)}
           >
             비밀번호 찾기
           </span>

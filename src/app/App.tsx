@@ -12,6 +12,7 @@ import { ManagerWorkerScheduleLegacyEntryRedirect } from '@/pages/manager/worker
 import { SocialPage } from '@/pages/manager/social'
 import { SocialChatPage } from '@/pages/manager/social-chat'
 import { LoginPage } from '@/pages/login'
+import { FindPasswordPage } from '@/pages/find-password'
 import { KakaoCallbackPage } from '@/pages/oauth/KakaoCallbackPage'
 import { JobLookupMapPage } from '@/pages/user/job-lookup-map'
 import { JobLookupMapApplyPage } from '@/pages/user/job-lookup-map-apply'
@@ -67,6 +68,10 @@ export function App() {
       <Routes>
         <Route element={<MobileRouteLayoutWithoutDocbar />}>
           <Route path={ROUTES.AUTH.LOGIN} element={<LoginPage />} />
+          <Route
+            path={ROUTES.AUTH.FIND_PASSWORD}
+            element={<FindPasswordPage />}
+          />
           <Route
             path={ROUTES.OAUTH.KAKAO_CALLBACK}
             element={<KakaoCallbackPage />}

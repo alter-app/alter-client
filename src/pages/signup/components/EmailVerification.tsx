@@ -1,5 +1,5 @@
 import { AuthInput } from '@/shared/ui/common/AuthInput'
-import { VerifyActionButton } from './VerifyActionButton'
+import { VerifyActionButton } from '@/features/auth'
 import type { useEmailVerification } from '../hooks/useEmailVerification'
 
 type Props = ReturnType<typeof useEmailVerification>

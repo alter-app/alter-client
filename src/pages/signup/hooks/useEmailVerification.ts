@@ -1,6 +1,11 @@
 import { useState } from 'react'
-import { sendEmailVerification, verifyEmailCode } from '@/shared/api/auth'
-import { useTimer } from './useTimer'
+import {
+  checkEmailDuplicate,
+  sendEmailVerification,
+  verifyEmailCode,
+} from '@/shared/api/auth'
+import { useTimer } from '@/shared/hooks/useTimer'
+import { isValidEmailFormat } from '@/shared/lib/utils/emailValidation'
 
 const RESEND_COOLDOWN = 30
 
@@ -39,11 +44,24 @@ export function useEmailVerification() {
 
   /** 인증 코드 발송 */
   const sendCode = async () => {
-    if (!email.trim() || isSending || resendCooldown > 0) return
+    const trimmed = email.trim()
+    if (!trimmed || isSending || resendCooldown > 0) return
+
+    if (!isValidEmailFormat(trimmed)) {
+      setMessage('올바른 이메일 형식을 입력해주세요.')
+      return
+    }
+
     try {
       setIsSending(true)
       setMessage('')
-      await sendEmailVerification(email.trim())
+      const available = await checkEmailDuplicate(trimmed)
+      if (!available) {
+        setMessage('이미 가입된 이메일입니다.')
+        return
+      }
+
+      await sendEmailVerification(trimmed)
       setCodeSent(true)
       setMessage('인증 코드가 발송됐어요. 이메일을 확인해주세요.')
       startCooldown(RESEND_COOLDOWN)
