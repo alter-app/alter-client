@@ -11,7 +11,7 @@ import {
   normalizePhone,
   formatPhone,
 } from '@/shared/lib/utils/signupValidation'
-import { useTimer } from '@/pages/signup/hooks/useTimer'
+import { useTimer } from '@/shared/hooks/useTimer'
 
 export const FIND_PASSWORD_RECAPTCHA_ID = 'find-password-recaptcha-container'
 const RESEND_COOLDOWN = 30

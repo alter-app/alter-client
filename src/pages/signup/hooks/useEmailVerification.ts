@@ -4,7 +4,7 @@ import {
   sendEmailVerification,
   verifyEmailCode,
 } from '@/shared/api/auth'
-import { useTimer } from './useTimer'
+import { useTimer } from '@/shared/hooks/useTimer'
 
 const RESEND_COOLDOWN = 30
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

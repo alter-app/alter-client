@@ -10,7 +10,7 @@ import {
   normalizePhone,
   formatPhone,
 } from '@/shared/lib/utils/signupValidation'
-import { useTimer } from './useTimer'
+import { useTimer } from '@/shared/hooks/useTimer'
 
 export const RECAPTCHA_CONTAINER_ID = 'recaptcha-container'
 const RESEND_COOLDOWN = 30
