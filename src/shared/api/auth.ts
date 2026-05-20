@@ -3,7 +3,6 @@ import type { NavigateFunction } from 'react-router-dom'
 
 import authInstance, { publicInstance } from '../lib/axiosInstance'
 import { getAuthApiBasePath } from '../lib/authApiPath'
-import { useAuthStore } from '../stores/useAuthStore'
 import { ROUTES } from '../constants/routes'
 import { navigatePostAuth } from '../lib/postAuthNavigation'
 
@@ -458,9 +457,11 @@ export async function resetPassword(
   }
 }
 
-/** POST /app/auth/logout | POST /manager/auth/logout */
-export async function logoutSession(): Promise<void> {
-  const { scope, isLoggedIn } = useAuthStore.getState()
+/** POST /app/auth/logout | POST /manager/auth/logout — 스토어는 호출부에서 읽어 인자로 전달 */
+export async function logoutSession(
+  scope: 'MANAGER' | 'USER' | null,
+  isLoggedIn: boolean
+): Promise<void> {
   if (!isLoggedIn || !scope) {
     return
   }
