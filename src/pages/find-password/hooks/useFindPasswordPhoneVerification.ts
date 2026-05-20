@@ -5,6 +5,7 @@ import {
   sendPhoneVerification,
   toInternationalPhone,
   clearRecaptcha,
+  getFreshFirebaseIdToken,
 } from '@/shared/lib/firebase'
 import {
   normalizePhone,
@@ -88,9 +89,15 @@ export function useFindPasswordPhoneVerification(email: string) {
       setIsVerifying(true)
       setMessage('')
       await smsConfirmationRef.current.confirm(smsCode)
+      const firebaseIdToken = await getFreshFirebaseIdToken()
+      if (!firebaseIdToken) {
+        setMessage('전화번호 인증이 만료되었습니다. 다시 인증해 주세요.')
+        return
+      }
       const newSessionId = await createPasswordResetSession(
         email.trim(),
-        normalizePhone(phone)
+        normalizePhone(phone),
+        firebaseIdToken
       )
       setSessionId(newSessionId)
       setVerified(true)

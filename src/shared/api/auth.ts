@@ -405,7 +405,8 @@ export async function verifyEmailCode(
 /** POST /public/users/password-reset/session */
 export async function createPasswordResetSession(
   email: string,
-  contact: string
+  contact: string,
+  firebaseIdToken: string
 ): Promise<string> {
   try {
     const { data: result } = await publicInstance.post<
@@ -413,6 +414,7 @@ export async function createPasswordResetSession(
     >('/public/users/password-reset/session', {
       email,
       contact: contact.replace(/-/g, ''),
+      firebaseIdToken,
     })
 
     return result.data.sessionId
