@@ -71,10 +71,6 @@ export function ManagerSubstituteActionModal({
       setError('내용을 입력해 주세요.')
       return
     }
-    if (trimmed.length > 500) {
-      setError('500자 이내로 입력해 주세요.')
-      return
-    }
     onSubmit(trimmed)
   }
 

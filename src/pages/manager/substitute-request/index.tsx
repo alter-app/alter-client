@@ -143,8 +143,8 @@ export function ManagerSubstituteRequestPage() {
                   <PendingCard
                     key={item.id}
                     item={item}
-                    onApprove={() => onApproveClick(Number(item.id))}
-                    onReject={() => onRejectClick(Number(item.id))}
+                    onApprove={() => onApproveClick(item.id)}
+                    onReject={() => onRejectClick(item.id)}
                     disabled={actionsDisabled}
                   />
                 ))}

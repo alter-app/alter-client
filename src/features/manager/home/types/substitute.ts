@@ -83,7 +83,7 @@ export function adaptSubstituteRequestDto(
   dto: SubstituteRequestDto
 ): SubstituteRequestItem {
   return {
-    id: String(dto.id),
+    id: dto.id,
     name: dto.requester.workerName,
     role: dto.schedule.position,
     workerRole: mapApiWorkerRole(dto.requester.workerRole),

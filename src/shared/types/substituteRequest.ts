@@ -4,7 +4,7 @@ import type { SubstituteApiStatus } from '@/shared/types/substituteStatus'
 export type SubstituteRequestStatus = 'accepted' | 'pending' | 'cancelled'
 
 export interface SubstituteRequestItem {
-  id: string
+  id: number
   name: string
   role: string
   workerRole: WorkerRole
