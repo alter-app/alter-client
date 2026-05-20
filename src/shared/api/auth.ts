@@ -1,7 +1,9 @@
 import axios from 'axios'
 import type { NavigateFunction } from 'react-router-dom'
 
-import { publicInstance } from '../lib/axiosInstance'
+import authInstance, { publicInstance } from '../lib/axiosInstance'
+import { getAuthApiBasePath } from '../lib/authApiPath'
+import { useAuthStore } from '../stores/useAuthStore'
 import { ROUTES } from '../constants/routes'
 import { navigatePostAuth } from '../lib/postAuthNavigation'
 
@@ -95,6 +97,14 @@ export interface SignupSocialRequest {
 interface CheckNicknameDuplicationResponseDto {
   nickname: string
   duplicated: boolean
+}
+
+interface CheckDuplicationResponseDto {
+  duplicated: boolean
+}
+
+interface PasswordResetSessionResponseDto {
+  sessionId: string
 }
 
 interface CreateSignupSessionResponseDto {
@@ -260,6 +270,57 @@ export async function loginSocial(
   }
 }
 
+/** POST /public/users/exists/email — true면 사용 가능(미중복) */
+export async function checkEmailDuplicate(email: string): Promise<boolean> {
+  try {
+    const { data: result } = await publicInstance.post<
+      ApiResponse<CheckDuplicationResponseDto>
+    >('/public/users/exists/email', { email })
+
+    return result.data.duplicated === false
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorData: ErrorResponse = error.response?.data ?? {}
+      throw {
+        data: errorData,
+        message:
+          errorData.message ||
+          getErrorMessage(errorData.code) ||
+          '이메일 중복 검사 중 오류가 발생했습니다.',
+      } as ApiError
+    }
+    throw {
+      message: '이메일 중복 검사 중 오류가 발생했습니다.',
+    } as ApiError
+  }
+}
+
+/** POST /public/users/exists/contact — true면 사용 가능(미중복) */
+export async function checkContactDuplicate(contact: string): Promise<boolean> {
+  try {
+    const normalized = contact.replace(/-/g, '')
+    const { data: result } = await publicInstance.post<
+      ApiResponse<CheckDuplicationResponseDto>
+    >('/public/users/exists/contact', { contact: normalized })
+
+    return result.data.duplicated === false
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorData: ErrorResponse = error.response?.data ?? {}
+      throw {
+        data: errorData,
+        message:
+          errorData.message ||
+          getErrorMessage(errorData.code) ||
+          '휴대폰 번호 중복 검사 중 오류가 발생했습니다.',
+      } as ApiError
+    }
+    throw {
+      message: '휴대폰 번호 중복 검사 중 오류가 발생했습니다.',
+    } as ApiError
+  }
+}
+
 export async function checkNicknameDuplicate(
   nickname: string
 ): Promise<boolean> {
@@ -335,6 +396,86 @@ export async function verifyEmailCode(
           errorData.message ||
           getErrorMessage(errorData.code) ||
           '인증 코드 확인에 실패했습니다.',
+      } as ApiError
+    }
+    throw { message: '네트워크 오류가 발생했습니다.' } as ApiError
+  }
+}
+
+/** POST /public/users/password-reset/session */
+export async function createPasswordResetSession(
+  email: string,
+  contact: string
+): Promise<string> {
+  try {
+    const { data: result } = await publicInstance.post<
+      ApiResponse<PasswordResetSessionResponseDto>
+    >('/public/users/password-reset/session', {
+      email,
+      contact: contact.replace(/-/g, ''),
+    })
+
+    return result.data.sessionId
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorData: ErrorResponse = error.response?.data ?? {}
+      throw {
+        data: errorData,
+        message:
+          errorData.message ||
+          getErrorMessage(errorData.code) ||
+          '비밀번호 재설정 세션 생성에 실패했습니다.',
+      } as ApiError
+    }
+    throw { message: '네트워크 오류가 발생했습니다.' } as ApiError
+  }
+}
+
+/** POST /public/users/password-reset */
+export async function resetPassword(
+  sessionId: string,
+  newPassword: string
+): Promise<void> {
+  try {
+    await publicInstance.post('/public/users/password-reset', {
+      sessionId,
+      newPassword,
+    })
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorData: ErrorResponse = error.response?.data ?? {}
+      throw {
+        data: errorData,
+        message:
+          errorData.message ||
+          getErrorMessage(errorData.code) ||
+          '비밀번호 재설정에 실패했습니다.',
+      } as ApiError
+    }
+    throw { message: '네트워크 오류가 발생했습니다.' } as ApiError
+  }
+}
+
+/** POST /app/auth/logout | POST /manager/auth/logout */
+export async function logoutSession(): Promise<void> {
+  const { scope, isLoggedIn } = useAuthStore.getState()
+  if (!isLoggedIn || !scope) {
+    return
+  }
+
+  const basePath = getAuthApiBasePath(scope)
+
+  try {
+    await authInstance.post(`/${basePath}/auth/logout`)
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorData: ErrorResponse = error.response?.data ?? {}
+      throw {
+        data: errorData,
+        message:
+          errorData.message ||
+          getErrorMessage(errorData.code) ||
+          '로그아웃에 실패했습니다.',
       } as ApiError
     }
     throw { message: '네트워크 오류가 발생했습니다.' } as ApiError
