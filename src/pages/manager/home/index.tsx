@@ -226,9 +226,18 @@ export function ManagerHomePage() {
       </section>
 
       <div id={STORE_WORKERS_SECTION_ID} className="scroll-mt-4 pt-6 pb-8">
-        <h2 className="px-5 mb-3 typography-headline01 text-gray-900">
-          우리 매장 근무자
-        </h2>
+        <div className="mb-3 flex items-center justify-between px-5">
+          <h2 className="typography-headline01 text-gray-900">
+            우리 매장 근무자
+          </h2>
+          <button
+            type="button"
+            className="rounded-lg bg-main px-3 py-1.5 typography-body02-semibold text-white"
+            onClick={() => navigate(ROUTES.MANAGER.WORKER_INVITE)}
+          >
+            근무자 초대
+          </button>
+        </div>
 
         <div className="bg-white mx-4 py-8  rounded-[16px] shadow-sm overflow-hidden flex flex-col">
           <div className="px-4 gap-6 flex flex-col">

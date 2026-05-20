@@ -31,6 +31,7 @@ export const ROUTES = {
       '/manager/workspaces/:workspaceId/workers/:workerId/schedule',
     STORE_REGISTER: '/manager/store-register',
     SUBSTITUTE_REQUEST: '/manager/substitute-request',
+    WORKER_INVITE: '/manager/worker-invite',
     SOCIAL: '/manager/social',
     SOCIAL_CHAT: '/manager/social/chat',
   },

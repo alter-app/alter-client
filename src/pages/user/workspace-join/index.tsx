@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { AuthButton } from '@/shared/ui/common/AuthButton'
-import { InviteCodeJoinPanel } from '@/features/workspace-join/ui/InviteCodeJoinPanel'
+import { ReceivedInvitationsPanel } from '@/features/workspace-join'
 
-type Phase = 'code' | 'done'
+type Phase = 'list' | 'done'
 
 export function WorkspaceJoinPage() {
   const navigate = useNavigate()
-  const [phase, setPhase] = useState<Phase>('code')
+  const [phase, setPhase] = useState<Phase>('list')
   const [doneSummary, setDoneSummary] = useState<string | null>(null)
 
   return (
@@ -26,20 +26,20 @@ export function WorkspaceJoinPage() {
       />
 
       <div className="mx-auto w-full max-w-[400px] flex-1 px-4 pb-10 pt-4">
-        {phase === 'code' ? (
+        {phase === 'list' ? (
           <>
             <header className="mb-8">
               <h1 className="mb-2 typography-headline01 text-text-100">
-                초대 코드로 합류
+                받은 업장 초대
               </h1>
               <p className="typography-body02-regular text-text-70">
-                사장님이 알려 준 초대 코드를 입력해 주세요.
-                <br /> 유효하면 바로 업장 근무자로 연결돼요.
+                사장님이 내 전화번호로 보낸 초대를 확인하고 수락하면 바로
+                근무자로 연결돼요.
               </p>
             </header>
-            <InviteCodeJoinPanel
-              onSuccess={name => {
-                setDoneSummary(`「${name}」에 초대를 수락했어요.`)
+            <ReceivedInvitationsPanel
+              onAccepted={name => {
+                setDoneSummary(`「${name}」에 합류했어요.`)
                 setPhase('done')
               }}
             />
@@ -57,7 +57,6 @@ export function WorkspaceJoinPage() {
             <AuthButton
               type="button"
               className="mt-8"
-              style={{ width: '100%' }}
               onClick={() => navigate('/user/workspace')}
             >
               근무 가게 목록 보기
