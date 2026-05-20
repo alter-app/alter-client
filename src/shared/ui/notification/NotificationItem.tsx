@@ -3,6 +3,7 @@ import TrashIcon from '@/assets/icons/social/trash.svg?react'
 import AlterLogo from '@/assets/alter-logo-vector.svg?react'
 
 export interface NotificationItemProps {
+  id?: number
   isRead: boolean
   category: string
   timeAgo: string
