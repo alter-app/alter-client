@@ -24,6 +24,7 @@ import { WorkspacePage } from '@/pages/user/workspace'
 import { WorkspaceDetailPage } from '@/pages/user/workspace-detail'
 import { AppliedStoresPage } from '@/pages/user/applied-stores'
 import { SubstituteRequestPage } from '@/pages/user/substitute-request'
+import { ManagerSubstituteRequestPage } from '@/pages/manager/substitute-request'
 import { StoreRegisterPage } from '@/pages/manager/store-register'
 import { ManagerWorkerInvitePage } from '@/pages/manager/worker-invite'
 import { WorkspaceJoinPage } from '@/pages/user/workspace-join'
@@ -147,6 +148,14 @@ export function App() {
             element={
               <HomeRouteGuard expected="MANAGER">
                 <ManagerHomePage />
+              </HomeRouteGuard>
+            }
+          />
+          <Route
+            path={ROUTES.MANAGER.SUBSTITUTE_REQUEST}
+            element={
+              <HomeRouteGuard expected="MANAGER">
+                <ManagerSubstituteRequestPage />
               </HomeRouteGuard>
             }
           />

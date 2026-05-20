@@ -4,6 +4,26 @@ import type {
   SubstituteRequestsQueryParams,
 } from '@/features/manager/home/types/substitute'
 
+export async function approveSubstituteRequest(
+  requestId: number,
+  body: { approvalComment: string }
+): Promise<void> {
+  await axiosInstance.post(
+    `/manager/substitute-requests/${requestId}/approve`,
+    body
+  )
+}
+
+export async function rejectSubstituteRequest(
+  requestId: number,
+  body: { approverRejectionReason: string }
+): Promise<void> {
+  await axiosInstance.post(
+    `/manager/substitute-requests/${requestId}/reject`,
+    body
+  )
+}
+
 export async function fetchSubstituteRequests(
   params: SubstituteRequestsQueryParams
 ): Promise<SubstituteListApiResponse> {
