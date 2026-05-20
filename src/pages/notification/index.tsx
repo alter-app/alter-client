@@ -3,6 +3,7 @@ import { Navbar } from '@/shared/ui/common/Navbar'
 import { NotificationItem } from '@/shared/ui/notification/NotificationItem'
 import { useNotificationViewModel } from '@/features/notification/useNotificationViewModel'
 import type { NotificationTab } from '@/features/notification/useNotificationViewModel'
+import { ROUTES } from '@/shared/constants/routes'
 import SettingIcon from '@/assets/icons/settings.svg?react'
 
 function TabButton({
@@ -57,7 +58,7 @@ export function NotificationPage() {
             type="button"
             aria-label="알림 설정"
             className="flex size-6 items-center justify-center text-text-100"
-            onClick={() => navigate('/notifications/settings')}
+            onClick={() => navigate(ROUTES.NOTIFICATION_SETTINGS)}
           >
             <SettingIcon />
           </button>

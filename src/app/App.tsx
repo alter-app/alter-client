@@ -27,6 +27,7 @@ import { StoreRegisterPage } from '@/pages/manager/store-register'
 import { ManagerWorkerInvitePage } from '@/pages/manager/worker-invite'
 import { WorkspaceJoinPage } from '@/pages/user/workspace-join'
 import { NotificationPage } from '@/pages/notification'
+import { NotificationSettingsPage } from '@/pages/notification/settings'
 import { MyPage } from '@/pages/my'
 import { ProfileEditPage } from '@/pages/my/profile'
 import { ErrorPageRoute } from '@/pages/error'
@@ -100,6 +101,10 @@ export function App() {
           />
           <Route path={ROUTES.MY.PROFILE} element={<ProfileEditPage />} />
           <Route path={ROUTES.NOTIFICATIONS} element={<NotificationPage />} />
+          <Route
+            path={ROUTES.NOTIFICATION_SETTINGS}
+            element={<NotificationSettingsPage />}
+          />
           <Route
             path={ROUTES.MANAGER.WORKER_SCHEDULE}
             element={<ManagerWorkerScheduleLegacyEntryRedirect />}
