@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { AuthButton } from '@/shared/ui/common/AuthButton'
-import { ReceivedInvitationsPanel } from '@/features/workspace-join/ui/ReceivedInvitationsPanel'
+import { ReceivedInvitationsPanel } from '@/features/workspace-join'
 
 type Phase = 'list' | 'done'
 
