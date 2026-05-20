@@ -6,6 +6,7 @@ interface ManagerSubstituteActionModalProps {
   open: boolean
   type: SubstituteActionType
   pending?: boolean
+  submitError?: string | null
   onClose: () => void
   onSubmit: (comment: string) => void
 }
@@ -30,6 +31,7 @@ export function ManagerSubstituteActionModal({
   open,
   type,
   pending,
+  submitError,
   onClose,
   onSubmit,
 }: ManagerSubstituteActionModalProps) {
@@ -111,8 +113,10 @@ export function ManagerSubstituteActionModal({
             className="w-full resize-none rounded-2xl bg-bg-dark p-4 typography-body02-regular text-text-100 outline-none placeholder:text-text-50"
           />
           <div className="mt-1 flex items-start justify-between">
-            {error ? (
-              <p className="typography-body02-regular text-error">{error}</p>
+            {error || submitError ? (
+              <p className="typography-body02-regular text-error">
+                {error ?? submitError}
+              </p>
             ) : (
               <span />
             )}

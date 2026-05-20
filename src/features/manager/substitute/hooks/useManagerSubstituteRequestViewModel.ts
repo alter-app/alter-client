@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
 import { useSubstituteRequestsViewModel } from '@/features/manager/home/hooks/useSubstituteRequestsViewModel'
 import { useManagedWorkspacesQuery } from '@/features/manager/home/hooks/useManagedWorkspacesQuery'
 import {
@@ -10,6 +11,22 @@ import type { SubstituteRequestItem } from '@/shared/ui/manager/SubstituteApprov
 import type { SubstituteActionType } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
 import { ManagerSubstituteApiStatus } from '@/shared/types/substituteStatus'
 import { queryKeys } from '@/shared/lib/queryKeys'
+
+const SUBSTITUTE_ACTION_ERROR_MESSAGES: Record<string, string> = {
+  B001: '이미 처리되었거나 승인/거절할 수 없는 상태입니다.',
+  A002: '관리 중인 업장이 아닙니다.',
+  B020: '존재하지 않는 대타 요청입니다.',
+}
+
+function getSubstituteActionErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const code = (error.response?.data as { code?: string } | undefined)?.code
+    if (code && SUBSTITUTE_ACTION_ERROR_MESSAGES[code]) {
+      return SUBSTITUTE_ACTION_ERROR_MESSAGES[code]
+    }
+  }
+  return '처리 중 오류가 발생했습니다. 다시 시도해 주세요.'
+}
 
 type ActionTarget = { id: number; type: SubstituteActionType }
 
@@ -38,6 +55,7 @@ export function useManagerSubstituteRequestViewModel() {
   const { requests, isLoading, isError } =
     useSubstituteRequestsViewModel(activeWorkspaceId)
   const [actionTarget, setActionTarget] = useState<ActionTarget | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
 
   const invalidate = () =>
     queryClient.invalidateQueries({
@@ -52,6 +70,10 @@ export function useManagerSubstituteRequestViewModel() {
     onSuccess: async () => {
       await invalidate()
       setActionTarget(null)
+      setActionError(null)
+    },
+    onError: (error: unknown) => {
+      setActionError(getSubstituteActionErrorMessage(error))
     },
   })
 
@@ -61,6 +83,10 @@ export function useManagerSubstituteRequestViewModel() {
     onSuccess: async () => {
       await invalidate()
       setActionTarget(null)
+      setActionError(null)
+    },
+    onError: (error: unknown) => {
+      setActionError(getSubstituteActionErrorMessage(error))
     },
   })
 
@@ -71,11 +97,17 @@ export function useManagerSubstituteRequestViewModel() {
 
   const handleModalSubmit = (comment: string) => {
     if (actionTarget === null) return
+    setActionError(null)
     if (actionTarget.type === 'approve') {
       approveMutation.mutate({ id: actionTarget.id, comment })
     } else {
       rejectMutation.mutate({ id: actionTarget.id, comment })
     }
+  }
+
+  const handleModalClose = () => {
+    setActionTarget(null)
+    setActionError(null)
   }
 
   return {
@@ -90,10 +122,11 @@ export function useManagerSubstituteRequestViewModel() {
       open: actionTarget !== null,
       type: actionTarget?.type ?? 'approve',
       pending: approveMutation.isPending || rejectMutation.isPending,
+      error: actionError,
     },
     onApproveClick: (id: number) => setActionTarget({ id, type: 'approve' }),
     onRejectClick: (id: number) => setActionTarget({ id, type: 'reject' }),
-    onActionModalClose: () => setActionTarget(null),
+    onActionModalClose: handleModalClose,
     onActionModalSubmit: handleModalSubmit,
   }
 }

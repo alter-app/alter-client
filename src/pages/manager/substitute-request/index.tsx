@@ -184,6 +184,7 @@ export function ManagerSubstituteRequestPage() {
         open={actionModal.open}
         type={actionModal.type}
         pending={actionModal.pending}
+        submitError={actionModal.error}
         onClose={onActionModalClose}
         onSubmit={onActionModalSubmit}
       />
