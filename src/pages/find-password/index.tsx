@@ -6,7 +6,7 @@ import { AuthButton } from '@/shared/ui/common/AuthButton'
 import { resetPassword } from '@/shared/api/auth'
 import { ROUTES } from '@/shared/constants/routes'
 import { isPasswordValid } from '@/shared/lib/utils/signupValidation'
-import { PhoneVerification } from '@/pages/signup/components/PhoneVerification'
+import { PhoneVerification } from '@/features/auth'
 import {
   FIND_PASSWORD_RECAPTCHA_ID,
   useFindPasswordPhoneVerification,

@@ -1,6 +1,6 @@
 import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { AuthButton } from '@/shared/ui/common/AuthButton'
-import { VerifyActionButton } from './VerifyActionButton'
+import { VerifyActionButton } from '@/features/auth'
 import { EmailVerification } from './EmailVerification'
 import { SignupTerms } from './SignupTerms'
 import type { useSignupForm } from '../hooks/useSignupForm'

@@ -1,5 +1,6 @@
 import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { VerifyActionButton } from './VerifyActionButton'
+
 type PhoneVerificationProps = {
   phone: string
   smsSent: boolean
