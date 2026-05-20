@@ -22,6 +22,7 @@ import { WorkspaceMembersPage } from '@/pages/user/workspace-members'
 import { WorkspacePage } from '@/pages/user/workspace'
 import { WorkspaceDetailPage } from '@/pages/user/workspace-detail'
 import { AppliedStoresPage } from '@/pages/user/applied-stores'
+import { SubstituteRequestPage } from '@/pages/user/substitute-request'
 import { StoreRegisterPage } from '@/pages/manager/store-register'
 import { WorkspaceJoinPage } from '@/pages/user/workspace-join'
 import { MyPage } from '@/pages/my'
@@ -145,6 +146,22 @@ export function App() {
             element={<SocialChatPage />}
           />
           <Route path={ROUTES.MY.ROOT} element={<MyPage />} />
+          <Route
+            path={ROUTES.USER.SUBSTITUTE_REQUEST_DETAIL_PATTERN}
+            element={
+              <HomeRouteGuard expected="USER">
+                <SubstituteRequestPage />
+              </HomeRouteGuard>
+            }
+          />
+          <Route
+            path={ROUTES.USER.SUBSTITUTE_REQUEST}
+            element={
+              <HomeRouteGuard expected="USER">
+                <SubstituteRequestPage />
+              </HomeRouteGuard>
+            }
+          />
         </Route>
 
         <Route path="/" element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />

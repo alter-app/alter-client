@@ -1,12 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { DocbarView, type DocbarSelectedTab } from '../../src/shared/ui/common/Docbar'
+import {
+  DocbarView,
+  type DocbarSelectedTab,
+} from '../../src/shared/ui/common/Docbar'
 import type { TabKey } from '../../src/shared/types/tab'
 
 const createSelectedTab = (activeTab: TabKey): DocbarSelectedTab => ({
   home: activeTab === 'home',
   my: activeTab === 'my',
   search: activeTab === 'search',
+  substitute: activeTab === 'substitute',
 })
 
 const meta = {
@@ -25,6 +29,7 @@ export const HomeSelected: Story = {
   args: {
     selectedTab: createSelectedTab('home'),
     onTabClick: () => {},
+    tabs: ['home', 'search', 'substitute', 'my'],
   },
 }
 
@@ -32,5 +37,22 @@ export const SearchSelected: Story = {
   args: {
     selectedTab: createSelectedTab('search'),
     onTabClick: () => {},
+    tabs: ['home', 'search', 'substitute', 'my'],
+  },
+}
+
+export const SubstituteSelected: Story = {
+  args: {
+    selectedTab: createSelectedTab('substitute'),
+    onTabClick: () => {},
+    tabs: ['home', 'search', 'substitute', 'my'],
+  },
+}
+
+export const MySelected: Story = {
+  args: {
+    selectedTab: createSelectedTab('my'),
+    onTabClick: () => {},
+    tabs: ['home', 'search', 'substitute', 'my'],
   },
 }

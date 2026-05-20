@@ -4,9 +4,13 @@ import { format, parse } from 'date-fns'
 
 import type { CalendarViewData } from '@/features/home/common/schedule/types/calendarView'
 import { DATE_KEY_FORMAT } from '@/features/home/common/schedule/constants/calendar'
+import {
+  adaptExchangeableSchedulesToCalendar,
+  getExchangeableSchedules,
+} from '@/features/user/substitute'
 import { getExchangeableWorkers } from '@/features/user/home/workspace/api/exchangeableWorkers'
 import { createSubstituteRequest } from '@/features/user/home/workspace/api/substituteRequests'
-import { WEEKDAY_LABELS } from '@/features/user/home/applied-stores/types/appliedStore'
+import { WEEKDAY_LABELS } from '@/shared/constants/calendar'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
@@ -61,7 +65,8 @@ function pickScheduleIdForSelectedDate(
 }
 
 interface UseSubstituteRequestFlowParams {
-  calendarData: CalendarViewData | null
+  /** workspaceId 없을 때만 사용 (레거시) */
+  calendarData?: CalendarViewData | null
   initialMonth?: Date
   summarySelfIntroduction?: string
   workspaceId?: number
@@ -98,10 +103,40 @@ export function useSubstituteRequestFlow({
     Set<string>
   >(new Set())
 
+  const calendarQueryParams = useMemo(
+    () => ({
+      year: substituteCalendarBaseDate.getFullYear(),
+      month: substituteCalendarBaseDate.getMonth() + 1,
+    }),
+    [substituteCalendarBaseDate]
+  )
+
+  const { data: exchangeableSchedulesResponse } = useQuery({
+    queryKey:
+      workspaceId != null && workspaceId > 0
+        ? queryKeys.workspace.exchangeableSchedules(
+            workspaceId,
+            calendarQueryParams
+          )
+        : ['workspace', 'exchangeableSchedules', 'disabled'],
+    queryFn: () => getExchangeableSchedules(workspaceId!, calendarQueryParams),
+    enabled: workspaceId != null && workspaceId > 0,
+  })
+
+  const resolvedCalendarData = useMemo(() => {
+    if (
+      workspaceId != null &&
+      workspaceId > 0 &&
+      exchangeableSchedulesResponse
+    ) {
+      return adaptExchangeableSchedulesToCalendar(exchangeableSchedulesResponse)
+    }
+    return calendarData ?? null
+  }, [workspaceId, exchangeableSchedulesResponse, calendarData])
+
   const selectedWeekdayLabel = useMemo(() => {
     if (selectedCalendarDate == null) return null
-    const idx = (selectedCalendarDate.getDay() + 6) % 7
-    return WEEKDAY_LABELS[idx]
+    return WEEKDAY_LABELS[selectedCalendarDate.getDay()]
   }, [selectedCalendarDate])
 
   const summarySelectedTimeLabel = useMemo(() => {
@@ -113,8 +148,9 @@ export function useSubstituteRequestFlow({
   }, [startHour, startMin, endHour, endMin])
 
   const substituteScheduleId = useMemo(
-    () => pickScheduleIdForSelectedDate(calendarData, selectedCalendarDate),
-    [calendarData, selectedCalendarDate]
+    () =>
+      pickScheduleIdForSelectedDate(resolvedCalendarData, selectedCalendarDate),
+    [resolvedCalendarData, selectedCalendarDate]
   )
 
   const {
@@ -158,11 +194,14 @@ export function useSubstituteRequestFlow({
     onSuccess: async (_, vars) => {
       if (workspaceId != null && workspaceId > 0) {
         await queryClient.invalidateQueries({
-          queryKey: ['workspace', 'schedules', workspaceId],
+          queryKey: ['workspace', 'exchangeableSchedules', workspaceId],
         })
       }
       await queryClient.invalidateQueries({
         queryKey: ['workspace', 'exchangeableWorkers', vars.scheduleId],
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['userSubstitute', 'list'],
       })
       onClose()
     },

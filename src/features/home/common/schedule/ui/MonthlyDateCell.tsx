@@ -32,7 +32,7 @@ export function MonthlyDateCell({
         : 'text-text-50'
 
   const shellClass = cn(
-    'mx-auto flex h-12 w-12 items-center justify-center',
+    'flex h-12 w-full max-w-12 items-center justify-center',
     isSelected && 'bg-bg-light',
     onClick &&
       'cursor-pointer rounded-xl border border-transparent hover:bg-bg-light/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main'
@@ -41,12 +41,14 @@ export function MonthlyDateCell({
   const body = isActiveDay ? (
     <div className="relative flex h-8 w-8 items-center justify-center">
       <MonthlyDateGauge gaugeRatio={gaugeRatio} />
-      <span className="typography-body03-semibold text-text-100">
+      <span className="tabular-nums typography-body03-semibold text-text-100">
         {dayText}
       </span>
     </div>
   ) : (
-    <span className={cn('typography-body03-regular', dayTextColor)}>
+    <span
+      className={cn('tabular-nums typography-body03-regular', dayTextColor)}
+    >
       {dayText}
     </span>
   )

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { Navbar } from '@/shared/ui/common/Navbar'
@@ -13,9 +13,6 @@ import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibil
 import { WorkerListItem } from '@/shared/ui/home/WorkerListItem'
 import CrownIcon from '@/assets/icons/home/crown-solid.svg'
 import UsersIcon from '@/assets/icons/home/users.svg'
-import CatppuccinChangelogIcon from '@/assets/icons/catppuccin_changelog.svg?react'
-import { SubstituteRequestModalFlow } from './components/SubstituteRequestModalFlow'
-
 function formatNextShift(isoDate: string | null | undefined) {
   if (isoDate == null || isoDate === '') return undefined
   const date = parseISO(isoDate)
@@ -95,9 +92,6 @@ export function WorkspaceDetailPage() {
     workersTotalCount
   )
 
-  const [substituteFlowOpen, setSubstituteFlowOpen] = useState(false)
-  const [substituteFlowSession, setSubstituteFlowSession] = useState(0)
-
   return (
     <div className="flex flex-col min-h-[100dvh] bg-bg-light">
       <Navbar variant="detail" title="근무중인 가게" />
@@ -108,40 +102,8 @@ export function WorkspaceDetailPage() {
           data={calendarData}
           isLoading={scheduleLoading}
           workspaceName={storeDisplayName}
-          calendarTitleRightAction={
-            mode === 'monthly' ? (
-              <button
-                type="button"
-                className="box-border flex h-[36px] w-[114px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-line-2 bg-white"
-                aria-label="대타 요청"
-                onClick={() => {
-                  setSubstituteFlowSession(s => s + 1)
-                  setSubstituteFlowOpen(true)
-                }}
-              >
-                <CatppuccinChangelogIcon
-                  className="size-5 shrink-0"
-                  aria-hidden
-                />
-                <span className="typography-body03-semibold text-text-100 whitespace-nowrap">
-                  대타 요청
-                </span>
-              </button>
-            ) : null
-          }
           onDateChange={onDateChange}
         />
-
-        {substituteFlowOpen ? (
-          <SubstituteRequestModalFlow
-            key={substituteFlowSession}
-            onClose={() => setSubstituteFlowOpen(false)}
-            storeName={(storeDisplayName ?? '근무 업장').trim()}
-            calendarData={calendarData}
-            initialMonth={baseDate}
-            workspaceId={Number.isFinite(id) && id > 0 ? id : undefined}
-          />
-        ) : null}
 
         {/* 관리자 섹션 */}
         <section className="w-full">

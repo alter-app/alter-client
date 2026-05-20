@@ -36,7 +36,7 @@ const MANAGER_ITEMS: MenuRow[] = [
 const USER_ITEMS: MenuRow[] = [
   { label: '내 근무 일정', icon: CalendarIcon, path: ROUTES.USER.SCHEDULE },
   { label: '급여 확인', icon: WalletIcon, path: ROUTES.MY.ROOT },
-  { label: '대타 요청 내역', icon: SwapIcon, path: ROUTES.USER.HOME },
+  { label: '대타 요청', icon: SwapIcon, path: ROUTES.USER.SUBSTITUTE_REQUEST },
 ]
 
 function MenuList({

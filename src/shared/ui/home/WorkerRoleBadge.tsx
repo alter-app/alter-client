@@ -1,4 +1,4 @@
-type WorkerRole = 'staff' | 'manager' | 'owner'
+import type { WorkerRole } from '@/shared/types/workerRole'
 
 interface WorkerRoleBadgeProps {
   role: WorkerRole
@@ -28,7 +28,7 @@ export function WorkerRoleBadge({
 
   return (
     <div
-      className={`inline-flex h-5 items-center rounded-[80px] px-2 py-0.5 ${style.containerClassName} ${className}`}
+      className={`inline-flex h-5 shrink-0 items-center rounded-[80px] px-2 py-0.5 ${style.containerClassName} ${className}`}
     >
       <span className="typography-bg text-text-90">{style.label}</span>
     </div>

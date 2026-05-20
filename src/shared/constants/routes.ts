@@ -18,6 +18,8 @@ export const ROUTES = {
     WORKSPACE: '/user/workspace',
     WORKSPACE_JOIN: '/user/workspace/join',
     APPLIED_STORES: '/user/applied-stores',
+    SUBSTITUTE_REQUEST: '/user/substitute-request',
+    SUBSTITUTE_REQUEST_DETAIL_PATTERN: '/user/substitute-request/:requestId',
     WORKSPACE_MEMBERS_PATTERN: '/user/workspaces/:workspaceId/members',
     WORKSPACE_DETAIL_PATTERN: '/user/workspace/:workspaceId',
   },
