@@ -46,7 +46,14 @@ export function WorkerPhoneInviteForm({ workspaceId, onSent }: Props) {
     },
   })
 
+  function clearSendFeedback() {
+    setSuccessMessage('')
+    sendMut.reset()
+  }
+
   function addDraftToList() {
+    clearSendFeedback()
+
     if (!draftValid) {
       setDraftError('휴대폰 번호 10~11자리를 입력해 주세요.')
       return
@@ -61,19 +68,29 @@ export function WorkerPhoneInviteForm({ workspaceId, onSent }: Props) {
     setPhoneNumbers(prev => [...prev, normalized])
     setDraft('')
     setDraftError('')
-    sendMut.reset()
+  }
+
+  function handleAddPhoneSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    addDraftToList()
   }
 
   function removePhone(normalized: string) {
+    clearSendFeedback()
     setPhoneNumbers(prev => prev.filter(n => n !== normalized))
-    sendMut.reset()
   }
 
   function submit() {
     if (!canSend || sendMut.isPending) return
-    setSuccessMessage('')
+    clearSendFeedback()
     sendMut.mutate()
   }
+
+  const sendButtonLabel = sendMut.isPending
+    ? '보내는 중…'
+    : canSend
+      ? `${phoneNumbers.length}명 초대 보내기`
+      : '초대 보내기'
 
   return (
     <div className="flex flex-col gap-4">
@@ -82,7 +99,7 @@ export function WorkerPhoneInviteForm({ workspaceId, onSent }: Props) {
         취소됩니다(미가입·이미 근무 중·초대 대기 중).
       </p>
 
-      <div className="flex flex-col gap-2">
+      <form className="flex flex-col gap-2" onSubmit={handleAddPhoneSubmit}>
         <div className="flex gap-2">
           <div className="flex-1">
             <AuthInput
@@ -93,22 +110,15 @@ export function WorkerPhoneInviteForm({ workspaceId, onSent }: Props) {
               onChange={e => {
                 setDraft(formatPhone(e.target.value))
                 setDraftError('')
-                sendMut.reset()
+                clearSendFeedback()
               }}
               autoComplete="tel"
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  addDraftToList()
-                }
-              }}
             />
           </div>
           <button
-            type="button"
+            type="submit"
             className="min-w-[72px] shrink-0 rounded-xl border border-line-2 bg-white px-3 typography-body02-semibold text-text-90 disabled:opacity-45"
             disabled={!draftValid}
-            onClick={() => addDraftToList()}
           >
             추가
           </button>
@@ -117,7 +127,7 @@ export function WorkerPhoneInviteForm({ workspaceId, onSent }: Props) {
         {draftError ? (
           <p className="typography-body02-regular text-red-600">{draftError}</p>
         ) : null}
-      </div>
+      </form>
 
       {phoneNumbers.length > 0 ? (
         <ul className="flex flex-col gap-2">
@@ -160,11 +170,7 @@ export function WorkerPhoneInviteForm({ workspaceId, onSent }: Props) {
         disabled={!canSend || sendMut.isPending}
         onClick={() => submit()}
       >
-        {sendMut.isPending
-          ? '보내는 중…'
-          : canSend
-            ? `${phoneNumbers.length}명 초대 보내기`
-            : '초대 보내기'}
+        {sendButtonLabel}
       </AuthButton>
 
       {phoneNumbers.length === 0 ? (
