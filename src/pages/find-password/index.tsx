@@ -6,6 +6,7 @@ import { AuthButton } from '@/shared/ui/common/AuthButton'
 import { resetPassword } from '@/shared/api/auth'
 import { ROUTES } from '@/shared/constants/routes'
 import { isPasswordValid } from '@/shared/lib/utils/signupValidation'
+import { isValidEmailFormat } from '@/shared/lib/utils/emailValidation'
 import { PhoneVerification } from '@/features/auth'
 import {
   FIND_PASSWORD_RECAPTCHA_ID,
@@ -13,8 +14,6 @@ import {
 } from './hooks/useFindPasswordPhoneVerification'
 
 type Step = 1 | 2 | 3
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function FindPasswordPage() {
   const navigate = useNavigate()
@@ -45,7 +44,7 @@ export function FindPasswordPage() {
       setEmailError('아이디(이메일)를 입력해주세요.')
       return
     }
-    if (!EMAIL_REGEX.test(trimmed)) {
+    if (!isValidEmailFormat(trimmed)) {
       setEmailError('올바른 이메일 형식을 입력해주세요.')
       return
     }

@@ -5,9 +5,9 @@ import {
   verifyEmailCode,
 } from '@/shared/api/auth'
 import { useTimer } from '@/shared/hooks/useTimer'
+import { isValidEmailFormat } from '@/shared/lib/utils/emailValidation'
 
 const RESEND_COOLDOWN = 30
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /**
  * 이메일 인증 훅 (선택 항목)
@@ -47,7 +47,7 @@ export function useEmailVerification() {
     const trimmed = email.trim()
     if (!trimmed || isSending || resendCooldown > 0) return
 
-    if (!EMAIL_REGEX.test(trimmed)) {
+    if (!isValidEmailFormat(trimmed)) {
       setMessage('올바른 이메일 형식을 입력해주세요.')
       return
     }
