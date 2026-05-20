@@ -30,6 +30,7 @@ export const ROUTES = {
     WORKER_SCHEDULE_PATTERN:
       '/manager/workspaces/:workspaceId/workers/:workerId/schedule',
     STORE_REGISTER: '/manager/store-register',
+    SUBSTITUTE_REQUEST: '/manager/substitute-request',
     SOCIAL: '/manager/social',
     SOCIAL_CHAT: '/manager/social/chat',
   },

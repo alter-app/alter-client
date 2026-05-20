@@ -107,18 +107,18 @@ export function Docbar() {
   }, [pathname, setSelectedTabByPathname])
 
   const tabs = useMemo<TabKey[]>(
-    () =>
-      scope === 'MANAGER'
-        ? ['home', 'search', 'my']
-        : ['home', 'search', 'substitute', 'my'],
-    [scope]
+    () => ['home', 'search', 'substitute', 'my'],
+    []
   )
 
   const pathByTab: Record<TabKey, string> = useMemo(
     () => ({
       home: homePathForScope(scope),
       search: ROUTES.USER.JOB_LOOKUP_MAP,
-      substitute: ROUTES.USER.SUBSTITUTE_REQUEST,
+      substitute:
+        scope === 'MANAGER'
+          ? ROUTES.MANAGER.SUBSTITUTE_REQUEST
+          : ROUTES.USER.SUBSTITUTE_REQUEST,
       my: ROUTES.MY.ROOT,
     }),
     [scope]
