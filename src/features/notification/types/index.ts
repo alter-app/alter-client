@@ -6,7 +6,7 @@ export interface NotificationDto {
 }
 
 export interface NotificationPage {
-  cursor: string
+  cursor: string | null
   pageSize: number
   totalCount: number
 }
