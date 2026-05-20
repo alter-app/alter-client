@@ -18,6 +18,39 @@ function buildPagedQuery(params: MyInvitationsQueryParams) {
   }
 }
 
+function emptyInvitationsList(pageSize: number): MyInvitationsListDto {
+  return {
+    page: { cursor: null, pageSize, totalCount: 0 },
+    data: [],
+  }
+}
+
+function normalizeInvitationsList(
+  payload: unknown,
+  pageSize: number
+): MyInvitationsListDto {
+  if (payload == null) return emptyInvitationsList(pageSize)
+  if (Array.isArray(payload)) {
+    return {
+      page: { cursor: null, pageSize, totalCount: payload.length },
+      data: payload,
+    }
+  }
+  if (typeof payload !== 'object') return emptyInvitationsList(pageSize)
+
+  const list = payload as MyInvitationsListDto
+  const rows = Array.isArray(list.data) ? list.data : []
+
+  return {
+    page: list.page ?? {
+      cursor: null,
+      pageSize,
+      totalCount: rows.length,
+    },
+    data: rows,
+  }
+}
+
 /** GET /app/users/me/invitations */
 export async function getMyInvitations(
   params: MyInvitationsQueryParams
@@ -26,7 +59,7 @@ export async function getMyInvitations(
     '/app/users/me/invitations',
     { params: buildPagedQuery(params) }
   )
-  return response.data.data
+  return normalizeInvitationsList(response.data.data, params.pageSize)
 }
 
 /** POST /app/users/me/invitations/{invitationId}/accept */

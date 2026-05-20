@@ -4,7 +4,10 @@ import {
   declineWorkspaceInvitation,
   getMyInvitations,
 } from '@/features/workspace-join/api/membership'
-import type { MyInvitationsListDto } from '@/features/workspace-join/types/membership'
+import type {
+  MyInvitationItemDto,
+  MyInvitationsListDto,
+} from '@/features/workspace-join/types/membership'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { AuthButton } from '@/shared/ui/common/AuthButton'
@@ -32,11 +35,31 @@ const pendingInvitationsQueryKey = queryKeys.workspaceMembership.invitations({
   status: 'PENDING',
 })
 
-function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleString('ko-KR', {
+function emptyInvitationsListFromCache(pageSize: number): MyInvitationsListDto {
+  return {
+    page: { cursor: null, pageSize, totalCount: 0 },
+    data: [],
+  }
+}
+
+function formatDateTime(iso: string | null | undefined) {
+  if (iso == null || iso === '') return '-'
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return '-'
+  return date.toLocaleString('ko-KR', {
     dateStyle: 'medium',
     timeStyle: 'short',
   })
+}
+
+function normalizeInvitationRows(
+  rows: MyInvitationItemDto[] | null | undefined
+): MyInvitationItemDto[] {
+  if (!Array.isArray(rows)) return []
+  return rows.filter(
+    (row): row is MyInvitationItemDto =>
+      row != null && typeof row.invitationId === 'number'
+  )
 }
 
 export function ReceivedInvitationsPanel({ onAccepted }: Props) {
@@ -47,7 +70,7 @@ export function ReceivedInvitationsPanel({ onAccepted }: Props) {
     queryFn: () => getMyInvitations({ pageSize: PAGE_SIZE, status: 'PENDING' }),
   })
 
-  const items = invitationsQuery.data?.data ?? []
+  const items = normalizeInvitationRows(invitationsQuery.data?.data)
 
   const invitationMut = useMutation({
     mutationFn: async ({
@@ -70,16 +93,23 @@ export function ReceivedInvitationsPanel({ onAccepted }: Props) {
       queryClient.setQueryData<MyInvitationsListDto>(
         pendingInvitationsQueryKey,
         old => {
-          if (!old) return old
-          const nextData = old.data.filter(
+          const base = old ?? emptyInvitationsListFromCache(PAGE_SIZE)
+          const currentRows = normalizeInvitationRows(base.data)
+          const nextData = currentRows.filter(
             item => item.invitationId !== variables.invitationId
           )
+          const prevTotal =
+            typeof base.page?.totalCount === 'number'
+              ? base.page.totalCount
+              : currentRows.length
+
           return {
-            ...old,
+            ...base,
             data: nextData,
             page: {
-              ...old.page,
-              totalCount: Math.max(0, old.page.totalCount - 1),
+              cursor: base.page?.cursor ?? null,
+              pageSize: base.page?.pageSize ?? PAGE_SIZE,
+              totalCount: Math.max(0, prevTotal - 1),
             },
           }
         }
@@ -167,7 +197,7 @@ export function ReceivedInvitationsPanel({ onAccepted }: Props) {
           >
             <div>
               <p className="typography-body01-semibold text-text-100">
-                {row.businessName}
+                {row.businessName?.trim() || '업장'}
               </p>
               <p className="mt-1 typography-body02-regular text-text-70">
                 초대 일시 {formatDateTime(row.invitedAt)}
@@ -197,7 +227,7 @@ export function ReceivedInvitationsPanel({ onAccepted }: Props) {
                   invitationMut.mutate({
                     invitationId: row.invitationId,
                     action: 'ACCEPT',
-                    businessName: row.businessName,
+                    businessName: row.businessName?.trim() || '업장',
                   })
                 }
               >
@@ -213,7 +243,7 @@ export function ReceivedInvitationsPanel({ onAccepted }: Props) {
                   invitationMut.mutate({
                     invitationId: row.invitationId,
                     action: 'DECLINE',
-                    businessName: row.businessName,
+                    businessName: row.businessName?.trim() || '업장',
                   })
                 }
               >

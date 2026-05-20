@@ -15,8 +15,8 @@ export interface WorkspaceMembershipCursorPageDto {
 export interface MyInvitationItemDto {
   invitationId: number
   businessName: string
-  invitedAt: string
-  expiresAt: string
+  invitedAt: string | null
+  expiresAt: string | null
   status?: WorkspaceInvitationStatus
 }
 
