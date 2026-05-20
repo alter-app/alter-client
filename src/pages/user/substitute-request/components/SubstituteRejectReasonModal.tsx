@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 
@@ -18,22 +18,20 @@ export function SubstituteRejectReasonModal({
   const [reason, setReason] = useState('')
   const [localError, setLocalError] = useState<string | null>(null)
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setReason('')
     setLocalError(null)
     onClose()
-  }
+  }, [onClose])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
-      setReason('')
-      setLocalError(null)
-      onClose()
+      handleClose()
     }
     if (open) window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [open, onClose])
+  }, [open, handleClose])
 
   useEffect(() => {
     const prev = document.body.style.overflow
