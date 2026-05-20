@@ -42,6 +42,7 @@ export function useFindPasswordPhoneVerification(email: string) {
 
   const handlePhoneChange = (value: string) => {
     setPhone(formatPhone(value))
+    smsConfirmationRef.current = null
     setSmsSent(false)
     setSmsCode('')
     setVerified(false)
@@ -84,11 +85,12 @@ export function useFindPasswordPhoneVerification(email: string) {
   }
 
   const verifySms = async () => {
-    if (!smsCode.trim() || isVerifying || !smsConfirmationRef.current) return
+    const confirmation = smsConfirmationRef.current
+    if (!smsSent || !smsCode.trim() || isVerifying || !confirmation) return
     try {
       setIsVerifying(true)
       setMessage('')
-      await smsConfirmationRef.current.confirm(smsCode)
+      await confirmation.confirm(smsCode)
       const firebaseIdToken = await getFreshFirebaseIdToken()
       if (!firebaseIdToken) {
         setMessage('전화번호 인증이 만료되었습니다. 다시 인증해 주세요.')

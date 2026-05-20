@@ -46,6 +46,7 @@ export function usePhoneVerification() {
   /** 전화번호 입력 변경 — 인증 상태 초기화 */
   const handlePhoneChange = (value: string) => {
     setPhone(formatPhone(value))
+    smsConfirmationRef.current = null
     setSmsSent(false)
     setSmsCode('')
     setVerified(false)
@@ -96,11 +97,12 @@ export function usePhoneVerification() {
 
   /** 인증번호 확인 */
   const verifySms = async () => {
-    if (!smsCode.trim() || isVerifying || !smsConfirmationRef.current) return
+    const confirmation = smsConfirmationRef.current
+    if (!smsSent || !smsCode.trim() || isVerifying || !confirmation) return
     try {
       setIsVerifying(true)
       setMessage('')
-      const result = await smsConfirmationRef.current.confirm(smsCode)
+      const result = await confirmation.confirm(smsCode)
       const idToken = await result.user.getIdToken()
       setFirebaseIdToken(idToken)
       setVerified(true)
