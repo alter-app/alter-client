@@ -1,5 +1,7 @@
 import type { CommonApiResponse } from '@/shared/types/common'
 import type { SubstituteRequestItem } from '@/shared/ui/manager/SubstituteApprovalCard'
+import type { WorkerRole } from '@/shared/types/workerRole'
+import { ManagerSubstituteApiStatus } from '@/shared/types/substituteStatus'
 
 // ---- API DTOs ----
 export interface SubstituteScheduleDto {
@@ -12,6 +14,7 @@ export interface SubstituteScheduleDto {
 export interface SubstituteRequesterDto {
   workerId: number
   workerName: string
+  workerRole?: string
 }
 
 export interface SubstituteStatusDto {
@@ -53,18 +56,26 @@ export interface SubstituteRequestsQueryParams {
 }
 
 // ---- Mappers ----
+function mapApiWorkerRole(raw: string | undefined): WorkerRole {
+  if (raw === 'MANAGER') return 'manager'
+  if (raw === 'OWNER') return 'owner'
+  return 'staff'
+}
+
 function mapApiStatusToUiStatus(
   apiStatus: string
 ): SubstituteRequestItem['status'] {
-  if (apiStatus === 'ACCEPTED' || apiStatus === 'APPROVED') return 'accepted'
+  if (apiStatus === ManagerSubstituteApiStatus.APPROVED) return 'accepted'
   return 'pending'
 }
 
+function formatDate(dateTime: string): string {
+  const d = new Date(dateTime)
+  return `${d.getMonth() + 1}월 ${d.getDate()}일`
+}
+
 function formatDateRange(startDateTime: string, endDateTime: string): string {
-  const start = new Date(startDateTime)
-  const end = new Date(endDateTime)
-  const fmt = (d: Date) => `${d.getMonth() + 1}월 ${d.getDate()}일`
-  return `${fmt(start)} ↔ ${fmt(end)}`
+  return `${formatDate(startDateTime)} ↔ ${formatDate(endDateTime)}`
 }
 
 export function adaptSubstituteRequestDto(
@@ -74,10 +85,13 @@ export function adaptSubstituteRequestDto(
     id: String(dto.id),
     name: dto.requester.workerName,
     role: dto.schedule.position,
+    workerRole: mapApiWorkerRole(dto.requester.workerRole),
     dateRange: formatDateRange(
       dto.schedule.startDateTime,
       dto.schedule.endDateTime
     ),
+    scheduledDate: formatDate(dto.schedule.startDateTime),
     status: mapApiStatusToUiStatus(dto.status.value),
+    rawStatus: dto.status.value,
   }
 }

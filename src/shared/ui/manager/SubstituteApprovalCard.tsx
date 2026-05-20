@@ -1,5 +1,8 @@
 // 대타 승인 요청 카드
 import { MoreButton } from '@/shared/ui/common/MoreButton'
+import type { WorkerRole } from '@/shared/types/workerRole'
+import { MANAGER_SUBSTITUTE_STATUS_LABEL } from '@/shared/types/substituteStatus'
+import type { ManagerSubstituteApiStatus as ManagerSubstituteApiStatusType } from '@/shared/types/substituteStatus'
 
 export type SubstituteRequestStatus = 'accepted' | 'pending'
 
@@ -7,9 +10,12 @@ export interface SubstituteRequestItem {
   id: string
   name: string
   role: string
+  workerRole: WorkerRole
   dateRange: string
+  scheduledDate: string
   status: SubstituteRequestStatus
   imageUrl?: string | null
+  rawStatus?: ManagerSubstituteApiStatusType
 }
 
 interface SubstituteApprovalCardProps {
@@ -18,19 +24,17 @@ interface SubstituteApprovalCardProps {
   onRequestClick?: (item: SubstituteRequestItem) => void
 }
 
-const statusConfig: Record<
-  SubstituteRequestStatus,
-  { label: string; className: string }
-> = {
-  accepted: {
-    label: '수락됨',
-    className: 'border-main bg-main-100 text-main typography-body02-semibold',
-  },
-  pending: {
-    label: '대기중',
-    className:
-      'border-warning bg-warning-100 text-warning typography-body02-semibold',
-  },
+const statusBadgeClass: Record<SubstituteRequestStatus, string> = {
+  accepted: 'border-main bg-main-100 text-main typography-body02-semibold',
+  pending:
+    'border-warning bg-warning-100 text-warning typography-body02-semibold',
+}
+
+function resolveStatusLabel(item: SubstituteRequestItem): string {
+  if (item.rawStatus != null) {
+    return MANAGER_SUBSTITUTE_STATUS_LABEL[item.rawStatus]
+  }
+  return item.status === 'accepted' ? '승인' : '대기중'
 }
 
 function RequestRow({
@@ -42,8 +46,6 @@ function RequestRow({
   onClick?: () => void
   isLast: boolean
 }) {
-  const config = statusConfig[item.status]
-
   return (
     <button
       type="button"
@@ -80,9 +82,9 @@ function RequestRow({
         </div>
       </div>
       <span
-        className={`inline-flex h-7 min-w-[69px] shrink-0 items-center justify-center rounded-[60px] border px-3 ${config.className}`}
+        className={`inline-flex h-7 min-w-[69px] shrink-0 items-center justify-center rounded-[60px] border px-3 ${statusBadgeClass[item.status]}`}
       >
-        {config.label}
+        {resolveStatusLabel(item)}
       </span>
     </button>
   )
