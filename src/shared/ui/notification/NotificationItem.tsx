@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import TrashIcon from '@/assets/icons/social/trash.svg?react'
 import AlterLogo from '@/assets/alter-logo-vector.svg?react'
 
@@ -52,16 +52,36 @@ export function NotificationItem({
   const startXRef = useRef<number | null>(null)
   const isDragging = useRef(false)
   const offsetRef = useRef(0)
+  const didDrag = useRef(false)
+  const moveListenerRef = useRef<((e: MouseEvent) => void) | null>(null)
+  const upListenerRef = useRef<(() => void) | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (moveListenerRef.current) {
+        document.removeEventListener('mousemove', moveListenerRef.current)
+        moveListenerRef.current = null
+      }
+      if (upListenerRef.current) {
+        document.removeEventListener('mouseup', upListenerRef.current)
+        upListenerRef.current = null
+      }
+      endDrag()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const startDrag = (clientX: number) => {
     if (!onDelete) return
     startXRef.current = clientX
     isDragging.current = true
+    didDrag.current = false
   }
 
   const moveDrag = (clientX: number) => {
     if (!isDragging.current || startXRef.current === null) return
     const diff = clientX - startXRef.current
+    if (Math.abs(diff) > 2) didDrag.current = true
     const next = Math.min(0, Math.max(-DELETE_WIDTH, diff))
     offsetRef.current = next
     setOffset(next)
@@ -96,7 +116,11 @@ export function NotificationItem({
       endDrag()
       document.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', onUp)
+      moveListenerRef.current = null
+      upListenerRef.current = null
     }
+    moveListenerRef.current = onMove
+    upListenerRef.current = onUp
     document.addEventListener('mousemove', onMove)
     document.addEventListener('mouseup', onUp)
   }
@@ -125,6 +149,10 @@ export function NotificationItem({
         onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
         onClick={() => {
+          if (didDrag.current) {
+            didDrag.current = false
+            return
+          }
           if (offset !== 0) {
             setOffset(0)
             return
