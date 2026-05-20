@@ -26,6 +26,7 @@ import { SubstituteRequestPage } from '@/pages/user/substitute-request'
 import { StoreRegisterPage } from '@/pages/manager/store-register'
 import { ManagerWorkerInvitePage } from '@/pages/manager/worker-invite'
 import { WorkspaceJoinPage } from '@/pages/user/workspace-join'
+import { NotificationPage } from '@/pages/notification'
 import { MyPage } from '@/pages/my'
 import { ProfileEditPage } from '@/pages/my/profile'
 import { ErrorPageRoute } from '@/pages/error'
@@ -98,6 +99,7 @@ export function App() {
             element={<AppliedStoresPage />}
           />
           <Route path={ROUTES.MY.PROFILE} element={<ProfileEditPage />} />
+          <Route path={ROUTES.NOTIFICATIONS} element={<NotificationPage />} />
           <Route
             path={ROUTES.MANAGER.WORKER_SCHEDULE}
             element={<ManagerWorkerScheduleLegacyEntryRedirect />}

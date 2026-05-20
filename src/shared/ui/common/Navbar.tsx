@@ -6,6 +6,7 @@ import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 import { useNavigate } from 'react-router-dom'
 import { HamburgerMenuDrawer } from '@/shared/ui/common/HamburgerMenuDrawer'
 import { cn } from '@/shared/lib/utils'
+import { ROUTES } from '@/shared/constants/routes'
 
 type NavbarVariant = 'main' | 'detail'
 
@@ -79,6 +80,7 @@ export function Navbar({
                 type="button"
                 aria-label="알림"
                 className="flex h-6 w-6 items-center justify-center"
+                onClick={() => navigate(ROUTES.NOTIFICATIONS)}
               >
                 <img src={BellIcon} alt="Bell" className="h-6 w-6" />
               </button>
