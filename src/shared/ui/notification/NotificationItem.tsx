@@ -56,6 +56,19 @@ export function NotificationItem({
   const moveListenerRef = useRef<((e: MouseEvent) => void) | null>(null)
   const upListenerRef = useRef<(() => void) | null>(null)
 
+  const endDrag = () => {
+    if (!isDragging.current) return
+    isDragging.current = false
+    startXRef.current = null
+    if (offsetRef.current < -SWIPE_THRESHOLD) {
+      offsetRef.current = -DELETE_WIDTH
+      setOffset(-DELETE_WIDTH)
+    } else {
+      offsetRef.current = 0
+      setOffset(0)
+    }
+  }
+
   useEffect(() => {
     return () => {
       if (moveListenerRef.current) {
@@ -68,7 +81,6 @@ export function NotificationItem({
       }
       endDrag()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const startDrag = (clientX: number) => {
@@ -87,18 +99,10 @@ export function NotificationItem({
     setOffset(next)
   }
 
-  const endDrag = () => {
-    if (!isDragging.current) return
-    isDragging.current = false
-    startXRef.current = null
-    if (offsetRef.current < -SWIPE_THRESHOLD) {
-      offsetRef.current = 0
-      setOffset(0)
-      onDelete?.()
-    } else {
-      offsetRef.current = 0
-      setOffset(0)
-    }
+  const handleDelete = () => {
+    offsetRef.current = 0
+    setOffset(0)
+    onDelete?.()
   }
 
   const handleTouchStart = (e: React.TouchEvent) =>
@@ -128,12 +132,14 @@ export function NotificationItem({
   return (
     <div className="relative w-full overflow-hidden">
       {onDelete && (
-        <div
+        <button
+          type="button"
           className="absolute bottom-0 right-0 top-0 flex w-[60px] items-center justify-center bg-error"
-          aria-hidden
+          aria-label="알림 삭제"
+          onClick={handleDelete}
         >
           <TrashIcon className="size-5 text-white" />
-        </div>
+        </button>
       )}
 
       <button
