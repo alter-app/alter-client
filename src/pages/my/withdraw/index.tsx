@@ -1,41 +1,21 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useWithdrawUserMutation } from '@/features/user/me'
-import { ROUTES } from '@/shared/constants/routes'
-import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
+import { useWithdrawUserFlow } from '@/features/user/me'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { AuthButton } from '@/shared/ui/common/AuthButton'
 import { Navbar } from '@/shared/ui/common/Navbar'
 
 export function WithdrawPage() {
-  const navigate = useNavigate()
-  const logout = useAuthStore(state => state.logout)
   const scope = useAuthStore(state => state.scope)
-  const withdrawUserMutation = useWithdrawUserMutation()
   const [checked, setChecked] = useState(false)
-  const [message, setMessage] = useState('')
+  const withdrawFlow = useWithdrawUserFlow()
 
   const handleWithdraw = async () => {
-    setMessage('')
+    withdrawFlow.setMessage('')
     if (!checked) {
-      setMessage('탈퇴 안내를 확인해 주세요.')
+      withdrawFlow.setMessage('탈퇴 안내를 확인해 주세요.')
       return
     }
-    if (!window.confirm('정말 탈퇴하시겠어요? 이 작업은 되돌릴 수 없습니다.')) {
-      return
-    }
-
-    try {
-      await withdrawUserMutation.mutateAsync()
-      logout()
-      navigate(ROUTES.AUTH.LOGIN, { replace: true })
-    } catch (error) {
-      const fallback =
-        scope === 'MANAGER'
-          ? '운영 중인 업장이 있으면 탈퇴할 수 없습니다.'
-          : '회원 탈퇴에 실패했습니다.'
-      setMessage(getAxiosErrorMessage(error, fallback))
-    }
+    await withdrawFlow.performWithdraw()
   }
 
   return (
@@ -70,15 +50,15 @@ export function WithdrawPage() {
           안내 사항을 확인했습니다.
         </label>
 
-        {message && (
+        {withdrawFlow.message && (
           <p role="alert" className="mt-4 text-error typography-body03-regular">
-            {message}
+            {withdrawFlow.message}
           </p>
         )}
 
         <div className="mt-auto pb-8">
           <AuthButton
-            disabled={!checked || withdrawUserMutation.isPending}
+            disabled={!checked || withdrawFlow.isPending}
             onClick={handleWithdraw}
             className="bg-error shadow-none hover:shadow-none"
           >

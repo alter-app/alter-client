@@ -33,6 +33,7 @@ export { useEmailVerificationFlow } from './hooks/useEmailVerificationFlow'
 export { usePasswordUpdateFeature } from './hooks/usePasswordUpdateFeature'
 export { useProfileImageEditor } from './hooks/useProfileImageEditor'
 export { useSocialAccountLinking } from './hooks/useSocialAccountLinking'
+export { useWithdrawUserFlow } from './hooks/useWithdrawUserFlow'
 export type { UserMeViewModel } from './hooks/useUserMe'
 export type {
   LinkSocialAccountRequest,
