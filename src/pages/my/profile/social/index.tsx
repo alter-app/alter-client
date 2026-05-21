@@ -1,17 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import {
-  type LinkSocialAccountRequest,
   type SocialProvider,
-  useLinkSocialAccountMutation,
-  useUnlinkSocialAccountMutation,
+  useSocialAccountLinking,
   useUserSocialStatus,
 } from '@/features/user/me'
-import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
-import {
-  getKakaoOAuthRedirectUri,
-  loginWithApple,
-  requestFreshKakaoAuthorizationCode,
-} from '@/shared/lib/socialLogin'
 import { Navbar } from '@/shared/ui/common/Navbar'
 
 const PROVIDERS: Array<{ provider: SocialProvider; label: string }> = [
@@ -31,80 +23,12 @@ function formatLinkedAt(value?: string | null): string {
 
 export function SocialAccountPage() {
   const { data = [], isLoading, isError } = useUserSocialStatus()
-  const linkSocialAccountMutation = useLinkSocialAccountMutation()
-  const unlinkSocialAccountMutation = useUnlinkSocialAccountMutation()
-  const [message, setMessage] = useState('')
-  const [pendingProvider, setPendingProvider] = useState<SocialProvider | null>(
-    null
-  )
+  const socialLinking = useSocialAccountLinking()
 
   const statusMap = useMemo(
     () => new Map(data.map(item => [item.provider, item])),
     [data]
   )
-
-  const isPending =
-    linkSocialAccountMutation.isPending ||
-    unlinkSocialAccountMutation.isPending ||
-    pendingProvider !== null
-
-  const handleLink = async (provider: SocialProvider) => {
-    setMessage('')
-    setPendingProvider(provider)
-    try {
-      let request: LinkSocialAccountRequest
-
-      if (provider === 'KAKAO') {
-        const { authorizationCode, redirectUri } =
-          await requestFreshKakaoAuthorizationCode(getKakaoOAuthRedirectUri())
-        request = {
-          provider,
-          platformType: 'WEB',
-          authorizationCode,
-          redirectUri,
-        }
-      } else {
-        const appleResult = await loginWithApple()
-        request = {
-          provider,
-          platformType: 'WEB',
-          authorizationCode: appleResult.authorizationCode,
-          oauthToken: appleResult.accessToken
-            ? {
-                accessToken: appleResult.accessToken,
-                refreshToken: appleResult.refreshToken,
-              }
-            : undefined,
-        }
-      }
-
-      await linkSocialAccountMutation.mutateAsync(request)
-      setMessage(
-        `${PROVIDERS.find(item => item.provider === provider)?.label} 계정이 연동되었습니다.`
-      )
-    } catch (error) {
-      setMessage(getAxiosErrorMessage(error, '소셜 계정 연동에 실패했습니다.'))
-    } finally {
-      setPendingProvider(null)
-    }
-  }
-
-  const handleUnlink = async (provider: SocialProvider) => {
-    const label = PROVIDERS.find(item => item.provider === provider)?.label
-    if (!window.confirm(`${label} 계정 연동을 해제할까요?`)) return
-    setMessage('')
-    setPendingProvider(provider)
-    try {
-      await unlinkSocialAccountMutation.mutateAsync(provider)
-      setMessage(`${label} 계정 연동이 해제되었습니다.`)
-    } catch (error) {
-      setMessage(
-        getAxiosErrorMessage(error, '소셜 계정 연동 해제에 실패했습니다.')
-      )
-    } finally {
-      setPendingProvider(null)
-    }
-  }
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-white">
@@ -121,7 +45,7 @@ export function SocialAccountPage() {
           {PROVIDERS.map(item => {
             const status = statusMap.get(item.provider)
             const linked = Boolean(status?.linked)
-            const pending = pendingProvider === item.provider
+            const pending = socialLinking.pendingProvider === item.provider
 
             return (
               <div
@@ -140,11 +64,11 @@ export function SocialAccountPage() {
                 </div>
                 <button
                   type="button"
-                  disabled={isPending}
+                  disabled={socialLinking.isPending}
                   onClick={() =>
                     linked
-                      ? handleUnlink(item.provider)
-                      : handleLink(item.provider)
+                      ? void socialLinking.unlink(item.provider)
+                      : void socialLinking.link(item.provider)
                   }
                   className="h-10 rounded-xl bg-main px-4 text-white disabled:bg-text-50 typography-body02-regular"
                 >
@@ -165,12 +89,12 @@ export function SocialAccountPage() {
             연동 상태를 불러오지 못했습니다.
           </p>
         )}
-        {message && (
+        {socialLinking.message && (
           <p
             role="status"
             className="mt-4 text-text-70 typography-body03-regular"
           >
-            {message}
+            {socialLinking.message}
           </p>
         )}
       </main>
