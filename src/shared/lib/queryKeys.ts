@@ -80,7 +80,9 @@ export const queryKeys = {
     }) => ['workspaceMembership', 'invitations', params] as const,
   },
   user: {
-    me: () => ['user', 'me'] as const,
+    me: (scope?: string | null) => ['user', 'me', scope] as const,
+    socialStatus: (scope?: string | null) =>
+      ['user', 'socialStatus', scope] as const,
   },
   fixedWorkerSchedule: {
     list: (workspaceId: number) =>

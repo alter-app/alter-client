@@ -9,6 +9,9 @@ export interface UserMeViewModel {
   id?: number
   name: string
   nickname: string
+  email: string
+  phone: string
+  profileImageUrl?: string
   joinedAt?: Date
   joinedAtFormatted: string
   raw: UserMeDto | null
@@ -33,11 +36,12 @@ function formatJoinedAt(iso?: string | null): {
 
 export function useUserMe() {
   const isLoggedIn = useAuthStore(state => state.isLoggedIn)
+  const scope = useAuthStore(state => state.scope)
 
   const query = useQuery({
-    queryKey: queryKeys.user.me(),
-    queryFn: getUserMe,
-    enabled: isLoggedIn,
+    queryKey: queryKeys.user.me(scope),
+    queryFn: () => getUserMe(scope ?? 'USER'),
+    enabled: isLoggedIn && Boolean(scope),
     staleTime: 60_000,
   })
 
@@ -48,6 +52,9 @@ export function useUserMe() {
       id: dto?.id,
       name: dto?.name ?? '',
       nickname: dto?.nickname ?? '',
+      email: dto?.email ?? '',
+      phone: dto?.contact ?? dto?.phone ?? '',
+      profileImageUrl: dto?.profileImageUrl ?? undefined,
       joinedAt: date,
       joinedAtFormatted: formatted,
       raw: dto,
