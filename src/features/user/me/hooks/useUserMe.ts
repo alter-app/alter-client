@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getUserMe } from '@/features/user/me/api/user'
-import type { UserMeDto } from '@/features/user/me/types/user'
+import type { UserMeDto, UserMeScope } from '@/features/user/me/types/user'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
@@ -18,6 +18,13 @@ export interface UserMeViewModel {
 }
 
 const FALLBACK_JOINED_AT = '-'
+
+function requireUserScope(scope: UserMeScope | null): UserMeScope {
+  if (!scope) {
+    throw new Error('사용자 권한 정보가 준비되지 않았습니다.')
+  }
+  return scope
+}
 
 function formatJoinedAt(iso?: string | null): {
   date?: Date
@@ -40,7 +47,7 @@ export function useUserMe() {
 
   const query = useQuery({
     queryKey: queryKeys.user.me(scope),
-    queryFn: () => getUserMe(scope ?? 'USER'),
+    queryFn: () => getUserMe(requireUserScope(scope)),
     enabled: isLoggedIn && Boolean(scope),
     staleTime: 60_000,
   })

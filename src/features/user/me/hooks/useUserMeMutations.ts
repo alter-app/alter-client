@@ -21,8 +21,15 @@ import type {
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
-function useCurrentUserScope(): UserMeScope {
-  return useAuthStore(state => state.scope) ?? 'USER'
+function requireUserScope(scope: UserMeScope | null): UserMeScope {
+  if (!scope) {
+    throw new Error('사용자 권한 정보가 준비되지 않았습니다.')
+  }
+  return scope
+}
+
+function useCurrentUserScope(): UserMeScope | null {
+  return useAuthStore(state => state.scope)
 }
 
 export function useUpdateNicknameMutation() {
@@ -30,9 +37,14 @@ export function useUpdateNicknameMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (nickname: string) => updateUserNickname({ scope, nickname }),
+    mutationFn: (nickname: string) =>
+      updateUserNickname({ scope: requireUserScope(scope), nickname }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.user.me(scope) })
+      if (scope) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.user.me(scope),
+        })
+      }
     },
   })
 }
@@ -42,9 +54,14 @@ export function useUpdateProfileImageMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (fileId: string) => updateUserProfileImage({ scope, fileId }),
+    mutationFn: (fileId: string) =>
+      updateUserProfileImage({ scope: requireUserScope(scope), fileId }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.user.me(scope) })
+      if (scope) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.user.me(scope),
+        })
+      }
     },
   })
 }
@@ -54,9 +71,13 @@ export function useDeleteProfileImageMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () => deleteUserProfileImage(scope),
+    mutationFn: () => deleteUserProfileImage(requireUserScope(scope)),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.user.me(scope) })
+      if (scope) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.user.me(scope),
+        })
+      }
     },
   })
 }
@@ -66,7 +87,7 @@ export function useUpdatePasswordMutation() {
 
   return useMutation({
     mutationFn: (payload: { currentPassword?: string; newPassword: string }) =>
-      updateUserPassword({ scope, ...payload }),
+      updateUserPassword({ scope: requireUserScope(scope), ...payload }),
   })
 }
 
@@ -74,7 +95,8 @@ export function useSendEmailVerificationMutation() {
   const scope = useCurrentUserScope()
 
   return useMutation({
-    mutationFn: (email: string) => sendUserEmailVerification({ scope, email }),
+    mutationFn: (email: string) =>
+      sendUserEmailVerification({ scope: requireUserScope(scope), email }),
   })
 }
 
@@ -83,7 +105,7 @@ export function useVerifyEmailCodeMutation() {
 
   return useMutation({
     mutationFn: (payload: { email: string; code: string }) =>
-      verifyUserEmailCode({ scope, ...payload }),
+      verifyUserEmailCode({ scope: requireUserScope(scope), ...payload }),
   })
 }
 
@@ -92,9 +114,14 @@ export function useUpdateEmailMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (sessionId: string) => updateUserEmail({ scope, sessionId }),
+    mutationFn: (sessionId: string) =>
+      updateUserEmail({ scope: requireUserScope(scope), sessionId }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.user.me(scope) })
+      if (scope) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.user.me(scope),
+        })
+      }
     },
   })
 }
@@ -104,9 +131,13 @@ export function useDeleteEmailMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () => deleteUserEmail(scope),
+    mutationFn: () => deleteUserEmail(requireUserScope(scope)),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.user.me(scope) })
+      if (scope) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.user.me(scope),
+        })
+      }
     },
   })
 }
@@ -115,7 +146,7 @@ export function useWithdrawUserMutation() {
   const scope = useCurrentUserScope()
 
   return useMutation({
-    mutationFn: () => withdrawUser(scope),
+    mutationFn: () => withdrawUser(requireUserScope(scope)),
   })
 }
 
@@ -125,7 +156,7 @@ export function useUserSocialStatus() {
 
   return useQuery({
     queryKey: queryKeys.user.socialStatus(scope),
-    queryFn: () => getUserSocialStatus(scope ?? 'USER'),
+    queryFn: () => getUserSocialStatus(requireUserScope(scope)),
     enabled: isLoggedIn && Boolean(scope),
     staleTime: 60_000,
   })
@@ -137,11 +168,13 @@ export function useLinkSocialAccountMutation() {
 
   return useMutation({
     mutationFn: (request: LinkSocialAccountRequest) =>
-      linkUserSocialAccount({ scope, request }),
+      linkUserSocialAccount({ scope: requireUserScope(scope), request }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.user.socialStatus(scope),
-      })
+      if (scope) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.user.socialStatus(scope),
+        })
+      }
     },
   })
 }
@@ -152,11 +185,13 @@ export function useUnlinkSocialAccountMutation() {
 
   return useMutation({
     mutationFn: (provider: SocialProvider) =>
-      unlinkUserSocialAccount({ scope, provider }),
+      unlinkUserSocialAccount({ scope: requireUserScope(scope), provider }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.user.socialStatus(scope),
-      })
+      if (scope) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.user.socialStatus(scope),
+        })
+      }
     },
   })
 }
