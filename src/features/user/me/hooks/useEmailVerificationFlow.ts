@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import {
   useDeleteEmailMutation,
@@ -22,6 +22,18 @@ export function useEmailVerificationFlow(currentEmail: string) {
   const [sessionId, setSessionId] = useState('')
   const [message, setMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setEmailState(currentEmail || '')
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [currentEmail])
 
   const isPending =
     sendEmailVerificationMutation.isPending ||
