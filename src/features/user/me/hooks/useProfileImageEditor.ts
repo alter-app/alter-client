@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { uploadAppFile } from '@/features/store-register/api/workspaceFileUpload'
+import { uploadAppFile } from '@/shared/api/appFileUpload'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import {
   useDeleteProfileImageMutation,
