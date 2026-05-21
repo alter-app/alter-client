@@ -10,11 +10,14 @@ export function useProfileImageEditor(avatarUrl?: string) {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [imageError, setImageError] = useState('')
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [isUploadPending, setIsUploadPending] = useState(false)
   const updateProfileImageMutation = useUpdateProfileImageMutation()
   const deleteProfileImageMutation = useDeleteProfileImageMutation()
 
   const isImagePending =
-    updateProfileImageMutation.isPending || deleteProfileImageMutation.isPending
+    isUploadPending ||
+    updateProfileImageMutation.isPending ||
+    deleteProfileImageMutation.isPending
 
   const triggerFileInput = () => {
     setImageError('')
@@ -27,6 +30,7 @@ export function useProfileImageEditor(avatarUrl?: string) {
     if (!file) return
 
     try {
+      setIsUploadPending(true)
       const fileId = await uploadAppFile({
         file,
         targetType: 'USER_PROFILE',
@@ -37,6 +41,8 @@ export function useProfileImageEditor(avatarUrl?: string) {
       setImageError(
         getAxiosErrorMessage(error, '프로필 이미지 변경에 실패했습니다.')
       )
+    } finally {
+      setIsUploadPending(false)
     }
   }
 
