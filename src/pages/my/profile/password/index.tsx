@@ -1,57 +1,18 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useUpdatePasswordMutation } from '@/features/user/me'
-import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
+import { usePasswordUpdateFeature } from '@/features/user/me'
 import { AuthButton } from '@/shared/ui/common/AuthButton'
 import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { Navbar } from '@/shared/ui/common/Navbar'
-import { ROUTES } from '@/shared/constants/routes'
-
-function isPasswordFormatValid(value: string): boolean {
-  const trimmed = value.trim()
-  if (trimmed.length < 8 || trimmed.length > 16) return false
-  const hasLetter = /[A-Za-z]/.test(trimmed)
-  const hasNumber = /\d/.test(trimmed)
-  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(trimmed)
-  return hasLetter && hasNumber && hasSpecial
-}
 
 export function PasswordEditPage() {
-  const navigate = useNavigate()
-  const updatePasswordMutation = useUpdatePasswordMutation()
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [message, setMessage] = useState('')
-
-  const canSubmit =
-    isPasswordFormatValid(newPassword) &&
-    newPassword === confirmPassword &&
-    !updatePasswordMutation.isPending
-
-  const handleSubmit = async () => {
-    setMessage('')
-    if (!isPasswordFormatValid(newPassword)) {
-      setMessage(
-        '새 비밀번호는 8~16자, 영문·숫자·특수문자를 모두 포함해야 합니다.'
-      )
-      return
-    }
-    if (newPassword !== confirmPassword) {
-      setMessage('새 비밀번호가 일치하지 않습니다.')
-      return
-    }
-
-    try {
-      await updatePasswordMutation.mutateAsync({
-        currentPassword: currentPassword.trim() || undefined,
-        newPassword,
-      })
-      navigate(ROUTES.MY.PROFILE, { replace: true })
-    } catch (error) {
-      setMessage(getAxiosErrorMessage(error, '비밀번호 변경에 실패했습니다.'))
-    }
-  }
+  const passwordUpdate = usePasswordUpdateFeature({
+    currentPassword,
+    newPassword,
+    confirmPassword,
+  })
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-white">
@@ -99,14 +60,17 @@ export function PasswordEditPage() {
           />
         </div>
 
-        {message && (
+        {passwordUpdate.message && (
           <p role="alert" className="text-error typography-body03-regular">
-            {message}
+            {passwordUpdate.message}
           </p>
         )}
 
         <div className="mt-auto pb-8">
-          <AuthButton disabled={!canSubmit} onClick={handleSubmit}>
+          <AuthButton
+            disabled={!passwordUpdate.canSubmit}
+            onClick={passwordUpdate.handleSubmit}
+          >
             변경하기
           </AuthButton>
         </div>

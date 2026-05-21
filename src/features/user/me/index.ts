@@ -30,6 +30,7 @@ export {
 } from './hooks/useUserMeMutations'
 export { useChangeNickname } from './hooks/useChangeNickname'
 export { useEmailVerificationFlow } from './hooks/useEmailVerificationFlow'
+export { usePasswordUpdateFeature } from './hooks/usePasswordUpdateFeature'
 export { useProfileImageEditor } from './hooks/useProfileImageEditor'
 export type { UserMeViewModel } from './hooks/useUserMe'
 export type {
