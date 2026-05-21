@@ -28,6 +28,7 @@ export {
   useVerifyEmailCodeMutation,
   useWithdrawUserMutation,
 } from './hooks/useUserMeMutations'
+export { useEmailVerificationFlow } from './hooks/useEmailVerificationFlow'
 export type { UserMeViewModel } from './hooks/useUserMe'
 export type {
   LinkSocialAccountRequest,
