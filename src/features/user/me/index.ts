@@ -28,6 +28,7 @@ export {
   useVerifyEmailCodeMutation,
   useWithdrawUserMutation,
 } from './hooks/useUserMeMutations'
+export { useChangeNickname } from './hooks/useChangeNickname'
 export { useEmailVerificationFlow } from './hooks/useEmailVerificationFlow'
 export { useProfileImageEditor } from './hooks/useProfileImageEditor'
 export type { UserMeViewModel } from './hooks/useUserMe'
