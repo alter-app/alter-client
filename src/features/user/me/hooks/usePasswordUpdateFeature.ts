@@ -21,12 +21,15 @@ export function usePasswordUpdateFeature(options: {
   const navigate = useNavigate()
   const updatePasswordMutation = useUpdatePasswordMutation()
   const [message, setMessage] = useState('')
+  const currentPassword = options.currentPassword.trim()
+  const newPassword = options.newPassword.trim()
+  const confirmPassword = options.confirmPassword.trim()
 
   const validate = (): string => {
-    if (!isPasswordFormatValid(options.newPassword)) {
+    if (!isPasswordFormatValid(newPassword)) {
       return '새 비밀번호는 8~16자, 영문·숫자·특수문자를 모두 포함해야 합니다.'
     }
-    if (options.newPassword !== options.confirmPassword) {
+    if (newPassword !== confirmPassword) {
       return '새 비밀번호가 일치하지 않습니다.'
     }
     return ''
@@ -44,8 +47,8 @@ export function usePasswordUpdateFeature(options: {
 
     try {
       await updatePasswordMutation.mutateAsync({
-        currentPassword: options.currentPassword.trim() || undefined,
-        newPassword: options.newPassword,
+        currentPassword: currentPassword || undefined,
+        newPassword,
       })
       navigate(ROUTES.MY.PROFILE, { replace: true })
     } catch (error) {
