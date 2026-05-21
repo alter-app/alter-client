@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import {
@@ -14,12 +14,96 @@ import { MenuListItem } from '../components/MenuListItem'
 import { ReadOnlyField } from './components/ReadOnlyField'
 import CameraCircleIcon from '@/assets/icons/my/camera-circle.svg?react'
 
+interface DeleteProfileImageModalProps {
+  open: boolean
+  pending: boolean
+  onClose: () => void
+  onConfirm: () => void
+}
+
+function DeleteProfileImageModal({
+  open,
+  pending,
+  onClose,
+  onConfirm,
+}: DeleteProfileImageModalProps) {
+  useEffect(() => {
+    if (!open) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [open, onClose])
+
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    if (open) document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [open])
+
+  if (!open) return null
+
+  return (
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center px-4"
+      role="presentation"
+    >
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"
+        aria-label="닫기"
+        onClick={pending ? undefined : onClose}
+      />
+      <div
+        className="relative w-full max-w-[318px] overflow-hidden rounded-2xl bg-white shadow-lg"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-profile-image-title"
+      >
+        <div className="px-5 pb-5 pt-6 text-center">
+          <h2
+            id="delete-profile-image-title"
+            className="text-text-100 typography-headline03"
+          >
+            프로필 이미지를 삭제할까요?
+          </h2>
+          <p className="mt-2 text-text-70 typography-body02-regular">
+            삭제하면 기본 프로필 이미지로 표시됩니다.
+          </p>
+        </div>
+        <div className="flex border-t border-line-2">
+          <button
+            type="button"
+            disabled={pending}
+            onClick={onClose}
+            className="flex h-12 flex-1 items-center justify-center text-text-70 disabled:text-text-50 typography-body01-regular"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={onConfirm}
+            className="flex h-12 flex-1 items-center justify-center border-l border-line-2 text-error disabled:text-text-50 typography-body01-semibold"
+          >
+            {pending ? '삭제 중' : '삭제'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function ProfileEditPage() {
   const navigate = useNavigate()
   const { user: authUser } = useAuthStore()
   const { user, isError } = useUserMe()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [imageError, setImageError] = useState('')
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const updateProfileImageMutation = useUpdateProfileImageMutation()
   const deleteProfileImageMutation = useDeleteProfileImageMutation()
 
@@ -57,11 +141,18 @@ export function ProfileEditPage() {
     }
   }
 
+  const handleOpenDeleteModal = () => {
+    if (!avatarUrl) return
+    setImageError('')
+    setDeleteModalOpen(true)
+  }
+
   const handleDeleteAvatar = async () => {
-    if (!avatarUrl || !window.confirm('프로필 이미지를 삭제할까요?')) return
+    if (!avatarUrl) return
     setImageError('')
     try {
       await deleteProfileImageMutation.mutateAsync()
+      setDeleteModalOpen(false)
     } catch (error) {
       setImageError(
         getAxiosErrorMessage(error, '프로필 이미지 삭제에 실패했습니다.')
@@ -79,7 +170,7 @@ export function ProfileEditPage() {
             avatarUrl ? (
               <button
                 type="button"
-                onClick={handleDeleteAvatar}
+                onClick={handleOpenDeleteModal}
                 disabled={isImagePending}
                 className="text-error disabled:text-text-50 typography-body02-regular"
               >
@@ -127,6 +218,12 @@ export function ProfileEditPage() {
           </p>
         )}
       </div>
+      <DeleteProfileImageModal
+        open={deleteModalOpen}
+        pending={deleteProfileImageMutation.isPending}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDeleteAvatar}
+      />
 
       <div className="mt-10 flex flex-col">
         <MenuListItem
