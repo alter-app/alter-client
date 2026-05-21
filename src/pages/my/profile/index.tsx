@@ -1,15 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '@/shared/stores/useAuthStore'
-import {
-  useDeleteProfileImageMutation,
-  useUpdateProfileImageMutation,
-  useUserMe,
-} from '@/features/user/me'
+import { useProfileImageEditor, useUserMe } from '@/features/user/me'
 import { ROUTES } from '@/shared/constants/routes'
 import { Navbar } from '@/shared/ui/common/Navbar'
-import { uploadAppFile } from '@/features/store-register/api/workspaceFileUpload'
-import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { MenuListItem } from '../components/MenuListItem'
 import { ReadOnlyField } from './components/ReadOnlyField'
 import CameraCircleIcon from '@/assets/icons/my/camera-circle.svg?react'
@@ -101,64 +95,24 @@ export function ProfileEditPage() {
   const navigate = useNavigate()
   const { user: authUser } = useAuthStore()
   const { user, isError } = useUserMe()
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
-  const [imageError, setImageError] = useState('')
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const updateProfileImageMutation = useUpdateProfileImageMutation()
-  const deleteProfileImageMutation = useDeleteProfileImageMutation()
 
   const email = user.email || authUser?.email || '등록된 이메일이 없습니다.'
   const phone = user.phone || '제공되지 않음'
   const joinedAt = user.joinedAtFormatted
   const nickname = user.nickname || authUser?.name || '알터'
   const avatarUrl = user.profileImageUrl
-  const isImagePending =
-    updateProfileImageMutation.isPending || deleteProfileImageMutation.isPending
-
-  const handleAvatarUpload = () => {
-    setImageError('')
-    fileInputRef.current?.click()
-  }
-
-  const handleAvatarFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0]
-    event.target.value = ''
-    if (!file) return
-
-    try {
-      const fileId = await uploadAppFile({
-        file,
-        targetType: 'USER_PROFILE',
-        bucketType: 'PUBLIC',
-      })
-      await updateProfileImageMutation.mutateAsync(fileId)
-    } catch (error) {
-      setImageError(
-        getAxiosErrorMessage(error, '프로필 이미지 변경에 실패했습니다.')
-      )
-    }
-  }
-
-  const handleOpenDeleteModal = () => {
-    if (!avatarUrl) return
-    setImageError('')
-    setDeleteModalOpen(true)
-  }
-
-  const handleDeleteAvatar = async () => {
-    if (!avatarUrl) return
-    setImageError('')
-    try {
-      await deleteProfileImageMutation.mutateAsync()
-      setDeleteModalOpen(false)
-    } catch (error) {
-      setImageError(
-        getAxiosErrorMessage(error, '프로필 이미지 삭제에 실패했습니다.')
-      )
-    }
-  }
+  const {
+    fileInputRef,
+    imageError,
+    isImagePending,
+    deleteModalOpen,
+    isDeletePending,
+    triggerFileInput,
+    onFileChange,
+    openDeleteModal,
+    closeDeleteModal,
+    confirmDelete,
+  } = useProfileImageEditor(avatarUrl)
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-white">
@@ -170,7 +124,7 @@ export function ProfileEditPage() {
             avatarUrl ? (
               <button
                 type="button"
-                onClick={handleOpenDeleteModal}
+                onClick={openDeleteModal}
                 disabled={isImagePending}
                 className="text-error disabled:text-text-50 typography-body02-regular"
               >
@@ -195,7 +149,7 @@ export function ProfileEditPage() {
           <button
             type="button"
             aria-label="프로필 이미지 변경"
-            onClick={handleAvatarUpload}
+            onClick={triggerFileInput}
             disabled={isImagePending}
             className="absolute -bottom-1 -right-1 flex size-10 items-center justify-center"
           >
@@ -206,7 +160,7 @@ export function ProfileEditPage() {
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={handleAvatarFileChange}
+            onChange={onFileChange}
           />
         </div>
         {imageError && (
@@ -220,9 +174,9 @@ export function ProfileEditPage() {
       </div>
       <DeleteProfileImageModal
         open={deleteModalOpen}
-        pending={deleteProfileImageMutation.isPending}
-        onClose={() => setDeleteModalOpen(false)}
-        onConfirm={handleDeleteAvatar}
+        pending={isDeletePending}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
       />
 
       <div className="mt-10 flex flex-col">

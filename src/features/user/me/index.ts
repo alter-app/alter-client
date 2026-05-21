@@ -29,6 +29,7 @@ export {
   useWithdrawUserMutation,
 } from './hooks/useUserMeMutations'
 export { useEmailVerificationFlow } from './hooks/useEmailVerificationFlow'
+export { useProfileImageEditor } from './hooks/useProfileImageEditor'
 export type { UserMeViewModel } from './hooks/useUserMe'
 export type {
   LinkSocialAccountRequest,
