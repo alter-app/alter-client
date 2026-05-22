@@ -25,6 +25,7 @@ export interface ManagerScheduleWorkspaceDto {
 export interface ManagerScheduleWorkerDto {
   workerId: number
   workerName: string
+  colorCode: string
 }
 
 export interface ManagerScheduleStatusDto {
