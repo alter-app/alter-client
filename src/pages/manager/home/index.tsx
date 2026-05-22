@@ -174,8 +174,13 @@ export function ManagerHomePage() {
           <div className="typography-headline02">
             {format(new Date(), 'M월 d일', { locale: ko })}
           </div>
-          {/* TODO: 스케줄 관리 페이지 UI 추가시 구현해야함*/}
-          <div className="typography-bg">전체 보기</div>
+          <button
+            type="button"
+            className="typography-bg"
+            onClick={() => navigate(ROUTES.MANAGER.WORKER_LIST)}
+          >
+            전체 보기
+          </button>
         </div>
         <div className="pt-6">
           <TodayWorkerList workers={todayWorkers} />
