@@ -6,8 +6,9 @@ interface WorkerScheduleCellProps {
   isCurrentMonth: boolean
   isSaturday: boolean
   isSunday: boolean
-  isToday: boolean
+  isSelected: boolean
   workerColors: string[]
+  onClick?: () => void
 }
 
 export function WorkerScheduleCell({
@@ -15,8 +16,9 @@ export function WorkerScheduleCell({
   isCurrentMonth,
   isSaturday,
   isSunday,
-  isToday,
+  isSelected,
   workerColors,
+  onClick,
 }: WorkerScheduleCellProps) {
   const dayTextColor = !isCurrentMonth
     ? 'text-text-50'
@@ -30,9 +32,11 @@ export function WorkerScheduleCell({
 
   return (
     <div
+      onClick={onClick}
       className={cn(
         'flex size-12 items-center justify-center',
-        isToday && 'rounded-lg bg-bg-dark'
+        isSelected && 'rounded-lg bg-bg-dark',
+        onClick && 'cursor-pointer'
       )}
     >
       {hasWorkers ? (

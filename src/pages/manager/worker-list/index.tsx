@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { WorkerScheduleCalendar } from '@/features/manager/worker-list/ui/WorkerScheduleCalendar'
@@ -81,6 +82,17 @@ const STUB_WORKERS: StubWorker[] = [
 export function WorkerListPage() {
   const navigate = useNavigate()
   const [baseDate] = useState(() => new Date())
+  const [selectedDate, setSelectedDate] = useState<string>(() =>
+    format(new Date(), 'yyyy-MM-dd')
+  )
+
+  function handleDateClick(dateKey: string) {
+    setSelectedDate(dateKey)
+  }
+
+  const visibleWorkers = STUB_WORKERS.filter(w =>
+    (STUB_SCHEDULE_DATA[selectedDate] ?? []).includes(w.scheduleColor)
+  )
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-bg-light">
@@ -106,7 +118,9 @@ export function WorkerListPage() {
           <WorkerScheduleCalendar
             baseDate={baseDate}
             data={STUB_SCHEDULE_DATA}
+            selectedDate={selectedDate}
             onEditClick={() => {}}
+            onDateClick={handleDateClick}
           />
         </div>
 
@@ -116,18 +130,24 @@ export function WorkerListPage() {
             <h2 className="typography-headline03 text-text-100">근무자 목록</h2>
           </div>
           <div className="divide-y divide-line-1">
-            {STUB_WORKERS.map(worker => (
-              <WorkerListItem
-                key={worker.id}
-                name={worker.name}
-                workspaceName={worker.workspaceName}
-                nextShiftTime={worker.nextShiftTime}
-                scheduleColor={worker.scheduleColor}
-                role={worker.role}
-                onEdit={() => {}}
-                onDelete={() => {}}
-              />
-            ))}
+            {visibleWorkers.length > 0 ? (
+              visibleWorkers.map(worker => (
+                <WorkerListItem
+                  key={worker.id}
+                  name={worker.name}
+                  workspaceName={worker.workspaceName}
+                  nextShiftTime={worker.nextShiftTime}
+                  scheduleColor={worker.scheduleColor}
+                  role={worker.role}
+                  onEdit={() => {}}
+                  onDelete={() => {}}
+                />
+              ))
+            ) : (
+              <p className="px-6 py-8 text-center typography-body02-regular text-text-50">
+                해당 날짜에 근무자가 없습니다
+              </p>
+            )}
           </div>
         </div>
       </div>

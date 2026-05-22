@@ -2,14 +2,16 @@ import EditIcon from '@/assets/icons/home/edit.svg'
 import { DATE_KEY_FORMAT } from '@/features/home/common/schedule/constants/calendar'
 import { WEEKDAY_LABELS } from '@/shared/constants/calendar'
 import { getCalendarCells } from '@/shared/lib/calendarUtils'
-import { format, getDay, isToday } from 'date-fns'
+import { format, getDay } from 'date-fns'
 import type { WorkerScheduleCalendarProps } from '../types/workerSchedule'
 import { WorkerScheduleCell } from './WorkerScheduleCell'
 
 export function WorkerScheduleCalendar({
   baseDate,
   data,
+  selectedDate,
   onEditClick,
+  onDateClick,
 }: WorkerScheduleCalendarProps) {
   const cells = getCalendarCells(baseDate, 0)
   const monthLabel = `${format(baseDate, 'M')}월 스케줄표`
@@ -56,8 +58,9 @@ export function WorkerScheduleCalendar({
               isCurrentMonth={isCurrentMonth}
               isSaturday={dayOfWeek === 6}
               isSunday={dayOfWeek === 0}
-              isToday={isToday(date)}
+              isSelected={selectedDate === dateKey}
               workerColors={workerColors}
+              onClick={() => onDateClick?.(dateKey)}
             />
           )
         })}
