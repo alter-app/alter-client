@@ -10,6 +10,7 @@ function buildParams(params: NotificationQueryParams) {
   return {
     pageSize: params.pageSize ?? DEFAULT_PAGE_SIZE,
     ...(params.cursor ? { cursor: params.cursor } : {}),
+    ...(params.type ? { type: params.type } : {}),
   }
 }
 

@@ -1,5 +1,9 @@
 export interface NotificationDto {
   id: number
+  type: {
+    value: string
+    description: string
+  }
   title: string
   body: string
   createdAt: string
@@ -19,4 +23,5 @@ export interface NotificationListResponse {
 export interface NotificationQueryParams {
   cursor?: string
   pageSize?: number
+  type?: string
 }
