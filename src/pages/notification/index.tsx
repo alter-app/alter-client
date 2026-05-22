@@ -1,53 +1,100 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
 import { NotificationItem } from '@/shared/ui/notification/NotificationItem'
 import { useNotificationViewModel } from '@/features/notification/useNotificationViewModel'
-import type { NotificationTab } from '@/features/notification/useNotificationViewModel'
+import {
+  NOTIFICATION_TYPE,
+  type NotificationType,
+} from '@/features/notification/types/notificationType'
 import { ROUTES } from '@/shared/constants/routes'
 import SettingIcon from '@/assets/icons/settings.svg?react'
+import ChevronDownIcon from '@/assets/icons/home/chevron-down.svg?react'
 
-function TabButton({
-  label,
-  active,
-  hasUnread,
-  onClick,
-}: {
-  label: string
-  active: boolean
-  hasUnread?: boolean
-  onClick: () => void
-}) {
-  return (
-    <button
-      type="button"
-      className={`relative h-[46px] flex flex-1 items-center justify-center border-b-2 pt-[11px] pb-[13px] typography-body01-semibold transition-colors ${
-        active ? 'border-text-100 text-text-100' : 'border-line-1 text-text-50'
-      }`}
-      onClick={onClick}
-    >
-      {label}
-      {hasUnread && (
-        <span className="ml-1 mb-3 size-2 rounded-full bg-error" aria-hidden />
-      )}
-    </button>
-  )
+const TYPE_LABELS: Record<NotificationType, string> = {
+  GENERAL: '전체',
+  SCHEDULE: '스케줄',
+  SUBSTITUTE: '대타',
+  REPUTATION: '평판',
+  POSTING_APPLICATION: '공고',
+  CHAT: '채팅',
+  WORKSPACE_INVITATION: '매장 초대',
+  JOIN_REQUEST: '참여 요청',
 }
 
-const TAB_LABELS: Record<NotificationTab, string> = {
-  substitute: '대타',
-  reputation: '평판',
+const ALL_TYPES = Object.values(NOTIFICATION_TYPE) as NotificationType[]
+
+function NotificationTypeFilter({
+  value,
+  onChange,
+}: {
+  value: NotificationType
+  onChange: (type: NotificationType) => void
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleOutsideClick(e: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false)
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleOutsideClick)
+    }
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [isOpen])
+
+  return (
+    <div ref={containerRef} className="relative">
+      <button
+        type="button"
+        className="flex items-center gap-1 rounded-full border border-line-1 px-3 py-1.5 typography-body02-medium text-text-100"
+        onClick={() => setIsOpen(prev => !prev)}
+      >
+        {TYPE_LABELS[value]}
+        <ChevronDownIcon
+          className={`size-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {isOpen && (
+        <ul className="absolute left-0 top-full z-20 mt-1 min-w-[120px] overflow-hidden rounded-xl border border-line-1 bg-white shadow-md">
+          {ALL_TYPES.map(type => (
+            <li key={type}>
+              <button
+                type="button"
+                className={`w-full px-4 py-2.5 text-left typography-body02-regular transition-colors hover:bg-main-50 ${
+                  type === value
+                    ? 'text-main-500 typography-body02-medium'
+                    : 'text-text-100'
+                }`}
+                onClick={() => {
+                  onChange(type)
+                  setIsOpen(false)
+                }}
+              >
+                {TYPE_LABELS[type]}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
 }
 
 export function NotificationPage() {
   const navigate = useNavigate()
   const {
-    activeTab,
-    setActiveTab,
+    selectedType,
+    setSelectedType,
     currentItems,
-    hasUnreadSubstitute,
-    hasUnreadReputation,
     isLoading,
     isError,
     fetchNextPage,
@@ -92,18 +139,11 @@ export function NotificationPage() {
           }
         />
 
-        <div className="flex">
-          {(['substitute', 'reputation'] as NotificationTab[]).map(tab => (
-            <TabButton
-              key={tab}
-              label={TAB_LABELS[tab]}
-              active={activeTab === tab}
-              hasUnread={
-                tab === 'substitute' ? hasUnreadSubstitute : hasUnreadReputation
-              }
-              onClick={() => setActiveTab(tab)}
-            />
-          ))}
+        <div className="px-4 py-2">
+          <NotificationTypeFilter
+            value={selectedType}
+            onChange={setSelectedType}
+          />
         </div>
       </div>
 

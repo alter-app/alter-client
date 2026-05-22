@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useAuthStore } from '@/shared/stores/useAuthStore'
 import { useNotifications } from '@/features/notification/hooks/useNotifications'
+import {
+  NOTIFICATION_TYPE,
+  type NotificationType,
+} from '@/features/notification/types/notificationType'
 import type { NotificationItemProps } from '@/shared/ui/notification/NotificationItem'
 import type { NotificationDto } from '@/features/notification/types'
-
-export type NotificationTab = 'substitute' | 'reputation'
 
 function formatTimeAgo(createdAt: string): string {
   const diffMs = Date.now() - new Date(createdAt).getTime()
@@ -28,7 +30,9 @@ function mapDto(dto: NotificationDto): Omit<NotificationItemProps, 'onDelete'> {
 }
 
 export function useNotificationViewModel() {
-  const [activeTab, setActiveTab] = useState<NotificationTab>('substitute')
+  const [selectedType, setSelectedType] = useState<NotificationType>(
+    NOTIFICATION_TYPE.GENERAL
+  )
   const [deletedIds, setDeletedIds] = useState<Set<number>>(new Set())
 
   const scope = useAuthStore(s => s.scope)
@@ -39,7 +43,7 @@ export function useNotificationViewModel() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useNotifications(scope)
+  } = useNotifications(scope, selectedType)
 
   const currentItems: NotificationItemProps[] = useMemo(() => {
     const dtos =
@@ -53,14 +57,10 @@ export function useNotificationViewModel() {
     }))
   }, [data, deletedIds])
 
-  const hasUnread = currentItems.some(item => !item.isRead)
-
   return {
-    activeTab,
-    setActiveTab,
+    selectedType,
+    setSelectedType,
     currentItems,
-    hasUnreadSubstitute: hasUnread,
-    hasUnreadReputation: hasUnread,
     isLoading,
     isError,
     fetchNextPage,
