@@ -1,13 +1,3 @@
-// ─── 비밀번호 검증 ─────────────────────────────────────────────────────────────
-export const isPasswordValid = (value: string): boolean => {
-  const trimmed = value.trim()
-  if (trimmed.length < 8) return false
-  const hasLetter = /[A-Za-z]/.test(trimmed)
-  const hasNumber = /\d/.test(trimmed)
-  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(trimmed)
-  return [hasLetter, hasNumber, hasSpecial].filter(Boolean).length >= 2
-}
-
 // ─── 전화번호 포맷 헬퍼 ────────────────────────────────────────────────────────
 export const normalizePhone = (value: string): string =>
   value.replace(/\D/g, '').slice(0, 11)
