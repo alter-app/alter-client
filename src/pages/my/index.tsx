@@ -86,7 +86,7 @@ export function MyPage() {
   }
 
   const handleWithdraw = () => {
-    navigate('/my/withdraw')
+    navigate(ROUTES.MY.WITHDRAW)
   }
 
   return (
@@ -100,6 +100,7 @@ export function MyPage() {
           nickname={nickname}
           realName={realName}
           isManager={isManager}
+          avatarUrl={user.profileImageUrl}
           onEditClick={handleEditProfile}
         />
 

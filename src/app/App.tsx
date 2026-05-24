@@ -30,6 +30,11 @@ import { ManagerWorkerInvitePage } from '@/pages/manager/worker-invite'
 import { WorkspaceJoinPage } from '@/pages/user/workspace-join'
 import { MyPage } from '@/pages/my'
 import { ProfileEditPage } from '@/pages/my/profile'
+import { EmailEditPage } from '@/pages/my/profile/email'
+import { NicknameEditPage } from '@/pages/my/profile/nickname'
+import { PasswordEditPage } from '@/pages/my/profile/password'
+import { SocialAccountPage } from '@/pages/my/profile/social'
+import { WithdrawPage } from '@/pages/my/withdraw'
 import { ErrorPageRoute } from '@/pages/error'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { MobileLayoutWithDocbar } from '@/shared/ui/MobileLayoutWithDocbar'
@@ -104,6 +109,20 @@ export function App() {
             element={<AppliedStoresPage />}
           />
           <Route path={ROUTES.MY.PROFILE} element={<ProfileEditPage />} />
+          <Route
+            path={ROUTES.MY.PROFILE_NICKNAME}
+            element={<NicknameEditPage />}
+          />
+          <Route
+            path={ROUTES.MY.PROFILE_PASSWORD}
+            element={<PasswordEditPage />}
+          />
+          <Route path={ROUTES.MY.PROFILE_EMAIL} element={<EmailEditPage />} />
+          <Route
+            path={ROUTES.MY.PROFILE_SOCIAL}
+            element={<SocialAccountPage />}
+          />
+          <Route path={ROUTES.MY.WITHDRAW} element={<WithdrawPage />} />
           <Route
             path={ROUTES.MANAGER.WORKER_SCHEDULE}
             element={<ManagerWorkerScheduleLegacyEntryRedirect />}

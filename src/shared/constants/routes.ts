@@ -39,6 +39,11 @@ export const ROUTES = {
   MY: {
     ROOT: '/my',
     PROFILE: '/my/profile',
+    PROFILE_NICKNAME: '/my/profile/nickname',
+    PROFILE_PASSWORD: '/my/profile/password',
+    PROFILE_EMAIL: '/my/profile/email',
+    PROFILE_SOCIAL: '/my/profile/social',
+    WITHDRAW: '/my/withdraw',
   },
 } as const
 

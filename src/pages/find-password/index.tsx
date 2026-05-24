@@ -5,7 +5,11 @@ import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { AuthButton } from '@/shared/ui/common/AuthButton'
 import { resetPassword } from '@/shared/api/auth'
 import { ROUTES } from '@/shared/constants/routes'
-import { isPasswordValid } from '@/shared/lib/utils/signupValidation'
+import {
+  isPasswordFormatValid,
+  PASSWORD_FORMAT_ERROR_MESSAGE,
+  PASSWORD_MISMATCH_ERROR_MESSAGE,
+} from '@/shared/lib/utils/passwordValidation'
 import { isValidEmailFormat } from '@/shared/lib/utils/emailValidation'
 import { PhoneVerification } from '@/features/auth'
 import {
@@ -68,14 +72,12 @@ export function FindPasswordPage() {
       setPasswordError('새 비밀번호를 입력해주세요.')
       return
     }
-    if (!isPasswordValid(newPassword)) {
-      setPasswordError(
-        '비밀번호는 최소 8자이며, 영문/숫자/특수문자 중 2가지 이상을 포함해야 합니다.'
-      )
+    if (!isPasswordFormatValid(newPassword)) {
+      setPasswordError(PASSWORD_FORMAT_ERROR_MESSAGE)
       return
     }
     if (newPassword !== confirmPassword) {
-      setConfirmPasswordError('비밀번호가 서로 일치하지 않습니다.')
+      setConfirmPasswordError(PASSWORD_MISMATCH_ERROR_MESSAGE)
       return
     }
     if (!phoneVerification.sessionId) {
