@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import AlterLogo from '@/assets/Alter-logo.png'
+import { AlterLogo } from '@/shared/ui/common/AlterLogo'
 import BellIcon from '@/assets/icons/nav/bell.svg'
 import MenuIcon from '@/assets/icons/nav/menu.svg'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
@@ -49,7 +49,7 @@ export function Navbar({
         <div className="flex min-w-[84px] items-center">
           {isMain ? (
             <div className="flex items-center gap-2">
-              <img src={AlterLogo} alt="Alter logo" className="h-7 w-7" />
+              <AlterLogo className="h-7 w-7" alt="알터 로고" />
               <span className="typography-logo">알터</span>
             </div>
           ) : (
