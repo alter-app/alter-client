@@ -15,6 +15,7 @@ export function WorkerListPage() {
     deleteError,
     handleDateClick,
     handleDeleteWorker,
+    handleEditWorker,
   } = useWorkerListViewModel()
 
   return (
@@ -67,7 +68,7 @@ export function WorkerListPage() {
                   nextShiftTime={worker.nextShiftTime}
                   scheduleColor={worker.scheduleColor}
                   role={worker.role}
-                  onEdit={() => {}}
+                  onEdit={() => handleEditWorker(worker)}
                   onDelete={() => {
                     void handleDeleteWorker(worker.shiftId)
                   }}

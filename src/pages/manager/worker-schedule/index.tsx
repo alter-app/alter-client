@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useParams } from 'react-router-dom'
+import { parseISO } from 'date-fns'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
 import type { ScheduleTab } from '@/features/manager'
+import type { WorkerScheduleLocationState } from '@/features/manager/schedule/types/workerScheduleLocationState'
 import { useWorkerScheduleManageViewModel } from '@/features/manager'
 import { ROUTES } from '@/shared/constants/routes'
 import { ColorSelectSection } from '@/pages/manager/worker-schedule/components/ColorSelectSection'
@@ -48,11 +50,19 @@ function ManagerWorkerSchedulePageContent({
   workspaceId,
   workerId,
 }: ManagerWorkerSchedulePageContentProps) {
-  const [activeTab, setActiveTab] = useState<ScheduleTab>('고정')
+  const location = useLocation()
+  const editDate = (location.state as WorkerScheduleLocationState | null)
+    ?.editDate
+
+  const [activeTab, setActiveTab] = useState<ScheduleTab>(
+    editDate ? '일반' : '고정'
+  )
   const [isWorkerDropdownOpen, setIsWorkerDropdownOpen] = useState(false)
   const [isDateSectionOpen, setIsDateSectionOpen] = useState(true)
   const [isColorSectionOpen, setIsColorSectionOpen] = useState(true)
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    editDate ? parseISO(editDate) : new Date()
+  )
   const [startDate, setStartDate] = useState(() => new Date())
   const [endDate, setEndDate] = useState(() => new Date())
   const [recurrence, setRecurrence] = useState<ScheduleRecurrence>('매주')

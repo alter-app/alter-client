@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 import {
   toDateKey,
   toTimeLabel,
@@ -14,6 +15,8 @@ import {
   useDeleteScheduleWorker,
   useDeleteSchedule,
 } from '@/features/manager/schedule/hooks/mutation'
+import { managerWorkerSchedulePath } from '@/shared/constants/routes'
+import type { WorkerScheduleLocationState } from '@/features/manager/schedule/types/workerScheduleLocationState'
 
 const DELETE_WORKER_ERROR_MESSAGES: Record<string, string> = {
   B020: '요청한 리소스를 찾을 수 없습니다.',
@@ -48,6 +51,7 @@ export interface WorkerListEntry {
 }
 
 export function useWorkerListViewModel() {
+  const navigate = useNavigate()
   const { activeWorkspaceId } = useWorkspaceStore()
   const workspaceId = activeWorkspaceId ?? 0
   const [baseDate] = useState(() => new Date())
@@ -125,6 +129,15 @@ export function useWorkerListViewModel() {
     [deleteWorker, deleteShift]
   )
 
+  const handleEditWorker = useCallback(
+    (worker: WorkerListEntry) => {
+      navigate(managerWorkerSchedulePath(workspaceId, worker.workerId), {
+        state: { editDate: selectedDate } satisfies WorkerScheduleLocationState,
+      })
+    },
+    [navigate, workspaceId, selectedDate]
+  )
+
   return {
     baseDate,
     scheduleData,
@@ -134,5 +147,6 @@ export function useWorkerListViewModel() {
     deleteError,
     handleDateClick,
     handleDeleteWorker,
+    handleEditWorker,
   }
 }
