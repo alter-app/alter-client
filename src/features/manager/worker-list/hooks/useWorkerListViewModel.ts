@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { format } from 'date-fns'
+import axios from 'axios'
 import {
   toDateKey,
   toTimeLabel,
@@ -9,6 +10,25 @@ import type { WorkerScheduleData } from '@/features/manager/worker-list/types/wo
 import type { ScheduleColor } from '@/features/manager/worker-schedule/types/scheduleColor'
 import type { WorkerRole } from '@/shared/types/workerRole'
 import { useWorkerListSchedulesQuery } from './query/useWorkerListSchedulesQuery'
+import {
+  useDeleteScheduleWorker,
+  useDeleteSchedule,
+} from '@/features/manager/schedule/hooks/mutation'
+
+const DELETE_WORKER_ERROR_MESSAGES: Record<string, string> = {
+  B020: '요청한 리소스를 찾을 수 없습니다.',
+  A002: '관리중인 업장이 아닙니다.',
+}
+
+function getDeleteWorkerErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const code = (error.response?.data as { code?: string } | undefined)?.code
+    if (code && DELETE_WORKER_ERROR_MESSAGES[code]) {
+      return DELETE_WORKER_ERROR_MESSAGES[code]
+    }
+  }
+  return '삭제 중 오류가 발생했습니다. 다시 시도해 주세요.'
+}
 
 function positionToRole(position: string): WorkerRole {
   const lower = position.toLowerCase()
@@ -19,6 +39,7 @@ function positionToRole(position: string): WorkerRole {
 
 export interface WorkerListEntry {
   workerId: number
+  shiftId: number
   name: string
   workspaceName: string
   nextShiftTime: string
@@ -28,6 +49,7 @@ export interface WorkerListEntry {
 
 export function useWorkerListViewModel() {
   const { activeWorkspaceId } = useWorkspaceStore()
+  const workspaceId = activeWorkspaceId ?? 0
   const [baseDate] = useState(() => new Date())
 
   const year = baseDate.getFullYear()
@@ -36,12 +58,16 @@ export function useWorkerListViewModel() {
   const [selectedDate, setSelectedDate] = useState(() =>
     format(new Date(), 'yyyy-MM-dd')
   )
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const { data: rawData, isPending } = useWorkerListSchedulesQuery(
     activeWorkspaceId,
     year,
     month
   )
+
+  const { mutateAsync: deleteWorker } = useDeleteScheduleWorker(workspaceId)
+  const { mutateAsync: deleteShift } = useDeleteSchedule(workspaceId)
 
   const scheduleData = useMemo<WorkerScheduleData | null>(() => {
     if (!rawData) return null
@@ -71,6 +97,7 @@ export function useWorkerListViewModel() {
         seen.add(worker.workerId)
         acc.push({
           workerId: worker.workerId,
+          shiftId: shift.shiftId,
           name: worker.workerName,
           workspaceName: shift.workspace.workspaceName,
           nextShiftTime: `${toTimeLabel(shift.startDateTime)} ~ ${toTimeLabel(shift.endDateTime)}`,
@@ -85,12 +112,27 @@ export function useWorkerListViewModel() {
     setSelectedDate(dateKey)
   }, [])
 
+  const handleDeleteWorker = useCallback(
+    async (shiftId: number) => {
+      try {
+        setDeleteError(null)
+        await deleteWorker(shiftId)
+        await deleteShift(shiftId)
+      } catch (error) {
+        setDeleteError(getDeleteWorkerErrorMessage(error))
+      }
+    },
+    [deleteWorker, deleteShift]
+  )
+
   return {
     baseDate,
     scheduleData,
     visibleWorkers,
     selectedDate,
     isLoading: isPending && activeWorkspaceId !== null,
+    deleteError,
     handleDateClick,
+    handleDeleteWorker,
   }
 }

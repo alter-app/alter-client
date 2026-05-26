@@ -51,6 +51,9 @@ export interface ManagerScheduleDto {
 
 export type ManagerScheduleApiResponse = CommonApiResponse<ManagerScheduleDto>
 
+export type ResponseDeleteScheduleWorker = CommonApiResponse<unknown>
+export type ResponseDeleteSchedule = CommonApiResponse<unknown>
+
 // ---- Query Params ----
 export interface ManagerScheduleQueryParams {
   workspaceId: number

@@ -12,7 +12,9 @@ export function WorkerListPage() {
     scheduleData,
     visibleWorkers,
     selectedDate,
+    deleteError,
     handleDateClick,
+    handleDeleteWorker,
   } = useWorkerListViewModel()
 
   return (
@@ -50,6 +52,11 @@ export function WorkerListPage() {
           <div className="px-6 pb-2 pt-[23px]">
             <h2 className="typography-headline03 text-text-100">근무자 목록</h2>
           </div>
+          {deleteError && (
+            <p className="px-6 pt-3 typography-body02-regular text-error">
+              {deleteError}
+            </p>
+          )}
           <div className="divide-y divide-line-1">
             {visibleWorkers.length > 0 ? (
               visibleWorkers.map(worker => (
@@ -61,7 +68,9 @@ export function WorkerListPage() {
                   scheduleColor={worker.scheduleColor}
                   role={worker.role}
                   onEdit={() => {}}
-                  onDelete={() => {}}
+                  onDelete={() => {
+                    void handleDeleteWorker(worker.shiftId)
+                  }}
                 />
               ))
             ) : (
