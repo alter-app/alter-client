@@ -31,10 +31,12 @@ export function WorkerScheduleCell({
   const hasWorkers = workerColors.length > 0
 
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
+      disabled={!onClick}
       className={cn(
-        'flex size-12 items-center justify-center',
+        'flex size-12 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-main',
         isSelected && 'rounded-lg bg-bg-dark',
         onClick && 'cursor-pointer'
       )}
@@ -64,6 +66,6 @@ export function WorkerScheduleCell({
           {dayText}
         </span>
       )}
-    </div>
+    </button>
   )
 }
