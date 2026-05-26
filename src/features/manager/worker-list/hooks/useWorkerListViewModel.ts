@@ -9,6 +9,7 @@ import {
 import { useWorkspaceStore } from '@/shared/stores/useWorkspaceStore'
 import type { WorkerScheduleData } from '@/features/manager/worker-list/types/workerSchedule'
 import type { ScheduleColor } from '@/features/manager'
+import { resolveSchedulePickerColor } from '@/features/manager'
 import type { WorkerRole } from '@/shared/types/workerRole'
 import { useWorkerListSchedulesQuery } from './query/useWorkerListSchedulesQuery'
 import {
@@ -105,7 +106,7 @@ export function useWorkerListViewModel() {
           name: worker.workerName,
           workspaceName: shift.workspace.workspaceName,
           nextShiftTime: `${toTimeLabel(shift.startDateTime)} ~ ${toTimeLabel(shift.endDateTime)}`,
-          scheduleColor: worker.colorCode as ScheduleColor,
+          scheduleColor: resolveSchedulePickerColor(worker.colorCode),
           role: positionToRole(shift.position),
         })
         return acc
