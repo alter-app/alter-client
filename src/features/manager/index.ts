@@ -30,4 +30,5 @@ export {
 } from '@/features/manager/worker-schedule/types/workerColor'
 export { patchWorkspaceWorkerColor } from '@/features/manager/api/worker'
 export type { ScheduleTab } from '@/features/manager/schedule/types/workerSchedule'
+export type { WorkerScheduleLocationState } from '@/features/manager/schedule/types/workerScheduleLocationState'
 export { SCHEDULE_TABS } from '@/features/manager/schedule/constants/workerSchedule'

@@ -8,7 +8,7 @@ import {
 } from '@/features/home/common/schedule/lib/date'
 import { useWorkspaceStore } from '@/shared/stores/useWorkspaceStore'
 import type { WorkerScheduleData } from '@/features/manager/worker-list/types/workerSchedule'
-import type { ScheduleColor } from '@/features/manager/worker-schedule/types/scheduleColor'
+import type { ScheduleColor } from '@/features/manager'
 import type { WorkerRole } from '@/shared/types/workerRole'
 import { useWorkerListSchedulesQuery } from './query/useWorkerListSchedulesQuery'
 import {
@@ -16,7 +16,7 @@ import {
   useDeleteSchedule,
 } from '@/features/manager/schedule/hooks/mutation'
 import { managerWorkerSchedulePath } from '@/shared/constants/routes'
-import type { WorkerScheduleLocationState } from '@/features/manager/schedule/types/workerScheduleLocationState'
+import type { WorkerScheduleLocationState } from '@/features/manager'
 
 const DELETE_WORKER_ERROR_MESSAGES: Record<string, string> = {
   B020: '요청한 리소스를 찾을 수 없습니다.',
