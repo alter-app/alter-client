@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { putScheduleWorker } from '@/features/manager/api/schedule'
 import type { RequestPutScheduleWorker } from '@/features/manager/home/types/schedule'
+import { queryKeys } from '@/shared/lib/queryKeys'
 
 export const PUT_SCHEDULE_WORKER_ERROR_MESSAGES: Record<string, string> = {
   B001: '잘못된 요청입니다.',
@@ -21,7 +22,7 @@ export function usePutScheduleWorker(workspaceId: number) {
     }) => putScheduleWorker(workShiftId, body),
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: ['manager', 'schedules', workspaceId],
+        queryKey: queryKeys.manager.schedulesByWorkspace(workspaceId),
       })
     },
   })

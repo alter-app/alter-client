@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { deleteSchedule } from '@/features/manager/api/schedule'
+import { queryKeys } from '@/shared/lib/queryKeys'
 
 export function useDeleteSchedule(workspaceId: number) {
   const queryClient = useQueryClient()
@@ -8,7 +9,7 @@ export function useDeleteSchedule(workspaceId: number) {
     mutationFn: (workShiftId: number) => deleteSchedule(workShiftId),
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: ['manager', 'schedules', workspaceId],
+        queryKey: queryKeys.manager.schedulesByWorkspace(workspaceId),
       })
     },
   })
