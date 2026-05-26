@@ -54,6 +54,16 @@ export type ManagerScheduleApiResponse = CommonApiResponse<ManagerScheduleDto>
 export type ResponseDeleteScheduleWorker = CommonApiResponse<unknown>
 export type ResponseDeleteSchedule = CommonApiResponse<unknown>
 
+export type RequestPutScheduleWorker = { workerId: number }
+export type ResponsePutScheduleWorker = CommonApiResponse<unknown>
+
+export type RequestPutSchedule = {
+  startDateTime: string
+  endDateTime: string
+  position: string
+}
+export type ResponsePutSchedule = CommonApiResponse<unknown>
+
 // ---- Query Params ----
 export interface ManagerScheduleQueryParams {
   workspaceId: number
