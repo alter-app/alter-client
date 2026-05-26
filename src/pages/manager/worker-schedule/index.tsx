@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate, useLocation, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { parseISO } from 'date-fns'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
@@ -50,6 +50,7 @@ function ManagerWorkerSchedulePageContent({
   workspaceId,
   workerId,
 }: ManagerWorkerSchedulePageContentProps) {
+  const navigate = useNavigate()
   const location = useLocation()
   const editDate = (location.state as WorkerScheduleLocationState | null)
     ?.editDate
@@ -86,6 +87,7 @@ function ManagerWorkerSchedulePageContent({
     workerId,
     activeTab,
     generalSelectedDate: selectedDate,
+    onSaveSuccess: editDate ? () => navigate(-1) : undefined,
   })
 
   if (workersLoading || !worker) {
