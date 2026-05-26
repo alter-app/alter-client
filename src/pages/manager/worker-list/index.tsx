@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+
 import { WorkerScheduleCalendar } from '@/features/manager/worker-list/ui/WorkerScheduleCalendar'
 import { WorkerListItem } from '@/features/manager/worker-list/ui/WorkerListItem'
 import { Navbar } from '@/shared/ui/common/Navbar'
@@ -27,7 +28,7 @@ export function WorkerListPage() {
         rightAction={
           <button
             type="button"
-            onClick={() => {}}
+            onClick={() => navigate('/manager/worker-schedule')}
             aria-label="근무자 추가"
             className="flex size-8 items-center justify-center rounded-lg bg-text-100"
           >
@@ -43,7 +44,7 @@ export function WorkerListPage() {
             baseDate={baseDate}
             data={scheduleData}
             selectedDate={selectedDate}
-            onEditClick={() => {}}
+            onEditClick={() => navigate('/manager/worker-schedule')}
             onDateClick={handleDateClick}
           />
         </div>
