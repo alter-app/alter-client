@@ -58,6 +58,7 @@ export function SwipeableRow({
         <div
           className="flex shrink-0 items-center justify-end gap-[10px] px-6 py-[10px]"
           style={{ width: actionWidth }}
+          onPointerDown={e => e.stopPropagation()}
         >
           {actions}
         </div>
