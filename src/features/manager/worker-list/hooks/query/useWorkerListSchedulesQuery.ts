@@ -8,7 +8,10 @@ export function useWorkerListSchedulesQuery(
   month: number
 ) {
   return useQuery({
-    queryKey: queryKeys.manager.schedules(workspaceId ?? 0, year, month),
+    queryKey:
+      workspaceId !== null
+        ? queryKeys.manager.schedules(workspaceId, year, month)
+        : ['manager', 'schedules', null],
     queryFn: () =>
       fetchMonthlySchedules({ workspaceId: workspaceId!, year, month }),
     enabled: workspaceId !== null,
