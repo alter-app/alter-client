@@ -8,7 +8,7 @@ import { ROUTES } from '@/shared/constants/routes'
 import { navigatePostAuth } from '@/shared/lib/postAuthNavigation'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { parseErrorResponse } from '@/shared/lib/utils/errorUtils'
-import AlterLogo from '@/assets/Alter-logo.png'
+import { AlterLogo } from '@/shared/ui/common/AlterLogo'
 
 export function LoginPage() {
   const [phone, setPhone] = useState('')
@@ -77,11 +77,7 @@ export function LoginPage() {
 
   return (
     <div className="relative box-border flex min-h-[100dvh] flex-col items-center justify-center overflow-x-hidden px-5 py-6 sm:px-4 sm:py-5 xs:px-3 xs:py-4">
-      <img
-        src={AlterLogo}
-        alt="알터 로고"
-        className="h-[200px] w-auto mb-10 sm:h-40 sm:mb-8 xs:h-[130px] xs:mb-7"
-      />
+      <AlterLogo className="mb-10 h-[200px] w-auto sm:mb-8 sm:h-40 xs:mb-7 xs:h-[130px]" />
 
       <div className="flex flex-col gap-5 w-full max-w-[400px] sm:gap-4 sm:max-w-full xs:gap-[14px]">
         <div className="flex flex-col gap-4 w-full sm:gap-[14px] xs:gap-3">
