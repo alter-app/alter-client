@@ -17,7 +17,6 @@ import managerHomeBannerImage from '@/assets/manager-home-banner.jpg'
 import managerHomeBannerPlusIcon from '@/assets/icons/home/manager-home-banner-plus.svg'
 import managerWorkspaceModalPlusIcon from '@/assets/icons/home/manager-workspace-modal-plus.svg'
 import managerScheduleEditIcon from '@/assets/icons/home/edit.svg'
-import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibility'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
 
 const STORE_WORKERS_SECTION_ID = 'manager-store-workers'
@@ -29,16 +28,13 @@ export function ManagerHomePage() {
     storeWorkers,
     storeWorkersTotalCount,
     fetchMoreWorkers,
-    hasMoreWorkers,
     isFetchingMoreWorkers,
     ongoingPostings,
     postingsTotalCount,
     fetchMorePostings,
-    hasMorePostings,
     substituteRequests,
     substituteTotalCount,
     fetchMoreSubstitutes,
-    hasMoreSubstitutes,
     schedule,
     activeWorkspaceId,
     workspaceDetail,
@@ -232,10 +228,7 @@ export function ManagerHomePage() {
                   onOptions={() => {}}
                 />
               ))}
-              {shouldShowInfiniteListLoadMore(
-                hasMoreWorkers,
-                storeWorkersTotalCount
-              ) && (
+              {storeWorkers.length < storeWorkersTotalCount && (
                 <MoreButton
                   onClick={() => fetchMoreWorkers()}
                   disabled={isFetchingMoreWorkers}
@@ -254,10 +247,7 @@ export function ManagerHomePage() {
           <OngoingPostingCard
             postings={ongoingPostings}
             onViewMore={
-              shouldShowInfiniteListLoadMore(
-                hasMorePostings,
-                postingsTotalCount
-              )
+              ongoingPostings.length < postingsTotalCount
                 ? () => fetchMorePostings()
                 : undefined
             }
@@ -274,10 +264,7 @@ export function ManagerHomePage() {
           <SubstituteApprovalCard
             requests={substituteRequests}
             onViewMore={
-              shouldShowInfiniteListLoadMore(
-                hasMoreSubstitutes,
-                substituteTotalCount
-              )
+              substituteRequests.length < substituteTotalCount
                 ? () => fetchMoreSubstitutes()
                 : undefined
             }
