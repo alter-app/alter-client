@@ -4,11 +4,10 @@ import { fetchSubstituteRequests } from '@/features/manager/api/substitute'
 import { adaptSubstituteRequestDto } from '@/features/manager/home/types/substitute'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
-const PAGE_SIZE = 10
-
 export function useSubstituteRequestsViewModel(
   workspaceId: number | null,
-  params?: { status?: string }
+  params?: { status?: string },
+  pageSize = 10
 ) {
   const {
     data,
@@ -21,11 +20,11 @@ export function useSubstituteRequestsViewModel(
     queryKey: queryKeys.substitute.list({
       workspaceId: workspaceId ?? undefined,
       status: params?.status,
-      pageSize: PAGE_SIZE,
+      pageSize,
     }),
     queryFn: ({ pageParam }) =>
       fetchSubstituteRequests({
-        pageSize: PAGE_SIZE,
+        pageSize,
         workspaceId: workspaceId ?? undefined,
         status: params?.status,
         cursor: pageParam as string | undefined,

@@ -4,11 +4,10 @@ import { fetchWorkspaceWorkers } from '@/features/manager/api/worker'
 import { adaptWorkerDto } from '@/features/manager/home/lib/worker'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
-const PAGE_SIZE = 50
-
 export function useWorkspaceWorkersViewModel(
   workspaceId: number | null,
-  params?: { status?: string; name?: string }
+  params?: { status?: string; name?: string },
+  pageSize = 50
 ) {
   const {
     data,
@@ -21,12 +20,12 @@ export function useWorkspaceWorkersViewModel(
     queryKey: queryKeys.managerWorkspace.workers(workspaceId ?? 0, {
       status: params?.status,
       name: params?.name,
-      pageSize: PAGE_SIZE,
+      pageSize,
     }),
     queryFn: ({ pageParam }) =>
       fetchWorkspaceWorkers({
         workspaceId: workspaceId!,
-        pageSize: PAGE_SIZE,
+        pageSize,
         cursor: pageParam as string | undefined,
         status: params?.status,
         name: params?.name,

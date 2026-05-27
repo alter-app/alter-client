@@ -22,21 +22,21 @@ export function useManagerHomeViewModel() {
     fetchNextPage: fetchMoreWorkers,
     hasNextPage: hasMoreWorkers,
     isFetchingNextPage: isFetchingMoreWorkers,
-  } = useWorkspaceWorkersViewModel(activeWorkspaceId)
+  } = useWorkspaceWorkersViewModel(activeWorkspaceId, undefined, 3)
 
   const {
     postings: ongoingPostings,
     totalCount: postingsTotalCount,
     fetchNextPage: fetchMorePostings,
     hasNextPage: hasMorePostings,
-  } = useManagedPostingsViewModel(activeWorkspaceId, { status: 'OPEN' })
+  } = useManagedPostingsViewModel(activeWorkspaceId, { status: 'OPEN' }, 3)
 
   const {
     requests: substituteRequests,
     totalCount: substituteTotalCount,
     fetchNextPage: fetchMoreSubstitutes,
     hasNextPage: hasMoreSubstitutes,
-  } = useSubstituteRequestsViewModel(activeWorkspaceId)
+  } = useSubstituteRequestsViewModel(activeWorkspaceId, undefined, 3)
 
   const {
     baseDate: scheduleBaseDate,

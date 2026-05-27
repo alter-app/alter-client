@@ -98,9 +98,11 @@ export function SubstituteApprovalCard({
           />
         ))}
       </div>
-      <div className="pt-[14px]">
-        <MoreButton onClick={onViewMore} />
-      </div>
+      {onViewMore && (
+        <div className="pt-[14px]">
+          <MoreButton onClick={onViewMore} />
+        </div>
+      )}
     </div>
   )
 }
