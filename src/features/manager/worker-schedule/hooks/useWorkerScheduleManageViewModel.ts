@@ -84,10 +84,17 @@ export function useWorkerScheduleManageViewModel(args: {
   workerId: number
   activeTab: ScheduleTab
   generalSelectedDate: Date | null
+  onSaveSuccess?: () => void
 }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { workspaceId, workerId, activeTab, generalSelectedDate } = args
+  const {
+    workspaceId,
+    workerId,
+    activeTab,
+    generalSelectedDate,
+    onSaveSuccess,
+  } = args
 
   const { workers, isLoading: workersLoading } =
     useWorkspaceWorkersViewModel(workspaceId)
@@ -407,12 +414,16 @@ export function useWorkerScheduleManageViewModel(args: {
       setGeneralFormOverride(null)
       setColorOverride(null)
 
-      navigate(ROUTES.MANAGER.HOME, {
-        replace: true,
-        state: {
-          workerScheduleSaveSuccess: true,
-        } satisfies ManagerHomeLocationState,
-      })
+      if (onSaveSuccess) {
+        onSaveSuccess()
+      } else {
+        navigate(ROUTES.MANAGER.HOME, {
+          replace: true,
+          state: {
+            workerScheduleSaveSuccess: true,
+          } satisfies ManagerHomeLocationState,
+        })
+      }
     },
     onError: async (error: unknown) => {
       setSaveError(getAxiosErrorMessage(error, '저장에 실패했습니다.'))

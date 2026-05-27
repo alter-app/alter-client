@@ -66,6 +66,8 @@ export const queryKeys = {
       ['userSubstitute', 'sentDetail', requestId] as const,
   },
   manager: {
+    schedulesByWorkspace: (workspaceId: number) =>
+      ['manager', 'schedules', workspaceId] as const,
     schedules: (workspaceId: number, year: number, month: number) =>
       ['manager', 'schedules', workspaceId, year, month] as const,
     todaySchedules: (workspaceId: number) =>
