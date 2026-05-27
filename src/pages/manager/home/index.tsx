@@ -28,13 +28,16 @@ export function ManagerHomePage() {
     storeWorkers,
     storeWorkersTotalCount,
     fetchMoreWorkers,
+    hasMoreWorkers,
     isFetchingMoreWorkers,
     ongoingPostings,
     postingsTotalCount,
     fetchMorePostings,
+    hasMorePostings,
     substituteRequests,
     substituteTotalCount,
     fetchMoreSubstitutes,
+    hasMoreSubstitutes,
     schedule,
     activeWorkspaceId,
     workspaceDetail,
@@ -228,12 +231,13 @@ export function ManagerHomePage() {
                   onOptions={() => {}}
                 />
               ))}
-              {storeWorkers.length < storeWorkersTotalCount && (
-                <MoreButton
-                  onClick={() => fetchMoreWorkers()}
-                  disabled={isFetchingMoreWorkers}
-                />
-              )}
+              {storeWorkers.length < storeWorkersTotalCount &&
+                hasMoreWorkers && (
+                  <MoreButton
+                    onClick={() => fetchMoreWorkers()}
+                    disabled={isFetchingMoreWorkers}
+                  />
+                )}
             </div>
           )}
         </div>
@@ -247,7 +251,7 @@ export function ManagerHomePage() {
           <OngoingPostingCard
             postings={ongoingPostings}
             onViewMore={
-              ongoingPostings.length < postingsTotalCount
+              ongoingPostings.length < postingsTotalCount && hasMorePostings
                 ? () => fetchMorePostings()
                 : undefined
             }
@@ -264,7 +268,8 @@ export function ManagerHomePage() {
           <SubstituteApprovalCard
             requests={substituteRequests}
             onViewMore={
-              substituteRequests.length < substituteTotalCount
+              substituteRequests.length < substituteTotalCount &&
+              hasMoreSubstitutes
                 ? () => fetchMoreSubstitutes()
                 : undefined
             }
