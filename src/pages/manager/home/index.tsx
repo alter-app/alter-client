@@ -216,27 +216,33 @@ export function ManagerHomePage() {
         </div>
 
         <div className="bg-white mx-4 py-8  rounded-[16px] shadow-sm overflow-hidden flex flex-col">
-          <div className="px-4 gap-6 flex flex-col">
-            {storeWorkers.map(worker => (
-              <StoreWorkerListItem
-                key={worker.id}
-                name={worker.name}
-                role={worker.role}
-                nextWorkDate={worker.nextWorkDate}
-                profileImageUrl={worker.profileImageUrl}
-                onOptions={() => {}}
-              />
-            ))}
-            {shouldShowInfiniteListLoadMore(
-              hasMoreWorkers,
-              storeWorkersTotalCount
-            ) && (
-              <MoreButton
-                onClick={() => fetchMoreWorkers()}
-                disabled={isFetchingMoreWorkers}
-              />
-            )}
-          </div>
+          {storeWorkers.length === 0 ? (
+            <p className="px-4 py-8 text-center typography-body02-regular text-text-50">
+              근무자가 없습니다
+            </p>
+          ) : (
+            <div className="px-4 gap-6 flex flex-col">
+              {storeWorkers.map(worker => (
+                <StoreWorkerListItem
+                  key={worker.id}
+                  name={worker.name}
+                  role={worker.role}
+                  nextWorkDate={worker.nextWorkDate}
+                  profileImageUrl={worker.profileImageUrl}
+                  onOptions={() => {}}
+                />
+              ))}
+              {shouldShowInfiniteListLoadMore(
+                hasMoreWorkers,
+                storeWorkersTotalCount
+              ) && (
+                <MoreButton
+                  onClick={() => fetchMoreWorkers()}
+                  disabled={isFetchingMoreWorkers}
+                />
+              )}
+            </div>
+          )}
         </div>
       </div>
       <div className="pt-6 pb-8">

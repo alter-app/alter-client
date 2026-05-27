@@ -88,20 +88,28 @@ export function SubstituteApprovalCard({
 }: SubstituteApprovalCardProps) {
   return (
     <div className="flex flex-col overflow-hidden rounded-[16px] bg-white px-6 pb-4 pt-8 shadow-sm">
-      <div className="flex flex-col">
-        {requests.map((item, index) => (
-          <RequestRow
-            key={item.id}
-            item={item}
-            onClick={() => onRequestClick?.(item)}
-            isLast={index === requests.length - 1}
-          />
-        ))}
-      </div>
-      {onViewMore && (
-        <div className="pt-[14px]">
-          <MoreButton onClick={onViewMore} />
-        </div>
+      {requests.length === 0 ? (
+        <p className="py-8 text-center typography-body02-regular text-text-50">
+          대타 승인 요청이 없습니다
+        </p>
+      ) : (
+        <>
+          <div className="flex flex-col">
+            {requests.map((item, index) => (
+              <RequestRow
+                key={item.id}
+                item={item}
+                onClick={() => onRequestClick?.(item)}
+                isLast={index === requests.length - 1}
+              />
+            ))}
+          </div>
+          {onViewMore && (
+            <div className="pt-[14px]">
+              <MoreButton onClick={onViewMore} />
+            </div>
+          )}
+        </>
       )}
     </div>
   )
