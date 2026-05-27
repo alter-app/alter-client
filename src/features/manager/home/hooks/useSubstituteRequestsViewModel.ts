@@ -34,13 +34,13 @@ export function useSubstituteRequestsViewModel(
     enabled: workspaceId !== null,
   })
 
-  const requests = useMemo(
-    () =>
+  const requests = useMemo(() => {
+    const all =
       data?.pages.flatMap(
         page => page?.data?.data?.map(adaptSubstituteRequestDto) ?? []
-      ) ?? [],
-    [data]
-  )
+      ) ?? []
+    return [...new Map(all.map(r => [r.id, r])).values()]
+  }, [data])
 
   const totalCount = data?.pages?.[0]?.data?.page?.totalCount ?? 0
 

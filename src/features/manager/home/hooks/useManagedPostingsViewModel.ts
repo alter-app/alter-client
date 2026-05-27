@@ -34,13 +34,13 @@ export function useManagedPostingsViewModel(
     enabled: workspaceId !== null,
   })
 
-  const postings = useMemo(
-    () =>
+  const postings = useMemo(() => {
+    const all =
       data?.pages.flatMap(
         page => page.data?.data?.map(adaptPostingDto) ?? []
-      ) ?? [],
-    [data]
-  )
+      ) ?? []
+    return [...new Map(all.map(p => [p.id, p])).values()]
+  }, [data])
 
   const totalCount = data?.pages[0]?.data?.page?.totalCount ?? 0
 

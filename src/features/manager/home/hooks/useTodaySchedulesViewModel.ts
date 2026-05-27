@@ -14,17 +14,24 @@ export function useTodaySchedulesViewModel(workspaceId: number | null) {
 
   const todayWorkers = useMemo<TodayWorkerItem[]>(() => {
     if (!data) return []
-    return data.data.map(worker => ({
-      id: worker.workerId,
-      name: worker.workerName,
-      profileImageUrl: worker.profileImageUrl,
-      workTime: worker.shifts[0]
-        ? formatIsoTimeRangeLabel(
-            worker.shifts[0].startDateTime,
-            worker.shifts[0].endDateTime
-          )
-        : '',
-    }))
+    const seen = new Set<number>()
+    return data.data
+      .filter(worker => {
+        if (seen.has(worker.workerId)) return false
+        seen.add(worker.workerId)
+        return true
+      })
+      .map(worker => ({
+        id: worker.workerId,
+        name: worker.workerName,
+        profileImageUrl: worker.profileImageUrl,
+        workTime: worker.shifts[0]
+          ? formatIsoTimeRangeLabel(
+              worker.shifts[0].startDateTime,
+              worker.shifts[0].endDateTime
+            )
+          : '',
+      }))
   }, [data])
 
   return {

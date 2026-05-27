@@ -35,10 +35,11 @@ export function useWorkspaceWorkersViewModel(
     enabled: workspaceId !== null,
   })
 
-  const workers = useMemo(
-    () => data?.pages.flatMap(page => page.data.data.map(adaptWorkerDto)) ?? [],
-    [data]
-  )
+  const workers = useMemo(() => {
+    const all =
+      data?.pages.flatMap(page => page.data.data.map(adaptWorkerDto)) ?? []
+    return [...new Map(all.map(w => [w.id, w])).values()]
+  }, [data])
 
   const totalCount = data?.pages[0]?.data.page.totalCount ?? 0
 
