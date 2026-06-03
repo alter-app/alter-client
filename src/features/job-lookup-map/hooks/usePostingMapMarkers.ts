@@ -67,6 +67,9 @@ export function usePostingMapMarkers({
 
   useEffect(() => {
     onClusterClickRef.current = onClusterClick
+  }, [onClusterClick])
+
+  useEffect(() => {
     syncMarkersRef.current = syncMarkers
     syncMarkers()
 
@@ -84,7 +87,7 @@ export function usePostingMapMarkers({
       }
       markersRef.current = []
     }
-  }, [onClusterClick, syncMarkers])
+  }, [syncMarkers])
 
   return { syncMarkersRef }
 }
