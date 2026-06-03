@@ -19,8 +19,6 @@ import managerWorkspaceModalPlusIcon from '@/assets/icons/home/manager-workspace
 import managerScheduleEditIcon from '@/assets/icons/home/edit.svg'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
 
-const STORE_WORKERS_SECTION_ID = 'manager-store-workers'
-
 export function ManagerHomePage() {
   const navigate = useNavigate()
   const {
@@ -200,7 +198,7 @@ export function ManagerHomePage() {
         />
       </section>
 
-      <div id={STORE_WORKERS_SECTION_ID} className="scroll-mt-4 pt-6 pb-8">
+      <div className="pt-6 pb-8">
         <div className="mb-3 flex items-center justify-between px-5">
           <h2 className="typography-headline01 text-gray-900">
             우리 매장 근무자
