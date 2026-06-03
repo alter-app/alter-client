@@ -12,6 +12,7 @@ export type NaverMapInstance = {
   destroy(): void
   setCenter(latlng: object): void
   getBounds(): NaverLatLngBounds
+  getZoom(): number
 }
 
 export type NaverMarker = {

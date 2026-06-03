@@ -19,10 +19,8 @@ import { Albabox } from '@/features/job-lookup-map/common/Albabox'
 import { usePostings } from '@/features/job-lookup-map/hooks/usePosting'
 import { usePostingMapMarkers } from '@/features/job-lookup-map/hooks/usePostingMapMarkers'
 import { usePostingSearch } from '@/features/job-lookup-map/hooks/usePostingSearch'
-import {
-  hasValidCoordinates,
-  moveMapToWorkspace,
-} from '@/features/job-lookup-map/lib/moveMapToWorkspace'
+import { moveMapToWorkspace } from '@/features/job-lookup-map/lib/moveMapToWorkspace'
+import { pickSearchTargetPosting } from '@/features/job-lookup-map/lib/pickSearchTargetPosting'
 import { postingToAlbaboxProps } from '@/features/job-lookup-map/lib/postingToAlbaboxProps'
 import {
   getNaverMaps,
@@ -51,6 +49,7 @@ export function JobLookupMapPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchList, setSearchList] = useState<Posting[] | null>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
+  const hasSetInitialSheetYRef = useRef(false)
   const y = useMotionValue(0)
 
   const { postings, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -85,7 +84,10 @@ export function JobLookupMapPage() {
   }, [])
 
   const handleSearchSubmit = useCallback(async () => {
-    const results = await search(searchQuery)
+    const keyword = searchQuery.trim()
+    if (!keyword) return
+
+    const results = await search(keyword)
 
     if (results.length === 0) {
       setSearchList(null)
@@ -94,15 +96,9 @@ export function JobLookupMapPage() {
 
     setSearchList(results)
 
-    const firstWithCoordinates = results.find(posting =>
-      hasValidCoordinates(
-        posting.workspace.latitude,
-        posting.workspace.longitude
-      )
-    )
-
-    if (firstWithCoordinates) {
-      moveToPosting(firstWithCoordinates)
+    const target = pickSearchTargetPosting(keyword, results)
+    if (target) {
+      moveToPosting(target)
     }
   }, [moveToPosting, search, searchQuery])
 
@@ -217,6 +213,13 @@ export function JobLookupMapPage() {
     const updateBounds = () => {
       const nextMax = Math.max(0, sheet.offsetHeight - SHEET_PEEK_HEIGHT)
       setMaxTranslateY(nextMax)
+
+      if (!hasSetInitialSheetYRef.current && nextMax > 0) {
+        hasSetInitialSheetYRef.current = true
+        y.set(nextMax)
+        return
+      }
+
       const currentY = y.get()
       const clampedY = Math.min(nextMax, Math.max(0, currentY))
       if (clampedY !== currentY) {
@@ -308,13 +311,17 @@ export function JobLookupMapPage() {
                       [posting.id]: !saved,
                     }))
                   }
-                  onClick={() =>
+                  onClick={() => {
+                    if (isSearchActive) {
+                      moveToPosting(posting)
+                      return
+                    }
                     navigate(
                       generatePath(ROUTES.USER.JOB_LOOKUP_MAP_DETAIL, {
                         postingId: String(posting.id),
                       })
                     )
-                  }
+                  }}
                 />
               )
             })}
