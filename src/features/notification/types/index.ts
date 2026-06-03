@@ -7,6 +7,7 @@ export interface NotificationDto {
   title: string
   body: string
   createdAt: string
+  read: boolean
 }
 
 export interface NotificationPage {
