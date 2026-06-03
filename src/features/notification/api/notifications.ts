@@ -36,19 +36,21 @@ export async function fetchManagerNotifications(
   return response.data
 }
 
-export async function markUserNotificationsRead(notificationId?: number) {
+export async function markUserNotificationsRead(notificationId: number | null) {
   const response = await axiosInstance.patch(
     '/app/users/me/notifications/read',
     {
-      ...(notificationId !== undefined ? { notificationId } : {}),
+      notificationId,
     }
   )
   return response.data
 }
 
-export async function markManagerNotificationsRead(notificationId?: number) {
+export async function markManagerNotificationsRead(
+  notificationId: number | null
+) {
   const response = await axiosInstance.patch('/manager/notifications/read', {
-    ...(notificationId !== undefined ? { notificationId } : {}),
+    notificationId,
   })
   return response.data
 }

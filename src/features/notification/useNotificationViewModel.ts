@@ -62,16 +62,28 @@ export function useNotificationViewModel() {
       onClick: () => {
         if (!dto.read && !readIds.has(dto.id)) {
           setReadIds(prev => new Set([...prev, dto.id]))
-          markRead(dto.id)
+          markRead(dto.id ?? null)
         }
       },
     }))
   }, [data, deletedIds, readIds, markRead])
 
+  const markAllRead = () => {
+    const unreadIds =
+      data?.pages
+        .flatMap(page => page.data ?? [])
+        .filter(dto => !dto.read && !readIds.has(dto.id))
+        .map(dto => dto.id) ?? []
+    if (unreadIds.length === 0) return
+    setReadIds(prev => new Set([...prev, ...unreadIds]))
+    markRead(null)
+  }
+
   return {
     selectedType,
     setSelectedType,
     currentItems,
+    markAllRead,
     isLoading,
     isError,
     fetchNextPage,

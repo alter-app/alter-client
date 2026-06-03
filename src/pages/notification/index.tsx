@@ -95,6 +95,7 @@ export function NotificationPage() {
     selectedType,
     setSelectedType,
     currentItems,
+    markAllRead,
     isLoading,
     isError,
     fetchNextPage,
@@ -139,11 +140,18 @@ export function NotificationPage() {
           }
         />
 
-        <div className="px-4 py-2">
+        <div className="flex items-center justify-between px-4 py-2">
           <NotificationTypeFilter
             value={selectedType}
             onChange={setSelectedType}
           />
+          <button
+            type="button"
+            className="shrink-0 typography-bg text-text-50"
+            onClick={markAllRead}
+          >
+            전체 읽음
+          </button>
         </div>
       </div>
 

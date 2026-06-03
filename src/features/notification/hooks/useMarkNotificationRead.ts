@@ -9,7 +9,7 @@ export function useMarkNotificationRead(scope: 'MANAGER' | 'USER' | null) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (notificationId?: number) => {
+    mutationFn: (notificationId: number | null) => {
       if (scope === null) return Promise.resolve()
       return scope === 'MANAGER'
         ? markManagerNotificationsRead(notificationId)
