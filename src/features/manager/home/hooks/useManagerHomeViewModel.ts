@@ -38,9 +38,19 @@ export function useManagerHomeViewModel() {
     hasNextPage: hasNextSubstitutesPage,
   } = useSubstituteRequestsViewModel(activeWorkspaceId)
 
-  const [visibleWorkersCount, setVisibleWorkersCount] = useState(3)
-  const [visiblePostingsCount, setVisiblePostingsCount] = useState(3)
-  const [visibleSubstitutesCount, setVisibleSubstitutesCount] = useState(3)
+  const [visibleCounts, setVisibleCounts] = useState({
+    forWorkspaceId: activeWorkspaceId,
+    workers: 3,
+    postings: 3,
+    substitutes: 3,
+  })
+
+  const isSameWorkspace = visibleCounts.forWorkspaceId === activeWorkspaceId
+  const visibleWorkersCount = isSameWorkspace ? visibleCounts.workers : 3
+  const visiblePostingsCount = isSameWorkspace ? visibleCounts.postings : 3
+  const visibleSubstitutesCount = isSameWorkspace
+    ? visibleCounts.substitutes
+    : 3
 
   const storeWorkers = allStoreWorkers.slice(0, visibleWorkersCount)
   const ongoingPostings = allOngoingPostings.slice(0, visiblePostingsCount)
@@ -58,27 +68,58 @@ export function useManagerHomeViewModel() {
     hasNextSubstitutesPage
 
   const showMoreWorkers = () => {
+    const nextCount = visibleWorkersCount + 3
     if (visibleWorkersCount < allStoreWorkers.length) {
-      setVisibleWorkersCount(c => c + 3)
+      setVisibleCounts(prev => ({
+        ...prev,
+        forWorkspaceId: activeWorkspaceId,
+        workers: nextCount,
+      }))
     } else {
-      fetchNextWorkersPage().then(() => setVisibleWorkersCount(c => c + 3))
+      fetchNextWorkersPage().then(() =>
+        setVisibleCounts(prev => ({
+          ...prev,
+          forWorkspaceId: activeWorkspaceId,
+          workers: nextCount,
+        }))
+      )
     }
   }
 
   const showMorePostings = () => {
+    const nextCount = visiblePostingsCount + 3
     if (visiblePostingsCount < allOngoingPostings.length) {
-      setVisiblePostingsCount(c => c + 3)
+      setVisibleCounts(prev => ({
+        ...prev,
+        forWorkspaceId: activeWorkspaceId,
+        postings: nextCount,
+      }))
     } else {
-      fetchNextPostingsPage().then(() => setVisiblePostingsCount(c => c + 3))
+      fetchNextPostingsPage().then(() =>
+        setVisibleCounts(prev => ({
+          ...prev,
+          forWorkspaceId: activeWorkspaceId,
+          postings: nextCount,
+        }))
+      )
     }
   }
 
   const showMoreSubstitutes = () => {
+    const nextCount = visibleSubstitutesCount + 3
     if (visibleSubstitutesCount < allSubstituteRequests.length) {
-      setVisibleSubstitutesCount(c => c + 3)
+      setVisibleCounts(prev => ({
+        ...prev,
+        forWorkspaceId: activeWorkspaceId,
+        substitutes: nextCount,
+      }))
     } else {
       fetchNextSubstitutesPage().then(() =>
-        setVisibleSubstitutesCount(c => c + 3)
+        setVisibleCounts(prev => ({
+          ...prev,
+          forWorkspaceId: activeWorkspaceId,
+          substitutes: nextCount,
+        }))
       )
     }
   }
