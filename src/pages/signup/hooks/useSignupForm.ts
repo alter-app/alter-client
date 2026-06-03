@@ -14,7 +14,11 @@ import {
 } from '@/shared/api/auth'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import {
-  isPasswordValid,
+  isPasswordFormatValid,
+  PASSWORD_FORMAT_ERROR_MESSAGE,
+  PASSWORD_MISMATCH_ERROR_MESSAGE,
+} from '@/shared/lib/utils/passwordValidation'
+import {
   normalizePhone,
   normalizeBirthday,
   getGenderCode,
@@ -119,15 +123,13 @@ export function useSignupForm(options?: UseSignupFormOptions) {
     setPassword(value)
     if (!value.trim()) {
       setPasswordError('비밀번호를 입력해주세요.')
-    } else if (!isPasswordValid(value)) {
-      setPasswordError(
-        '비밀번호는 최소 8자이며, 영문/숫자/특수문자 중 2가지 이상을 포함해야 합니다.'
-      )
+    } else if (!isPasswordFormatValid(value)) {
+      setPasswordError(PASSWORD_FORMAT_ERROR_MESSAGE)
     } else {
       setPasswordError('')
     }
     if (passwordCheck && value !== passwordCheck) {
-      setPasswordCheckError('비밀번호가 서로 일치하지 않습니다.')
+      setPasswordCheckError(PASSWORD_MISMATCH_ERROR_MESSAGE)
     } else {
       setPasswordCheckError('')
     }
@@ -138,7 +140,7 @@ export function useSignupForm(options?: UseSignupFormOptions) {
     if (!value.trim()) {
       setPasswordCheckError('비밀번호 확인을 입력해주세요.')
     } else if (value !== password) {
-      setPasswordCheckError('비밀번호가 서로 일치하지 않습니다.')
+      setPasswordCheckError(PASSWORD_MISMATCH_ERROR_MESSAGE)
     } else {
       setPasswordCheckError('')
     }
@@ -277,7 +279,7 @@ export function useSignupForm(options?: UseSignupFormOptions) {
       nicknameChecked &&
       (!emailValue.trim() || emailVerified) &&
       agreed &&
-      isPasswordValid(password) &&
+      isPasswordFormatValid(password) &&
       password === passwordCheck &&
       !passwordError &&
       !passwordCheckError

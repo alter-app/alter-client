@@ -1,6 +1,6 @@
 import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { AuthButton } from '@/shared/ui/common/AuthButton'
-import { VerifyActionButton } from './VerifyActionButton'
+import { VerifyActionButton } from '@/features/auth'
 import { EmailVerification } from './EmailVerification'
 import { SignupTerms } from './SignupTerms'
 import type { useSignupForm } from '../hooks/useSignupForm'
@@ -163,7 +163,7 @@ export function Step2AccountInfo({
             <div className="flex flex-col gap-4 w-full sm:gap-[14px] xs:gap-3">
               <AuthInput
                 type="password"
-                placeholder="비밀번호"
+                placeholder="8~16자 영문, 숫자, 특수문자"
                 value={password}
                 onChange={e => handlePasswordChange(e.target.value)}
               />

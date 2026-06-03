@@ -5,11 +5,12 @@ import {
   toInternationalPhone,
   clearRecaptcha,
 } from '@/shared/lib/firebase'
+import { checkContactDuplicate } from '@/shared/api/auth'
 import {
   normalizePhone,
   formatPhone,
 } from '@/shared/lib/utils/signupValidation'
-import { useTimer } from './useTimer'
+import { useTimer } from '@/shared/hooks/useTimer'
 
 export const RECAPTCHA_CONTAINER_ID = 'recaptcha-container'
 const RESEND_COOLDOWN = 30
@@ -45,6 +46,7 @@ export function usePhoneVerification() {
   /** 전화번호 입력 변경 — 인증 상태 초기화 */
   const handlePhoneChange = (value: string) => {
     setPhone(formatPhone(value))
+    smsConfirmationRef.current = null
     setSmsSent(false)
     setSmsCode('')
     setVerified(false)
@@ -55,12 +57,25 @@ export function usePhoneVerification() {
 
   /** 인증번호 발송 */
   const sendSms = async () => {
-    if (!phone.trim() || isSending || resendCooldown > 0) return
+    const normalized = normalizePhone(phone)
+    if (normalized.length !== 11 || isSending || resendCooldown > 0) {
+      if (normalized.length !== 11 && phone.trim()) {
+        setMessage('전화번호 11자리를 입력해주세요.')
+      }
+      return
+    }
+
     try {
       setIsSending(true)
       setMessage('')
+      const available = await checkContactDuplicate(normalized)
+      if (!available) {
+        setMessage('이미 가입된 휴대폰 번호입니다.')
+        return
+      }
+
       clearRecaptcha() // 재발송 시 reCAPTCHA 재생성
-      const intlPhone = toInternationalPhone(normalizePhone(phone))
+      const intlPhone = toInternationalPhone(normalized)
       const confirmation = await sendPhoneVerification(
         intlPhone,
         RECAPTCHA_CONTAINER_ID
@@ -82,11 +97,12 @@ export function usePhoneVerification() {
 
   /** 인증번호 확인 */
   const verifySms = async () => {
-    if (!smsCode.trim() || isVerifying || !smsConfirmationRef.current) return
+    const confirmation = smsConfirmationRef.current
+    if (!smsSent || !smsCode.trim() || isVerifying || !confirmation) return
     try {
       setIsVerifying(true)
       setMessage('')
-      const result = await smsConfirmationRef.current.confirm(smsCode)
+      const result = await confirmation.confirm(smsCode)
       const idToken = await result.user.getIdToken()
       setFirebaseIdToken(idToken)
       setVerified(true)

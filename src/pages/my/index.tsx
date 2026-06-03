@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { logoutSession } from '@/shared/api/auth'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { ROUTES } from '@/shared/constants/routes'
 import { useUserMe } from '@/features/user/me'
@@ -62,7 +63,7 @@ function MyPageHeader() {
 
 export function MyPage() {
   const navigate = useNavigate()
-  const { scope, logout } = useAuthStore()
+  const { scope, logout, isLoggedIn } = useAuthStore()
   const { user, isLoading, isError } = useUserMe()
 
   const isManager = scope === 'MANAGER'
@@ -73,13 +74,19 @@ export function MyPage() {
     navigate(ROUTES.MY.PROFILE)
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate(ROUTES.AUTH.LOGIN, { replace: true })
+  const handleLogout = async () => {
+    try {
+      await logoutSession(scope, isLoggedIn)
+    } catch {
+      // 서버 로그아웃 실패 시에도 로컬 세션은 정리
+    } finally {
+      logout()
+      navigate(ROUTES.AUTH.LOGIN, { replace: true })
+    }
   }
 
   const handleWithdraw = () => {
-    navigate('/my/withdraw')
+    navigate(ROUTES.MY.WITHDRAW)
   }
 
   return (
@@ -93,6 +100,7 @@ export function MyPage() {
           nickname={nickname}
           realName={realName}
           isManager={isManager}
+          avatarUrl={user.profileImageUrl}
           onEditClick={handleEditProfile}
         />
 

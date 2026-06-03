@@ -5,6 +5,7 @@ export const ROUTES = {
   AUTH: {
     LOGIN: '/login',
     SIGNUP: '/signup',
+    FIND_PASSWORD: '/find-password',
   },
   OAUTH: {
     KAKAO_CALLBACK: '/oauth/kakao/callback',
@@ -30,13 +31,20 @@ export const ROUTES = {
     WORKER_SCHEDULE_PATTERN:
       '/manager/workspaces/:workspaceId/workers/:workerId/schedule',
     STORE_REGISTER: '/manager/store-register',
+    SUBSTITUTE_REQUEST: '/manager/substitute-request',
     WORKER_INVITE: '/manager/worker-invite',
+    WORKER_LIST: '/manager/worker-list',
     SOCIAL: '/manager/social',
     SOCIAL_CHAT: '/manager/social/chat',
   },
   MY: {
     ROOT: '/my',
     PROFILE: '/my/profile',
+    PROFILE_NICKNAME: '/my/profile/nickname',
+    PROFILE_PASSWORD: '/my/profile/password',
+    PROFILE_EMAIL: '/my/profile/email',
+    PROFILE_SOCIAL: '/my/profile/social',
+    WITHDRAW: '/my/withdraw',
   },
   NOTIFICATIONS: '/notifications',
   NOTIFICATION_SETTINGS: '/notifications/settings',
