@@ -17,26 +17,71 @@ export function useManagerHomeViewModel() {
   const { detail: workspaceDetail } = useWorkspaceDetailQuery(activeWorkspaceId)
 
   const {
-    workers: storeWorkers,
+    workers: allStoreWorkers,
     totalCount: storeWorkersTotalCount,
-    fetchNextPage: fetchMoreWorkers,
-    hasNextPage: hasMoreWorkers,
+    fetchNextPage: fetchNextWorkersPage,
+    hasNextPage: hasNextWorkersPage,
     isFetchingNextPage: isFetchingMoreWorkers,
-  } = useWorkspaceWorkersViewModel(activeWorkspaceId, undefined, 3)
+  } = useWorkspaceWorkersViewModel(activeWorkspaceId)
 
   const {
-    postings: ongoingPostings,
+    postings: allOngoingPostings,
     totalCount: postingsTotalCount,
-    fetchNextPage: fetchMorePostings,
-    hasNextPage: hasMorePostings,
-  } = useManagedPostingsViewModel(activeWorkspaceId, { status: 'OPEN' }, 3)
+    fetchNextPage: fetchNextPostingsPage,
+    hasNextPage: hasNextPostingsPage,
+  } = useManagedPostingsViewModel(activeWorkspaceId, { status: 'OPEN' })
 
   const {
-    requests: substituteRequests,
+    requests: allSubstituteRequests,
     totalCount: substituteTotalCount,
-    fetchNextPage: fetchMoreSubstitutes,
-    hasNextPage: hasMoreSubstitutes,
-  } = useSubstituteRequestsViewModel(activeWorkspaceId, undefined, 3)
+    fetchNextPage: fetchNextSubstitutesPage,
+    hasNextPage: hasNextSubstitutesPage,
+  } = useSubstituteRequestsViewModel(activeWorkspaceId)
+
+  const [visibleWorkersCount, setVisibleWorkersCount] = useState(3)
+  const [visiblePostingsCount, setVisiblePostingsCount] = useState(3)
+  const [visibleSubstitutesCount, setVisibleSubstitutesCount] = useState(3)
+
+  const storeWorkers = allStoreWorkers.slice(0, visibleWorkersCount)
+  const ongoingPostings = allOngoingPostings.slice(0, visiblePostingsCount)
+  const substituteRequests = allSubstituteRequests.slice(
+    0,
+    visibleSubstitutesCount
+  )
+
+  const hasMoreWorkers =
+    visibleWorkersCount < allStoreWorkers.length || hasNextWorkersPage
+  const hasMorePostings =
+    visiblePostingsCount < allOngoingPostings.length || hasNextPostingsPage
+  const hasMoreSubstitutes =
+    visibleSubstitutesCount < allSubstituteRequests.length ||
+    hasNextSubstitutesPage
+
+  const showMoreWorkers = () => {
+    if (visibleWorkersCount < allStoreWorkers.length) {
+      setVisibleWorkersCount(c => c + 3)
+    } else {
+      fetchNextWorkersPage().then(() => setVisibleWorkersCount(c => c + 3))
+    }
+  }
+
+  const showMorePostings = () => {
+    if (visiblePostingsCount < allOngoingPostings.length) {
+      setVisiblePostingsCount(c => c + 3)
+    } else {
+      fetchNextPostingsPage().then(() => setVisiblePostingsCount(c => c + 3))
+    }
+  }
+
+  const showMoreSubstitutes = () => {
+    if (visibleSubstitutesCount < allSubstituteRequests.length) {
+      setVisibleSubstitutesCount(c => c + 3)
+    } else {
+      fetchNextSubstitutesPage().then(() =>
+        setVisibleSubstitutesCount(c => c + 3)
+      )
+    }
+  }
 
   const {
     baseDate: scheduleBaseDate,
@@ -82,16 +127,16 @@ export function useManagerHomeViewModel() {
     todayWorkers,
     storeWorkers,
     storeWorkersTotalCount,
-    fetchMoreWorkers,
+    showMoreWorkers,
     hasMoreWorkers,
     isFetchingMoreWorkers,
     ongoingPostings,
     postingsTotalCount,
-    fetchMorePostings,
+    showMorePostings,
     hasMorePostings,
     substituteRequests,
     substituteTotalCount,
-    fetchMoreSubstitutes,
+    showMoreSubstitutes,
     hasMoreSubstitutes,
     schedule: {
       baseDate: scheduleBaseDate,
