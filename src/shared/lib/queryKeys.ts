@@ -91,5 +91,7 @@ export const queryKeys = {
       ['notifications', scope, type] as const,
     consent: (scope: 'MANAGER' | 'USER' | null) =>
       ['notificationConsent', scope] as const,
+    unreadCount: (scope: 'MANAGER' | 'USER' | null) =>
+      ['notificationUnreadCount', scope] as const,
   },
 } as const

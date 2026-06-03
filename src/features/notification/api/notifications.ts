@@ -54,3 +54,23 @@ export async function markManagerNotificationsRead(
   })
   return response.data
 }
+
+export async function fetchUserNotificationUnreadCount(): Promise<{
+  unreadCount: number
+  hasUnread: boolean
+}> {
+  const response = await axiosInstance.get<{
+    data: { unreadCount: number; hasUnread: boolean }
+  }>('/app/users/me/notifications/unread-count')
+  return response.data.data
+}
+
+export async function fetchManagerNotificationUnreadCount(): Promise<{
+  unreadCount: number
+  hasUnread: boolean
+}> {
+  const response = await axiosInstance.get<{
+    data: { unreadCount: number; hasUnread: boolean }
+  }>('/manager/notifications/me/unread-count')
+  return response.data.data
+}
