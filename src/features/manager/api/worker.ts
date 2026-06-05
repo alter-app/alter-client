@@ -4,6 +4,10 @@ import type {
   WorkersApiResponse,
   WorkspaceWorkersQueryParams,
 } from '@/features/manager/home/types/worker'
+import type {
+  ResignWorkerParams,
+  ResignWorkerResponse,
+} from '@/features/manager/worker-list/types/resign'
 
 export async function fetchWorkspaceWorkers(
   params: WorkspaceWorkersQueryParams
@@ -19,6 +23,16 @@ export async function fetchWorkspaceWorkers(
         ...(name && { name }),
       },
     }
+  )
+  return response.data
+}
+
+export async function resignWorker(
+  params: ResignWorkerParams
+): Promise<ResignWorkerResponse> {
+  const { workspaceId, workerId } = params
+  const response = await axiosInstance.patch<ResignWorkerResponse>(
+    `/manager/workspaces/${workspaceId}/workers/${workerId}/resign`
   )
   return response.data
 }
