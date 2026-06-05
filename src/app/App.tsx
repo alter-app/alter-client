@@ -29,6 +29,8 @@ import { StoreRegisterPage } from '@/pages/manager/store-register'
 import { ManagerWorkerInvitePage } from '@/pages/manager/worker-invite'
 import { WorkerListPage } from '@/pages/manager/worker-list'
 import { WorkspaceJoinPage } from '@/pages/user/workspace-join'
+import { NotificationPage } from '@/pages/notification'
+import { NotificationSettingsPage } from '@/pages/notification/settings'
 import { MyPage } from '@/pages/my'
 import { ProfileEditPage } from '@/pages/my/profile'
 import { EmailEditPage } from '@/pages/my/profile/email'
@@ -110,6 +112,11 @@ export function App() {
             element={<AppliedStoresPage />}
           />
           <Route path={ROUTES.MY.PROFILE} element={<ProfileEditPage />} />
+          <Route path={ROUTES.NOTIFICATIONS} element={<NotificationPage />} />
+          <Route
+            path={ROUTES.NOTIFICATION_SETTINGS}
+            element={<NotificationSettingsPage />}
+          />
           <Route
             path={ROUTES.MY.PROFILE_NICKNAME}
             element={<NicknameEditPage />}

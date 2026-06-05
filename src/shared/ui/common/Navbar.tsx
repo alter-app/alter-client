@@ -1,4 +1,6 @@
 import { useState, type ReactNode } from 'react'
+import { useAuthStore } from '@/shared/stores/useAuthStore'
+import { useNotificationUnreadCount } from '@/features/notification/hooks/useNotificationUnreadCount'
 import { AlterLogo } from '@/shared/ui/common/AlterLogo'
 import BellIcon from '@/assets/icons/nav/bell.svg'
 import MenuIcon from '@/assets/icons/nav/menu.svg'
@@ -6,6 +8,7 @@ import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 import { useNavigate } from 'react-router-dom'
 import { HamburgerMenuDrawer } from '@/shared/ui/common/HamburgerMenuDrawer'
 import { cn } from '@/shared/lib/utils'
+import { ROUTES } from '@/shared/constants/routes'
 
 type NavbarVariant = 'main' | 'detail'
 
@@ -29,6 +32,8 @@ export function Navbar({
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const isMain = variant === 'main'
+  const scope = useAuthStore(s => s.scope)
+  const { data: unreadData } = useNotificationUnreadCount(isMain ? scope : null)
 
   const handleBackClick = () => {
     if (onBackClick) {
@@ -78,9 +83,13 @@ export function Navbar({
               <button
                 type="button"
                 aria-label="알림"
-                className="flex h-6 w-6 items-center justify-center"
+                className="relative flex h-6 w-6 items-center justify-center"
+                onClick={() => navigate(ROUTES.NOTIFICATIONS)}
               >
                 <img src={BellIcon} alt="Bell" className="h-6 w-6" />
+                {unreadData?.hasUnread && (
+                  <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-error" />
+                )}
               </button>
               <button
                 type="button"

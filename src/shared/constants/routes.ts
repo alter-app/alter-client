@@ -46,6 +46,8 @@ export const ROUTES = {
     PROFILE_SOCIAL: '/my/profile/social',
     WITHDRAW: '/my/withdraw',
   },
+  NOTIFICATIONS: '/notifications',
+  NOTIFICATION_SETTINGS: '/notifications/settings',
 } as const
 
 export function managerWorkerSchedulePath(
