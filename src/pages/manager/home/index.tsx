@@ -19,10 +19,9 @@ import managerHomeBannerPlusIcon from '@/assets/icons/home/manager-home-banner-p
 import managerWorkspaceModalPlusIcon from '@/assets/icons/home/manager-workspace-modal-plus.svg'
 import managerScheduleEditIcon from '@/assets/icons/home/edit.svg'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
-import { colors } from '@/shared/lib/tokens'
 import { useResignWorkerMutation } from '@/features/manager/worker-list/hooks/mutation/useResignWorkerMutation'
 import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
-import AlertCircleIcon from '@/assets/icons/my/alert-circle.svg?react'
+import ResignIcon from '@/assets/icons/home/resign.svg?react'
 
 export function ManagerHomePage() {
   const navigate = useNavigate()
@@ -240,9 +239,8 @@ export function ManagerHomePage() {
                     profileImageUrl={worker.profileImageUrl}
                     menuItems={[
                       {
-                        icon: <AlertCircleIcon width={20} height={20} />,
+                        icon: <ResignIcon width={20} height={20} />,
                         label: '퇴사하기',
-                        iconColor: colors.error,
                         onClick: () => setResignTargetWorkerId(worker.id),
                       },
                     ]}
