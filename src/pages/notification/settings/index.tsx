@@ -1,6 +1,6 @@
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
-import { Toggle } from '@/shared/ui/common/Toggle'
+import { NotificationToggleRow } from '@/pages/notification/settings/components/NotificationToggleRow'
 import { useNotificationSettingsViewModel } from '@/features/notification/useNotificationSettingsViewModel'
 
 export function NotificationSettingsPage() {
@@ -35,38 +35,24 @@ export function NotificationSettingsPage() {
         <section className="flex flex-col gap-6">
           <h2 className="typography-headline03 text-text-100">전체 알림</h2>
           <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-              <span className="typography-body01-semibold text-text-100">
-                전체 알림 켜기
-              </span>
-              <Toggle
-                checked={allEnabled}
-                onChange={handleAllChange}
-                ariaLabel="전체 알림 켜기"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="typography-body01-regular text-text-100">
-                대타 알림 켜기
-              </span>
-              <Toggle
-                checked={substituteEnabled}
-                onChange={handleSubstituteChange}
-                disabled={!allEnabled}
-                ariaLabel="대타 알림 켜기"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="typography-body01-regular text-text-100">
-                평판 알림 켜기
-              </span>
-              <Toggle
-                checked={reputationEnabled}
-                onChange={handleReputationChange}
-                disabled={!allEnabled}
-                ariaLabel="평판 알림 켜기"
-              />
-            </div>
+            <NotificationToggleRow
+              label="전체 알림 켜기"
+              checked={allEnabled}
+              onChange={handleAllChange}
+              labelVariant="semibold"
+            />
+            <NotificationToggleRow
+              label="대타 알림 켜기"
+              checked={substituteEnabled}
+              onChange={handleSubstituteChange}
+              disabled={!allEnabled}
+            />
+            <NotificationToggleRow
+              label="평판 알림 켜기"
+              checked={reputationEnabled}
+              onChange={handleReputationChange}
+              disabled={!allEnabled}
+            />
           </div>
         </section>
 
@@ -74,21 +60,13 @@ export function NotificationSettingsPage() {
 
         <section className="flex flex-col gap-6">
           <h2 className="typography-headline03 text-text-100">시간 설정</h2>
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <span className="typography-body01-regular text-text-100">
-                야간 알림 켜기
-              </span>
-              <span className="typography-body02-regular text-text-70">
-                23:00 ~ 08:00
-              </span>
-            </div>
-            <Toggle
-              checked={nightEnabled}
-              onChange={handleNightChange}
-              ariaLabel="야간 알림 켜기"
-            />
-          </div>
+          <NotificationToggleRow
+            label="야간 알림 켜기"
+            checked={nightEnabled}
+            onChange={handleNightChange}
+            disabled={!allEnabled}
+            description="23:00 ~ 08:00"
+          />
         </section>
       </main>
     </div>
