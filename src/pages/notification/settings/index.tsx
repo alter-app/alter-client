@@ -1,7 +1,7 @@
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
 import { NotificationToggleRow } from '@/pages/notification/settings/components/NotificationToggleRow'
-import { useNotificationSettingsViewModel } from '@/features/notification/useNotificationSettingsViewModel'
+import { useNotificationSettingsViewModel } from '@/features/notification'
 
 export function NotificationSettingsPage() {
   const {
