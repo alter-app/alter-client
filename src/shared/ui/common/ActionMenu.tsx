@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { cn } from '@/shared/lib/utils'
 
 export interface ActionMenuItem {
-  icon: string
+  icon: React.ReactNode
   label: string
   iconColor?: string
   onClick: () => void
@@ -39,7 +39,10 @@ export function ActionMenu({
   return (
     <div
       ref={ref}
-      className={`absolute z-50 w-[121px] overflow-hidden rounded-2xl bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.15)] ${className}`}
+      className={cn(
+        'absolute z-50 w-[121px] overflow-hidden rounded-2xl bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.15)]',
+        className
+      )}
     >
       {items.map((item, index) => (
         <button
@@ -54,7 +57,12 @@ export function ActionMenu({
             index < items.length - 1 && 'border-b border-line-2'
           )}
         >
-          <img src={item.icon} alt="" aria-hidden className="size-5 shrink-0" />
+          <span
+            className="size-5 shrink-0 flex items-center justify-center"
+            style={{ color: item.iconColor }}
+          >
+            {item.icon}
+          </span>
           <span
             className="typography-body02-regular"
             style={{ color: item.iconColor ?? '#232323' }}

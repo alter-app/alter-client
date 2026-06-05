@@ -18,6 +18,9 @@ import managerHomeBannerPlusIcon from '@/assets/icons/home/manager-home-banner-p
 import managerWorkspaceModalPlusIcon from '@/assets/icons/home/manager-workspace-modal-plus.svg'
 import managerScheduleEditIcon from '@/assets/icons/home/edit.svg'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
+import { colors } from '@/shared/lib/tokens'
+import { useResignWorkerMutation } from '@/features/manager/worker-list/hooks/mutation/useResignWorkerMutation'
+import AlertCircleIcon from '@/assets/icons/my/alert-circle.svg?react'
 
 export function ManagerHomePage() {
   const navigate = useNavigate()
@@ -44,6 +47,10 @@ export function ManagerHomePage() {
     closeWorkspaceChangeModal,
     selectWorkspace,
   } = useManagerHomeViewModel()
+
+  const { mutate: resignWorker } = useResignWorkerMutation(
+    activeWorkspaceId ?? 0
+  )
 
   return (
     <div className="flex min-h-[100dvh] flex-col box-border bg-bg-light">
@@ -226,7 +233,14 @@ export function ManagerHomePage() {
                   role={worker.role}
                   nextWorkDate={worker.nextWorkDate}
                   profileImageUrl={worker.profileImageUrl}
-                  onOptions={() => {}}
+                  menuItems={[
+                    {
+                      icon: <AlertCircleIcon width={20} height={20} />,
+                      label: '퇴사하기',
+                      iconColor: colors.error,
+                      onClick: () => resignWorker(worker.id),
+                    },
+                  ]}
                 />
               ))}
               {storeWorkers.length < storeWorkersTotalCount &&

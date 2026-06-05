@@ -6,9 +6,9 @@ import {
   type ActionMenuItem,
 } from '../../src/shared/ui/common/ActionMenu'
 
-import editIcon from '../../src/assets/icons/home/edit.svg'
-import trashIcon from '../../src/assets/icons/social/trash.svg'
-import moreVerticalIcon from '../../src/assets/icons/home/more-vertical.svg'
+import EditIcon from '../../src/assets/icons/my/edit.svg?react'
+import AlertCircleIcon from '../../src/assets/icons/my/alert-circle.svg?react'
+import MoreVerticalIcon from '../../src/assets/icons/home/more-vertical.svg?react'
 
 const meta = {
   title: 'shared/ui/common/ActionMenu',
@@ -21,9 +21,13 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 const defaultItems: ActionMenuItem[] = [
-  { icon: editIcon, label: '수정하기', onClick: () => {} },
   {
-    icon: trashIcon,
+    icon: <EditIcon width={20} height={20} />,
+    label: '수정하기',
+    onClick: () => {},
+  },
+  {
+    icon: <AlertCircleIcon width={20} height={20} />,
     label: '삭제하기',
     iconColor: '#FF4444',
     onClick: () => {},
@@ -42,7 +46,7 @@ export const SingleItem: Story = {
   args: {
     items: [
       {
-        icon: trashIcon,
+        icon: <AlertCircleIcon width={20} height={20} />,
         label: '퇴사하기',
         iconColor: '#FF4444',
         onClick: () => {},
@@ -62,7 +66,7 @@ function WithTriggerExample() {
         onClick={() => setIsOpen(prev => !prev)}
         className="p-2"
       >
-        <img src={moreVerticalIcon} alt="더보기" className="size-5" />
+        <MoreVerticalIcon width={20} height={20} />
       </button>
       <ActionMenu
         items={defaultItems}
