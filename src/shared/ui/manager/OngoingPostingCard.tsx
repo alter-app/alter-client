@@ -109,19 +109,29 @@ export function OngoingPostingCard({
 }: OngoingPostingCardProps) {
   return (
     <div className="flex flex-col overflow-hidden rounded-[16px] bg-white px-6 pt-8 pb-4 shadow-sm">
-      <div className="flex flex-col">
-        {postings.map((posting, index) => (
-          <PostingRow
-            key={posting.id}
-            posting={posting}
-            onClick={() => onPostingClick?.(posting)}
-            isLast={index === postings.length - 1}
-          />
-        ))}
-      </div>
-      <div className="pt-[18px]">
-        <MoreButton onClick={onViewMore} />
-      </div>
+      {postings.length === 0 ? (
+        <p className="py-8 text-center typography-body02-regular text-text-50">
+          진행 중인 공고가 없습니다
+        </p>
+      ) : (
+        <>
+          <div className="flex flex-col">
+            {postings.map((posting, index) => (
+              <PostingRow
+                key={posting.id}
+                posting={posting}
+                onClick={() => onPostingClick?.(posting)}
+                isLast={index === postings.length - 1}
+              />
+            ))}
+          </div>
+          {onViewMore && (
+            <div className="pt-[18px]">
+              <MoreButton onClick={onViewMore} />
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }

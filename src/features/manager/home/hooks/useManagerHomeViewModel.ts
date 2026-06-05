@@ -17,26 +17,112 @@ export function useManagerHomeViewModel() {
   const { detail: workspaceDetail } = useWorkspaceDetailQuery(activeWorkspaceId)
 
   const {
-    workers: storeWorkers,
+    workers: allStoreWorkers,
     totalCount: storeWorkersTotalCount,
-    fetchNextPage: fetchMoreWorkers,
-    hasNextPage: hasMoreWorkers,
+    fetchNextPage: fetchNextWorkersPage,
+    hasNextPage: hasNextWorkersPage,
     isFetchingNextPage: isFetchingMoreWorkers,
   } = useWorkspaceWorkersViewModel(activeWorkspaceId)
 
   const {
-    postings: ongoingPostings,
+    postings: allOngoingPostings,
     totalCount: postingsTotalCount,
-    fetchNextPage: fetchMorePostings,
-    hasNextPage: hasMorePostings,
+    fetchNextPage: fetchNextPostingsPage,
+    hasNextPage: hasNextPostingsPage,
   } = useManagedPostingsViewModel(activeWorkspaceId, { status: 'OPEN' })
 
   const {
-    requests: substituteRequests,
+    requests: allSubstituteRequests,
     totalCount: substituteTotalCount,
-    fetchNextPage: fetchMoreSubstitutes,
-    hasNextPage: hasMoreSubstitutes,
+    fetchNextPage: fetchNextSubstitutesPage,
+    hasNextPage: hasNextSubstitutesPage,
   } = useSubstituteRequestsViewModel(activeWorkspaceId)
+
+  const [visibleCounts, setVisibleCounts] = useState({
+    forWorkspaceId: activeWorkspaceId,
+    workers: 3,
+    postings: 3,
+    substitutes: 3,
+  })
+
+  const isSameWorkspace = visibleCounts.forWorkspaceId === activeWorkspaceId
+  const visibleWorkersCount = isSameWorkspace ? visibleCounts.workers : 3
+  const visiblePostingsCount = isSameWorkspace ? visibleCounts.postings : 3
+  const visibleSubstitutesCount = isSameWorkspace
+    ? visibleCounts.substitutes
+    : 3
+
+  const storeWorkers = allStoreWorkers.slice(0, visibleWorkersCount)
+  const ongoingPostings = allOngoingPostings.slice(0, visiblePostingsCount)
+  const substituteRequests = allSubstituteRequests.slice(
+    0,
+    visibleSubstitutesCount
+  )
+
+  const hasMoreWorkers =
+    visibleWorkersCount < allStoreWorkers.length || hasNextWorkersPage
+  const hasMorePostings =
+    visiblePostingsCount < allOngoingPostings.length || hasNextPostingsPage
+  const hasMoreSubstitutes =
+    visibleSubstitutesCount < allSubstituteRequests.length ||
+    hasNextSubstitutesPage
+
+  const showMoreWorkers = () => {
+    const nextCount = visibleWorkersCount + 3
+    if (visibleWorkersCount < allStoreWorkers.length) {
+      setVisibleCounts(prev => ({
+        ...prev,
+        forWorkspaceId: activeWorkspaceId,
+        workers: nextCount,
+      }))
+    } else {
+      fetchNextWorkersPage().then(() =>
+        setVisibleCounts(prev => ({
+          ...prev,
+          forWorkspaceId: activeWorkspaceId,
+          workers: nextCount,
+        }))
+      )
+    }
+  }
+
+  const showMorePostings = () => {
+    const nextCount = visiblePostingsCount + 3
+    if (visiblePostingsCount < allOngoingPostings.length) {
+      setVisibleCounts(prev => ({
+        ...prev,
+        forWorkspaceId: activeWorkspaceId,
+        postings: nextCount,
+      }))
+    } else {
+      fetchNextPostingsPage().then(() =>
+        setVisibleCounts(prev => ({
+          ...prev,
+          forWorkspaceId: activeWorkspaceId,
+          postings: nextCount,
+        }))
+      )
+    }
+  }
+
+  const showMoreSubstitutes = () => {
+    const nextCount = visibleSubstitutesCount + 3
+    if (visibleSubstitutesCount < allSubstituteRequests.length) {
+      setVisibleCounts(prev => ({
+        ...prev,
+        forWorkspaceId: activeWorkspaceId,
+        substitutes: nextCount,
+      }))
+    } else {
+      fetchNextSubstitutesPage().then(() =>
+        setVisibleCounts(prev => ({
+          ...prev,
+          forWorkspaceId: activeWorkspaceId,
+          substitutes: nextCount,
+        }))
+      )
+    }
+  }
 
   const {
     baseDate: scheduleBaseDate,
@@ -82,16 +168,16 @@ export function useManagerHomeViewModel() {
     todayWorkers,
     storeWorkers,
     storeWorkersTotalCount,
-    fetchMoreWorkers,
+    showMoreWorkers,
     hasMoreWorkers,
     isFetchingMoreWorkers,
     ongoingPostings,
     postingsTotalCount,
-    fetchMorePostings,
+    showMorePostings,
     hasMorePostings,
     substituteRequests,
     substituteTotalCount,
-    fetchMoreSubstitutes,
+    showMoreSubstitutes,
     hasMoreSubstitutes,
     schedule: {
       baseDate: scheduleBaseDate,

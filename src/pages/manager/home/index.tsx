@@ -1,9 +1,7 @@
-import { useEffect, useRef } from 'react'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { Navbar } from '@/shared/ui/common/Navbar'
-import { useLocation, useNavigate } from 'react-router-dom'
-import type { ManagerHomeLocationState } from '@/features/manager/home/types/managerHomeLocationState'
+import { useNavigate } from 'react-router-dom'
 import {
   TodayWorkerList,
   StoreWorkerListItem,
@@ -19,34 +17,24 @@ import managerHomeBannerImage from '@/assets/manager-home-banner.jpg'
 import managerHomeBannerPlusIcon from '@/assets/icons/home/manager-home-banner-plus.svg'
 import managerWorkspaceModalPlusIcon from '@/assets/icons/home/manager-workspace-modal-plus.svg'
 import managerScheduleEditIcon from '@/assets/icons/home/edit.svg'
-import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibility'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
-
-const STORE_WORKERS_SECTION_ID = 'manager-store-workers'
-const SCHEDULE_SAVE_SUCCESS_MESSAGE = '스케줄이 성공적으로 저장되었습니다.'
 
 export function ManagerHomePage() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const scheduleSaveScrollHandled = useRef(false)
-
-  const navigationState = location.state as ManagerHomeLocationState | null
-  const showScheduleSaveSuccess =
-    navigationState?.workerScheduleSaveSuccess === true
   const {
     todayWorkers,
     storeWorkers,
     storeWorkersTotalCount,
-    fetchMoreWorkers,
+    showMoreWorkers,
     hasMoreWorkers,
     isFetchingMoreWorkers,
     ongoingPostings,
     postingsTotalCount,
-    fetchMorePostings,
+    showMorePostings,
     hasMorePostings,
     substituteRequests,
     substituteTotalCount,
-    fetchMoreSubstitutes,
+    showMoreSubstitutes,
     hasMoreSubstitutes,
     schedule,
     activeWorkspaceId,
@@ -57,29 +45,9 @@ export function ManagerHomePage() {
     selectWorkspace,
   } = useManagerHomeViewModel()
 
-  useEffect(() => {
-    if (!showScheduleSaveSuccess || scheduleSaveScrollHandled.current) return
-
-    scheduleSaveScrollHandled.current = true
-    requestAnimationFrame(() => {
-      document
-        .getElementById(STORE_WORKERS_SECTION_ID)
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
-  }, [showScheduleSaveSuccess])
-
   return (
     <div className="flex min-h-[100dvh] flex-col box-border bg-bg-light">
       <Navbar />
-
-      {showScheduleSaveSuccess ? (
-        <p
-          className="mx-4 mt-3 rounded-2xl bg-main-100 px-4 py-3 typography-body02-regular text-text-100"
-          role="status"
-        >
-          {SCHEDULE_SAVE_SUCCESS_MESSAGE}
-        </p>
-      ) : null}
 
       <div className="relative h-[200px] w-full overflow-hidden">
         <img
@@ -230,7 +198,7 @@ export function ManagerHomePage() {
         />
       </section>
 
-      <div id={STORE_WORKERS_SECTION_ID} className="scroll-mt-4 pt-6 pb-8">
+      <div className="pt-6 pb-8">
         <div className="mb-3 flex items-center justify-between px-5">
           <h2 className="typography-headline01 text-gray-900">
             우리 매장 근무자
@@ -245,27 +213,31 @@ export function ManagerHomePage() {
         </div>
 
         <div className="bg-white mx-4 py-8  rounded-[16px] shadow-sm overflow-hidden flex flex-col">
-          <div className="px-4 gap-6 flex flex-col">
-            {storeWorkers.map(worker => (
-              <StoreWorkerListItem
-                key={worker.id}
-                name={worker.name}
-                role={worker.role}
-                nextWorkDate={worker.nextWorkDate}
-                profileImageUrl={worker.profileImageUrl}
-                onOptions={() => {}}
-              />
-            ))}
-            {shouldShowInfiniteListLoadMore(
-              hasMoreWorkers,
-              storeWorkersTotalCount
-            ) && (
-              <MoreButton
-                onClick={() => fetchMoreWorkers()}
-                disabled={isFetchingMoreWorkers}
-              />
-            )}
-          </div>
+          {storeWorkers.length === 0 ? (
+            <p className="px-4 py-8 text-center typography-body02-regular text-text-50">
+              근무자가 없습니다
+            </p>
+          ) : (
+            <div className="px-4 gap-6 flex flex-col">
+              {storeWorkers.map(worker => (
+                <StoreWorkerListItem
+                  key={worker.id}
+                  name={worker.name}
+                  role={worker.role}
+                  nextWorkDate={worker.nextWorkDate}
+                  profileImageUrl={worker.profileImageUrl}
+                  onOptions={() => {}}
+                />
+              ))}
+              {storeWorkers.length < storeWorkersTotalCount &&
+                hasMoreWorkers && (
+                  <MoreButton
+                    onClick={() => showMoreWorkers()}
+                    disabled={isFetchingMoreWorkers}
+                  />
+                )}
+            </div>
+          )}
         </div>
       </div>
       <div className="pt-6 pb-8">
@@ -277,11 +249,8 @@ export function ManagerHomePage() {
           <OngoingPostingCard
             postings={ongoingPostings}
             onViewMore={
-              shouldShowInfiniteListLoadMore(
-                hasMorePostings,
-                postingsTotalCount
-              )
-                ? () => fetchMorePostings()
+              ongoingPostings.length < postingsTotalCount && hasMorePostings
+                ? () => showMorePostings()
                 : undefined
             }
             onPostingClick={() => {}}
@@ -297,11 +266,9 @@ export function ManagerHomePage() {
           <SubstituteApprovalCard
             requests={substituteRequests}
             onViewMore={
-              shouldShowInfiniteListLoadMore(
-                hasMoreSubstitutes,
-                substituteTotalCount
-              )
-                ? () => fetchMoreSubstitutes()
+              substituteRequests.length < substituteTotalCount &&
+              hasMoreSubstitutes
+                ? () => showMoreSubstitutes()
                 : undefined
             }
             onRequestClick={() => {}}

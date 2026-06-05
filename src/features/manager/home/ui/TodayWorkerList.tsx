@@ -42,12 +42,20 @@ export function TodayWorkerList({
         오늘 근무자는 <span className="text-sub">{workers.length}</span>명이에요
       </h3>
 
-      <div className="mt-3 overflow-x-auto scrollbar-hide">
-        <div className="flex min-w-max gap-3">
-          {workers.map(worker => (
-            <TodayWorkerCard key={worker.id} worker={worker} />
-          ))}
-        </div>
+      <div className="mt-3 min-h-[188px] overflow-x-auto scrollbar-hide">
+        {workers.length === 0 ? (
+          <div className="flex h-[188px] items-center justify-center">
+            <p className="typography-body02-regular text-text-50">
+              오늘 등록된 스케줄이 없어요
+            </p>
+          </div>
+        ) : (
+          <div className="flex min-w-max gap-3">
+            {workers.map(worker => (
+              <TodayWorkerCard key={worker.id} worker={worker} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

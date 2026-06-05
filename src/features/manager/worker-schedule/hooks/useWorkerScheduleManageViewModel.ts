@@ -19,7 +19,6 @@ import { invalidateManagerScheduleQueries } from '@/features/manager/worker-sche
 import { saveFixedWorkerSchedules } from '@/features/manager/worker-schedule/lib/saveFixedWorkerSchedules'
 import { saveGeneralWorkerSchedule } from '@/features/manager/worker-schedule/lib/saveGeneralWorkerSchedule'
 import { dateTimeToHourMinute } from '@/features/manager/worker-schedule/lib/scheduleDateTime'
-import type { ManagerHomeLocationState } from '@/features/manager/home/types/managerHomeLocationState'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
@@ -417,12 +416,7 @@ export function useWorkerScheduleManageViewModel(args: {
       if (onSaveSuccess) {
         onSaveSuccess()
       } else {
-        navigate(ROUTES.MANAGER.HOME, {
-          replace: true,
-          state: {
-            workerScheduleSaveSuccess: true,
-          } satisfies ManagerHomeLocationState,
-        })
+        navigate(ROUTES.MANAGER.HOME, { replace: true })
       }
     },
     onError: async (error: unknown) => {

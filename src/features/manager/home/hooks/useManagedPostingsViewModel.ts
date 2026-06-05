@@ -4,11 +4,10 @@ import { fetchManagedPostings } from '@/features/manager/api/posting'
 import { adaptPostingDto } from '@/features/manager/home/types/posting'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
-const PAGE_SIZE = 10
-
 export function useManagedPostingsViewModel(
   workspaceId: number | null,
-  params?: { status?: string }
+  params?: { status?: string },
+  pageSize = 10
 ) {
   const {
     data,
@@ -21,11 +20,11 @@ export function useManagedPostingsViewModel(
     queryKey: queryKeys.posting.list({
       workspaceId: workspaceId ?? undefined,
       status: params?.status,
-      pageSize: PAGE_SIZE,
+      pageSize,
     }),
     queryFn: ({ pageParam }) =>
       fetchManagedPostings({
-        pageSize: PAGE_SIZE,
+        pageSize,
         workspaceId: workspaceId ?? undefined,
         status: params?.status,
         cursor: pageParam as string | undefined,
@@ -35,13 +34,13 @@ export function useManagedPostingsViewModel(
     enabled: workspaceId !== null,
   })
 
-  const postings = useMemo(
-    () =>
+  const postings = useMemo(() => {
+    const all =
       data?.pages.flatMap(
         page => page.data?.data?.map(adaptPostingDto) ?? []
-      ) ?? [],
-    [data]
-  )
+      ) ?? []
+    return [...new Map(all.map(p => [p.id, p])).values()]
+  }, [data])
 
   const totalCount = data?.pages[0]?.data?.page?.totalCount ?? 0
 
