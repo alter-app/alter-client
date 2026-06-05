@@ -75,22 +75,19 @@ export function NotificationSettingsPage() {
         <section className="flex flex-col gap-6">
           <h2 className="typography-headline03 text-text-100">시간 설정</h2>
           <div className="flex items-center justify-between">
-            <span className="typography-body01-regular text-text-100">
-              야간 알림 켜기
-            </span>
+            <div className="flex flex-col gap-1">
+              <span className="typography-body01-regular text-text-100">
+                야간 알림 켜기
+              </span>
+              <span className="typography-body02-regular text-text-70">
+                23:00 ~ 08:00
+              </span>
+            </div>
             <Toggle
               checked={nightEnabled}
               onChange={handleNightChange}
               ariaLabel="야간 알림 켜기"
             />
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="typography-body01-regular text-text-100">
-              방해금지 시간
-            </span>
-            <span className="typography-body01-regular text-text-100">
-              23:00 ~ 08:00
-            </span>
           </div>
         </section>
       </main>
