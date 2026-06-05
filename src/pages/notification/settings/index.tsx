@@ -12,8 +12,8 @@ export function NotificationSettingsPage() {
     reputationEnabled,
     handleAllChange,
     handleNightChange,
-    setSubstituteEnabled,
-    setReputationEnabled,
+    handleSubstituteChange,
+    handleReputationChange,
   } = useNotificationSettingsViewModel()
 
   if (isLoading) {
@@ -51,7 +51,7 @@ export function NotificationSettingsPage() {
               </span>
               <Toggle
                 checked={substituteEnabled}
-                onChange={setSubstituteEnabled}
+                onChange={handleSubstituteChange}
                 disabled={!allEnabled}
                 ariaLabel="대타 알림 켜기"
               />
@@ -62,7 +62,7 @@ export function NotificationSettingsPage() {
               </span>
               <Toggle
                 checked={reputationEnabled}
-                onChange={setReputationEnabled}
+                onChange={handleReputationChange}
                 disabled={!allEnabled}
                 ariaLabel="평판 알림 켜기"
               />

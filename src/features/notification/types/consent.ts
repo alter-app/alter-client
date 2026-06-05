@@ -1,6 +1,8 @@
 export const CONSENT_TYPE = {
   GENERAL: 'GENERAL',
   NIGHT: 'NIGHT',
+  SUBSTITUTE: 'SUBSTITUTE',
+  REPUTATION: 'REPUTATION',
 } as const
 
 export type ConsentType = (typeof CONSENT_TYPE)[keyof typeof CONSENT_TYPE]
