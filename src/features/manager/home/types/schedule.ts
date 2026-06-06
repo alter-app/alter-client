@@ -29,7 +29,7 @@ export interface ManagerScheduleWorkerDto {
 }
 
 export interface ManagerScheduleStatusDto {
-  value: 'ACTIVATED' | 'RESIGNED'
+  value: string
   description: string
 }
 
