@@ -51,7 +51,7 @@ export function StoreWorkerListItem({
       </div>
 
       {menuItems && menuItems.length > 0 && (
-        <>
+        <div className="relative">
           <button
             type="button"
             onClick={() => setIsMenuOpen(true)}
@@ -64,9 +64,9 @@ export function StoreWorkerListItem({
             items={menuItems}
             isOpen={isMenuOpen}
             onClose={() => setIsMenuOpen(false)}
-            className="right-0 top-full mt-1"
+            className="right-0 top-full mt-2"
           />
-        </>
+        </div>
       )}
     </div>
   )
