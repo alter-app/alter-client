@@ -1,5 +1,5 @@
 const EMPTY_COLOR = '#efefef'
-const MIN_SECTORS = 4
+const MIN_SECTORS = 1
 const SIZE = 32
 const STROKE_WIDTH = 4
 const GAP = 0
