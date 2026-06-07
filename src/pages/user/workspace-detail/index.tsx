@@ -30,6 +30,7 @@ export function WorkspaceDetailPage() {
   const businessNameFromNav = (state as { businessName?: string } | null)
     ?.businessName
   const [isResignModalOpen, setIsResignModalOpen] = useState(false)
+  const [isResignErrorOpen, setIsResignErrorOpen] = useState(false)
   const { mutate: resignWorkspace, isPending: isResigning } =
     useResignWorkspaceMutation()
 
@@ -224,9 +225,24 @@ export function WorkspaceDetailPage() {
         title="퇴사 처리하시겠어요?"
         description="퇴사 처리 후에는 되돌릴 수 없습니다."
         confirmLabel="퇴사하기"
+        cancelLabel="취소"
         isPending={isResigning}
-        onConfirm={() => resignWorkspace(id)}
+        onConfirm={() =>
+          resignWorkspace(id, {
+            onError: () => {
+              setIsResignModalOpen(false)
+              setIsResignErrorOpen(true)
+            },
+          })
+        }
         onClose={() => setIsResignModalOpen(false)}
+      />
+      <ConfirmModal
+        isOpen={isResignErrorOpen}
+        title="퇴사 처리 실패"
+        description="퇴사 처리에 실패했습니다. 다시 시도해 주세요."
+        onConfirm={() => setIsResignErrorOpen(false)}
+        onClose={() => setIsResignErrorOpen(false)}
       />
     </>
   )

@@ -28,6 +28,7 @@ export function ManagerHomePage() {
   const [resignTargetWorkerId, setResignTargetWorkerId] = useState<
     number | null
   >(null)
+  const [isResignErrorOpen, setIsResignErrorOpen] = useState(false)
   const {
     todayWorkers,
     storeWorkers,
@@ -299,14 +300,26 @@ export function ManagerHomePage() {
         title="퇴사 처리하시겠어요?"
         description="퇴사 처리 후에는 되돌릴 수 없습니다."
         confirmLabel="퇴사하기"
+        cancelLabel="취소"
         isPending={isResigning}
         onConfirm={() => {
           if (resignTargetWorkerId === null) return
           resignWorker(resignTargetWorkerId, {
             onSuccess: () => setResignTargetWorkerId(null),
+            onError: () => {
+              setResignTargetWorkerId(null)
+              setIsResignErrorOpen(true)
+            },
           })
         }}
         onClose={() => setResignTargetWorkerId(null)}
+      />
+      <ConfirmModal
+        isOpen={isResignErrorOpen}
+        title="퇴사 처리 실패"
+        description="퇴사 처리에 실패했습니다. 다시 시도해 주세요."
+        onConfirm={() => setIsResignErrorOpen(false)}
+        onClose={() => setIsResignErrorOpen(false)}
       />
     </>
   )
