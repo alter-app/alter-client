@@ -16,7 +16,7 @@ export function ConfirmModal({
   title,
   description,
   confirmLabel = '확인',
-  cancelLabel = '취소',
+  cancelLabel,
   isPending = false,
   onConfirm,
   onClose,
@@ -66,14 +66,18 @@ export function ConfirmModal({
           )}
         </div>
         <div className="flex border-t border-line-1">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex h-14 flex-1 items-center justify-center typography-body01-semibold text-text-70"
-          >
-            {cancelLabel}
-          </button>
-          <div className="w-px bg-line-1" />
+          {cancelLabel && (
+            <>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex h-14 flex-1 items-center justify-center typography-body01-semibold text-text-70"
+              >
+                {cancelLabel}
+              </button>
+              <div className="w-px bg-line-1" />
+            </>
+          )}
           <button
             type="button"
             onClick={onConfirm}
