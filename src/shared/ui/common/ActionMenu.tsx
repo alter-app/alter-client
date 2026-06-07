@@ -25,13 +25,17 @@ export function ActionMenu({
 
   useEffect(() => {
     if (!isOpen) return
-    const handleMouseDown = (e: MouseEvent) => {
+    const handleOutsideEvent = (e: MouseEvent | TouchEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         onClose()
       }
     }
-    document.addEventListener('mousedown', handleMouseDown)
-    return () => document.removeEventListener('mousedown', handleMouseDown)
+    document.addEventListener('mousedown', handleOutsideEvent)
+    document.addEventListener('touchstart', handleOutsideEvent)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideEvent)
+      document.removeEventListener('touchstart', handleOutsideEvent)
+    }
   }, [isOpen, onClose])
 
   if (!isOpen) return null
