@@ -30,11 +30,11 @@ export function ActionMenu({
         onClose()
       }
     }
-    document.addEventListener('mousedown', handleOutsideEvent)
-    document.addEventListener('touchstart', handleOutsideEvent)
+    document.addEventListener('mousedown', handleOutsideEvent, true)
+    document.addEventListener('touchstart', handleOutsideEvent, true)
     return () => {
-      document.removeEventListener('mousedown', handleOutsideEvent)
-      document.removeEventListener('touchstart', handleOutsideEvent)
+      document.removeEventListener('mousedown', handleOutsideEvent, true)
+      document.removeEventListener('touchstart', handleOutsideEvent, true)
     }
   }, [isOpen, onClose])
 
