@@ -55,10 +55,16 @@ export function ConfirmModal({
         className="relative w-full max-w-[318px] overflow-hidden rounded-2xl bg-white shadow-lg"
         role="dialog"
         aria-modal="true"
+        aria-labelledby="confirm-modal-title"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-2 px-6 pb-6 pt-8">
-          <h2 className="typography-headline03 text-text-100">{title}</h2>
+          <h2
+            id="confirm-modal-title"
+            className="typography-headline03 text-text-100"
+          >
+            {title}
+          </h2>
           {description && (
             <p className="typography-body02-regular text-center text-text-70">
               {description}
