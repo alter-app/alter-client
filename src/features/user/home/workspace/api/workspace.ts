@@ -1,4 +1,5 @@
 import axiosInstance from '@/shared/lib/axiosInstance'
+import type { ResignWorkspaceResponse } from '@/features/user/home/workspace/types/resign'
 import type {
   WorkspaceItem,
   WorkspaceListApiResponse,
@@ -27,6 +28,15 @@ export async function getMyWorkspaces(
         ...(params.cursor !== undefined && { cursor: params.cursor }),
       },
     }
+  )
+  return response.data
+}
+
+export async function resignWorkspace(
+  workspaceId: number
+): Promise<ResignWorkspaceResponse> {
+  const response = await axiosInstance.patch<ResignWorkspaceResponse>(
+    `/app/users/me/workspaces/${workspaceId}/resign`
   )
   return response.data
 }

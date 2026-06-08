@@ -1,0 +1,80 @@
+import React, { useEffect, useRef } from 'react'
+import { cn } from '@/shared/lib/utils'
+
+export interface ActionMenuItem {
+  icon: React.ReactNode
+  label: string
+  iconColor?: string
+  onClick: () => void
+}
+
+interface ActionMenuProps {
+  items: ActionMenuItem[]
+  isOpen: boolean
+  onClose: () => void
+  className?: string
+}
+
+export function ActionMenu({
+  items,
+  isOpen,
+  onClose,
+  className = '',
+}: ActionMenuProps) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+    const handleOutsideEvent = (e: MouseEvent | TouchEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        onClose()
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideEvent, true)
+    document.addEventListener('touchstart', handleOutsideEvent, true)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideEvent, true)
+      document.removeEventListener('touchstart', handleOutsideEvent, true)
+    }
+  }, [isOpen, onClose])
+
+  if (!isOpen) return null
+
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'absolute z-50 w-[121px] overflow-hidden rounded-2xl bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.15)]',
+        className
+      )}
+    >
+      {items.map((item, index) => (
+        <button
+          key={item.label}
+          type="button"
+          onClick={() => {
+            item.onClick()
+            onClose()
+          }}
+          className={cn(
+            'flex h-[39px] w-full items-center gap-[10px] px-4',
+            index < items.length - 1 && 'border-b border-line-2'
+          )}
+        >
+          <span
+            className="size-5 shrink-0 flex items-center justify-center"
+            style={{ color: item.iconColor }}
+          >
+            {item.icon}
+          </span>
+          <span
+            className="typography-body02-regular"
+            style={{ color: item.iconColor ?? '#232323' }}
+          >
+            {item.label}
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+}

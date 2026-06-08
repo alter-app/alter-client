@@ -22,7 +22,7 @@ export function useManagerHomeViewModel() {
     fetchNextPage: fetchNextWorkersPage,
     hasNextPage: hasNextWorkersPage,
     isFetchingNextPage: isFetchingMoreWorkers,
-  } = useWorkspaceWorkersViewModel(activeWorkspaceId)
+  } = useWorkspaceWorkersViewModel(activeWorkspaceId, { status: 'ACTIVATED' })
 
   const {
     postings: allOngoingPostings,

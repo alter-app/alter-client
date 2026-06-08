@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import MoreVerticalIcon from '@/assets/icons/home/more-vertical.svg'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
+import { ActionMenu, type ActionMenuItem } from '@/shared/ui/common/ActionMenu'
 import type { StoreWorkerRole } from '@/features/manager/home/types/storeWorkerRole'
 
 interface StoreWorkerListItemProps {
@@ -7,7 +9,7 @@ interface StoreWorkerListItemProps {
   role: StoreWorkerRole
   nextWorkDate: string
   profileImageUrl?: string
-  onOptions?: () => void
+  menuItems?: ActionMenuItem[]
   className?: string
 }
 
@@ -16,12 +18,14 @@ export function StoreWorkerListItem({
   role,
   nextWorkDate,
   profileImageUrl,
-  onOptions,
+  menuItems,
   className = '',
 }: StoreWorkerListItemProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
   return (
     <div
-      className={`flex h-[60px] items-center justify-between rounded-lg bg-white px-3 py-1 ${className}`}
+      className={`relative flex h-[60px] items-center justify-between rounded-lg bg-white px-3 py-1 ${className}`}
     >
       <div className="flex items-center gap-4">
         <div className="h-[38px] w-[38px] overflow-hidden rounded-full bg-bg-dark">
@@ -46,14 +50,24 @@ export function StoreWorkerListItem({
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={onOptions}
-        className="flex h-7 w-7 items-center justify-center"
-        aria-label="더보기"
-      >
-        <img src={MoreVerticalIcon} alt="더보기" className="h-7 w-7" />
-      </button>
+      {menuItems && menuItems.length > 0 && (
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsMenuOpen(true)}
+            className="flex h-7 w-7 items-center justify-center"
+            aria-label="더보기"
+          >
+            <img src={MoreVerticalIcon} alt="더보기" className="h-7 w-7" />
+          </button>
+          <ActionMenu
+            items={menuItems}
+            isOpen={isMenuOpen}
+            onClose={() => setIsMenuOpen(false)}
+            className="right-0 top-full mt-2"
+          />
+        </div>
+      )}
     </div>
   )
 }
