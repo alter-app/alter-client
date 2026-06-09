@@ -1,4 +1,11 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 import { animate, motion, useMotionValue } from 'framer-motion'
 import { AlbaFindCategoryBar } from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
@@ -10,32 +17,18 @@ import type {
 import { AlbaFindList } from '@/features/job-lookup-map/common/AlbaFindList'
 import { Albabox } from '@/features/job-lookup-map/common/Albabox'
 import { usePostings } from '@/features/job-lookup-map/hooks/usePosting'
+import { usePostingMapMarkers } from '@/features/job-lookup-map/hooks/usePostingMapMarkers'
+import { usePostingSearch } from '@/features/job-lookup-map/hooks/usePostingSearch'
+import { moveMapToWorkspace } from '@/features/job-lookup-map/lib/moveMapToWorkspace'
+import { pickSearchTargetPosting } from '@/features/job-lookup-map/lib/pickSearchTargetPosting'
 import { postingToAlbaboxProps } from '@/features/job-lookup-map/lib/postingToAlbaboxProps'
+import {
+  getNaverMaps,
+  type NaverMapInstance,
+} from '@/features/job-lookup-map/lib/naverMaps'
+import type { Posting } from '@/features/job-lookup-map/types/posting'
 import { MapFloatingActions } from '@/features/job-lookup-map/common/MapFloatingActions'
 import { SearchBar } from '@/shared/ui/common/SearchBar'
-
-type NaverMapInstance = {
-  destroy(): void
-  setCenter(latlng: object): void
-}
-
-type NaverMapsApi = {
-  Map: new (
-    element: HTMLElement,
-    options?: {
-      center?: object
-      zoom?: number
-      logoControl?: boolean
-      scaleControl?: boolean
-      mapDataControl?: boolean
-    }
-  ) => NaverMapInstance
-  LatLng: new (lat: number, lng: number) => object
-}
-
-function getNaverMaps(): NaverMapsApi | undefined {
-  return (window as Window & { naver?: { maps: NaverMapsApi } }).naver?.maps
-}
 
 /** 위치 권한 거부·오류 시 임시 중심 (서울시청 근처) */
 const FALLBACK_LAT = 37.5665
@@ -47,21 +40,91 @@ export function JobLookupMapPage() {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<NaverMapInstance | null>(null)
   const lastPositionRef = useRef<{ lat: number; lng: number } | null>(null)
+  const hasInitialCenterRef = useRef(false)
   const sheetRef = useRef<HTMLDivElement>(null)
   const [maxTranslateY, setMaxTranslateY] = useState(0)
   const [mode, setMode] = useState<AlbaFindMode>('nearby')
   const [activeFilter, setActiveFilter] = useState<AlbaFindFilterId>('sort')
   const [bookmarkById, setBookmarkById] = useState<Record<number, boolean>>({})
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchList, setSearchList] = useState<Posting[] | null>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
+  const hasSetInitialSheetYRef = useRef(false)
   const y = useMotionValue(0)
 
   const { postings, fetchNextPage, hasNextPage, isFetchingNextPage } =
     usePostings()
 
+  const { search } = usePostingSearch()
+
+  const displayedPostings = searchList ?? postings
+  const isSearchActive = searchList !== null
+
+  const snapTo = useCallback(
+    (target: number) => {
+      animate(y, target, {
+        type: 'spring',
+        stiffness: 380,
+        damping: 38,
+        mass: 0.8,
+      })
+    },
+    [y]
+  )
+
+  const moveToPosting = useCallback((posting: Posting) => {
+    const map = mapInstanceRef.current
+    if (!map) return false
+
+    const moved = moveMapToWorkspace(map, posting.workspace)
+    if (moved) {
+      hasInitialCenterRef.current = true
+    }
+    return moved
+  }, [])
+
+  const handleSearchSubmit = useCallback(async () => {
+    const keyword = searchQuery.trim()
+    if (!keyword) return
+
+    const results = await search(keyword)
+
+    if (results.length === 0) {
+      setSearchList(null)
+      return
+    }
+
+    setSearchList(results)
+
+    const target = pickSearchTargetPosting(keyword, results)
+    if (target) {
+      moveToPosting(target)
+    }
+  }, [moveToPosting, search, searchQuery])
+
+  const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter') return
+    event.preventDefault()
+    void handleSearchSubmit()
+  }
+
+  const { syncMarkersRef } = usePostingMapMarkers({
+    mapRef: mapInstanceRef,
+    postings: displayedPostings,
+    onClusterClick: postingIds => {
+      const target = displayedPostings.find(
+        posting => posting.id === postingIds[0]
+      )
+      if (!target) return
+
+      moveToPosting(target)
+      snapTo(0)
+    },
+  })
+
   useEffect(() => {
     const el = loadMoreRef.current
-    if (!el || !hasNextPage) return
+    if (!el || !hasNextPage || isSearchActive) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -73,7 +136,7 @@ export function JobLookupMapPage() {
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, isSearchActive])
 
   useEffect(() => {
     const el = mapContainerRef.current
@@ -91,6 +154,7 @@ export function JobLookupMapPage() {
       mapDataControl: false,
     })
     mapInstanceRef.current = map
+    syncMarkersRef.current()
 
     const geo = navigator.geolocation
     if (!geo) {
@@ -106,9 +170,12 @@ export function JobLookupMapPage() {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
         }
-        map.setCenter(
-          new nmaps.LatLng(pos.coords.latitude, pos.coords.longitude)
-        )
+        if (!hasInitialCenterRef.current) {
+          map.setCenter(
+            new nmaps.LatLng(pos.coords.latitude, pos.coords.longitude)
+          )
+          hasInitialCenterRef.current = true
+        }
       },
       undefined,
       {
@@ -123,7 +190,7 @@ export function JobLookupMapPage() {
       mapInstanceRef.current = null
       map.destroy()
     }
-  }, [])
+  }, [syncMarkersRef])
 
   const handleMyLocationClick = () => {
     const nmaps = getNaverMaps()
@@ -131,6 +198,8 @@ export function JobLookupMapPage() {
     const pos = lastPositionRef.current
     if (!nmaps || !map || !pos) return
     map.setCenter(new nmaps.LatLng(pos.lat, pos.lng))
+    hasInitialCenterRef.current = true
+    setSearchList(null)
   }
 
   const handleListClick = () => {
@@ -144,6 +213,13 @@ export function JobLookupMapPage() {
     const updateBounds = () => {
       const nextMax = Math.max(0, sheet.offsetHeight - SHEET_PEEK_HEIGHT)
       setMaxTranslateY(nextMax)
+
+      if (!hasSetInitialSheetYRef.current && nextMax > 0) {
+        hasSetInitialSheetYRef.current = true
+        y.set(nextMax)
+        return
+      }
+
       const currentY = y.get()
       const clampedY = Math.min(nextMax, Math.max(0, currentY))
       if (clampedY !== currentY) {
@@ -163,15 +239,6 @@ export function JobLookupMapPage() {
     }
   }, [y])
 
-  const snapTo = (target: number) => {
-    animate(y, target, {
-      type: 'spring',
-      stiffness: 380,
-      damping: 38,
-      mass: 0.8,
-    })
-  }
-
   return (
     <div className="relative flex h-screen flex-col bg-white">
       <div
@@ -184,7 +251,16 @@ export function JobLookupMapPage() {
         <div className="pointer-events-auto">
           <SearchBar
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={e => {
+              const next = e.target.value
+              setSearchQuery(next)
+              if (!next.trim()) {
+                setSearchList(null)
+              }
+            }}
+            onKeyDown={handleSearchKeyDown}
+            placeholder="매장, 공고 검색"
+            aria-label="매장 또는 공고 검색"
           />
         </div>
       </motion.div>
@@ -221,7 +297,7 @@ export function JobLookupMapPage() {
             onFilterChange={setActiveFilter}
           />
           <AlbaFindList className="mt-3 min-h-0 flex-1 gap-0">
-            {postings.map(posting => {
+            {displayedPostings.map(posting => {
               const base = postingToAlbaboxProps(posting)
               const saved = bookmarkById[posting.id] ?? posting.scrapped
               return (
@@ -235,17 +311,21 @@ export function JobLookupMapPage() {
                       [posting.id]: !saved,
                     }))
                   }
-                  onClick={() =>
+                  onClick={() => {
+                    if (isSearchActive) {
+                      moveToPosting(posting)
+                      return
+                    }
                     navigate(
                       generatePath(ROUTES.USER.JOB_LOOKUP_MAP_DETAIL, {
                         postingId: String(posting.id),
                       })
                     )
-                  }
+                  }}
                 />
               )
             })}
-            {hasNextPage && (
+            {hasNextPage && !isSearchActive && (
               <div
                 ref={loadMoreRef}
                 className="typography-body02-regular flex min-h-10 items-center justify-center py-3 text-text-50"

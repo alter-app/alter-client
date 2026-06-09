@@ -9,6 +9,7 @@ import type {
 export type FetchPostingsParams = {
   pageSize: number
   cursor?: string
+  searchKeyword?: string
 }
 
 function isCommonApiEnvelope(
@@ -69,6 +70,9 @@ export async function fetchPostings(
         pageSize: params.pageSize,
         ...(params.cursor !== undefined &&
           params.cursor !== '' && { cursor: params.cursor }),
+        ...(params.searchKeyword?.trim() && {
+          searchKeyword: params.searchKeyword.trim(),
+        }),
       },
     }
   )
