@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import type { WorkingStoreItem } from '@/features/user/home/workspace/types/workingStore'
-import { SubstituteProfileAvatar } from '@/pages/user/substitute-request/components/SubstituteProfileAvatar'
+import { Avatar } from '@/shared/ui/common/Avatar'
 import { cn } from '@/shared/lib/utils'
 
 interface SubstituteStoreSelectModalProps {
@@ -101,10 +101,12 @@ export function SubstituteStoreSelectModal({
                       )}
                       onClick={() => setSelectedWorkspaceId(store.workspaceId)}
                     >
-                      <SubstituteProfileAvatar
-                        imageUrl={store.thumbnailUrl}
+                      <Avatar
+                        src={store.thumbnailUrl}
                         alt={store.businessName}
                         size={48}
+                        fallback="neutral"
+                        className="border border-line-1 bg-bg-light"
                       />
                       <span className="min-w-0 flex-1 truncate typography-body01-semibold text-text-100">
                         {store.businessName}
