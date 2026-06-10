@@ -4,6 +4,7 @@ import type { ScheduleColor } from '@/features/manager/worker-schedule/types/sch
 import { SwipeActionButton } from '@/shared/ui/SwipeActionButton'
 import { SwipeableRow } from '@/shared/ui/SwipeableRow'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
+import { Avatar } from '@/shared/ui/common/Avatar'
 import type { WorkerRole } from '@/shared/types/workerRole'
 
 interface WorkerListItemProps {
@@ -31,15 +32,7 @@ export function WorkerListItem({
     <div className="flex h-[70px] min-w-[358px] items-center justify-between bg-white px-6 py-1">
       <div className="flex items-center gap-4">
         <div className="relative size-[38px] shrink-0">
-          {profileImageUrl ? (
-            <img
-              src={profileImageUrl}
-              alt={`${name} 프로필`}
-              className="size-full rounded-full object-cover"
-            />
-          ) : (
-            <div className="size-full rounded-full bg-bg-dark" />
-          )}
+          <Avatar src={profileImageUrl} alt={`${name} 프로필`} size={38} />
           <div
             className="absolute inset-0 rounded-full"
             style={{ boxShadow: `inset 0 0 0 3px ${scheduleColor}` }}

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import MoreVerticalIcon from '@/assets/icons/home/more-vertical.svg'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import { ActionMenu, type ActionMenuItem } from '@/shared/ui/common/ActionMenu'
+import { Avatar } from '@/shared/ui/common/Avatar'
 import type { StoreWorkerRole } from '@/features/manager/home/types/storeWorkerRole'
 
 interface StoreWorkerListItemProps {
@@ -28,15 +29,7 @@ export function StoreWorkerListItem({
       className={`relative flex h-[60px] items-center justify-between rounded-lg bg-white px-3 py-1 ${className}`}
     >
       <div className="flex items-center gap-4">
-        <div className="h-[38px] w-[38px] overflow-hidden rounded-full bg-bg-dark">
-          {profileImageUrl ? (
-            <img
-              src={profileImageUrl}
-              alt={name}
-              className="h-full w-full object-cover"
-            />
-          ) : null}
-        </div>
+        <Avatar src={profileImageUrl} alt={name} size={38} />
 
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1">
