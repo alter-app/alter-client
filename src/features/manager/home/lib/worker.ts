@@ -28,5 +28,6 @@ export function adaptWorkerDto(dto: WorkerDto): ManagerWorkerItem {
     position: dto.position.description || dto.position.type,
     colorCode: dto.colorCode,
     nextWorkDate: formatNextShiftDate(dto.nextShiftDateTime),
+    profileImageUrl: dto.user.profileImageUrl ?? undefined,
   }
 }

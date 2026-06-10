@@ -7,6 +7,7 @@ export interface WorkerUserDto {
   name: string
   contact: string
   gender: string
+  profileImageUrl?: string | null
 }
 
 export interface WorkerStatusDto {

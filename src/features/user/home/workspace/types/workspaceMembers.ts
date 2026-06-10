@@ -9,7 +9,7 @@ export interface WorkspacePositionDto {
 
 export interface WorkspaceWorkerDto {
   id: number
-  user: { id: number; name: string }
+  user: { id: number; name: string; profileImageUrl?: string | null }
   position: WorkspacePositionDto
   employedAt: string
   nextShiftDateTime: string
@@ -17,7 +17,7 @@ export interface WorkspaceWorkerDto {
 
 export interface WorkspaceManagerDto {
   id: number
-  manager: { id: number; name: string }
+  manager: { id: number; name: string; profileImageUrl?: string | null }
   position: WorkspacePositionDto
 }
 
@@ -48,6 +48,7 @@ export interface WorkspaceWorkerItem {
   id: number
   userId: number
   name: string
+  profileImageUrl?: string | null
   positionType: string
   positionDescription: string
   positionEmoji: string
@@ -59,6 +60,7 @@ export interface WorkspaceManagerItem {
   id: number
   managerId: number
   name: string
+  profileImageUrl?: string | null
   positionType: string
   positionDescription: string
   positionEmoji: string
