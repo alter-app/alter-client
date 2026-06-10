@@ -106,6 +106,7 @@ export function SubstituteRequestDetailView({
             >
               <div className="flex h-[70px] items-center gap-4 rounded-2xl border border-line-1 px-3">
                 <Avatar
+                  src={detail.imageUrl}
                   alt={detail.displayName}
                   size={38}
                   className="border border-line-1"
