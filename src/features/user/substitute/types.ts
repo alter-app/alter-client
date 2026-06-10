@@ -27,6 +27,7 @@ export interface SubstituteEnumValueDto<T extends string = string> {
 export interface SubstituteTargetWorkerDto {
   workerId: number
   workerName: string
+  profileImageUrl?: string | null
 }
 
 /** GET sent/{requestId} — targets[] 항목 */
@@ -52,11 +53,13 @@ export interface SubstituteWorkspaceDto {
 export interface SubstituteRequesterDto {
   workerId: number
   workerName: string
+  profileImageUrl?: string | null
 }
 
 export interface SubstituteAcceptedWorkerDto {
   workerId: number
   workerName: string
+  profileImageUrl?: string | null
 }
 
 /** 어댑터용 정규화된 대상 */
@@ -64,6 +67,7 @@ export interface SubstituteTargetDto {
   targetId: number
   workerName: string
   targetName?: string
+  profileImageUrl?: string | null
   status: string
   rejectionReason?: string | null
   respondedAt?: string | null
@@ -189,6 +193,7 @@ export interface UserSubstituteDetailViewModel {
   id: number
   displayName: string
   role: WorkerRole
+  imageUrl?: string | null
   dateTitle: string
   totalHoursLabel: string
   startTimeLabel: string
