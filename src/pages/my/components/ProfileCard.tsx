@@ -1,5 +1,6 @@
 import EditIcon from '@/assets/icons/my/edit.svg?react'
 import CrownIcon from '@/assets/icons/my/crown.svg?react'
+import { Avatar } from '@/shared/ui/common/Avatar'
 
 interface ProfileCardProps {
   nickname: string
@@ -21,15 +22,7 @@ export function ProfileCard({
   return (
     <div className="relative flex h-[120px] w-full flex-col justify-center rounded-2xl bg-white pl-[18px] pr-4">
       <div className="flex items-center gap-3.5">
-        <div className="size-[60px] shrink-0 overflow-hidden rounded-full bg-line-2">
-          {avatarUrl && (
-            <img
-              src={avatarUrl}
-              alt={`${nickname} 프로필 이미지`}
-              className="size-full object-cover"
-            />
-          )}
-        </div>
+        <Avatar src={avatarUrl} alt={`${nickname} 프로필 이미지`} size={60} />
         <div className="flex flex-col items-start justify-center gap-0.5">
           <p className="text-text-100 typography-headline01">{nickname}</p>
           <div className="flex items-center gap-2">

@@ -7,6 +7,7 @@ import { Navbar } from '@/shared/ui/common/Navbar'
 import { MenuListItem } from '../components/MenuListItem'
 import { ReadOnlyField } from './components/ReadOnlyField'
 import CameraCircleIcon from '@/assets/icons/my/camera-circle.svg?react'
+import { Avatar } from '@/shared/ui/common/Avatar'
 
 interface DeleteProfileImageModalProps {
   open: boolean
@@ -137,15 +138,11 @@ export function ProfileEditPage() {
 
       <div className="flex flex-col items-center pt-10">
         <div className="relative">
-          <div className="size-[146px] overflow-hidden rounded-full bg-line-2">
-            {avatarUrl && (
-              <img
-                src={avatarUrl}
-                alt={`${nickname} 프로필 이미지`}
-                className="size-full object-cover"
-              />
-            )}
-          </div>
+          <Avatar
+            src={avatarUrl}
+            alt={`${nickname} 프로필 이미지`}
+            size={146}
+          />
           <button
             type="button"
             aria-label="프로필 이미지 변경"
