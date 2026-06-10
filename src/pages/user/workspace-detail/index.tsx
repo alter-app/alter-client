@@ -143,6 +143,7 @@ export function WorkspaceDetailPage() {
                       name={manager.name}
                       role={manager.positionDescription || manager.positionType}
                       variant="manager"
+                      imageUrl={manager.profileImageUrl}
                       onOptions={() => {}}
                     />
                   ))}
@@ -192,6 +193,7 @@ export function WorkspaceDetailPage() {
                       role={worker.positionDescription || worker.positionType}
                       variant="worker"
                       nextWorkDate={formatNextShift(worker.nextShiftDateTime)}
+                      imageUrl={worker.profileImageUrl}
                       onOptions={() => {}}
                     />
                   ))}
