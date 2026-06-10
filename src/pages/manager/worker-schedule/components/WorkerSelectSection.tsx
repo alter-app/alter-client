@@ -1,3 +1,4 @@
+import { Avatar } from '@/shared/ui/common/Avatar'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import chevronDownIcon from '@/assets/icons/home/chevron-down.svg'
 import type { ManagerWorkerItem } from '@/features/manager/home/types/worker'
@@ -11,15 +12,6 @@ interface WorkerSelectSectionProps {
   onSelectWorker: (workerId: number) => void
 }
 
-function WorkerAvatar() {
-  return (
-    <div
-      className="size-[38px] shrink-0 rounded-full bg-[repeating-conic-gradient(#ececec_0%_25%,transparent_0%_50%)] [background-size:8px_8px]"
-      aria-hidden="true"
-    />
-  )
-}
-
 function WorkerRow({
   worker,
   isSelected,
@@ -31,7 +23,7 @@ function WorkerRow({
 }) {
   const content = (
     <>
-      <WorkerAvatar />
+      <Avatar src={worker.profileImageUrl} alt={worker.name} size={38} />
       <div className="flex min-w-0 items-center gap-1">
         <p className="typography-body01-semibold text-text-100">
           {worker.name}
@@ -84,7 +76,7 @@ export function WorkerSelectSection({
         className="flex h-[70px] w-full items-center rounded-2xl bg-white px-3"
       >
         <div className="flex min-w-0 flex-1 items-center gap-4">
-          <WorkerAvatar />
+          <Avatar src={worker.profileImageUrl} alt={worker.name} size={38} />
           <div className="flex min-w-0 items-center gap-1">
             <p className="typography-body01-semibold text-text-100">
               {worker.name}
