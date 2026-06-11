@@ -176,7 +176,7 @@ function resolveSentPersonImage(dto: {
   } | null
 }): string | null {
   const accepted = dto.acceptedWorker
-  if (accepted?.workerName?.trim()) {
+  if (accepted) {
     return accepted.profileImageUrl ?? null
   }
   const firstTarget = dto.targets?.[0]
