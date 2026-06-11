@@ -4,6 +4,7 @@ import { Spinner } from '@/shared/ui/Spinner'
 import { Avatar } from '@/shared/ui/common/Avatar'
 import { SubstituteRequestResponseActions } from '@/pages/user/substitute-request/components/SubstituteRequestResponseActions'
 import { SubstituteRequestStatusBadge } from '@/pages/user/substitute-request/components/SubstituteRequestStatusBadge'
+import { useNavbarNotificationProps } from '@/features/notification'
 import { useManagerSubstituteRequestViewModel } from '@/features/manager/substitute/hooks/useManagerSubstituteRequestViewModel'
 import { ManagerSubstituteActionModal } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
@@ -103,6 +104,7 @@ function Section({
 }
 
 export function ManagerSubstituteRequestPage() {
+  const notificationProps = useNavbarNotificationProps()
   const {
     isLoading,
     isError,
@@ -120,7 +122,7 @@ export function ManagerSubstituteRequestPage() {
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-white">
-      <Navbar showBorder={false} />
+      <Navbar showBorder={false} {...notificationProps} />
 
       <main className="mx-auto w-full flex-1">
         {isLoading ? (

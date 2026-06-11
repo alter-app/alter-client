@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { useChatRoomsViewModel } from '@/features/social'
+import { useNavbarNotificationProps } from '@/features/notification'
 import { SwipeableSocialItem } from '@/features/social/ui/SocialList'
 
 import SearchIcon from '@/assets/icons/search.svg'
@@ -11,11 +12,12 @@ import { SocialSearch } from '@/features/social/common/SocialSearch'
 export function SocialPage() {
   const [searchPopupOpen, setSearchPopupOpen] = useState(false)
   const navigate = useNavigate()
+  const notificationProps = useNavbarNotificationProps()
   const { chatRooms, isLoading, isError } = useChatRoomsViewModel()
 
   return (
     <div className="min-h-[100dvh] flex flex-col">
-      <Navbar />
+      <Navbar {...notificationProps} />
 
       <SocialSearch onClick={() => setSearchPopupOpen(true)} />
       <main className="flex-1 overflow-y-auto">
