@@ -28,7 +28,13 @@ const MENU_ITEMS: MenuItem[] = [
     key: 'store-apply',
     label: '업장 등록 신청',
     icon: StoreIcon,
-    path: '/my/store-apply',
+    path: ROUTES.MANAGER.STORE_REGISTER,
+  },
+  {
+    key: 'manager-switch',
+    label: '사장님 계정으로 전환',
+    icon: StoreIcon,
+    path: ROUTES.STORE_REGISTER.REQUESTS,
   },
   {
     key: 'support',
@@ -135,6 +141,12 @@ export function MyPage() {
             />
           ))}
         </nav>
+
+        {!isManager && (
+          <p className="mt-2 px-1 typography-body03-regular text-text-70">
+            승인 완료 후 사장님 계정 전환이 활성화됩니다.
+          </p>
+        )}
 
         <div className="mt-6 flex items-center gap-4 pb-6">
           <button
