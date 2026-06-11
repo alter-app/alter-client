@@ -47,11 +47,13 @@ export function SubstituteRequestCard({
       }
       className={`flex h-[72px] w-full items-center gap-4 rounded-2xl border border-line-1 bg-white px-5 text-left transition-colors active:bg-bg-light${isClickable ? ' cursor-pointer' : ''}`}
     >
-      <Avatar
-        src={item.imageUrl}
-        alt={item.displayName}
-        className="border border-line-1"
-      />
+      {directionTab === 'received' && (
+        <Avatar
+          src={item.imageUrl}
+          alt={item.displayName}
+          className="border border-line-1"
+        />
+      )}
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-1">
           <span className="min-w-0 flex-1 truncate typography-body01-semibold text-text-100">
