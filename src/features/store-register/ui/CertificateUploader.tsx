@@ -17,12 +17,23 @@ type Props = {
   certificate: CertificatePickState
   headline: string
   hint?: string
+  /** true면 헤드라인 옆에 "선택" 배지 노출 */
+  optional?: boolean
+}
+
+function OptionalBadge() {
+  return (
+    <span className="ml-2 inline-flex shrink-0 items-center rounded-full bg-bg-dark px-2 py-0.5 typography-body02-semibold text-text-70">
+      선택
+    </span>
+  )
 }
 
 export function CertificateUploader({
   certificate,
   headline,
   hint = '촬영·스캔 이미지(JPG·PNG 등) 또는 PDF · 최대 15MB',
+  optional = false,
 }: Props) {
   const {
     file,
@@ -51,8 +62,9 @@ export function CertificateUploader({
           onClick={openPicker}
           className="flex min-h-[140px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-line-2 bg-white px-4 py-6"
         >
-          <span className="typography-headline03 text-center text-text-100">
+          <span className="flex items-center justify-center typography-headline03 text-center text-text-100">
             {headline}
+            {optional ? <OptionalBadge /> : null}
           </span>
           <span className="typography-body02-regular text-center text-text-70">
             {hint}
@@ -78,8 +90,9 @@ export function CertificateUploader({
               </div>
             )}
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
-              <p className="truncate typography-body01-semibold text-text-100">
+              <p className="flex items-center truncate typography-body01-semibold text-text-100">
                 {headline}
+                {optional ? <OptionalBadge /> : null}
               </p>
               <p className="truncate typography-body02-regular text-text-70">
                 {file.name}
