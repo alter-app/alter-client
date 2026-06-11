@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import DefaultProfileImg from '@/assets/default-profile.svg'
 import { cn } from '@/shared/lib/utils'
 
@@ -17,25 +18,31 @@ export function Avatar({
   fallback = 'person',
   className,
 }: AvatarProps) {
+  const [neutralError, setNeutralError] = useState(false)
   const style = { width: `${size}px`, height: `${size}px` }
 
   if (fallback === 'neutral') {
-    return src ? (
-      <img
-        src={src}
-        alt={alt}
-        style={style}
-        className={cn('shrink-0 rounded-full object-cover', className)}
-      />
-    ) : (
+    const placeholder = (
       <div
         aria-hidden
         style={style}
         className={cn(
-          'shrink-0 rounded-full bg-[repeating-conic-gradient(#ececec_0%_25%,transparent_0%_50%)] [background-size:8px_8px]',
+          'shrink-0 rounded-full bg-[repeating-conic-gradient(theme(colors.line.1)_0%_25%,transparent_0%_50%)] [background-size:8px_8px]',
           className
         )}
       />
+    )
+
+    return src && !neutralError ? (
+      <img
+        src={src}
+        alt={alt}
+        style={style}
+        onError={() => setNeutralError(true)}
+        className={cn('shrink-0 rounded-full object-cover', className)}
+      />
+    ) : (
+      placeholder
     )
   }
 
