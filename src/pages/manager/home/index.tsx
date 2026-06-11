@@ -9,6 +9,7 @@ import {
   WorkspaceChangeList,
   useManagerHomeViewModel,
 } from '@/features/manager'
+import { useNavbarNotificationProps } from '@/features/notification'
 import { MonthlyCalendar } from '@/features/home/common/schedule/ui/MonthlyCalendar'
 import { OngoingPostingCard } from '@/shared/ui/manager/OngoingPostingCard'
 import { SubstituteApprovalCard } from '@/shared/ui/manager/SubstituteApprovalCard'
@@ -25,6 +26,7 @@ import ResignIcon from '@/assets/icons/home/resign.svg?react'
 
 export function ManagerHomePage() {
   const navigate = useNavigate()
+  const notificationProps = useNavbarNotificationProps()
   const [resignTargetWorkerId, setResignTargetWorkerId] = useState<
     number | null
   >(null)
@@ -59,7 +61,7 @@ export function ManagerHomePage() {
   return (
     <>
       <div className="flex min-h-[100dvh] flex-col box-border bg-bg-light">
-        <Navbar />
+        <Navbar {...notificationProps} />
 
         <div className="relative h-[200px] w-full overflow-hidden">
           <img

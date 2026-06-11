@@ -5,6 +5,7 @@ export { useMarkNotificationRead } from './hooks/useMarkNotificationRead'
 export { useNotificationConsent } from './hooks/useNotificationConsent'
 export { useNotifications } from './hooks/useNotifications'
 export { useNotificationUnreadCount } from './hooks/useNotificationUnreadCount'
+export { useNavbarNotificationProps } from './hooks/useNavbarNotificationProps'
 export { useUpdateNotificationConsent } from './hooks/useUpdateNotificationConsent'
 
 export {

@@ -27,6 +27,7 @@ import {
 } from '@/pages/user/substitute-request/components/SubstituteRequestTabs'
 import { SubstituteStoreSelectModal } from '@/pages/user/substitute-request/components/SubstituteStoreSelectModal'
 import { SubstituteRequestModalFlow } from '@/pages/user/workspace-detail/components/SubstituteRequestModalFlow'
+import { useNavbarNotificationProps } from '@/features/notification'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
 import { ROUTES } from '@/shared/constants/routes'
@@ -63,6 +64,7 @@ function resolveDetailDirectionTab(
 
 export function SubstituteRequestPage() {
   const navigate = useNavigate()
+  const notificationProps = useNavbarNotificationProps()
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const { requestId: requestIdParam } = useParams<{ requestId?: string }>()
@@ -195,7 +197,7 @@ export function SubstituteRequestPage() {
   return (
     <div className="flex min-h-[100dvh] flex-col bg-white">
       <div className="sticky top-0 z-10 bg-white">
-        <Navbar showBorder={false} />
+        <Navbar showBorder={false} {...notificationProps} />
         <SubstituteRequestTabs
           activeTab={directionTab}
           onTabChange={setDirectionTab}

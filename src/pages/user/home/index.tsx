@@ -9,10 +9,12 @@ import {
   useHomeScheduleViewModel,
   useAppliedStoresViewModel,
 } from '@/features/user'
+import { useNavbarNotificationProps } from '@/features/notification'
 import { Navbar } from '@/shared/ui/common/Navbar'
 
 export function UserHomePage() {
   const navigate = useNavigate()
+  const notificationProps = useNavbarNotificationProps()
 
   const { mode, baseDate, calendarData, isLoading, onDateChange } =
     useHomeScheduleViewModel()
@@ -37,7 +39,7 @@ export function UserHomePage() {
   return (
     <div className="flex flex-col min-h-[100dvh] bg-bg-light items-center">
       <div className="sticky top-0 z-10 bg-bg-light w-full">
-        <Navbar />
+        <Navbar {...notificationProps} />
       </div>
       <div className="flex flex-col space-y-3 pb-8 mt-4">
         <HomeScheduleCalendar
