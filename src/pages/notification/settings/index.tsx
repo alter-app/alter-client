@@ -65,7 +65,7 @@ export function NotificationSettingsPage() {
             checked={nightEnabled}
             onChange={handleNightChange}
             disabled={!allEnabled}
-            description="23:00 ~ 08:00"
+            description="21:00 ~ 08:00"
           />
         </section>
       </main>
