@@ -1,4 +1,5 @@
 import axiosInstance from '@/shared/lib/axiosInstance'
+import { getAuthApiBasePath } from '@/shared/lib/authApiPath'
 import type { CommonApiResponse } from '@/shared/types/common'
 
 /** POST /app/files — query `targetType` (Swagger) */
@@ -15,7 +16,10 @@ export type AppFileUploadTargetType =
 
 export type AppFileBucketType = 'PUBLIC' | 'PRIVATE'
 
-const APP_FILES_PATH = '/app/files'
+/** scope 별 파일 업로드 경로 — MANAGER → /manager/files, 그 외 → /app/files */
+function getFilesPath(scope?: 'MANAGER' | 'USER' | null): string {
+  return `/${getAuthApiBasePath(scope)}/files`
+}
 
 function extractUploadedFileId(data: unknown): string {
   if (typeof data !== 'object' || data === null) {
@@ -32,21 +36,23 @@ function extractUploadedFileId(data: unknown): string {
 }
 
 /**
- * POST /app/files
+ * POST /{app|manager}/files
  * multipart 파트 이름 `file` + query targetType, bucketType
  * (Swagger 의 application/json 예시는 실제 업로드와 다를 수 있음)
+ * scope 미지정 시 기존 동작(`/app/files`) 유지
  */
 export async function uploadAppFile(options: {
   file: File
   targetType: AppFileUploadTargetType
   bucketType: AppFileBucketType
+  scope?: 'MANAGER' | 'USER' | null
 }): Promise<string> {
   const formData = new FormData()
   formData.append('file', options.file)
 
   const response = await axiosInstance.post<
     CommonApiResponse<{ fileId?: string; id?: string } | unknown>
-  >(APP_FILES_PATH, formData, {
+  >(getFilesPath(options.scope), formData, {
     params: {
       targetType: options.targetType,
       bucketType: options.bucketType,
