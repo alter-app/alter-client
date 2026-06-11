@@ -31,7 +31,7 @@ export function WorkerListItem({
   const content = (
     <div className="flex h-[70px] min-w-[358px] items-center justify-between bg-white px-6 py-1">
       <div className="flex items-center gap-4">
-        <div className="relative size-[38px] shrink-0">
+        <div className="relative shrink-0">
           <Avatar src={profileImageUrl} alt={`${name} 프로필`} size={38} />
           <div
             className="absolute inset-0 rounded-full"
