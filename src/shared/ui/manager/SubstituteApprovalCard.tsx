@@ -1,4 +1,5 @@
 // 대타 승인 요청 카드
+import { Avatar } from '@/shared/ui/common/Avatar'
 import { MoreButton } from '@/shared/ui/common/MoreButton'
 import { SUBSTITUTE_STATUS_LABEL } from '@/shared/types/substituteStatus'
 import type {
@@ -44,20 +45,12 @@ function RequestRow({
       className={`flex w-full items-center justify-between py-4 text-left transition-colors hover:bg-gray-50/50 ${!isLast ? 'border-b border-line-1' : ''}`}
     >
       <div className="flex min-w-0 items-center gap-4">
-        <div className="flex size-[38px] shrink-0 items-center justify-center overflow-hidden rounded-full border border-line-1 bg-bg-light">
-          {item.imageUrl ? (
-            <img
-              src={item.imageUrl}
-              alt={item.name}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div
-              className="h-full w-full bg-[repeating-conic-gradient(#ececec_0%_25%,transparent_0%_50%)] [background-size:8px_8px]"
-              aria-hidden
-            />
-          )}
-        </div>
+        <Avatar
+          src={item.imageUrl}
+          alt={item.name}
+          size={38}
+          className="border border-line-1"
+        />
         <div className="min-w-0">
           <div className="flex items-center gap-1">
             <span className="typography-body01-semibold text-black">

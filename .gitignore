@@ -34,3 +34,6 @@ coverage
 *storybook.log
 storybook-static
 .serena
+
+CLAUDE.md
+.claude

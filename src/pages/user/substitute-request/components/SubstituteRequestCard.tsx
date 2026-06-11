@@ -1,5 +1,5 @@
 import type { SubstituteDirectionTab } from '@/pages/user/substitute-request/components/SubstituteRequestTabs'
-import { SubstituteProfileAvatar } from '@/pages/user/substitute-request/components/SubstituteProfileAvatar'
+import { Avatar } from '@/shared/ui/common/Avatar'
 import { SubstituteRequestResponseActions } from '@/pages/user/substitute-request/components/SubstituteRequestResponseActions'
 import { SubstituteRequestStatusBadge } from '@/pages/user/substitute-request/components/SubstituteRequestStatusBadge'
 import type { UserSubstituteListItem } from '@/features/user/substitute/types'
@@ -47,10 +47,13 @@ export function SubstituteRequestCard({
       }
       className={`flex h-[72px] w-full items-center gap-4 rounded-2xl border border-line-1 bg-white px-5 text-left transition-colors active:bg-bg-light${isClickable ? ' cursor-pointer' : ''}`}
     >
-      <SubstituteProfileAvatar
-        imageUrl={item.imageUrl}
-        alt={item.displayName}
-      />
+      {directionTab === 'received' && (
+        <Avatar
+          src={item.imageUrl}
+          alt={item.displayName}
+          className="border border-line-1"
+        />
+      )}
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-1">
           <span className="min-w-0 flex-1 truncate typography-body01-semibold text-text-100">

@@ -1,4 +1,5 @@
 import type { WorkspaceManagerItem } from '@/features/user/home/workspace/types/workspaceMembers'
+import { Avatar } from '@/shared/ui/common/Avatar'
 import { LoadMoreButton } from './LoadMoreButton'
 
 type Props = {
@@ -21,14 +22,21 @@ export function ManagersSection({ managers, hasMore, onLoadMore }: Props) {
             key={manager.id}
             className="flex items-center justify-between py-2 px-3 rounded-xl bg-bg-light"
           >
-            <div className="flex flex-col gap-0.5">
-              <span className="font-pretendard font-semibold text-3 text-text-100">
-                {manager.name}
-              </span>
-              <span className="font-pretendard text-2 text-text-70">
-                {manager.positionEmoji}{' '}
-                {manager.positionDescription || manager.positionType}
-              </span>
+            <div className="flex items-center gap-3">
+              <Avatar
+                src={manager.profileImageUrl}
+                alt={manager.name}
+                size={38}
+              />
+              <div className="flex flex-col gap-0.5">
+                <span className="font-pretendard font-semibold text-3 text-text-100">
+                  {manager.name}
+                </span>
+                <span className="font-pretendard text-2 text-text-70">
+                  {manager.positionEmoji}{' '}
+                  {manager.positionDescription || manager.positionType}
+                </span>
+              </div>
             </div>
           </li>
         ))}

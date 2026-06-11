@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 import type { SubstituteDirectionTab } from '@/pages/user/substitute-request/components/SubstituteRequestTabs'
-import { SubstituteProfileAvatar } from '@/pages/user/substitute-request/components/SubstituteProfileAvatar'
+import { Avatar } from '@/shared/ui/common/Avatar'
 import { SubstituteRejectReasonModal } from '@/pages/user/substitute-request/components/SubstituteRejectReasonModal'
 import { useUserSubstituteRequestDetailViewModel } from '@/features/user/substitute/hooks/useUserSubstituteRequestDetailViewModel'
 import type { ReceivedSubstituteRequestDto } from '@/features/user/substitute/types'
@@ -105,7 +105,12 @@ export function SubstituteRequestDetailView({
               className={`flex-1 overflow-y-auto px-4 pt-4 ${showFooter ? 'pb-36' : 'pb-8'}`}
             >
               <div className="flex h-[70px] items-center gap-4 rounded-2xl border border-line-1 px-3">
-                <SubstituteProfileAvatar alt={detail.displayName} size={38} />
+                <Avatar
+                  src={detail.imageUrl}
+                  alt={detail.displayName}
+                  size={38}
+                  className="border border-line-1"
+                />
                 <div className="min-w-0 flex-1">
                   <div className="flex min-w-0 items-center gap-1">
                     <span className="min-w-0 flex-1 truncate typography-body01-semibold text-text-100">

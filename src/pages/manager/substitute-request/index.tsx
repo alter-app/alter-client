@@ -1,7 +1,7 @@
 import DownIcon from '@/assets/icons/home/chevron-down.svg?react'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
-import { SubstituteProfileAvatar } from '@/pages/user/substitute-request/components/SubstituteProfileAvatar'
+import { Avatar } from '@/shared/ui/common/Avatar'
 import { SubstituteRequestResponseActions } from '@/pages/user/substitute-request/components/SubstituteRequestResponseActions'
 import { SubstituteRequestStatusBadge } from '@/pages/user/substitute-request/components/SubstituteRequestStatusBadge'
 import { useManagerSubstituteRequestViewModel } from '@/features/manager/substitute/hooks/useManagerSubstituteRequestViewModel'
@@ -12,7 +12,11 @@ import type { SubstituteRequestItem } from '@/shared/types/substituteRequest'
 function CardBase({ item }: { item: SubstituteRequestItem }) {
   return (
     <>
-      <SubstituteProfileAvatar imageUrl={item.imageUrl} alt={item.name} />
+      <Avatar
+        src={item.imageUrl}
+        alt={item.name}
+        className="border border-line-1"
+      />
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-1">
           <span className="min-w-0 typography-body01-semibold text-text-100">

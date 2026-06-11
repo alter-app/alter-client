@@ -15,6 +15,7 @@ export interface SubstituteRequesterDto {
   workerId: number
   workerName: string
   workerRole?: string
+  profileImageUrl?: string | null
 }
 
 export interface SubstituteStatusDto {
@@ -87,6 +88,7 @@ export function adaptSubstituteRequestDto(
     name: dto.requester.workerName,
     role: dto.schedule.position,
     workerRole: mapApiWorkerRole(dto.requester.workerRole),
+    imageUrl: dto.requester.profileImageUrl ?? null,
     dateRange: formatDateRange(
       dto.schedule.startDateTime,
       dto.schedule.endDateTime

@@ -1,3 +1,5 @@
+import { Avatar } from '@/shared/ui/common/Avatar'
+
 interface TodayWorkerItem {
   id: number | string
   name: string
@@ -13,15 +15,7 @@ interface TodayWorkerListProps {
 function TodayWorkerCard({ worker }: { worker: TodayWorkerItem }) {
   return (
     <div className="h-[188px] w-[148px] rounded-2xl border border-line-1 bg-white px-[30px] py-6">
-      <div className="h-[88px] w-[88px] overflow-hidden rounded-full bg-bg-dark">
-        {worker.profileImageUrl ? (
-          <img
-            src={worker.profileImageUrl}
-            alt={worker.name}
-            className="h-full w-full object-cover"
-          />
-        ) : null}
-      </div>
+      <Avatar src={worker.profileImageUrl} alt={worker.name} size={88} />
       <p className="mt-3 text-center typography-body02-semibold text-text-100">
         {worker.name}
       </p>

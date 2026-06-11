@@ -1,4 +1,5 @@
 import { colors } from '@/shared/lib/tokens'
+import { Avatar } from '@/shared/ui/common/Avatar'
 
 export type WorkerVariant = 'manager' | 'worker'
 
@@ -45,15 +46,7 @@ export function WorkerListItem({
   return (
     <div className="flex h-[70px] items-center justify-between rounded-2xl bg-white px-3 py-1">
       <div className="flex items-center gap-4">
-        <div className="size-[38px] shrink-0 overflow-hidden rounded-full bg-bg-light">
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={name}
-              className="h-full w-full object-cover"
-            />
-          ) : null}
-        </div>
+        <Avatar src={imageUrl} alt={name} size={38} />
 
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1">

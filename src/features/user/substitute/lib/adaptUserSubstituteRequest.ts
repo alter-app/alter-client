@@ -40,6 +40,7 @@ export function normalizeSentSubstituteDetailDto(
       targetId: item.target.workerId,
       workerName: item.target.workerName,
       targetName: item.target.workerName,
+      profileImageUrl: item.target.profileImageUrl ?? null,
       status: unwrapSubstituteEnum(item.status),
       rejectionReason: item.rejectionReason,
       respondedAt: item.respondedAt,
@@ -166,6 +167,25 @@ function resolveSentPersonName(dto: {
   return requestType === 'ALL' ? '전체 공개' : '대상'
 }
 
+/** resolveSentPersonName과 동일 우선순위(수락자 → 첫 대상자)로 이미지를 해석 */
+function resolveSentPersonImage(dto: {
+  targets?: SubstituteTargetDto[]
+  acceptedWorker?: {
+    workerName?: string
+    profileImageUrl?: string | null
+  } | null
+}): string | null {
+  const accepted = dto.acceptedWorker
+  if (accepted) {
+    return accepted.profileImageUrl ?? null
+  }
+  const firstTarget = dto.targets?.[0]
+  if (resolveTargetWorkerName(firstTarget)) {
+    return firstTarget?.profileImageUrl ?? null
+  }
+  return null
+}
+
 function resolveSentRequestType(
   dto: Pick<SentSubstituteRequestListItemDto, 'requestType'>
 ): SubstituteRequestType {
@@ -187,7 +207,7 @@ function adaptReceivedListItem(
     scheduledDateLabel: formatScheduledDate(dto.schedule.startDateTime),
     uiStatus,
     statusLabel: statusLabelForApi(rawStatus, uiStatus),
-    imageUrl: null,
+    imageUrl: dto.requester.profileImageUrl ?? null,
     rawStatus,
     dto,
   }
@@ -212,7 +232,7 @@ function adaptSentListItem(
     scheduledDateLabel: formatScheduledDate(dto.schedule.startDateTime),
     uiStatus,
     statusLabel: statusLabelForApi(rawStatus, uiStatus),
-    imageUrl: null,
+    imageUrl: resolveSentPersonImage(dto) ?? null,
     rawStatus,
     dto,
   }
@@ -236,6 +256,7 @@ function detailFromSchedulePerson(
     requestReason?: string | null
   },
   personName: string,
+  personImage: string | null,
   direction: SubstituteRequestDirection
 ): UserSubstituteDetailViewModel {
   const storeName = dto.workspace.workspaceName?.trim() ?? '매장'
@@ -247,6 +268,7 @@ function detailFromSchedulePerson(
     id: 0,
     displayName: `${storeName} / ${personName}`,
     role: positionToRole(dto.schedule.position),
+    imageUrl: personImage,
     dateTitle: formatDetailDateTitle(dto.schedule.startDateTime),
     totalHoursLabel: totalHoursLabel(
       dto.schedule.startDateTime,
@@ -271,6 +293,7 @@ export function adaptReceivedSubstituteDetail(
     ...detailFromSchedulePerson(
       dto,
       dto.requester.workerName?.trim() ?? '이름',
+      dto.requester.profileImageUrl ?? null,
       'RECEIVED'
     ),
     id: dto.id,
@@ -281,9 +304,10 @@ export function adaptSentSubstituteDetail(
   dto: SentSubstituteRequestDetailDto
 ): UserSubstituteDetailViewModel {
   const personName = resolveSentPersonName(dto)
+  const personImage = resolveSentPersonImage(dto)
 
   return {
-    ...detailFromSchedulePerson(dto, personName, 'SENT'),
+    ...detailFromSchedulePerson(dto, personName, personImage, 'SENT'),
     id: dto.id,
   }
 }
