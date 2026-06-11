@@ -46,9 +46,20 @@ export const ROUTES = {
     PROFILE_SOCIAL: '/my/profile/social',
     WITHDRAW: '/my/withdraw',
   },
+  /** 업장 등록 신청(승급 신청) — USER·MANAGER 공용, MANAGER 전용 가드 없음 */
+  STORE_REGISTER: {
+    /** 신청 내역 목록 */
+    REQUESTS: '/store-register/requests',
+    /** 신청 상세 (파라미터) */
+    REQUEST_DETAIL_PATTERN: '/store-register/requests/:requestId',
+  },
   NOTIFICATIONS: '/notifications',
   NOTIFICATION_SETTINGS: '/notifications/settings',
 } as const
+
+export function storeRegisterRequestDetailPath(requestId: number) {
+  return `/store-register/requests/${requestId}`
+}
 
 export function managerWorkerSchedulePath(
   workspaceId: number,

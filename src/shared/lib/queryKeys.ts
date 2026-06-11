@@ -90,6 +90,20 @@ export const queryKeys = {
     list: (workspaceId: number) =>
       ['fixedWorkerSchedule', 'list', workspaceId] as const,
   },
+  storeRegisterRequest: {
+    list: (scope: 'MANAGER' | 'USER' | null) =>
+      ['storeRegisterRequest', 'list', scope] as const,
+    detail: (scope: 'MANAGER' | 'USER' | null, requestId: number) =>
+      ['storeRegisterRequest', 'detail', scope, requestId] as const,
+    reasons: (scope: 'MANAGER' | 'USER' | null, requestId: number) =>
+      ['storeRegisterRequest', 'reasons', scope, requestId] as const,
+    comments: (
+      scope: 'MANAGER' | 'USER' | null,
+      requestId: number,
+      reasonId: number
+    ) =>
+      ['storeRegisterRequest', 'comments', scope, requestId, reasonId] as const,
+  },
   notification: {
     list: (scope: 'MANAGER' | 'USER' | null, type?: string) =>
       ['notifications', scope, type] as const,
