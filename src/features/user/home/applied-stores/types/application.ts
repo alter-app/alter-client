@@ -65,7 +65,8 @@ export const FILTER_TO_API_STATUS: Record<FilterType, ApplicationApiStatus[]> =
     all: [],
     submitted: ['SUBMITTED', 'SHORTLISTED'],
     accepted: ['ACCEPTED'],
-    cancelled: ['CANCELLED', 'REJECTED', 'EXPIRED', 'DELETED'],
+    rejected: ['REJECTED'],
+    cancelled: ['CANCELLED', 'EXPIRED', 'DELETED'],
   }
 
 // ---- 근무 요일 파싱 ----
@@ -120,9 +121,9 @@ function mapApiStatusToUiStatus(
   apiStatus: ApplicationApiStatus
 ): ApplicationStatus {
   if (apiStatus === 'ACCEPTED') return 'accepted'
+  if (apiStatus === 'REJECTED') return 'rejected'
   if (
     apiStatus === 'CANCELLED' ||
-    apiStatus === 'REJECTED' ||
     apiStatus === 'EXPIRED' ||
     apiStatus === 'DELETED'
   )

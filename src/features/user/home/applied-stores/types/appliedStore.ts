@@ -1,4 +1,8 @@
-export type ApplicationStatus = 'submitted' | 'accepted' | 'cancelled'
+export type ApplicationStatus =
+  | 'submitted'
+  | 'accepted'
+  | 'rejected'
+  | 'cancelled'
 
 export type FilterType = 'all' | ApplicationStatus
 

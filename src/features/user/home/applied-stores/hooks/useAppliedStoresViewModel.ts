@@ -19,20 +19,24 @@ const FILTER_OPTIONS: { key: FilterType; label: string }[] = [
   { key: 'all', label: '전체' },
   { key: 'submitted', label: '제출됨' },
   { key: 'accepted', label: '수락됨' },
+  { key: 'rejected', label: '불합격됨' },
   { key: 'cancelled', label: '취소됨' },
 ]
 
 const STATUS_SECTIONS: { key: ApplicationStatus; label: string }[] = [
   { key: 'submitted', label: '제출됨' },
   { key: 'accepted', label: '수락됨' },
+  { key: 'rejected', label: '불합격됨' },
   { key: 'cancelled', label: '취소됨' },
 ]
 
 function getCardStatus(
   status: ApplicationStatus
-): 'applied' | 'accepted' | 'rejected' {
+): 'applied' | 'accepted' | 'rejected' | 'cancelled' {
   if (status === 'accepted') return 'accepted'
-  return status === 'cancelled' ? 'rejected' : 'applied'
+  if (status === 'rejected') return 'rejected'
+  if (status === 'cancelled') return 'cancelled'
+  return 'applied'
 }
 
 function getFilterLabel(filter: FilterType): string {
