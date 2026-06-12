@@ -1,10 +1,11 @@
 import { MoreButton } from '@/shared/ui/common/MoreButton'
 import { AppliedStoreCard } from '@/features/user/home/applied-stores/ui/AppliedStoreCard'
+import type { ApplicationStatusBadgeProps } from '@/shared/ui/home/ApplicationStatusBadge'
 
 interface AppliedStoreItem {
   id: number | string
   storeName: string
-  status: 'applied' | 'rejected'
+  status: ApplicationStatusBadgeProps['status']
 }
 
 interface AppliedStoreListProps {

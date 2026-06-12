@@ -112,6 +112,7 @@ export function useAppliedStoresViewModel() {
   }
 
   return {
+    selectedFilter,
     filterLabel: getFilterLabel(selectedFilter),
     isDropdownOpen,
     dropdownRef,
