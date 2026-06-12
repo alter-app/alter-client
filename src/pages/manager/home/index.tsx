@@ -61,7 +61,9 @@ export function ManagerHomePage() {
   return (
     <>
       <div className="flex min-h-[100dvh] flex-col box-border bg-bg-light">
-        <Navbar {...notificationProps} />
+        <div className="sticky top-0 z-10 bg-white">
+          <Navbar {...notificationProps} />
+        </div>
 
         <div className="relative h-[200px] w-full overflow-hidden">
           <img
