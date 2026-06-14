@@ -1,8 +1,11 @@
-import { ApplicationStatusBadge } from '@/shared/ui/home/ApplicationStatusBadge'
+import {
+  ApplicationStatusBadge,
+  type ApplicationStatusBadgeProps,
+} from '@/shared/ui/home/ApplicationStatusBadge'
 
 interface AppliedStoreCardProps {
   storeName: string
-  status?: 'applied' | 'rejected'
+  status?: ApplicationStatusBadgeProps['status']
 }
 
 export function AppliedStoreCard({

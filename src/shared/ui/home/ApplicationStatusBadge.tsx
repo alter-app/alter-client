@@ -1,5 +1,5 @@
 interface ApplicationStatusBadgeProps {
-  status: 'applied' | 'rejected'
+  status: 'applied' | 'accepted' | 'rejected' | 'cancelled'
   className?: string
 }
 
@@ -9,10 +9,20 @@ const BADGE_STYLE_MAP = {
     containerClassName: 'bg-white border border-line-1',
     textClassName: 'text-text-50',
   },
+  accepted: {
+    label: '합격',
+    containerClassName: 'bg-main border border-main',
+    textClassName: 'text-white',
+  },
   rejected: {
     label: '불합격',
     containerClassName: 'bg-error border border-error',
     textClassName: 'text-white',
+  },
+  cancelled: {
+    label: '취소됨',
+    containerClassName: 'bg-white border border-line-2',
+    textClassName: 'text-text-50',
   },
 } as const
 

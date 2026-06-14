@@ -21,7 +21,7 @@ export function UserHomePage() {
 
   const { workspaces } = useWorkspacesViewModel()
 
-  const { grouped } = useAppliedStoresViewModel()
+  const { grouped, getCardStatus } = useAppliedStoresViewModel()
 
   const appliedStores = useMemo<AppliedStoreItem[]>(
     () =>
@@ -31,9 +31,9 @@ export function UserHomePage() {
         .map(s => ({
           id: s.id,
           storeName: s.storeName,
-          status: s.status === 'cancelled' ? 'rejected' : 'applied',
+          status: getCardStatus(s.status),
         })),
-    [grouped]
+    [grouped, getCardStatus]
   )
 
   return (

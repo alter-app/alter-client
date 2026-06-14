@@ -16,24 +16,30 @@ import { queryKeys } from '@/shared/lib/queryKeys'
 const PAGE_SIZE = 20
 
 const FILTER_OPTIONS: { key: FilterType; label: string }[] = [
-  { key: 'completed', label: '지원 완료' },
-  { key: 'viewed', label: '열람' },
-  { key: 'not_viewed', label: '미열람' },
-  { key: 'cancelled', label: '지원 취소' },
+  { key: 'all', label: '전체' },
+  { key: 'submitted', label: '제출됨' },
+  { key: 'accepted', label: '수락됨' },
+  { key: 'rejected', label: '불합격됨' },
+  { key: 'cancelled', label: '취소됨' },
 ]
 
 const STATUS_SECTIONS: { key: ApplicationStatus; label: string }[] = [
   { key: 'submitted', label: '제출됨' },
   { key: 'accepted', label: '수락됨' },
+  { key: 'rejected', label: '불합격됨' },
   { key: 'cancelled', label: '취소됨' },
 ]
 
-function getCardStatus(status: ApplicationStatus): 'applied' | 'rejected' {
-  return status === 'cancelled' ? 'rejected' : 'applied'
+function getCardStatus(
+  status: ApplicationStatus
+): 'applied' | 'accepted' | 'rejected' | 'cancelled' {
+  if (status === 'accepted') return 'accepted'
+  if (status === 'rejected') return 'rejected'
+  if (status === 'cancelled') return 'cancelled'
+  return 'applied'
 }
 
 function getFilterLabel(filter: FilterType): string {
-  if (filter === 'all') return '전체'
   return FILTER_OPTIONS.find(o => o.key === filter)?.label ?? '전체'
 }
 
@@ -110,6 +116,7 @@ export function useAppliedStoresViewModel() {
   }
 
   return {
+    selectedFilter,
     filterLabel: getFilterLabel(selectedFilter),
     isDropdownOpen,
     dropdownRef,

@@ -1,11 +1,10 @@
-export type ApplicationStatus = 'submitted' | 'accepted' | 'cancelled'
-
-export type FilterType =
-  | 'all'
-  | 'completed'
-  | 'viewed'
-  | 'not_viewed'
+export type ApplicationStatus =
+  | 'submitted'
+  | 'accepted'
+  | 'rejected'
   | 'cancelled'
+
+export type FilterType = 'all' | ApplicationStatus
 
 export const WEEKDAY_LABELS = [
   '월',
@@ -30,7 +29,6 @@ export interface AppliedStoreData {
   id: number
   storeName: string
   status: ApplicationStatus
-  filterType: FilterType
   thumbnailUrl?: string
   applicationDetail?: AppliedApplicationDetail
 }

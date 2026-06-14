@@ -69,9 +69,9 @@ function NotificationTypeFilter({
             <li key={type}>
               <button
                 type="button"
-                className={`w-full px-4 py-2.5 text-left typography-body02-regular transition-colors hover:bg-main-50 ${
+                className={`w-full px-4 py-2.5 text-left typography-body02-regular transition-colors hover:bg-main-100 ${
                   type === value
-                    ? 'text-main-500 typography-body02-medium'
+                    ? 'text-main typography-body02-medium'
                     : 'text-text-100'
                 }`}
                 onClick={() => {

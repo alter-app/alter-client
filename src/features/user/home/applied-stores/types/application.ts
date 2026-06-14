@@ -59,13 +59,13 @@ export interface ApplicationListQueryParams {
   status?: ApplicationApiStatus[]
 }
 
-// ---- FilterType → API Status 매핑 ----
+// ---- FilterType → API Status 매핑 (mapApiStatusToUiStatus와 동일 기준) ----
 export const FILTER_TO_API_STATUS: Record<FilterType, ApplicationApiStatus[]> =
   {
     all: [],
-    not_viewed: ['SUBMITTED'],
-    viewed: ['SHORTLISTED', 'ACCEPTED', 'REJECTED'],
-    completed: ['ACCEPTED'],
+    submitted: ['SUBMITTED', 'SHORTLISTED'],
+    accepted: ['ACCEPTED'],
+    rejected: ['REJECTED'],
     cancelled: ['CANCELLED', 'EXPIRED', 'DELETED'],
   }
 
@@ -121,22 +121,14 @@ function mapApiStatusToUiStatus(
   apiStatus: ApplicationApiStatus
 ): ApplicationStatus {
   if (apiStatus === 'ACCEPTED') return 'accepted'
+  if (apiStatus === 'REJECTED') return 'rejected'
   if (
     apiStatus === 'CANCELLED' ||
-    apiStatus === 'REJECTED' ||
     apiStatus === 'EXPIRED' ||
     apiStatus === 'DELETED'
   )
     return 'cancelled'
   return 'submitted'
-}
-
-function mapApiStatusToFilterType(apiStatus: ApplicationApiStatus): FilterType {
-  if (apiStatus === 'SUBMITTED') return 'not_viewed'
-  if (apiStatus === 'SHORTLISTED') return 'viewed'
-  if (apiStatus === 'ACCEPTED') return 'completed'
-  if (apiStatus === 'REJECTED') return 'viewed'
-  return 'cancelled'
 }
 
 // ---- DTO → UI Model ----
@@ -146,7 +138,6 @@ export function adaptApplicationDto(dto: ApplicationDto): AppliedStoreData {
     id: dto.id,
     storeName: posting.title,
     status: mapApiStatusToUiStatus(status.value),
-    filterType: mapApiStatusToFilterType(status.value),
     applicationDetail: {
       selectedWeekdays: parseWorkingDays(postingSchedule.workingDays),
       timeRangeLabel: formatTimeRange(

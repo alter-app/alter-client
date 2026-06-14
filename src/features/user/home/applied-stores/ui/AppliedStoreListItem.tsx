@@ -1,8 +1,11 @@
-import { ApplicationStatusBadge } from '@/shared/ui/home/ApplicationStatusBadge'
+import {
+  ApplicationStatusBadge,
+  type ApplicationStatusBadgeProps,
+} from '@/shared/ui/home/ApplicationStatusBadge'
 
 interface AppliedStoreListItemProps {
   storeName: string
-  status: 'applied' | 'rejected'
+  status: ApplicationStatusBadgeProps['status']
   thumbnailUrl?: string
   onClick?: () => void
 }

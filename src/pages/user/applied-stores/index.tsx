@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Navbar } from '@/shared/ui/common/Navbar'
+import { Spinner } from '@/shared/ui/Spinner'
+import { MoreButton } from '@/shared/ui/common/MoreButton'
 import {
   AppliedStoreListItem,
   AppliedStoreDetailModal,
@@ -15,6 +17,7 @@ export function AppliedStoresPage() {
   )
 
   const {
+    selectedFilter,
     filterLabel,
     isDropdownOpen,
     dropdownRef,
@@ -42,51 +45,58 @@ export function AppliedStoresPage() {
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-bg-light">
-      <Navbar variant="detail" title="내가 지원한 가게" />
+      <div className="sticky top-0 z-10 bg-white">
+        <Navbar variant="detail" title="내가 지원한 가게" />
+      </div>
       <div className="mx-auto w-full max-w-[390px] px-4 py-4">
         <div className="relative mb-2 flex justify-end" ref={dropdownRef}>
           <button
             type="button"
-            className="flex items-center gap-2 typography-body02-regular text-text-90"
+            className="flex items-center gap-1 rounded-full border border-line-1 px-3 py-1.5 typography-body02-medium text-text-100"
             onClick={toggleDropdown}
           >
             {filterLabel}
-            <DownIcon className="size-4" />
+            <DownIcon
+              className={`size-4 transition-transform ${
+                isDropdownOpen ? 'rotate-180' : ''
+              }`}
+            />
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 top-full z-10 mt-1 w-[98px] overflow-hidden rounded-2xl bg-white shadow-[0px_0px_10px_0px_rgba(0,0,0,0.15)]">
-              {filterOptions.map((option, index) => (
-                <button
-                  key={option.key}
-                  type="button"
-                  className={`flex h-10 w-full items-center px-4 typography-body02-regular text-text-100 ${
-                    index < filterOptions.length - 1
-                      ? 'border-b border-line-2'
-                      : ''
-                  }`}
-                  onClick={() => selectFilter(option.key)}
-                >
-                  {option.label}
-                </button>
+            <ul className="absolute right-0 top-full z-20 mt-1 min-w-[120px] overflow-hidden rounded-xl border border-line-1 bg-white shadow-md">
+              {filterOptions.map(option => (
+                <li key={option.key}>
+                  <button
+                    type="button"
+                    className={`w-full px-4 py-2.5 text-left typography-body02-regular transition-colors hover:bg-main-100 ${
+                      option.key === selectedFilter
+                        ? 'text-main typography-body02-medium'
+                        : 'text-text-100'
+                    }`}
+                    onClick={() => selectFilter(option.key)}
+                  >
+                    {option.label}
+                  </button>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center py-10">
-            <p className="typography-body02-regular text-text-70">로딩 중...</p>
+          <div className="flex justify-center py-16">
+            <Spinner />
           </div>
         ) : isError ? (
-          <div className="flex justify-center py-10">
-            <p className="typography-body02-regular text-text-70">
+          <div className="flex justify-center py-16">
+            <p className="typography-body02-regular text-text-50">
               데이터를 불러오는 데 실패했습니다.
             </p>
           </div>
         ) : grouped.length === 0 ? (
-          <div className="flex justify-center py-10">
-            <p className="typography-body02-regular text-text-70">
+          <div className="flex justify-center py-16">
+            <p className="typography-body02-regular text-text-50">
               지원 내역이 없습니다.
             </p>
           </div>
@@ -114,14 +124,12 @@ export function AppliedStoresPage() {
             </div>
 
             {shouldShowInfiniteListLoadMore(hasNextPage, totalCount) && (
-              <button
-                type="button"
-                className="typography-body02-regular mt-6 w-full py-3 text-center text-text-70"
+              <MoreButton
+                className="mt-6"
+                label={isFetchingNextPage ? '불러오는 중...' : '더보기'}
                 onClick={() => fetchNextPage()}
                 disabled={isFetchingNextPage}
-              >
-                {isFetchingNextPage ? '불러오는 중...' : '더 보기'}
-              </button>
+              />
             )}
           </>
         )}
