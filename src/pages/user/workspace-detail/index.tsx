@@ -94,10 +94,7 @@ export function WorkspaceDetailPage() {
     hasMoreManagers,
     managersTotalCount
   )
-  const showWorkersLoadMore = shouldShowInfiniteListLoadMore(
-    hasMoreWorkers,
-    workersTotalCount
-  )
+  const showWorkersLoadMore = hasMoreWorkers && workersTotalCount >= 11
 
   return (
     <>
