@@ -38,7 +38,7 @@ export function WorkingStoresList({
       </div>
 
       <div className="mt-6 px-6">
-        <MoreButton onClick={onMoreClick} />
+        {stores.length >= 4 && <MoreButton onClick={onMoreClick} />}
         {onJoinWorkspaceClick ? (
           <button
             type="button"
