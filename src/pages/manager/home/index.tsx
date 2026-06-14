@@ -169,14 +169,11 @@ export function ManagerHomePage() {
           </div>
         </div>
         <section className="px-4 pt-4">
-          <p className="typography-headline01 text-text-100 mb-4">
-            우리 매장 시간표
-          </p>
           <MonthlyCalendar
             baseDate={schedule.baseDate}
             data={schedule.data}
+            workspaceName="우리 매장 시간표"
             layout="manager"
-            hideTitle
             isLoading={schedule.isLoading}
             selectedDateKey={schedule.selectedDateKey}
             onMonthChange={schedule.onDateChange}
