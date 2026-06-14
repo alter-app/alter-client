@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams, useLocation } from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import {
@@ -10,7 +10,9 @@ import {
   useWorkspaceScheduleViewModel,
 } from '@/features/user'
 import { shouldShowInfiniteListLoadMore } from '@/shared/lib/listLoadMoreVisibility'
+import { ROUTES } from '@/shared/constants/routes'
 import { WorkerListItem } from '@/shared/ui/home/WorkerListItem'
+import SubstituteIcon from '@/assets/icons/catppuccin_changelog.svg?react'
 import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import { useResignWorkspaceMutation } from '@/features/user/home/workspace/hooks/mutation/useResignWorkspaceMutation'
 import CrownIcon from '@/assets/icons/home/crown-solid.svg'
@@ -24,6 +26,7 @@ function formatNextShift(isoDate: string | null | undefined) {
 }
 
 export function WorkspaceDetailPage() {
+  const navigate = useNavigate()
   const { workspaceId } = useParams<{ workspaceId: string }>()
   const { state } = useLocation()
   const id = Number(workspaceId)
@@ -141,7 +144,6 @@ export function WorkspaceDetailPage() {
                       role={manager.positionDescription || manager.positionType}
                       variant="manager"
                       imageUrl={manager.profileImageUrl}
-                      onOptions={() => {}}
                     />
                   ))}
                 </div>
@@ -191,7 +193,16 @@ export function WorkspaceDetailPage() {
                       variant="worker"
                       nextWorkDate={formatNextShift(worker.nextShiftDateTime)}
                       imageUrl={worker.profileImageUrl}
-                      onOptions={() => {}}
+                      menuItems={[
+                        {
+                          icon: <SubstituteIcon width={20} height={20} />,
+                          label: '대타 요청',
+                          onClick: () =>
+                            navigate(ROUTES.USER.SUBSTITUTE_REQUEST, {
+                              state: { workspaceId: id },
+                            }),
+                        },
+                      ]}
                     />
                   ))}
                 </div>

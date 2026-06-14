@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { colors } from '@/shared/lib/tokens'
 import { Avatar } from '@/shared/ui/common/Avatar'
+import { ActionMenu, type ActionMenuItem } from '@/shared/ui/common/ActionMenu'
 
 export type WorkerVariant = 'manager' | 'worker'
 
@@ -9,7 +11,7 @@ export interface WorkerListItemProps {
   variant?: WorkerVariant
   nextWorkDate?: string
   imageUrl?: string | null
-  onOptions?: () => void
+  menuItems?: ActionMenuItem[]
 }
 
 export interface WorkerListItemData extends WorkerListItemProps {
@@ -39,8 +41,9 @@ export function WorkerListItem({
   variant = 'worker',
   nextWorkDate,
   imageUrl,
-  onOptions,
+  menuItems,
 }: WorkerListItemProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const badgeBg = variant === 'manager' ? 'bg-main-700' : 'bg-main-300'
 
   return (
@@ -73,14 +76,24 @@ export function WorkerListItem({
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={onOptions}
-        className="shrink-0 rounded cursor-pointer"
-        aria-label="더보기"
-      >
-        <EllipsisIcon />
-      </button>
+      {menuItems && menuItems.length > 0 && (
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsMenuOpen(true)}
+            className="shrink-0 rounded cursor-pointer"
+            aria-label="더보기"
+          >
+            <EllipsisIcon />
+          </button>
+          <ActionMenu
+            items={menuItems}
+            isOpen={isMenuOpen}
+            onClose={() => setIsMenuOpen(false)}
+            className="right-0 top-full mt-2"
+          />
+        </div>
+      )}
     </div>
   )
 }
