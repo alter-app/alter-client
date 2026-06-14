@@ -7,9 +7,6 @@ import {
 
 interface WorkingStoresListProps {
   title?: string
-  sortLabelLeft?: string
-  sortLabelRight?: string
-  selectedSort?: 'left' | 'right'
   stores: WorkingStoreItem[]
   onMoreClick?: () => void
   onJoinWorkspaceClick?: () => void
@@ -17,9 +14,6 @@ interface WorkingStoresListProps {
 
 export function WorkingStoresList({
   title = '근무중인 가게',
-  sortLabelLeft = '이름 순',
-  sortLabelRight = '근무 예정 순',
-  selectedSort = 'right',
   stores,
   onMoreClick,
   onJoinWorkspaceClick,
@@ -30,23 +24,6 @@ export function WorkingStoresList({
     <section className="w-[358px] rounded-2xl bg-white py-6">
       <div className="flex items-center justify-between px-6">
         <h3 className="typography-headline01 text-text-100">{title}</h3>
-        <div className="flex items-center gap-1">
-          <p
-            className={`typography-body02-regular ${
-              selectedSort === 'left' ? 'text-text-90' : 'text-text-50'
-            }`}
-          >
-            {sortLabelLeft}
-          </p>
-          <p className="typography-body02-regular text-text-50">|</p>
-          <p
-            className={`typography-body02-semibold ${
-              selectedSort === 'right' ? 'text-text-90' : 'text-text-50'
-            }`}
-          >
-            {sortLabelRight}
-          </p>
-        </div>
       </div>
 
       <div className="mt-4">
