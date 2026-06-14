@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { MoreButton } from '@/shared/ui/common/MoreButton'
 import {
   WorkingStoreCard,
@@ -11,13 +12,13 @@ interface WorkingStoresListProps {
   onMoreClick?: () => void
   onJoinWorkspaceClick?: () => void
 }
-
 export function WorkingStoresList({
   title = '근무중인 가게',
   stores,
   onMoreClick,
   onJoinWorkspaceClick,
 }: WorkingStoresListProps) {
+  const navigate = useNavigate()
   const { visibleStores } = useWorkingStoresListViewModel(stores)
 
   return (
@@ -29,7 +30,14 @@ export function WorkingStoresList({
       <div className="mt-4">
         {visibleStores.map((store, index) => (
           <div key={store.workspaceId}>
-            <WorkingStoreCard store={store} />
+            <WorkingStoreCard
+              store={store}
+              onClick={() =>
+                navigate(`/user/workspace/${store.workspaceId}`, {
+                  state: { businessName: store.businessName },
+                })
+              }
+            />
             {index < visibleStores.length - 1 ? (
               <div className="mx-1 h-px bg-line-1" />
             ) : null}
