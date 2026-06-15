@@ -16,7 +16,7 @@ import { SubstituteApprovalCard } from '@/shared/ui/manager/SubstituteApprovalCa
 import { MoreButton } from '@/shared/ui/common/MoreButton'
 import { WorkCategoryBadge } from '@/shared/ui/home/WorkCategoryBadge'
 import managerHomeBannerImage from '@/assets/manager-home-banner.jpg'
-import managerHomeBannerPlusIcon from '@/assets/icons/home/manager-home-banner-plus.svg'
+import managerHomeBannerListIcon from '@/assets/icons/home/manager-home-banner-list.svg'
 import managerWorkspaceModalPlusIcon from '@/assets/icons/home/manager-workspace-modal-plus.svg'
 import managerScheduleEditIcon from '@/assets/icons/home/edit.svg'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
@@ -95,7 +95,7 @@ export function ManagerHomePage() {
             onClick={openWorkspaceChangeModal}
           >
             <img
-              src={managerHomeBannerPlusIcon}
+              src={managerHomeBannerListIcon}
               alt=""
               aria-hidden="true"
               className="h-full w-full"
