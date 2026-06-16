@@ -28,12 +28,6 @@ const MENU_ITEMS: MenuItem[] = [
     key: 'store-apply',
     label: '업장 등록 신청',
     icon: StoreIcon,
-    path: ROUTES.MANAGER.STORE_REGISTER,
-  },
-  {
-    key: 'manager-switch',
-    label: '사장님 계정으로 전환',
-    icon: StoreIcon,
     path: ROUTES.STORE_REGISTER.REQUESTS,
   },
   {
