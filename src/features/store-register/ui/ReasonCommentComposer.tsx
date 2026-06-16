@@ -1,6 +1,11 @@
 import { CERTIFICATE_ACCEPT_ATTR } from '@/shared/lib/certificateFileValidation'
 import type { CertificatePickState } from '@/features/store-register/ui/CertificateUploader'
 import { COMMENT_MAX_LENGTH } from '@/features/store-register/hooks/useReasonCommentThreadViewModel'
+import {
+  CloseIcon,
+  PaperclipIcon,
+  SendIcon,
+} from '@/features/store-register/ui/icons'
 
 type Props = {
   comment: string
@@ -12,7 +17,7 @@ type Props = {
   onSubmit: () => void
 }
 
-/** 댓글 입력창 — 255자 카운터 + 파일 첨부 + 전송 */
+/** 댓글 입력바 — 파일 첨부 + 단일 입력 + 전송, 255자 카운터 */
 export function ReasonCommentComposer({
   comment,
   onCommentChange,
@@ -25,7 +30,7 @@ export function ReasonCommentComposer({
   const { file, error, inputRef, onInputChange, openPicker, clear } = attachment
 
   return (
-    <div className="mt-4 rounded-2xl border border-line-1 bg-white p-3">
+    <div className="flex flex-col gap-1.5 rounded-xl border border-line-1 bg-white p-3">
       <input
         ref={inputRef}
         type="file"
@@ -34,61 +39,61 @@ export function ReasonCommentComposer({
         onChange={onInputChange}
       />
 
-      <textarea
-        value={comment}
-        onChange={e => onCommentChange(e.target.value)}
-        placeholder="보강 자료에 대한 설명을 남겨 주세요."
-        rows={3}
-        maxLength={COMMENT_MAX_LENGTH}
-        className="w-full resize-none bg-transparent outline-none typography-body02-regular text-text-100 placeholder:text-text-50"
-      />
-
-      <div className="mt-1 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={openPicker}
-          className="typography-body02-semibold text-main underline"
-        >
-          파일 첨부
-        </button>
-        <span className="typography-body02-regular text-text-50">
-          {comment.length}/{COMMENT_MAX_LENGTH}
-        </span>
-      </div>
-
       {file ? (
-        <div className="mt-2 flex items-center gap-2 rounded-xl bg-bg-light px-3 py-2">
-          <span className="min-w-0 flex-1 truncate typography-body02-regular text-text-90">
+        <div className="flex items-center gap-2 rounded-lg bg-bg-light px-3 py-2">
+          <span className="min-w-0 flex-1 truncate typography-body03-regular text-text-90">
             {file.name}
           </span>
           <button
             type="button"
             onClick={clear}
-            className="shrink-0 typography-body02-semibold text-text-70 underline"
+            aria-label="첨부 삭제"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-text-70"
           >
-            삭제
+            <CloseIcon className="size-4" />
           </button>
         </div>
       ) : null}
 
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={openPicker}
+          aria-label="파일 첨부"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] border border-line-1 bg-white text-text-70"
+        >
+          <PaperclipIcon className="size-5" />
+        </button>
+        <input
+          type="text"
+          value={comment}
+          onChange={e => onCommentChange(e.target.value)}
+          placeholder="추가 자료나 설명을 남겨 재심사를 요청하세요"
+          maxLength={COMMENT_MAX_LENGTH}
+          className="h-11 min-w-0 flex-1 rounded-xl border border-line-2 px-3.5 outline-none typography-body02-regular text-text-100 placeholder:text-text-50 focus:border-main"
+        />
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={!canSubmit}
+          aria-label={isSubmitting ? '전송 중' : '전송'}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-main text-white disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          <SendIcon className="size-5" />
+        </button>
+      </div>
+
+      <span className="self-end typography-body03-regular text-text-50">
+        {comment.length}/{COMMENT_MAX_LENGTH}
+      </span>
+
       {error ? (
-        <p className="mt-2 typography-body02-regular text-error">{error}</p>
+        <p className="typography-body03-regular text-error">{error}</p>
       ) : null}
 
       {submitError ? (
-        <p className="mt-2 typography-body02-regular text-error">
-          {submitError}
-        </p>
+        <p className="typography-body03-regular text-error">{submitError}</p>
       ) : null}
-
-      <button
-        type="button"
-        onClick={onSubmit}
-        disabled={!canSubmit}
-        className="mt-3 h-11 w-full rounded-xl bg-main typography-body01-semibold text-white disabled:cursor-not-allowed disabled:bg-text-50"
-      >
-        {isSubmitting ? '전송 중…' : '전송'}
-      </button>
     </div>
   )
 }
