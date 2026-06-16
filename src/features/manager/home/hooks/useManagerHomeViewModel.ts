@@ -135,8 +135,11 @@ export function useManagerHomeViewModel() {
     isModalOpen: isScheduleModalOpen,
     modalDateKey: scheduleModalDateKey,
     visibleWorkers: scheduleVisibleWorkers,
+    deleteError: scheduleDeleteError,
     handleDateClick: onScheduleDateClick,
     closeModal: closeScheduleModal,
+    handleDeleteWorker: handleScheduleDeleteWorker,
+    handleEditWorker: handleScheduleEditWorker,
   } = useWorkerScheduleCalendarViewModel(activeWorkspaceId)
 
   const { todayWorkers } = useTodaySchedulesViewModel(activeWorkspaceId)
@@ -195,8 +198,11 @@ export function useManagerHomeViewModel() {
       isModalOpen: isScheduleModalOpen,
       modalDateKey: scheduleModalDateKey,
       visibleWorkers: scheduleVisibleWorkers,
+      deleteError: scheduleDeleteError,
       handleDateClick: onScheduleDateClick,
       closeModal: closeScheduleModal,
+      handleDeleteWorker: handleScheduleDeleteWorker,
+      handleEditWorker: handleScheduleEditWorker,
     },
     workspaceDetail,
     workspaceChangeModal: {
