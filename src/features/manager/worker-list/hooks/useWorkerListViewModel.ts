@@ -2,15 +2,13 @@ import { useCallback, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import {
-  toDateKey,
-  toTimeLabel,
-} from '@/features/home/common/schedule/lib/date'
 import { useWorkspaceStore } from '@/shared/stores/useWorkspaceStore'
 import type { WorkerScheduleData } from '@/features/manager/worker-list/types/workerSchedule'
-import type { ScheduleColor } from '@/features/manager'
-import { resolveSchedulePickerColor } from '@/features/manager'
-import type { WorkerRole } from '@/shared/types/workerRole'
+import {
+  buildWorkerScheduleData,
+  getVisibleWorkers,
+} from '@/features/manager/worker-list/lib/workerSchedule'
+import type { WorkerListEntry } from '@/features/manager/worker-list/lib/workerSchedule'
 import { useWorkerListSchedulesQuery } from './query/useWorkerListSchedulesQuery'
 import {
   useDeleteScheduleWorker,
@@ -18,6 +16,8 @@ import {
 } from '@/features/manager/schedule/hooks/mutation'
 import { managerWorkerSchedulePath } from '@/shared/constants/routes'
 import type { WorkerScheduleLocationState } from '@/features/manager'
+
+export type { WorkerListEntry }
 
 const DELETE_WORKER_ERROR_MESSAGES: Record<string, string> = {
   B020: '요청한 리소스를 찾을 수 없습니다.',
@@ -32,23 +32,6 @@ function getDeleteWorkerErrorMessage(error: unknown): string {
     }
   }
   return '삭제 중 오류가 발생했습니다. 다시 시도해 주세요.'
-}
-
-function positionToRole(position: string): WorkerRole {
-  const lower = position.toLowerCase()
-  if (lower === 'manager') return 'manager'
-  if (lower === 'owner') return 'owner'
-  return 'staff'
-}
-
-export interface WorkerListEntry {
-  workerId: number
-  shiftId: number
-  name: string
-  workspaceName: string
-  nextShiftTime: string
-  scheduleColor: ScheduleColor
-  role: WorkerRole
 }
 
 export function useWorkerListViewModel() {
@@ -74,44 +57,15 @@ export function useWorkerListViewModel() {
   const { mutateAsync: deleteWorker } = useDeleteScheduleWorker(workspaceId)
   const { mutateAsync: deleteShift } = useDeleteSchedule(workspaceId)
 
-  const scheduleData = useMemo<WorkerScheduleData | null>(() => {
-    if (!rawData) return null
-    const result: WorkerScheduleData = {}
-    rawData.data.schedules.forEach(shift => {
-      const colorCode = shift.assignedWorker?.colorCode
-      if (!colorCode) return
-      const dateKey = toDateKey(shift.startDateTime)
-      if (!result[dateKey]) result[dateKey] = []
-      if (!result[dateKey].includes(colorCode)) result[dateKey].push(colorCode)
-    })
-    return result
-  }, [rawData])
+  const scheduleData = useMemo<WorkerScheduleData | null>(
+    () => buildWorkerScheduleData(rawData),
+    [rawData]
+  )
 
-  const visibleWorkers = useMemo<WorkerListEntry[]>(() => {
-    if (!rawData) return []
-    const seen = new Set<number>()
-    return rawData.data.schedules
-      .filter(
-        shift =>
-          toDateKey(shift.startDateTime) === selectedDate &&
-          shift.assignedWorker != null
-      )
-      .reduce<WorkerListEntry[]>((acc, shift) => {
-        const worker = shift.assignedWorker!
-        if (seen.has(worker.workerId)) return acc
-        seen.add(worker.workerId)
-        acc.push({
-          workerId: worker.workerId,
-          shiftId: shift.shiftId,
-          name: worker.workerName,
-          workspaceName: shift.workspace.workspaceName,
-          nextShiftTime: `${toTimeLabel(shift.startDateTime)} ~ ${toTimeLabel(shift.endDateTime)}`,
-          scheduleColor: resolveSchedulePickerColor(worker.colorCode),
-          role: positionToRole(shift.position),
-        })
-        return acc
-      }, [])
-  }, [rawData, selectedDate])
+  const visibleWorkers = useMemo<WorkerListEntry[]>(
+    () => getVisibleWorkers(rawData, selectedDate),
+    [rawData, selectedDate]
+  )
 
   const handleDateClick = useCallback((dateKey: string) => {
     setSelectedDate(dateKey)

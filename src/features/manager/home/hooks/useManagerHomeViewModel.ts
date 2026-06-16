@@ -4,7 +4,7 @@ import { useWorkspaceDetailQuery } from '@/features/manager/home/hooks/useWorksp
 import { useWorkspaceWorkersViewModel } from '@/features/manager/home/hooks/useWorkspaceWorkersViewModel'
 import { useManagedPostingsViewModel } from '@/features/manager/home/hooks/useManagedPostingsViewModel'
 import { useSubstituteRequestsViewModel } from '@/features/manager/home/hooks/useSubstituteRequestsViewModel'
-import { useMonthlySchedulesViewModel } from '@/features/manager/home/hooks/useMonthlySchedulesViewModel'
+import { useWorkerScheduleCalendarViewModel } from '@/features/manager/home/hooks/useWorkerScheduleCalendarViewModel'
 import { useTodaySchedulesViewModel } from '@/features/manager/home/hooks/useTodaySchedulesViewModel'
 
 export function useManagerHomeViewModel() {
@@ -126,13 +126,18 @@ export function useManagerHomeViewModel() {
 
   const {
     baseDate: scheduleBaseDate,
-    calendarData,
+    scheduleData,
+    totalWorkHoursText,
+    estimatedEarningsText,
     selectedDateKey,
     isLoading: isScheduleLoading,
-    onDateChange: onScheduleDateChange,
-    goToPrevMonth,
-    goToNextMonth,
-  } = useMonthlySchedulesViewModel(activeWorkspaceId)
+    onMonthChange: onScheduleMonthChange,
+    isModalOpen: isScheduleModalOpen,
+    modalDateKey: scheduleModalDateKey,
+    visibleWorkers: scheduleVisibleWorkers,
+    handleDateClick: onScheduleDateClick,
+    closeModal: closeScheduleModal,
+  } = useWorkerScheduleCalendarViewModel(activeWorkspaceId)
 
   const { todayWorkers } = useTodaySchedulesViewModel(activeWorkspaceId)
 
@@ -181,12 +186,17 @@ export function useManagerHomeViewModel() {
     hasMoreSubstitutes,
     schedule: {
       baseDate: scheduleBaseDate,
+      scheduleData,
+      totalWorkHoursText,
+      estimatedEarningsText,
       selectedDateKey,
-      data: calendarData,
       isLoading: isScheduleLoading,
-      onDateChange: onScheduleDateChange,
-      goToPrevMonth,
-      goToNextMonth,
+      onMonthChange: onScheduleMonthChange,
+      isModalOpen: isScheduleModalOpen,
+      modalDateKey: scheduleModalDateKey,
+      visibleWorkers: scheduleVisibleWorkers,
+      handleDateClick: onScheduleDateClick,
+      closeModal: closeScheduleModal,
     },
     workspaceDetail,
     workspaceChangeModal: {
