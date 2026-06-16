@@ -2,13 +2,29 @@ import { useWorkingStoreCardViewModel } from '@/features/user/home/workspace/hoo
 import type { WorkingStoreItem } from '@/features/user/home/workspace/types/workingStore'
 interface WorkingStoreCardProps {
   store: WorkingStoreItem
+  onClick?: () => void
 }
 
-export function WorkingStoreCard({ store }: WorkingStoreCardProps) {
+export function WorkingStoreCard({ store, onClick }: WorkingStoreCardProps) {
   const { dueText, nextWorkDate } = useWorkingStoreCardViewModel(store)
 
   return (
-    <div className="flex h-[72px] items-center px-6">
+    <div
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      className={`flex h-[72px] items-center px-6${onClick ? ' cursor-pointer' : ''}`}
+      onClick={onClick}
+      onKeyDown={
+        onClick
+          ? e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onClick()
+              }
+            }
+          : undefined
+      }
+    >
       <div className="h-12 w-12 overflow-hidden rounded-[70px] bg-bg-dark">
         {store.thumbnailUrl ? (
           <img
