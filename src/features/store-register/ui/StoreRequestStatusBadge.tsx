@@ -9,7 +9,7 @@ export function StoreRequestStatusBadge({ status }: Props) {
   const { label, badgeClass } = resolveStatusBadge(status)
   return (
     <span
-      className={`inline-flex h-7 shrink-0 items-center justify-center rounded-[60px] border px-3 typography-body02-semibold ${badgeClass}`}
+      className={`inline-flex h-7 w-fit shrink-0 items-center justify-center rounded-[60px] border px-3 typography-body02-semibold ${badgeClass}`}
     >
       {label}
     </span>

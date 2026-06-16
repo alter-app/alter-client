@@ -24,8 +24,8 @@ export function StoreRequestListCard({ item, onClick }: Props) {
       <p className="mt-2 truncate typography-body02-regular text-text-70">
         {item.fullAddress}
       </p>
-      <p className="mt-1.5 typography-body03-regular text-text-50">
-        {formatRequestDate(item.createdAt)} 신청
+      <p className="mt-1.5 typography-body03-semibold text-text-50">
+        신청일 {formatRequestDate(item.createdAt)}
       </p>
     </button>
   )
