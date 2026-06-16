@@ -1,54 +1,55 @@
+import type { ReactNode } from 'react'
+import { FileIcon, IdCardIcon } from '@/features/store-register/ui/icons'
 import type { WorkspaceRequestDetailDto } from '@/features/store-register/types/workspaceRequests'
 
 type DocItem = {
   label: string
   url: string | null
+  icon: ReactNode
 }
 
-/** presigned URL 의 경로 확장자가 이미지인지 (쿼리스트링 제외) */
-function looksLikeImage(url: string): boolean {
-  const path = url.split('?')[0].toLowerCase()
-  return /\.(jpg|jpeg|png|webp|heic|gif)$/.test(path)
-}
-
-function DocCard({ label, url }: DocItem) {
-  if (!url) {
-    return (
-      <div className="flex flex-col gap-2 rounded-2xl bg-white p-3 shadow-sm">
-        <p className="typography-body02-semibold text-text-100">{label}</p>
-        <div className="flex h-[120px] items-center justify-center rounded-xl bg-bg-light">
-          <span className="typography-body02-regular text-text-50">미첨부</span>
-        </div>
-      </div>
-    )
-  }
-
+/** 첨부된 서류 — 탭하면 presigned URL 을 새 탭에서 연다 */
+function AttachedDoc({
+  label,
+  url,
+  icon,
+}: {
+  label: string
+  url: string
+  icon: ReactNode
+}) {
   return (
     <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex flex-col gap-2 rounded-2xl bg-white p-3 shadow-sm"
+      className="flex items-center gap-3 rounded-xl border border-line-1 bg-white p-3"
     >
-      <p className="typography-body02-semibold text-text-100">{label}</p>
-      {looksLikeImage(url) ? (
-        <img
-          src={url}
-          alt={`${label} 미리보기`}
-          className="h-[120px] w-full rounded-xl object-cover"
-        />
-      ) : (
-        <div className="flex h-[120px] flex-col items-center justify-center gap-1 rounded-xl bg-bg-light">
-          <span className="typography-body01-semibold text-text-90">파일</span>
-          <span className="typography-body02-regular text-text-50">
-            탭하면 새 탭에서 열려요
-          </span>
-        </div>
-      )}
-      <span className="typography-body02-semibold text-main underline">
-        새 탭에서 열기
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-main-100 text-main">
+        {icon}
       </span>
+      <div className="min-w-0 flex-1">
+        <p className="typography-body02-semibold text-text-100">{label}</p>
+        <p className="truncate typography-body03-regular text-text-50">
+          탭하여 새 탭에서 열기
+        </p>
+      </div>
     </a>
+  )
+}
+
+/** 미첨부 서류 — 점선 보더 + 회색 아이콘 */
+function MissingDoc({ label, icon }: { label: string; icon: ReactNode }) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-dashed border-line-2 p-3">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-bg-light text-text-50">
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="typography-body02-semibold text-text-70">{label}</p>
+        <p className="typography-body03-regular text-text-50">미첨부</p>
+      </div>
+    </div>
   )
 }
 
@@ -56,20 +57,43 @@ type Props = {
   detail: WorkspaceRequestDetailDto
 }
 
-/** 증빙 서류 — presigned URL 그대로 새 탭/이미지로 열기 */
+/** 증빙 서류 — 사업자등록증명원 / 대표자 신분증 / 위임장 */
 export function RequestDocumentsSection({ detail }: Props) {
   const docs: DocItem[] = [
-    { label: '사업자등록증명원', url: detail.workspaceCertFileUrl },
-    { label: '대표자 신분증', url: detail.workspaceOwnIdentityFileUrl },
-    { label: '위임장', url: detail.workspaceWarrantFileUrl },
+    {
+      label: '사업자등록증명원',
+      url: detail.workspaceCertFileUrl,
+      icon: <FileIcon className="size-5" />,
+    },
+    {
+      label: '대표자 신분증',
+      url: detail.workspaceOwnIdentityFileUrl,
+      icon: <IdCardIcon className="size-5" />,
+    },
+    {
+      label: '위임장',
+      url: detail.workspaceWarrantFileUrl,
+      icon: <FileIcon className="size-5" />,
+    },
   ]
 
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="px-1 typography-headline03 text-text-100">증빙 서류</h2>
-      {docs.map(doc => (
-        <DocCard key={doc.label} label={doc.label} url={doc.url} />
-      ))}
+    <section className="flex flex-col gap-2.5">
+      <h2 className="typography-headline03 text-text-100">증빙 서류</h2>
+      <div className="flex flex-col gap-2.5">
+        {docs.map(doc =>
+          doc.url ? (
+            <AttachedDoc
+              key={doc.label}
+              label={doc.label}
+              url={doc.url}
+              icon={doc.icon}
+            />
+          ) : (
+            <MissingDoc key={doc.label} label={doc.label} icon={doc.icon} />
+          )
+        )}
+      </div>
     </section>
   )
 }
