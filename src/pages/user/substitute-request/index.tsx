@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   useLocation,
@@ -42,6 +42,7 @@ type SubstituteRequestLocationState = {
   direction?: SubstituteDirectionTab
   directionTab?: SubstituteDirectionTab
   receivedDto?: ReceivedSubstituteRequestDto
+  workspaceId?: number
 }
 
 function parseDirectionTab(
@@ -129,6 +130,17 @@ export function SubstituteRequestPage() {
   })
 
   const handleOpenCreate = () => {
+    const preselected = locationState?.workspaceId
+      ? workspaces.find(w => w.workspaceId === locationState.workspaceId)
+      : undefined
+    if (preselected) {
+      setCreateFlow({
+        workspaceId: preselected.workspaceId,
+        storeName: preselected.businessName,
+        session: Date.now(),
+      })
+      return
+    }
     if (workspaces.length === 1) {
       const only = workspaces[0]!
       setCreateFlow({
@@ -139,6 +151,25 @@ export function SubstituteRequestPage() {
       return
     }
     setStorePickerOpen(true)
+  }
+
+  const autoOpenedCreateRef = useRef(false)
+  useEffect(() => {
+    if (autoOpenedCreateRef.current) return
+    if (workspacesLoading || !locationState?.workspaceId) return
+    autoOpenedCreateRef.current = true
+    handleOpenCreate()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspacesLoading, locationState?.workspaceId])
+
+  const clearWorkspacePreselect = () => {
+    if (!locationState?.workspaceId) return
+    const rest = { ...locationState }
+    delete rest.workspaceId
+    navigate(location.pathname + location.search, {
+      replace: true,
+      state: rest,
+    })
   }
 
   const handleStoreConfirm = (workspaceId: number, storeName: string) => {
@@ -270,7 +301,10 @@ export function SubstituteRequestPage() {
       {createFlow != null ? (
         <SubstituteRequestModalFlow
           key={createFlow.session}
-          onClose={() => setCreateFlow(null)}
+          onClose={() => {
+            setCreateFlow(null)
+            clearWorkspacePreselect()
+          }}
           storeName={createFlow.storeName}
           initialMonth={new Date()}
           workspaceId={createFlow.workspaceId}
