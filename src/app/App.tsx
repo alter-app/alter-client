@@ -27,7 +27,6 @@ import { SubstituteRequestPage } from '@/pages/user/substitute-request'
 import { ManagerSubstituteRequestPage } from '@/pages/manager/substitute-request'
 import { StoreRegisterPage } from '@/pages/manager/store-register'
 import { ManagerWorkerInvitePage } from '@/pages/manager/worker-invite'
-import { WorkerListPage } from '@/pages/manager/worker-list'
 import { WorkspaceJoinPage } from '@/pages/user/workspace-join'
 import { NotificationPage } from '@/pages/notification'
 import { NotificationSettingsPage } from '@/pages/notification/settings'
@@ -146,10 +145,6 @@ export function App() {
           <Route
             path={ROUTES.MANAGER.WORKER_INVITE}
             element={<ManagerWorkerInvitePage />}
-          />
-          <Route
-            path={ROUTES.MANAGER.WORKER_LIST}
-            element={<WorkerListPage />}
           />
         </Route>
 

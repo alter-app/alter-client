@@ -23,6 +23,7 @@ import { useResignWorkerMutation } from '@/features/manager/worker-list/hooks/mu
 import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import { Modal } from '@/shared/ui/common/Modal'
 import { WorkerListItem } from '@/features/manager/worker-list/ui/WorkerListItem'
+import type { WorkerListEntry } from '@/features/manager/worker-list/lib/workerSchedule'
 import ResignIcon from '@/assets/icons/home/resign.svg?react'
 
 export function ManagerHomePage() {
@@ -32,6 +33,8 @@ export function ManagerHomePage() {
     number | null
   >(null)
   const [isResignErrorOpen, setIsResignErrorOpen] = useState(false)
+  const [deleteTargetWorker, setDeleteTargetWorker] =
+    useState<WorkerListEntry | null>(null)
   const {
     todayWorkers,
     storeWorkers,
@@ -159,13 +162,6 @@ export function ManagerHomePage() {
             <div className="typography-headline02">
               {format(new Date(), 'M월 d일', { locale: ko })}
             </div>
-            <button
-              type="button"
-              className="typography-bg"
-              onClick={() => navigate(ROUTES.MANAGER.WORKER_LIST)}
-            >
-              전체 보기
-            </button>
           </div>
           <div className="pt-6">
             <TodayWorkerList workers={todayWorkers} />
@@ -314,6 +310,11 @@ export function ManagerHomePage() {
         }
         ariaLabel="해당 날짜 근무자 목록"
       >
+        {schedule.deleteError && (
+          <p className="px-1 pb-2 typography-body02-regular text-error">
+            {schedule.deleteError}
+          </p>
+        )}
         {schedule.visibleWorkers.length > 0 ? (
           <div className="flex flex-col gap-2">
             {schedule.visibleWorkers.map(worker => (
@@ -324,6 +325,8 @@ export function ManagerHomePage() {
                 nextShiftTime={worker.nextShiftTime}
                 scheduleColor={worker.scheduleColor}
                 role={worker.role}
+                onEdit={() => schedule.handleEditWorker(worker)}
+                onDelete={() => setDeleteTargetWorker(worker)}
               />
             ))}
           </div>
@@ -333,6 +336,20 @@ export function ManagerHomePage() {
           </p>
         )}
       </Modal>
+
+      <ConfirmModal
+        isOpen={deleteTargetWorker !== null}
+        title="근무자를 삭제하시겠어요?"
+        description="삭제 후에는 되돌릴 수 없습니다."
+        confirmLabel="삭제"
+        cancelLabel="취소"
+        onConfirm={() => {
+          if (!deleteTargetWorker) return
+          schedule.handleDeleteWorker(deleteTargetWorker.shiftId)
+          setDeleteTargetWorker(null)
+        }}
+        onClose={() => setDeleteTargetWorker(null)}
+      />
     </>
   )
 }

@@ -33,7 +33,6 @@ export const ROUTES = {
     STORE_REGISTER: '/manager/store-register',
     SUBSTITUTE_REQUEST: '/manager/substitute-request',
     WORKER_INVITE: '/manager/worker-invite',
-    WORKER_LIST: '/manager/worker-list',
     SOCIAL: '/manager/social',
     SOCIAL_CHAT: '/manager/social/chat',
   },
