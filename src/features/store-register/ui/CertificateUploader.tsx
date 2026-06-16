@@ -1,30 +1,40 @@
+import type { ReactNode } from 'react'
 import { CERTIFICATE_ACCEPT_ATTR } from '@/shared/lib/certificateFileValidation'
 import { useCertificateFilePick } from '@/shared/hooks/useCertificateFilePick'
+import { formatFileSize } from '@/features/store-register/lib/formatFileSize'
+import {
+  CloseIcon,
+  FileIcon,
+  UploadIcon,
+  WarningTriangleIcon,
+} from '@/features/store-register/ui/icons'
 
 export type CertificatePickState = Pick<
   ReturnType<typeof useCertificateFilePick>,
-  | 'file'
-  | 'previewUrl'
-  | 'error'
-  | 'isPdf'
-  | 'inputRef'
-  | 'onInputChange'
-  | 'openPicker'
-  | 'clear'
+  'file' | 'error' | 'inputRef' | 'onInputChange' | 'openPicker' | 'clear'
 >
 
 type Props = {
   certificate: CertificatePickState
   headline: string
   hint?: string
-  /** true면 헤드라인 옆에 "선택" 배지 노출 */
+  /** 선택 항목이면 "선택" 배지, 아니면 "필수" 배지 */
   optional?: boolean
+  /** 선택된 파일 칩의 썸네일 아이콘 — 기본 문서 아이콘 */
+  icon?: ReactNode
 }
 
-function OptionalBadge() {
+function FieldBadge({ optional }: { optional: boolean }) {
+  if (optional) {
+    return (
+      <span className="inline-flex h-[22px] shrink-0 items-center rounded-full bg-bg-dark px-2 typography-body03-semibold text-text-70">
+        선택
+      </span>
+    )
+  }
   return (
-    <span className="ml-2 inline-flex shrink-0 items-center rounded-full bg-bg-dark px-2 py-0.5 typography-body02-semibold text-text-70">
-      선택
+    <span className="inline-flex h-[22px] shrink-0 items-center rounded-full bg-main-100 px-2 typography-body03-semibold text-main">
+      필수
     </span>
   )
 }
@@ -32,22 +42,25 @@ function OptionalBadge() {
 export function CertificateUploader({
   certificate,
   headline,
-  hint = '촬영·스캔 이미지(JPG·PNG 등) 또는 PDF · 최대 15MB',
+  hint,
   optional = false,
+  icon,
 }: Props) {
-  const {
-    file,
-    previewUrl,
-    error,
-    isPdf,
-    inputRef,
-    onInputChange,
-    openPicker,
-    clear,
-  } = certificate
+  const { file, error, inputRef, onInputChange, openPicker, clear } =
+    certificate
 
   return (
-    <div className="w-full">
+    <div className="flex w-full flex-col gap-2.5">
+      <div className="flex items-center gap-2">
+        <span className="typography-body01-semibold text-text-100">
+          {headline}
+        </span>
+        <FieldBadge optional={optional} />
+      </div>
+      {hint ? (
+        <span className="typography-body03-regular text-text-70">{hint}</span>
+      ) : null}
+
       <input
         ref={inputRef}
         type="file"
@@ -60,71 +73,42 @@ export function CertificateUploader({
         <button
           type="button"
           onClick={openPicker}
-          className="flex min-h-[140px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-line-2 bg-white px-4 py-6"
+          className="flex flex-col items-center justify-center gap-2 rounded-xl border-[1.5px] border-dashed border-line-2 px-4 py-6 text-text-70"
         >
-          <span className="flex items-center justify-center typography-headline03 text-center text-text-100">
-            {headline}
-            {optional ? <OptionalBadge /> : null}
-          </span>
-          <span className="typography-body02-regular text-center text-text-70">
-            {hint}
-          </span>
-          <span className="mt-2 rounded-xl bg-main px-4 py-2 typography-body02-semibold text-white">
-            파일 선택
+          <UploadIcon className="size-7" />
+          <span className="typography-body02-regular">
+            파일을 선택해 주세요
           </span>
         </button>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-line-2 bg-white">
-          <div className="flex items-stretch gap-3 p-3">
-            {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt={`${file.name} 미리보기`}
-                className="h-[100px] w-[100px] shrink-0 rounded-lg object-cover"
-              />
-            ) : (
-              <div className="flex h-[100px] w-[100px] shrink-0 flex-col items-center justify-center rounded-lg bg-bg-light">
-                <span className="typography-body02-semibold text-text-90">
-                  PDF
-                </span>
-              </div>
-            )}
-            <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
-              <p className="flex items-center truncate typography-body01-semibold text-text-100">
-                {headline}
-                {optional ? <OptionalBadge /> : null}
-              </p>
-              <p className="truncate typography-body02-regular text-text-70">
-                {file.name}
-              </p>
-              <p className="typography-body02-regular text-text-70">
-                {isPdf
-                  ? 'PDF 파일입니다. 운영자 검토까지 그대로 제출됩니다.'
-                  : '이미지 파일입니다.'}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  className="typography-body02-semibold text-main underline"
-                  onClick={openPicker}
-                >
-                  다른 파일로 바꾸기
-                </button>
-                <button
-                  type="button"
-                  className="typography-body02-semibold text-text-70 underline"
-                  onClick={clear}
-                >
-                  삭제
-                </button>
-              </div>
-            </div>
+        <div className="flex items-center gap-3 rounded-xl border border-main p-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-main-100 text-main">
+            {icon ?? <FileIcon className="size-5" />}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate typography-body02-semibold text-text-100">
+              {file.name}
+            </p>
+            <p className="typography-body03-regular text-text-50">
+              {formatFileSize(file.size)}
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={clear}
+            aria-label="파일 삭제"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-bg-light text-text-70"
+          >
+            <CloseIcon className="size-4" />
+          </button>
         </div>
       )}
 
       {error ? (
-        <p className="mt-3 typography-body02-regular text-red-600">{error}</p>
+        <div className="flex items-center gap-2 rounded-xl border border-error bg-error/5 p-3">
+          <WarningTriangleIcon className="size-[18px] shrink-0 text-error" />
+          <span className="typography-body03-regular text-error">{error}</span>
+        </div>
       ) : null}
     </div>
   )
