@@ -2,7 +2,7 @@ import { useRequestCommentThreadViewModel } from '@/features/store-register/hook
 import { RequestCommentItem } from '@/features/store-register/ui/RequestCommentItem'
 import { RequestCommentComposer } from '@/features/store-register/ui/RequestCommentComposer'
 
-type ThreadVariant = 'PENDING' | 'REVOKED'
+type ThreadVariant = 'PENDING' | 'REVOKED' | 'ACTIVATED'
 
 type Props = {
   requestId: number
@@ -15,7 +15,8 @@ type VariantCopy = {
   placeholder: string
 }
 
-const VARIANT_COPY: Record<ThreadVariant, VariantCopy> = {
+/** 입력바/빈 상태 안내는 상호작용 variant(PENDING·REVOKED)에서만 사용 */
+const VARIANT_COPY: Record<'PENDING' | 'REVOKED', VariantCopy> = {
   PENDING: {
     emptyTitle: '아직 주고받은 메시지가 없어요',
     emptyDescription:
@@ -33,7 +34,14 @@ const VARIANT_COPY: Record<ThreadVariant, VariantCopy> = {
 /** 신청 1건의 단일 댓글 스레드 섹션 — 헤더 + 안내 + 말풍선 목록 + 입력바 */
 export function RequestThreadSection({ requestId, variant }: Props) {
   const thread = useRequestCommentThreadViewModel(requestId, true)
-  const copy = VARIANT_COPY[variant]
+  const readOnly = variant === 'ACTIVATED'
+
+  // 승인 완료(읽기 전용): 주고받은 메시지가 없으면 섹션 자체를 숨김.
+  // comments 는 로딩 중·에러 시에도 []라 messageCount === 0 이므로
+  // "메시지 없음 / 불러오는 중 / 불러오기 실패" 세 경우 모두 여기서 감춰진다.
+  if (readOnly && thread.messageCount === 0) return null
+
+  const copy = readOnly ? null : VARIANT_COPY[variant]
   const isEmpty =
     !thread.isLoading && !thread.isError && thread.messageCount === 0
   const composerDisabled = thread.isLoading || thread.isError
@@ -79,7 +87,7 @@ export function RequestThreadSection({ requestId, variant }: Props) {
         </div>
       ) : null}
 
-      {isEmpty ? (
+      {copy && isEmpty ? (
         <div className="flex flex-col gap-1 rounded-xl bg-bg-dark px-4 py-5 text-center">
           <p className="typography-body02-semibold text-text-100">
             {copy.emptyTitle}
@@ -98,19 +106,21 @@ export function RequestThreadSection({ requestId, variant }: Props) {
         </div>
       ) : null}
 
-      <RequestCommentComposer
-        comment={thread.comment}
-        onCommentChange={thread.onCommentChange}
-        attachment={thread.attachment}
-        submitError={thread.submitError}
-        isSubmitting={thread.isSubmitting}
-        canSubmit={thread.canSubmit}
-        onSubmit={thread.submit}
-        placeholder={
-          composerDisabled ? '불러온 뒤 입력할 수 있어요' : copy.placeholder
-        }
-        disabled={composerDisabled}
-      />
+      {copy ? (
+        <RequestCommentComposer
+          comment={thread.comment}
+          onCommentChange={thread.onCommentChange}
+          attachment={thread.attachment}
+          submitError={thread.submitError}
+          isSubmitting={thread.isSubmitting}
+          canSubmit={thread.canSubmit}
+          onSubmit={thread.submit}
+          placeholder={
+            composerDisabled ? '불러온 뒤 입력할 수 있어요' : copy.placeholder
+          }
+          disabled={composerDisabled}
+        />
+      ) : null}
     </section>
   )
 }

@@ -102,6 +102,13 @@ export function StoreRegisterRequestDetailPage() {
                     variant="REVOKED"
                   />
                 ) : null}
+
+                {statusValue === 'ACTIVATED' ? (
+                  <RequestThreadSection
+                    requestId={requestId}
+                    variant="ACTIVATED"
+                  />
+                ) : null}
               </>
             )}
 
