@@ -1,23 +1,18 @@
 import { useCallback, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import useAuthStore from '@/shared/stores/useAuthStore'
-import { logoutSession } from '@/shared/api/auth'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
-import { ROUTES } from '@/shared/constants/routes'
 import {
   cancelWorkspaceRequest,
   fetchWorkspaceRequestDetail,
 } from '@/features/store-register/api/workspaceRequests'
 
-/** 업장 등록 신청 상세 ViewModel — 상세 조회 + 취소 + 재로그인 */
+/** 업장 등록 신청 상세 ViewModel — 상세 조회 + 취소 */
 export function useStoreRegisterRequestDetailViewModel(requestId: number) {
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const isLoggedIn = useAuthStore(state => state.isLoggedIn)
   const scope = useAuthStore(state => state.scope)
-  const logout = useAuthStore(state => state.logout)
 
   const [cancelError, setCancelError] = useState<string | null>(null)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -66,18 +61,6 @@ export function useStoreRegisterRequestDetailViewModel(requestId: number) {
     cancelMutation.mutate()
   }, [cancelMutation])
 
-  /** 승인 완료 시 사장님 계정으로 다시 로그인 — 세션 정리 후 로그인 화면 */
-  const reLogin = useCallback(async () => {
-    try {
-      await logoutSession(scope, isLoggedIn)
-    } catch {
-      // 서버 로그아웃 실패해도 로컬 세션은 정리
-    } finally {
-      logout()
-      navigate(ROUTES.AUTH.LOGIN, { replace: true })
-    }
-  }, [isLoggedIn, logout, navigate, scope])
-
   return {
     scope,
     requestId,
@@ -90,6 +73,5 @@ export function useStoreRegisterRequestDetailViewModel(requestId: number) {
     openCancelConfirm,
     closeCancelConfirm,
     confirmCancel,
-    reLogin,
   }
 }

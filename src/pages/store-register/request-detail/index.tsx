@@ -1,31 +1,14 @@
 import { useParams } from 'react-router-dom'
 import { Navbar } from '@/shared/ui/common/Navbar'
-import { AuthButton } from '@/shared/ui/common/AuthButton'
 import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import { Spinner } from '@/shared/ui/Spinner'
 import { useStoreRegisterRequestDetailViewModel } from '@/features/store-register/hooks/useStoreRegisterRequestDetailViewModel'
 import { StoreRequestStatusBadge } from '@/features/store-register/ui/StoreRequestStatusBadge'
 import { RequestInfoSection } from '@/features/store-register/ui/RequestInfoSection'
 import { RequestDocumentsSection } from '@/features/store-register/ui/RequestDocumentsSection'
-import { ReasonSection } from '@/features/store-register/ui/ReasonSection'
-import {
-  CheckCircleIcon,
-  ClockIcon,
-  XCircleIcon,
-} from '@/features/store-register/ui/icons'
+import { RequestThreadSection } from '@/features/store-register/ui/RequestThreadSection'
+import { ClockIcon, XCircleIcon } from '@/features/store-register/ui/icons'
 import { formatRequestDateTime } from '@/features/store-register/lib/formatDate'
-
-function CancelButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="h-14 w-full shrink-0 rounded-xl border border-line-2 bg-white typography-body01-semibold text-text-90"
-    >
-      신청 취소
-    </button>
-  )
-}
 
 export function StoreRegisterRequestDetailPage() {
   const params = useParams<{ requestId: string }>()
@@ -33,7 +16,8 @@ export function StoreRegisterRequestDetailPage() {
   const vm = useStoreRegisterRequestDetailViewModel(requestId)
   const detail = vm.detail
   const statusValue = detail?.status.value
-  const isCanceled = statusValue === 'CANCELED'
+  const isCanceled = statusValue === 'CANCELLED'
+  const canCancel = statusValue === 'PENDING' || statusValue === 'REVOKED'
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-bg-light">
@@ -57,11 +41,22 @@ export function StoreRegisterRequestDetailPage() {
 
         {detail ? (
           <div className="flex flex-col gap-5">
-            <div className="flex flex-col gap-2">
-              <StoreRequestStatusBadge status={detail.status} />
-              <span className="typography-body03-regular text-text-50">
-                {formatRequestDateTime(detail.createdAt)} 신청
-              </span>
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-col gap-2">
+                <StoreRequestStatusBadge status={detail.status} />
+                <span className="typography-body03-regular text-text-50">
+                  {formatRequestDateTime(detail.createdAt)} 신청
+                </span>
+              </div>
+              {canCancel ? (
+                <button
+                  type="button"
+                  onClick={vm.openCancelConfirm}
+                  className="h-8 shrink-0 rounded-lg border border-line-2 bg-white px-3 typography-body03-semibold text-text-90"
+                >
+                  신청 취소
+                </button>
+              ) : null}
             </div>
 
             {isCanceled ? (
@@ -83,48 +78,29 @@ export function StoreRegisterRequestDetailPage() {
                 <RequestDocumentsSection detail={detail} />
 
                 {statusValue === 'PENDING' ? (
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-5">
                     <div className="flex items-start gap-2.5 rounded-xl bg-warning-100 px-4 py-3.5">
                       <ClockIcon className="size-5 mt-px shrink-0 text-warning" />
                       <p className="typography-body02-regular text-text-100">
-                        운영자가 검토 중이에요.{' '}
+                        관리자가 검토 중이에요.{' '}
                         <span className="typography-body02-semibold text-warning">
-                          영업일 1일 이내
+                          영업일 3일 이내
                         </span>
-                        에 결과를 알려드릴게요.
+                        에 결과를 푸시 알림으로 알려드릴게요.
                       </p>
                     </div>
-                    <CancelButton onClick={vm.openCancelConfirm} />
-                  </div>
-                ) : null}
-
-                {statusValue === 'ACTIVATED' ? (
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-start gap-2.5 rounded-xl bg-main-100 px-4 py-3.5">
-                      <CheckCircleIcon className="size-5 mt-px shrink-0 text-main" />
-                      <p className="typography-body02-regular text-text-100">
-                        승인이 완료됐어요.{' '}
-                        <span className="typography-body02-semibold text-main">
-                          사장님 계정
-                        </span>
-                        으로 다시 로그인해 주세요.
-                      </p>
-                    </div>
-                    <AuthButton
-                      type="button"
-                      style={{ width: '100%' }}
-                      onClick={() => vm.reLogin()}
-                    >
-                      사장님 계정으로 로그인
-                    </AuthButton>
+                    <RequestThreadSection
+                      requestId={requestId}
+                      variant="PENDING"
+                    />
                   </div>
                 ) : null}
 
                 {statusValue === 'REVOKED' ? (
-                  <div className="flex flex-col gap-5">
-                    <ReasonSection requestId={requestId} />
-                    <CancelButton onClick={vm.openCancelConfirm} />
-                  </div>
+                  <RequestThreadSection
+                    requestId={requestId}
+                    variant="REVOKED"
+                  />
                 ) : null}
               </>
             )}
