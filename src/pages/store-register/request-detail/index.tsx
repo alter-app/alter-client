@@ -13,7 +13,10 @@ import { formatRequestDateTime } from '@/features/store-register/lib/formatDate'
 export function StoreRegisterRequestDetailPage() {
   const params = useParams<{ requestId: string }>()
   const requestId = Number(params.requestId)
-  const vm = useStoreRegisterRequestDetailViewModel(requestId)
+  const isValidRequestId = Number.isInteger(requestId) && requestId > 0
+  const vm = useStoreRegisterRequestDetailViewModel(
+    isValidRequestId ? requestId : Number.NaN
+  )
   const detail = vm.detail
   const statusValue = detail?.status.value
   const isCanceled = statusValue === 'CANCELLED'
@@ -24,13 +27,22 @@ export function StoreRegisterRequestDetailPage() {
       <Navbar variant="detail" title="신청 상세" />
 
       <div className="mx-auto flex w-full max-w-[400px] flex-1 flex-col px-4 pb-10 pt-5">
-        {vm.isLoading ? (
+        {!isValidRequestId ? (
+          <p
+            className="mt-10 text-center typography-body02-regular text-error"
+            role="alert"
+          >
+            유효하지 않은 신청 상세 경로입니다.
+          </p>
+        ) : null}
+
+        {isValidRequestId && vm.isLoading ? (
           <div className="flex flex-1 items-center justify-center">
             <Spinner />
           </div>
         ) : null}
 
-        {vm.isError ? (
+        {isValidRequestId && vm.isError ? (
           <p
             className="mt-10 text-center typography-body02-regular text-error"
             role="alert"
