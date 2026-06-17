@@ -2,14 +2,12 @@ import axiosInstance from '@/shared/lib/axiosInstance'
 import { getAuthApiBasePath } from '@/shared/lib/authApiPath'
 import type { CommonApiResponse } from '@/shared/types/common'
 import type {
-  CreateWorkspaceReasonCommentBody,
-  WorkspaceReasonCommentDto,
-  WorkspaceReasonCommentsApiResponse,
+  CreateWorkspaceRequestCommentBody,
+  WorkspaceRequestCommentDto,
+  WorkspaceRequestCommentsApiResponse,
   WorkspaceRequestDetailApiResponse,
   WorkspaceRequestDetailDto,
   WorkspaceRegistrationCreateBody,
-  WorkspaceRequestReasonDto,
-  WorkspaceRequestReasonsApiResponse,
   WorkspaceRequestsListApiResponse,
   WorkspaceRequestListItemDto,
 } from '@/features/store-register/types/workspaceRequests'
@@ -63,38 +61,25 @@ export async function cancelWorkspaceRequest(
   )
 }
 
-/** GET /{scope}/workspace-requests/{id}/reasons */
-export async function fetchWorkspaceRequestReasons(
+/** GET /{scope}/workspace-requests/{id}/comments */
+export async function fetchWorkspaceRequestComments(
   scope: AuthScope,
   workspaceRequestId: number
-): Promise<WorkspaceRequestReasonDto[]> {
-  const response = await axiosInstance.get<WorkspaceRequestReasonsApiResponse>(
-    `${requestsBasePath(scope)}/${workspaceRequestId}/reasons`
+): Promise<WorkspaceRequestCommentDto[]> {
+  const response = await axiosInstance.get<WorkspaceRequestCommentsApiResponse>(
+    `${requestsBasePath(scope)}/${workspaceRequestId}/comments`
   )
   return response.data.data
 }
 
-/** GET /{scope}/workspace-requests/{id}/reasons/{reasonId}/comments */
-export async function fetchWorkspaceReasonComments(
+/** POST /{scope}/workspace-requests/{id}/comments */
+export async function createWorkspaceRequestComment(
   scope: AuthScope,
   workspaceRequestId: number,
-  reasonId: number
-): Promise<WorkspaceReasonCommentDto[]> {
-  const response = await axiosInstance.get<WorkspaceReasonCommentsApiResponse>(
-    `${requestsBasePath(scope)}/${workspaceRequestId}/reasons/${reasonId}/comments`
-  )
-  return response.data.data
-}
-
-/** POST /{scope}/workspace-requests/{id}/reasons/{reasonId}/comments */
-export async function createWorkspaceReasonComment(
-  scope: AuthScope,
-  workspaceRequestId: number,
-  reasonId: number,
-  body: CreateWorkspaceReasonCommentBody
+  body: CreateWorkspaceRequestCommentBody
 ): Promise<void> {
   await axiosInstance.post<CommonApiResponse<Record<string, never>>>(
-    `${requestsBasePath(scope)}/${workspaceRequestId}/reasons/${reasonId}/comments`,
+    `${requestsBasePath(scope)}/${workspaceRequestId}/comments`,
     body
   )
 }

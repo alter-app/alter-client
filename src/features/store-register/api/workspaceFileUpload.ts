@@ -38,14 +38,14 @@ export async function uploadWorkspaceRegistrationFile(
   })
 }
 
-/** 반려 사유 댓글 첨부 파일 업로드 (targetType=WORKSPACE_REASON_COMMENT). */
-export async function uploadWorkspaceReasonCommentFile(
+/** 신청 댓글 첨부 파일 업로드 (targetType=WORKSPACE_REQUEST_COMMENT). */
+export async function uploadWorkspaceRequestCommentFile(
   file: File,
   scope?: 'MANAGER' | 'USER' | null
 ): Promise<string> {
   return uploadAppFile({
     file,
-    targetType: 'WORKSPACE_REASON_COMMENT',
+    targetType: 'WORKSPACE_REQUEST_COMMENT',
     bucketType: WORKSPACE_REGISTRATION_BUCKET,
     scope,
   })
