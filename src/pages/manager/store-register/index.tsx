@@ -117,10 +117,11 @@ export function StoreRegisterPage() {
               hint="위탁 관리 시에만 첨부"
               optional
             />
-            <div className="flex items-center gap-2 rounded-xl bg-warning-100 px-4 py-3.5">
-              <ClockIcon className="size-[18px] shrink-0 text-warning" />
+            <div className="flex items-start gap-2 rounded-xl bg-warning-100 px-4 py-3.5">
+              <ClockIcon className="size-[18px] mt-px shrink-0 text-warning" />
               <span className="typography-body02-regular text-text-100">
-                운영자 검토까지 영업일 1일 정도 걸려요.
+                관리자 검토까지 영업일 3일 정도 걸려요. 결과는 푸시 알림으로
+                안내드려요.
               </span>
             </div>
             {w.submitError ? (
@@ -140,8 +141,8 @@ export function StoreRegisterPage() {
               신청을 접수했어요
             </h1>
             <p className="max-w-[260px] typography-body02-regular text-text-70">
-              운영자 검토 후 승인되면 사장님 계정으로 전환할 수 있어요. 영업일
-              1일 이내에 결과를 알려드릴게요.
+              관리자 검토 후 승인되면 사장님 계정으로 전환할 수 있어요. 영업일
+              3일 이내에 결과를 푸시 알림으로 알려드릴게요.
             </p>
           </div>
         ) : null}

@@ -11,7 +11,7 @@ export type AppFileUploadTargetType =
   | 'WORKSPACE_CERTIFICATE'
   | 'WORKSPACE_OWN_IDENTITY'
   | 'WORKSPACE_WARRANT'
-  | 'WORKSPACE_REASON_COMMENT'
+  | 'WORKSPACE_REQUEST_COMMENT'
   | 'CHAT_MESSAGE'
 
 export type AppFileBucketType = 'PUBLIC' | 'PRIVATE'

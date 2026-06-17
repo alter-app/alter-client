@@ -65,7 +65,7 @@ export function StoreRegisterRequestsPage() {
               아직 등록 신청 내역이 없어요
             </p>
             <p className="max-w-[240px] typography-body02-regular text-text-70">
-              업장을 등록하고 운영자 승인 후 사장님 계정으로 전환해 보세요.
+              업장을 등록하고 관리자 승인 후 사장님 계정으로 전환해 보세요.
             </p>
           </div>
         ) : null}

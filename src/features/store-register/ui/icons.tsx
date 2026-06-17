@@ -178,20 +178,6 @@ export function DocPlusIcon(props: IconProps) {
   )
 }
 
-/** 말풍선(재심사 문의 안내) */
-export function ChatIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <path d="M8 10h8M8 14h5" strokeLinecap="round" />
-      <path
-        d="M21 12a9 9 0 11-3.5-7.1L21 4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  )
-}
-
 /** 닫기(파일 삭제) */
 export function CloseIcon(props: IconProps) {
   return (
