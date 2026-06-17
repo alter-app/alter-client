@@ -46,7 +46,7 @@ export function useStoreRegisterWizard() {
   const infoValid =
     bizName.trim().length > 0 &&
     ownerName.trim().length > 0 &&
-    brn.trim().length > 0 &&
+    brn.replace(/\D/g, '').length === 10 &&
     province.trim().length > 0 &&
     district.trim().length > 0 &&
     town.trim().length > 0 &&
