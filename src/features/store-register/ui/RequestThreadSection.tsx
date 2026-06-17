@@ -36,10 +36,16 @@ export function RequestThreadSection({ requestId, variant }: Props) {
   const thread = useRequestCommentThreadViewModel(requestId, true)
   const readOnly = variant === 'ACTIVATED'
 
-  // 승인 완료(읽기 전용): 주고받은 메시지가 없으면 섹션 자체를 숨김.
-  // comments 는 로딩 중·에러 시에도 []라 messageCount === 0 이므로
-  // "메시지 없음 / 불러오는 중 / 불러오기 실패" 세 경우 모두 여기서 감춰진다.
-  if (readOnly && thread.messageCount === 0) return null
+  // 승인 완료(읽기 전용): 실제로 주고받은 메시지가 없을 때만 섹션 자체를 숨김.
+  // 로딩 중·에러 시에도 messageCount === 0 이므로, 이 두 경우까지 숨기지 않도록
+  // 명시적으로 제외해 아래 로딩/에러 피드백(L66~88)이 노출되게 한다.
+  if (
+    readOnly &&
+    !thread.isLoading &&
+    !thread.isError &&
+    thread.messageCount === 0
+  )
+    return null
 
   const copy = readOnly ? null : VARIANT_COPY[variant]
   const isEmpty =
