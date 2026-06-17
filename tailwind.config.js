@@ -16,6 +16,11 @@ export default {
       colors: {
         // 오류
         error: '#dc0000',
+        // 경고(검토 중 등)
+        warning: {
+          DEFAULT: '#e8920b',
+          100: '#fdf3e2',
+        },
         // 배경색
         'bg-light': '#f4f4f4',
         'bg-dark': '#efefef',

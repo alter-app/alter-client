@@ -26,6 +26,8 @@ import { AppliedStoresPage } from '@/pages/user/applied-stores'
 import { SubstituteRequestPage } from '@/pages/user/substitute-request'
 import { ManagerSubstituteRequestPage } from '@/pages/manager/substitute-request'
 import { StoreRegisterPage } from '@/pages/manager/store-register'
+import { StoreRegisterRequestsPage } from '@/pages/store-register/requests'
+import { StoreRegisterRequestDetailPage } from '@/pages/store-register/request-detail'
 import { ManagerWorkerInvitePage } from '@/pages/manager/worker-invite'
 import { WorkerListPage } from '@/pages/manager/worker-list'
 import { WorkspaceJoinPage } from '@/pages/user/workspace-join'
@@ -142,6 +144,14 @@ export function App() {
           <Route
             path={ROUTES.MANAGER.STORE_REGISTER}
             element={<StoreRegisterPage />}
+          />
+          <Route
+            path={ROUTES.STORE_REGISTER.REQUESTS}
+            element={<StoreRegisterRequestsPage />}
+          />
+          <Route
+            path={ROUTES.STORE_REGISTER.REQUEST_DETAIL_PATTERN}
+            element={<StoreRegisterRequestDetailPage />}
           />
           <Route
             path={ROUTES.MANAGER.WORKER_INVITE}

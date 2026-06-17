@@ -27,11 +27,26 @@ const KIND_TO_TARGET: Record<
 /** 업장 등록 신청용 파일 업로드 (targetType·bucket 고정 조합). */
 export async function uploadWorkspaceRegistrationFile(
   file: File,
-  kind: WorkspaceRegistrationAttachmentKind
+  kind: WorkspaceRegistrationAttachmentKind,
+  scope?: 'MANAGER' | 'USER' | null
 ): Promise<string> {
   return uploadAppFile({
     file,
     targetType: KIND_TO_TARGET[kind],
     bucketType: WORKSPACE_REGISTRATION_BUCKET,
+    scope,
+  })
+}
+
+/** 신청 댓글 첨부 파일 업로드 (targetType=WORKSPACE_REQUEST_COMMENT). */
+export async function uploadWorkspaceRequestCommentFile(
+  file: File,
+  scope?: 'MANAGER' | 'USER' | null
+): Promise<string> {
+  return uploadAppFile({
+    file,
+    targetType: 'WORKSPACE_REQUEST_COMMENT',
+    bucketType: WORKSPACE_REGISTRATION_BUCKET,
+    scope,
   })
 }
