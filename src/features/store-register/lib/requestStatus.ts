@@ -36,11 +36,14 @@ export function resolveStatusBadge(status: {
   value: string
   description?: string
 }): StatusBadgeStyle {
-  const style = STATUS_STYLE[status.value as WorkspaceRequestStatusValue]
-  if (!style) {
+  const hasStyle = Object.prototype.hasOwnProperty.call(
+    STATUS_STYLE,
+    status.value
+  )
+  if (!hasStyle) {
     return status.description
       ? { ...FALLBACK, label: status.description }
       : FALLBACK
   }
-  return style
+  return STATUS_STYLE[status.value as WorkspaceRequestStatusValue]
 }
