@@ -25,7 +25,7 @@ const STATUS_STYLE: Record<WorkspaceRequestStatusValue, StatusBadgeStyle> = {
     label: '반려',
     badgeClass: 'border-error bg-error/10 text-error',
   },
-  CANCELED: {
+  CANCELLED: {
     label: '취소',
     badgeClass: 'border-line-1 bg-bg-dark text-text-50',
   },

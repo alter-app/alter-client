@@ -5,12 +5,12 @@ export interface WorkspaceRequestStatusDto {
   description: string
 }
 
-/** 신청 상태 — PENDING(검토 중) → ACTIVATED | REVOKED | CANCELED */
+/** 신청 상태 — PENDING(검토 중) → ACTIVATED | REVOKED | CANCELLED */
 export type WorkspaceRequestStatusValue =
   | 'PENDING'
   | 'ACTIVATED'
   | 'REVOKED'
-  | 'CANCELED'
+  | 'CANCELLED'
 
 export interface WorkspaceRequestListItemDto {
   id: number
@@ -66,41 +66,29 @@ export type WorkspaceRegistrationCreateBody = {
   workspaceWarrantFileId: string | null
 } & Partial<{ latitude: number; longitude: number }>
 
-/** 반려 사유 */
-export interface WorkspaceRequestReasonDto {
-  id: number
-  reason: string
-  createdAt: string
-}
-
-export type WorkspaceRequestReasonsApiResponse = CommonApiResponse<
-  WorkspaceRequestReasonDto[]
->
-
-export interface WorkspaceReasonCommentFileDto {
+export interface WorkspaceRequestCommentFileDto {
   fileId: string
   url: string
 }
 
-export type WorkspaceReasonCommentOwner = 'USER' | 'ADMIN'
+export type WorkspaceRequestCommentOwner = 'USER' | 'ADMIN'
 
-/** 반려 사유에 달린 댓글 (게시판 글-댓글 스타일) */
-export interface WorkspaceReasonCommentDto {
+/** 신청 1건에 매달리는 단일 스레드 댓글 (관리자 첫 댓글 = 반려 사유) */
+export interface WorkspaceRequestCommentDto {
   id: number
-  workspaceReasonId: number
   userId: number
-  commentOwner: WorkspaceReasonCommentOwner
+  commentOwner: WorkspaceRequestCommentOwner
   comment: string
-  files: WorkspaceReasonCommentFileDto[]
+  files: WorkspaceRequestCommentFileDto[]
   createdAt: string
 }
 
-export type WorkspaceReasonCommentsApiResponse = CommonApiResponse<
-  WorkspaceReasonCommentDto[]
+export type WorkspaceRequestCommentsApiResponse = CommonApiResponse<
+  WorkspaceRequestCommentDto[]
 >
 
 /** POST 댓글 본문 — comment ≤ 255자, fileIds 선택 */
-export interface CreateWorkspaceReasonCommentBody {
+export interface CreateWorkspaceRequestCommentBody {
   comment: string
   fileIds?: string[]
 }
