@@ -19,7 +19,7 @@ import {
   toDateKey,
   toTimeLabel,
   getDurationHours,
-} from '@/features/home/common/schedule/lib/date'
+} from '@/shared/lib/calendarUtils'
 
 export function getMonthlyDateCells(baseDate: Date) {
   const monthStart = startOfMonth(baseDate)

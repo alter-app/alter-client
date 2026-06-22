@@ -22,7 +22,7 @@ import { dateTimeToHourMinute } from '@/features/manager/worker-schedule/lib/sch
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
-import { toDateKey } from '@/features/home/common/schedule/lib/date'
+import { toDateKey } from '@/shared/lib/calendarUtils'
 import type { ManagerScheduleShiftDto } from '@/features/manager/home/types/schedule'
 import type { ScheduleColor } from '@/features/manager/worker-schedule/types/scheduleColor'
 import {

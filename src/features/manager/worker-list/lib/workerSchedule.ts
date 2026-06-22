@@ -1,7 +1,4 @@
-import {
-  toDateKey,
-  toTimeLabel,
-} from '@/features/home/common/schedule/lib/date'
+import { toDateKey, toTimeLabel } from '@/shared/lib/calendarUtils'
 import type { ManagerScheduleApiResponse } from '@/features/manager/home/types/schedule'
 import type { WorkerScheduleData } from '@/features/manager/worker-list/types/workerSchedule'
 import type { ScheduleColor } from '@/features/manager'

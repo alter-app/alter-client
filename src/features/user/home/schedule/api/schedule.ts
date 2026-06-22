@@ -11,7 +11,7 @@ import {
   getDurationHours,
   toDateKey,
   toTimeLabel,
-} from '@/features/home/common/schedule/lib/date'
+} from '@/shared/lib/calendarUtils'
 import type { SelfScheduleQueryParams } from '@/shared/types/schedule'
 
 function mapToCalendarEvent(

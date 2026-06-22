@@ -2,7 +2,7 @@ import {
   getDurationHours,
   toDateKey,
   toTimeLabel,
-} from '@/features/home/common/schedule/lib/date'
+} from '@/shared/lib/calendarUtils'
 import type { CalendarViewData } from '@/features/home/common/schedule/types/calendarView'
 import type {
   ExchangeableSchedulesApiResponse,
