@@ -7,6 +7,20 @@ import {
   startOfWeek,
 } from 'date-fns'
 
+const ISO_DATE_LENGTH = 10
+const ISO_TIME_START = 11
+const ISO_TIME_END = 16
+
+export function toDateKey(iso: string | null | undefined): string {
+  if (iso == null || iso === '') return ''
+  return iso.slice(0, ISO_DATE_LENGTH)
+}
+
+export function toTimeLabel(iso: string | null | undefined): string {
+  if (iso == null || iso === '' || iso.length < ISO_TIME_END) return '--:--'
+  return iso.slice(ISO_TIME_START, ISO_TIME_END)
+}
+
 export interface CalendarCell {
   date: Date
   isCurrentMonth: boolean
