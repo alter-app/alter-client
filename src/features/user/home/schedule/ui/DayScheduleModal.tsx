@@ -1,4 +1,4 @@
-import { format } from 'date-fns'
+import { format, parse } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { DAILY_STATUS_STYLE_MAP } from '@/features/home/common/schedule/constants/calendar'
 import type { CalendarEvent } from '@/features/user/home/schedule/types/schedule'
@@ -20,7 +20,9 @@ export function DayScheduleModal({
   onClose,
 }: DayScheduleModalProps) {
   const title = dateKey
-    ? format(new Date(dateKey), 'M월 d일 (EEE)', { locale: ko })
+    ? format(parse(dateKey, 'yyyy-MM-dd', new Date()), 'M월 d일 (EEE)', {
+        locale: ko,
+      })
     : ''
 
   return (
