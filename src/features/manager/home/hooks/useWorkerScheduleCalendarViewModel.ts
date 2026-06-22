@@ -82,11 +82,15 @@ export function useWorkerScheduleCalendarViewModel(workspaceId: number | null) {
   const onMonthChange = useCallback((date: Date) => setBaseDate(date), [])
 
   const handleDateClick = useCallback((dateKey: string) => {
+    setDeleteError(null)
     setSelectedDateKey(dateKey)
     setModalDateKey(dateKey)
   }, [])
 
-  const closeModal = useCallback(() => setModalDateKey(null), [])
+  const closeModal = useCallback(() => {
+    setDeleteError(null)
+    setModalDateKey(null)
+  }, [])
 
   const handleDeleteWorker = useCallback(
     async (shiftId: number) => {
