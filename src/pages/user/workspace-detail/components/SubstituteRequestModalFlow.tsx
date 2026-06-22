@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useScrollLock } from '@/shared/lib/useScrollLock'
 
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 
@@ -52,13 +53,7 @@ export function SubstituteRequestModalFlow({
     onClose,
   })
 
-  useEffect(() => {
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [])
+  useScrollLock(true)
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

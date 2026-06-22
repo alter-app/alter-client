@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useScrollLock } from '@/shared/lib/useScrollLock'
 
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 
@@ -33,13 +34,7 @@ export function SubstituteRejectReasonModal({
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [open, handleClose])
 
-  useEffect(() => {
-    const prev = document.body.style.overflow
-    if (open) document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [open])
+  useScrollLock(open)
 
   if (!open) return null
 
