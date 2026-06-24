@@ -146,6 +146,29 @@ describe('대타요청 프로필 이미지 데이터 흐름', () => {
     ).toBeNull()
   })
 
+  it('RECEIVED 목록은 enum 래퍼 status를 언래핑한다', () => {
+    const item = adaptUserSubstituteListItem(
+      {
+        ...received(),
+        status: { value: 'PENDING', description: '대기중' },
+        requestType: { value: 'SPECIFIC', description: '특정 대상' },
+      },
+      'RECEIVED'
+    )
+    expect(item.rawStatus).toBe('PENDING')
+    expect(item.uiStatus).toBe('pending')
+    expect(item.statusLabel).toBe('확인중')
+  })
+
+  it('RECEIVED 상세는 enum 래퍼 status로 canRespond를 판단한다', () => {
+    const detail = adaptReceivedSubstituteDetail({
+      ...received(),
+      status: { value: 'PENDING', description: '대기중' },
+    })
+    expect(detail.rawStatus).toBe('PENDING')
+    expect(detail.canRespond).toBe(true)
+  })
+
   it('normalize는 API target의 profileImageUrl을 정규화 target으로 전달한다', () => {
     const api: SentSubstituteRequestDetailApiDto = {
       id: 4,
