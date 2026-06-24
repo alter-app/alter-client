@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { cn } from '@/shared/lib/utils'
+import { ChevronLeftIcon } from '@/assets/icons/ChevronLeftIcon'
+import { ChevronRightIcon } from '@/assets/icons/ChevronRightIcon'
 import type { WorkspaceImageDto } from '@/features/manager/workspace-image/types/workspaceImage'
 
 interface WorkspaceImageCarouselProps {
@@ -56,7 +58,9 @@ export function WorkspaceImageCarousel({
 
   if (!isOpen || total === 0) return null
 
-  const active = images[Math.min(index, total - 1)]
+  // images 길이가 줄어도 카운터·썸네일·점·표시 이미지가 어긋나지 않도록 클램프
+  const safeIndex = Math.min(index, total - 1)
+  const active = images[safeIndex]
 
   return (
     <div
@@ -79,19 +83,19 @@ export function WorkspaceImageCarousel({
             type="button"
             aria-label="닫기"
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-[18px] text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white"
           >
-            ✕
+            <CloseGlyph />
           </button>
           <span className="typography-body02-semibold text-white">
-            {index + 1} / {total}
+            {safeIndex + 1} / {total}
           </span>
           <button
             type="button"
             onClick={onEdit}
             className="flex h-9 items-center gap-1.5 rounded-full bg-white px-3.5 typography-body02-semibold text-text-100"
           >
-            <span aria-hidden="true">✎</span> 편집
+            <EditGlyph /> 편집
           </button>
         </div>
 
@@ -108,17 +112,17 @@ export function WorkspaceImageCarousel({
                 type="button"
                 aria-label="이전"
                 onClick={goPrev}
-                className="absolute left-[26px] top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-[22px] text-white"
+                className="absolute left-[26px] top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white"
               >
-                ‹
+                <ChevronLeftIcon width={24} height={24} />
               </button>
               <button
                 type="button"
                 aria-label="다음"
                 onClick={goNext}
-                className="absolute right-[26px] top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-[22px] text-white"
+                className="absolute right-[26px] top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white"
               >
-                ›
+                <ChevronRightIcon width={24} height={24} />
               </button>
             </>
           )}
@@ -135,7 +139,7 @@ export function WorkspaceImageCarousel({
                 aria-label={`${k + 1}번째 이미지`}
                 className={cn(
                   'relative h-16 w-16 flex-none overflow-hidden rounded-[10px] border-2',
-                  k === index ? 'border-main' : 'border-transparent'
+                  k === safeIndex ? 'border-main' : 'border-transparent'
                 )}
               >
                 <img
@@ -157,7 +161,7 @@ export function WorkspaceImageCarousel({
                 key={image.fileId}
                 className={cn(
                   'h-1.5 rounded-full transition-all',
-                  k === index ? 'w-[18px] bg-white' : 'w-1.5 bg-white/40'
+                  k === safeIndex ? 'w-[18px] bg-white' : 'w-1.5 bg-white/40'
                 )}
               />
             ))}
@@ -165,5 +169,48 @@ export function WorkspaceImageCarousel({
         </div>
       </div>
     </div>
+  )
+}
+
+/** 닫기 ✕ 아이콘 (currentColor) */
+function CloseGlyph() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M6 6l12 12M18 6L6 18"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+/** 편집 ✎ 아이콘 (currentColor) */
+function EditGlyph() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M4 20h4l10.5-10.5a2 2 0 0 0-2.83-2.83L5 17v3z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }
