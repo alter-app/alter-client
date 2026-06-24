@@ -1,11 +1,18 @@
-import DownIcon from '@/assets/icons/home/chevron-down.svg?react'
+import { useState } from 'react'
+
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
 import { Avatar } from '@/shared/ui/common/Avatar'
 import { SubstituteRequestResponseActions } from '@/pages/user/substitute-request/components/SubstituteRequestResponseActions'
 import { SubstituteRequestStatusBadge } from '@/pages/user/substitute-request/components/SubstituteRequestStatusBadge'
+import { SubstituteStatusFilterDropdown } from '@/pages/user/substitute-request/components/SubstituteStatusFilterDropdown'
 import { useNavbarNotificationProps } from '@/features/notification'
-import { useManagerSubstituteRequestViewModel } from '@/features/manager/substitute/hooks/useManagerSubstituteRequestViewModel'
+import {
+  useManagerSubstituteRequestViewModel,
+  type ManagerSubstituteSection,
+} from '@/features/manager/substitute/hooks/useManagerSubstituteRequestViewModel'
+import type { SubstituteListStatusFilter } from '@/features/user/substitute/lib/substituteListFilters'
+import { statusFilterLabel } from '@/features/user/substitute/lib/substituteListFilters'
 import { ManagerSubstituteActionModal } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import type { SubstituteRequestItem } from '@/shared/types/substituteRequest'
@@ -74,51 +81,74 @@ function StatusCard({
   )
 }
 
-function Section({
-  title,
+function SectionList({
+  section,
   showFilter,
-  children,
+  statusFilter,
+  onStatusFilterChange,
+  actionsDisabled,
+  onApproveClick,
+  onRejectClick,
 }: {
-  title: string
-  showFilter?: boolean
-  children: React.ReactNode
+  section: ManagerSubstituteSection
+  showFilter: boolean
+  statusFilter: SubstituteListStatusFilter
+  onStatusFilterChange: (value: SubstituteListStatusFilter) => void
+  actionsDisabled: boolean
+  onApproveClick: (id: number) => void
+  onRejectClick: (id: number) => void
 }) {
   return (
     <section className="px-4 py-6">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="typography-headline01 text-text-100">{title}</h2>
+        <h2 className="typography-headline01 text-text-100">{section.title}</h2>
         {showFilter ? (
-          <button
-            type="button"
-            className="flex items-center gap-2 typography-body02-regular text-text-50"
-            aria-label="필터"
-          >
-            전체
-            <DownIcon className="size-4 text-text-50" aria-hidden />
-          </button>
+          <SubstituteStatusFilterDropdown
+            value={statusFilter}
+            onChange={onStatusFilterChange}
+          />
         ) : null}
       </div>
-      <div className="flex flex-col gap-2">{children}</div>
+      <div className="flex flex-col gap-2">
+        {section.items.map(item =>
+          section.key === 'pending' ? (
+            <PendingCard
+              key={item.id}
+              item={item}
+              onApprove={() => onApproveClick(item.id)}
+              onReject={() => onRejectClick(item.id)}
+              disabled={actionsDisabled}
+            />
+          ) : (
+            <StatusCard
+              key={item.id}
+              item={item}
+              uiStatus={section.key === 'accepted' ? 'accepted' : 'cancelled'}
+              label={section.title}
+            />
+          )
+        )}
+      </div>
     </section>
   )
 }
 
 export function ManagerSubstituteRequestPage() {
   const notificationProps = useNavbarNotificationProps()
+  const [statusFilter, setStatusFilter] =
+    useState<SubstituteListStatusFilter>('all')
   const {
     isLoading,
     isError,
     isEmpty,
-    pending,
-    accepted,
-    cancelled,
+    sections,
     actionsDisabled,
     actionModal,
     onApproveClick,
     onRejectClick,
     onActionModalClose,
     onActionModalSubmit,
-  } = useManagerSubstituteRequestViewModel()
+  } = useManagerSubstituteRequestViewModel({ statusFilter })
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-white">
@@ -136,52 +166,36 @@ export function ManagerSubstituteRequestPage() {
             </p>
           </div>
         ) : isEmpty ? (
-          <div className="flex justify-center py-16">
-            <p className="typography-body02-regular text-text-50">
-              대타 요청이 없습니다.
-            </p>
+          <div className="flex flex-col">
+            <div className="flex items-center justify-between px-4 pb-2 pt-6">
+              <h2 className="typography-headline01 text-text-100">
+                {statusFilterLabel(statusFilter)}
+              </h2>
+              <SubstituteStatusFilterDropdown
+                value={statusFilter}
+                onChange={setStatusFilter}
+              />
+            </div>
+            <div className="flex justify-center py-16">
+              <p className="typography-body02-regular text-text-50">
+                대타 요청이 없습니다.
+              </p>
+            </div>
           </div>
         ) : (
           <>
-            {pending.length > 0 && (
-              <Section title="요청됨" showFilter>
-                {pending.map(item => (
-                  <PendingCard
-                    key={item.id}
-                    item={item}
-                    onApprove={() => onApproveClick(item.id)}
-                    onReject={() => onRejectClick(item.id)}
-                    disabled={actionsDisabled}
-                  />
-                ))}
-              </Section>
-            )}
-
-            {accepted.length > 0 && (
-              <Section title="수락됨">
-                {accepted.map(item => (
-                  <StatusCard
-                    key={item.id}
-                    item={item}
-                    uiStatus="accepted"
-                    label="수락됨"
-                  />
-                ))}
-              </Section>
-            )}
-
-            {cancelled.length > 0 && (
-              <Section title="취소됨">
-                {cancelled.map(item => (
-                  <StatusCard
-                    key={item.id}
-                    item={item}
-                    uiStatus="cancelled"
-                    label="취소됨"
-                  />
-                ))}
-              </Section>
-            )}
+            {sections.map((section, index) => (
+              <SectionList
+                key={section.key}
+                section={section}
+                showFilter={index === 0}
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+                actionsDisabled={actionsDisabled}
+                onApproveClick={onApproveClick}
+                onRejectClick={onRejectClick}
+              />
+            ))}
           </>
         )}
       </main>

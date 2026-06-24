@@ -51,7 +51,7 @@ export type SubstituteListApiResponse = CommonApiResponse<{
 // ---- Query Params ----
 export interface SubstituteRequestsQueryParams {
   workspaceId?: number
-  status?: string
+  status?: string | string[]
   cursor?: string
   pageSize: number
 }

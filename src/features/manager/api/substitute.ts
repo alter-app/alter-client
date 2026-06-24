@@ -31,6 +31,15 @@ export async function rejectSubstituteRequest(
 export async function fetchSubstituteRequests(
   params: SubstituteRequestsQueryParams
 ): Promise<SubstituteListApiResponse> {
+  const status =
+    params.status == null
+      ? undefined
+      : Array.isArray(params.status)
+        ? params.status.length > 0
+          ? params.status
+          : undefined
+        : params.status
+
   const response = await axiosInstance.get<SubstituteListApiResponse>(
     '/manager/substitute-requests',
     {
@@ -39,7 +48,7 @@ export async function fetchSubstituteRequests(
         ...(params.workspaceId !== undefined && {
           workspaceId: params.workspaceId,
         }),
-        ...(params.status && { status: params.status }),
+        ...(status != null && { status }),
         ...(params.cursor !== undefined && { cursor: params.cursor }),
       },
     }
