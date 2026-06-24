@@ -2,7 +2,10 @@ import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format, parse } from 'date-fns'
 
-import type { CalendarViewData } from '@/features/home/common/schedule/types/calendarView'
+import type {
+  CalendarEvent,
+  CalendarViewData,
+} from '@/features/home/common/schedule/types/calendarView'
 import { DATE_KEY_FORMAT } from '@/features/home/common/schedule/constants/calendar'
 import {
   adaptExchangeableSchedulesToCalendar,
@@ -11,6 +14,7 @@ import {
 import { getExchangeableWorkers } from '@/features/user/home/workspace/api/exchangeableWorkers'
 import { createSubstituteRequest } from '@/features/user/home/workspace/api/substituteRequests'
 import { WEEKDAY_LABELS } from '@/shared/constants/calendar'
+import { splitClockToParts } from '@/shared/lib/clock'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
@@ -44,10 +48,10 @@ function workerIdFromCandidateKey(key: string): number | undefined {
   return Number.isFinite(id) ? id : undefined
 }
 
-function pickScheduleIdForSelectedDate(
+function pickSelectedScheduleEvent(
   calendarData: CalendarViewData | null | undefined,
   selected: Date | null
-): number | null {
+): CalendarEvent | null {
   if (selected == null || !calendarData?.events?.length) return null
   const key = format(selected, DATE_KEY_FORMAT)
   const sameDay = calendarData.events.filter(e => e.dateKey === key)
@@ -56,12 +60,21 @@ function pickScheduleIdForSelectedDate(
     (a, b) =>
       new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
   )
-  const first = sameDay[0]
-  return first != null &&
-    typeof first.shiftId === 'number' &&
-    Number.isFinite(first.shiftId)
-    ? first.shiftId
-    : null
+  return sameDay[0] ?? null
+}
+
+function scheduleTimeParts(event: CalendarEvent | null) {
+  if (event == null) {
+    return { startHour: '--', startMin: '--', endHour: '--', endMin: '--' }
+  }
+  const start = splitClockToParts(event.startTimeLabel)
+  const end = splitClockToParts(event.endTimeLabel)
+  return {
+    startHour: start.hour,
+    startMin: start.minute,
+    endHour: end.hour,
+    endMin: end.minute,
+  }
 }
 
 interface UseSubstituteRequestFlowParams {
@@ -95,10 +108,6 @@ export function useSubstituteRequestFlow({
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date | null>(
     null
   )
-  const [startHour, setStartHour] = useState('18')
-  const [startMin, setStartMin] = useState('00')
-  const [endHour, setEndHour] = useState('20')
-  const [endMin, setEndMin] = useState('00')
   const [selectedCandidateKeys, setSelectedCandidateKeys] = useState<
     Set<string>
   >(new Set())
@@ -134,24 +143,32 @@ export function useSubstituteRequestFlow({
     return calendarData ?? null
   }, [workspaceId, exchangeableSchedulesResponse, calendarData])
 
+  const selectedScheduleEvent = useMemo(
+    () => pickSelectedScheduleEvent(resolvedCalendarData, selectedCalendarDate),
+    [resolvedCalendarData, selectedCalendarDate]
+  )
+
+  const { startHour, startMin, endHour, endMin } = useMemo(
+    () => scheduleTimeParts(selectedScheduleEvent),
+    [selectedScheduleEvent]
+  )
+
   const selectedWeekdayLabel = useMemo(() => {
     if (selectedCalendarDate == null) return null
     return WEEKDAY_LABELS[selectedCalendarDate.getDay()]
   }, [selectedCalendarDate])
 
   const summarySelectedTimeLabel = useMemo(() => {
-    const sh = normalizeHourInput(startHour)
-    const sm = normalizeMinuteInput(startMin)
-    const eh = normalizeHourInput(endHour)
-    const em = normalizeMinuteInput(endMin)
-    return `${sh}:${sm} ~ ${eh}:${em}`
-  }, [startHour, startMin, endHour, endMin])
+    if (selectedScheduleEvent == null) return '—'
+    return `${selectedScheduleEvent.startTimeLabel} ~ ${selectedScheduleEvent.endTimeLabel}`
+  }, [selectedScheduleEvent])
 
-  const substituteScheduleId = useMemo(
-    () =>
-      pickScheduleIdForSelectedDate(resolvedCalendarData, selectedCalendarDate),
-    [resolvedCalendarData, selectedCalendarDate]
-  )
+  const substituteScheduleId = useMemo(() => {
+    const shiftId = selectedScheduleEvent?.shiftId
+    return shiftId != null && Number.isFinite(shiftId) ? shiftId : null
+  }, [selectedScheduleEvent])
+
+  const hasSelectedSchedule = selectedScheduleEvent != null
 
   const {
     data: exchangeableResponse,
@@ -316,13 +333,10 @@ export function useSubstituteRequestFlow({
     selectedDateKey,
     onSubstituteCalendarDaySelect,
     startHour,
-    setStartHour,
     startMin,
-    setStartMin,
     endHour,
-    setEndHour,
     endMin,
-    setEndMin,
+    hasSelectedSchedule,
     selectedWeekdayLabel,
     summarySelectedTimeLabel,
     substituteScheduleId,

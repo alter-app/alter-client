@@ -5,22 +5,17 @@ import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 
 import { WEEKDAY_LABELS } from '@/shared/constants/calendar'
 import { SubstituteCalendarPickerPanel } from './SubstituteCalendarPickerPanel'
-import {
-  normalizeHourInput,
-  normalizeMinuteInput,
-  timeDigits,
-  useSubstituteRequestFlow,
-} from '@/features/user'
+import { useSubstituteRequestFlow } from '@/features/user'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import { cn } from '@/shared/lib/utils'
 
 import type { CalendarViewData } from '@/features/home/common/schedule/types/calendarView'
 
-const timeFieldInputClass =
-  'min-w-0 flex-1 bg-transparent text-center tabular-nums typography-body01-semibold text-text-90 outline-none placeholder:text-text-50'
+const timeFieldReadOnlyClass =
+  'min-w-0 flex-1 text-center tabular-nums typography-body01-semibold text-text-90'
 
-const timeSegmentLabelClass =
-  'flex h-[50px] min-w-0 flex-1 cursor-text items-center justify-center gap-1.5 rounded-2xl bg-bg-dark px-3 outline-none transition focus-within:ring-2 focus-within:ring-main'
+const timeSegmentReadOnlyClass =
+  'flex h-[50px] min-w-0 flex-1 items-center justify-center gap-1.5 rounded-2xl bg-bg-dark px-3'
 
 interface SubstituteRequestModalFlowProps {
   onClose: () => void
@@ -131,64 +126,34 @@ export function SubstituteRequestModalFlow({
                   출근 시간
                 </p>
                 <div className="flex items-center gap-3">
-                  <label
-                    className={timeSegmentLabelClass}
-                    htmlFor="substitute-start-hour"
+                  <div
+                    className={timeSegmentReadOnlyClass}
+                    aria-label="출근 시"
                   >
-                    <input
-                      id="substitute-start-hour"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="off"
-                      maxLength={2}
-                      placeholder="00"
-                      aria-label="출근 시"
-                      className={timeFieldInputClass}
-                      value={flow.startHour}
-                      onChange={e =>
-                        flow.setStartHour(timeDigits(e.target.value, 2))
-                      }
-                      onBlur={() =>
-                        flow.setStartHour(h => normalizeHourInput(h))
-                      }
-                      onFocus={e => e.currentTarget.select()}
-                    />
-                    <span className="pointer-events-none shrink-0 typography-body02-regular text-text-70">
+                    <span className={timeFieldReadOnlyClass}>
+                      {flow.startHour}
+                    </span>
+                    <span className="shrink-0 typography-body02-regular text-text-70">
                       시
                     </span>
-                  </label>
+                  </div>
                   <span
                     className="shrink-0 typography-headline01 tabular-nums leading-none tracking-[-0.01em] text-text-100"
                     aria-hidden
                   >
                     :
                   </span>
-                  <label
-                    className={timeSegmentLabelClass}
-                    htmlFor="substitute-start-minute"
+                  <div
+                    className={timeSegmentReadOnlyClass}
+                    aria-label="출근 분"
                   >
-                    <input
-                      id="substitute-start-minute"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="off"
-                      maxLength={2}
-                      placeholder="00"
-                      aria-label="출근 분"
-                      className={timeFieldInputClass}
-                      value={flow.startMin}
-                      onChange={e =>
-                        flow.setStartMin(timeDigits(e.target.value, 2))
-                      }
-                      onBlur={() =>
-                        flow.setStartMin(m => normalizeMinuteInput(m))
-                      }
-                      onFocus={e => e.currentTarget.select()}
-                    />
-                    <span className="pointer-events-none shrink-0 typography-body02-regular text-text-70">
+                    <span className={timeFieldReadOnlyClass}>
+                      {flow.startMin}
+                    </span>
+                    <span className="shrink-0 typography-body02-regular text-text-70">
                       분
                     </span>
-                  </label>
+                  </div>
                 </div>
               </div>
 
@@ -197,70 +162,49 @@ export function SubstituteRequestModalFlow({
                   퇴근 시간
                 </p>
                 <div className="flex items-center gap-3">
-                  <label
-                    className={timeSegmentLabelClass}
-                    htmlFor="substitute-end-hour"
+                  <div
+                    className={timeSegmentReadOnlyClass}
+                    aria-label="퇴근 시"
                   >
-                    <input
-                      id="substitute-end-hour"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="off"
-                      maxLength={2}
-                      placeholder="00"
-                      aria-label="퇴근 시"
-                      className={timeFieldInputClass}
-                      value={flow.endHour}
-                      onChange={e =>
-                        flow.setEndHour(timeDigits(e.target.value, 2))
-                      }
-                      onBlur={() => flow.setEndHour(h => normalizeHourInput(h))}
-                      onFocus={e => e.currentTarget.select()}
-                    />
-                    <span className="pointer-events-none shrink-0 typography-body02-regular text-text-70">
+                    <span className={timeFieldReadOnlyClass}>
+                      {flow.endHour}
+                    </span>
+                    <span className="shrink-0 typography-body02-regular text-text-70">
                       시
                     </span>
-                  </label>
+                  </div>
                   <span
                     className="shrink-0 typography-headline01 tabular-nums leading-none tracking-[-0.01em] text-text-100"
                     aria-hidden
                   >
                     :
                   </span>
-                  <label
-                    className={timeSegmentLabelClass}
-                    htmlFor="substitute-end-minute"
+                  <div
+                    className={timeSegmentReadOnlyClass}
+                    aria-label="퇴근 분"
                   >
-                    <input
-                      id="substitute-end-minute"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="off"
-                      maxLength={2}
-                      placeholder="00"
-                      aria-label="퇴근 분"
-                      className={timeFieldInputClass}
-                      value={flow.endMin}
-                      onChange={e =>
-                        flow.setEndMin(timeDigits(e.target.value, 2))
-                      }
-                      onBlur={() =>
-                        flow.setEndMin(m => normalizeMinuteInput(m))
-                      }
-                      onFocus={e => e.currentTarget.select()}
-                    />
-                    <span className="pointer-events-none shrink-0 typography-body02-regular text-text-70">
+                    <span className={timeFieldReadOnlyClass}>
+                      {flow.endMin}
+                    </span>
+                    <span className="shrink-0 typography-body02-regular text-text-70">
                       분
                     </span>
-                  </label>
+                  </div>
                 </div>
               </div>
+
+              {!flow.hasSelectedSchedule ? (
+                <p className="typography-body03-regular text-text-70">
+                  선택한 날짜에 등록된 근무 스케줄이 없습니다.
+                </p>
+              ) : null}
             </div>
 
             <div className="px-5 pb-6 pt-4">
               <button
                 type="button"
-                className="flex h-[48px] w-full items-center justify-center rounded-2xl bg-main typography-body01-semibold text-text-100"
+                disabled={!flow.hasSelectedSchedule}
+                className="flex h-[48px] w-full items-center justify-center rounded-2xl bg-main typography-body01-semibold text-text-100 disabled:opacity-50"
                 onClick={flow.goNext}
               >
                 선택 완료
