@@ -70,7 +70,10 @@ export function useManagerSubstituteRequestViewModel() {
 
   const approveMutation = useMutation({
     mutationFn: ({ id, comment }: { id: number; comment: string }) =>
-      approveSubstituteRequest(id, { approvalComment: comment }),
+      approveSubstituteRequest(
+        id,
+        comment !== '' ? { approvalComment: comment } : {}
+      ),
     onSuccess: async () => {
       await invalidate()
       setActionTarget(null)

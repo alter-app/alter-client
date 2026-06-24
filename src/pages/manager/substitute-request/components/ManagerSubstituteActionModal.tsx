@@ -17,7 +17,7 @@ const ACTION_CONFIG: Record<
 > = {
   approve: {
     title: '승인 코멘트',
-    placeholder: '승인 코멘트를 입력해 주세요.',
+    placeholder: '승인 코멘트를 입력해 주세요. (선택)',
     submitLabel: '승인하기',
   },
   reject: {
@@ -67,7 +67,7 @@ export function ManagerSubstituteActionModal({
 
   const handleSubmit = () => {
     const trimmed = comment.trim()
-    if (trimmed === '') {
+    if (type === 'reject' && trimmed === '') {
       setError('내용을 입력해 주세요.')
       return
     }
