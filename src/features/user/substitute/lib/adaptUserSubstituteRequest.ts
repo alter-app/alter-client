@@ -197,7 +197,7 @@ function adaptReceivedListItem(
 ): UserSubstituteListItem {
   const storeName = dto.workspace.workspaceName?.trim() ?? '매장'
   const personName = dto.requester.workerName?.trim() ?? '이름'
-  const rawStatus = String(dto.status)
+  const rawStatus = unwrapSubstituteEnum(dto.status)
   const uiStatus = mapApiStatusToUi(rawStatus)
 
   return {
@@ -252,7 +252,7 @@ function detailFromSchedulePerson(
   dto: {
     schedule: { startDateTime: string; endDateTime: string; position: string }
     workspace: { workspaceName: string }
-    status: string
+    status: SubstituteEnumValueDto | string
     requestReason?: string | null
   },
   personName: string,
@@ -260,7 +260,7 @@ function detailFromSchedulePerson(
   direction: SubstituteRequestDirection
 ): UserSubstituteDetailViewModel {
   const storeName = dto.workspace.workspaceName?.trim() ?? '매장'
-  const rawStatus = String(dto.status)
+  const rawStatus = unwrapSubstituteEnum(dto.status)
   const uiStatus = mapApiStatusToUi(rawStatus)
   const upper = normalizeSubstituteStatus(rawStatus)
 

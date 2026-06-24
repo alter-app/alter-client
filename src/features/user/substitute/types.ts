@@ -78,9 +78,14 @@ export interface ReceivedSubstituteRequestDto {
   schedule: SubstituteScheduleDto
   workspace: SubstituteWorkspaceDto
   requester: SubstituteRequesterDto
-  requestType: SubstituteRequestType
+  requestType:
+    | SubstituteRequestType
+    | SubstituteEnumValueDto<SubstituteRequestType>
   acceptedWorker?: SubstituteAcceptedWorkerDto | null
-  status: SubstituteRequestStatus | string
+  status:
+    | SubstituteRequestStatus
+    | SubstituteEnumValueDto<SubstituteRequestStatus>
+    | string
   requestReason?: string | null
   createdAt: string
   acceptedAt?: string | null
