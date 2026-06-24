@@ -7,10 +7,11 @@ import {
   approveSubstituteRequest,
   rejectSubstituteRequest,
 } from '@/features/manager/api/substitute'
+import type { ManagerSubstituteListFilters } from '@/features/manager/substitute/lib/managerSubstituteListFilters'
+import type { SubstituteListStatusFilter } from '@/features/user/substitute/lib/substituteListFilters'
 import type { SubstituteRequestItem } from '@/shared/types/substituteRequest'
 import type { SubstituteActionType } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
 import { SubstituteApiStatus } from '@/shared/types/substituteStatus'
-import { queryKeys } from '@/shared/lib/queryKeys'
 
 const SUBSTITUTE_ACTION_ERROR_MESSAGES: Record<string, string> = {
   B001: '이미 처리되었거나 승인/거절할 수 없는 상태입니다.',
@@ -30,7 +31,27 @@ function getSubstituteActionErrorMessage(error: unknown): string {
 
 type ActionTarget = { id: number; type: SubstituteActionType }
 
+export type ManagerSubstituteSectionKey = 'pending' | 'accepted' | 'cancelled'
+
+export type ManagerSubstituteSection = {
+  key: ManagerSubstituteSectionKey
+  title: string
+  items: SubstituteRequestItem[]
+}
+
 const EMPTY_GROUPS = { pending: [], accepted: [], cancelled: [] }
+
+const SECTION_TITLE: Record<ManagerSubstituteSectionKey, string> = {
+  pending: '요청됨',
+  accepted: '수락됨',
+  cancelled: '취소됨',
+}
+
+const SECTION_ORDER: ManagerSubstituteSectionKey[] = [
+  'pending',
+  'accepted',
+  'cancelled',
+]
 
 // ACCEPTED = 워커가 수락해 사장 승인 대기 중 → 요청됨
 // APPROVED = 사장이 승인 → 수락됨
@@ -53,19 +74,41 @@ function groupByStatus(requests: SubstituteRequestItem[]) {
   return { pending, accepted, cancelled }
 }
 
-export function useManagerSubstituteRequestViewModel() {
+function buildSections(
+  groups: ReturnType<typeof groupByStatus>,
+  statusFilter: SubstituteListStatusFilter
+): ManagerSubstituteSection[] {
+  const allSections = SECTION_ORDER.map(key => ({
+    key,
+    title: SECTION_TITLE[key],
+    items: groups[key],
+  }))
+
+  if (statusFilter !== 'all') {
+    return allSections.filter(
+      section => section.key === statusFilter && section.items.length > 0
+    )
+  }
+
+  return allSections.filter(section => section.items.length > 0)
+}
+
+export function useManagerSubstituteRequestViewModel(
+  filters: ManagerSubstituteListFilters = { statusFilter: 'all' }
+) {
   const queryClient = useQueryClient()
   const { activeWorkspaceId } = useManagedWorkspacesQuery()
-  const { requests, isLoading, isError } =
-    useSubstituteRequestsViewModel(activeWorkspaceId)
+  const { statusFilter } = filters
+  const { requests, isLoading, isError } = useSubstituteRequestsViewModel(
+    activeWorkspaceId,
+    { statusFilter }
+  )
   const [actionTarget, setActionTarget] = useState<ActionTarget | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
 
   const invalidate = () =>
     queryClient.invalidateQueries({
-      queryKey: queryKeys.substitute.list({
-        workspaceId: activeWorkspaceId ?? undefined,
-      }),
+      queryKey: ['substitute', 'list'],
     })
 
   const approveMutation = useMutation({
@@ -97,10 +140,10 @@ export function useManagerSubstituteRequestViewModel() {
     },
   })
 
-  const { pending, accepted, cancelled } = useMemo(
-    () => groupByStatus(requests),
-    [requests]
-  )
+  const sections = useMemo(() => {
+    const groups = groupByStatus(requests)
+    return buildSections(groups, statusFilter)
+  }, [requests, statusFilter])
 
   const handleModalSubmit = (comment: string) => {
     if (actionTarget === null) return
@@ -120,10 +163,8 @@ export function useManagerSubstituteRequestViewModel() {
   return {
     isLoading,
     isError,
-    isEmpty: requests.length === 0,
-    pending,
-    accepted,
-    cancelled,
+    isEmpty: sections.length === 0,
+    sections,
     actionsDisabled: approveMutation.isPending || rejectMutation.isPending,
     actionModal: {
       open: actionTarget !== null,

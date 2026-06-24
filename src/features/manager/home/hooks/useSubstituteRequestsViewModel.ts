@@ -2,13 +2,18 @@ import { useMemo } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { fetchSubstituteRequests } from '@/features/manager/api/substitute'
 import { adaptSubstituteRequestDto } from '@/features/manager/home/types/substitute'
+import { resolveManagerApiStatuses } from '@/features/manager/substitute/lib/managerSubstituteListFilters'
+import type { SubstituteListStatusFilter } from '@/features/user/substitute/lib/substituteListFilters'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 export function useSubstituteRequestsViewModel(
   workspaceId: number | null,
-  params?: { status?: string },
+  params?: { statusFilter?: SubstituteListStatusFilter },
   pageSize = 10
 ) {
+  const statusFilter = params?.statusFilter ?? 'all'
+  const apiStatuses = resolveManagerApiStatuses(statusFilter)
+
   const {
     data,
     fetchNextPage,
@@ -19,14 +24,14 @@ export function useSubstituteRequestsViewModel(
   } = useInfiniteQuery({
     queryKey: queryKeys.substitute.list({
       workspaceId: workspaceId ?? undefined,
-      status: params?.status,
+      statusFilter,
       pageSize,
     }),
     queryFn: ({ pageParam }) =>
       fetchSubstituteRequests({
         pageSize,
         workspaceId: workspaceId ?? undefined,
-        status: params?.status,
+        status: apiStatuses.length > 0 ? apiStatuses : undefined,
         cursor: pageParam as string | undefined,
       }),
     initialPageParam: undefined as string | undefined,

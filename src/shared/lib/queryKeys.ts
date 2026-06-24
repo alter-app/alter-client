@@ -56,6 +56,7 @@ export const queryKeys = {
     list: (params?: {
       workspaceId?: number
       status?: string
+      statusFilter?: string
       pageSize?: number
     }) => ['substitute', 'list', params] as const,
   },
