@@ -30,6 +30,8 @@ export const ROUTES = {
     WORKER_SCHEDULE: '/manager/worker-schedule',
     WORKER_SCHEDULE_PATTERN:
       '/manager/workspaces/:workspaceId/workers/:workerId/schedule',
+    WORKSPACE_IMAGES_EDIT_PATTERN:
+      '/manager/workspaces/:workspaceId/images/edit',
     STORE_REGISTER: '/manager/store-register',
     SUBSTITUTE_REQUEST: '/manager/substitute-request',
     WORKER_INVITE: '/manager/worker-invite',
@@ -65,4 +67,8 @@ export function managerWorkerSchedulePath(
   workerId: number
 ) {
   return `/manager/workspaces/${workspaceId}/workers/${workerId}/schedule`
+}
+
+export function managerWorkspaceImagesEditPath(workspaceId: number) {
+  return `/manager/workspaces/${workspaceId}/images/edit`
 }

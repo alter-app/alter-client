@@ -44,6 +44,8 @@ export const queryKeys = {
         workspaceId,
         workerId,
       ] as const,
+    images: (workspaceId: number) =>
+      ['managerWorkspace', 'images', workspaceId] as const,
   },
   posting: {
     list: (params?: {
