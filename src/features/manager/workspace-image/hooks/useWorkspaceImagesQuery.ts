@@ -4,7 +4,7 @@ import { fetchWorkspaceImages } from '@/features/manager/workspace-image/api/wor
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 export function useWorkspaceImagesQuery(workspaceId: number | null) {
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: queryKeys.managerWorkspace.images(workspaceId!),
     queryFn: () => fetchWorkspaceImages(workspaceId!),
     enabled: workspaceId !== null,
@@ -12,5 +12,10 @@ export function useWorkspaceImagesQuery(workspaceId: number | null) {
 
   const images = useMemo(() => data?.data ?? [], [data])
 
-  return { images, isLoading: isPending && workspaceId !== null, isError }
+  return {
+    images,
+    isLoading: isPending && workspaceId !== null,
+    isError,
+    refetch,
+  }
 }

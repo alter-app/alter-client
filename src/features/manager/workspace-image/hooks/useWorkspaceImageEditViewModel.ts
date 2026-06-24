@@ -18,7 +18,8 @@ export interface EditableWorkspaceImage {
 }
 
 export function useWorkspaceImageEditViewModel(workspaceId: number) {
-  const { images, isLoading } = useWorkspaceImagesQuery(workspaceId)
+  const { images, isLoading, isError, refetch } =
+    useWorkspaceImagesQuery(workspaceId)
   const updateMutation = useUpdateWorkspaceImagesMutation(workspaceId)
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
@@ -27,14 +28,19 @@ export function useWorkspaceImageEditViewModel(workspaceId: number) {
   const [error, setError] = useState('')
   const [isUploading, setIsUploading] = useState(false)
 
-  // 서버 데이터를 최초 1회 로컬 편집 상태로 복사
+  // 서버 데이터를 최초 1회(조회 성공 시에만) 로컬 편집 상태로 복사.
+  // 조회 실패 시 빈 목록으로 초기화하면, 전체 교체 저장으로 기존 이미지가
+  // 삭제될 수 있으므로 isError 동안에는 초기화하지 않는다.
   useEffect(() => {
-    if (initialized || isLoading) return
+    if (initialized || isLoading || isError) return
     setItems(
       images.map(img => ({ fileId: img.fileId, url: img.url, isNew: false }))
     )
     setInitialized(true)
-  }, [images, isLoading, initialized])
+  }, [images, isLoading, isError, initialized])
+
+  // 최초 조회가 실패해 편집할 데이터가 없는 상태(저장 차단 + 재시도 UI용)
+  const isLoadError = isError && !initialized
 
   // 언마운트 시 새로 추가한 이미지의 objectURL 정리
   const itemsRef = useRef(items)
@@ -133,13 +139,14 @@ export function useWorkspaceImageEditViewModel(workspaceId: number) {
 
   return {
     items,
-    totalCount: items.length,
     maxCount: MAX_WORKSPACE_IMAGE_COUNT,
     canAddMore,
     fileInputRef,
     accept: WORKSPACE_IMAGE_ACCEPT,
     error,
     isLoading,
+    isLoadError,
+    refetch,
     isUploading,
     isSaving: updateMutation.isPending,
     openPicker,
