@@ -6,6 +6,10 @@ import {
   fetchSentSubstituteRequests,
 } from '@/features/user/substitute/api/userSubstituteRequests'
 import { adaptUserSubstituteListItem } from '@/features/user/substitute/lib/adaptUserSubstituteRequest'
+import {
+  resolveApiStatuses,
+  type SubstituteListFilters,
+} from '@/features/user/substitute/lib/substituteListFilters'
 import type {
   ReceivedSubstituteListApiResponse,
   SentSubstituteListApiResponse,
@@ -35,18 +39,42 @@ const SECTION_TITLE: Record<SubstituteUiStatus, string> = {
   cancelled: '취소됨',
 }
 
+function buildSections(
+  items: UserSubstituteListItem[],
+  statusFilter: SubstituteListFilters['statusFilter']
+): SubstituteListSection[] {
+  if (statusFilter !== 'all') {
+    return [
+      {
+        key: statusFilter,
+        title: SECTION_TITLE[statusFilter],
+        items,
+      },
+    ].filter(section => section.items.length > 0)
+  }
+
+  const grouped = new Map<SubstituteUiStatus, UserSubstituteListItem[]>()
+  for (const status of SECTION_ORDER) {
+    grouped.set(status, [])
+  }
+  for (const item of items) {
+    grouped.get(item.uiStatus)?.push(item)
+  }
+  return SECTION_ORDER.map(status => ({
+    key: status,
+    title: SECTION_TITLE[status],
+    items: grouped.get(status) ?? [],
+  })).filter(section => section.items.length > 0)
+}
+
 export function useUserSubstituteRequestsViewModel(
-  direction: SubstituteRequestDirection
+  direction: SubstituteRequestDirection,
+  filters: SubstituteListFilters = { statusFilter: 'all' }
 ) {
-  const {
-    data,
-    isPending,
-    isError,
-    refetch,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery<
+  const { statusFilter } = filters
+  const apiStatuses = resolveApiStatuses(statusFilter)
+
+  const { data, isPending, isError, refetch } = useInfiniteQuery<
     SubstituteListPage,
     Error,
     { pages: SubstituteListPage[]; pageParams: (string | undefined)[] },
@@ -56,11 +84,13 @@ export function useUserSubstituteRequestsViewModel(
     queryKey: queryKeys.userSubstitute.list({
       direction,
       pageSize: PAGE_LIMIT,
+      statusFilter,
     }),
     queryFn: ({ pageParam }) => {
       const params = {
         pageSize: PAGE_LIMIT,
         cursor: pageParam as string | undefined,
+        ...(apiStatuses.length > 0 && { status: apiStatuses }),
       }
       return direction === 'RECEIVED'
         ? fetchReceivedSubstituteRequests(params)
@@ -81,20 +111,10 @@ export function useUserSubstituteRequestsViewModel(
     [data, direction]
   )
 
-  const sections = useMemo<SubstituteListSection[]>(() => {
-    const grouped = new Map<SubstituteUiStatus, UserSubstituteListItem[]>()
-    for (const status of SECTION_ORDER) {
-      grouped.set(status, [])
-    }
-    for (const item of items) {
-      grouped.get(item.uiStatus)?.push(item)
-    }
-    return SECTION_ORDER.map(status => ({
-      key: status,
-      title: SECTION_TITLE[status],
-      items: grouped.get(status) ?? [],
-    })).filter(section => section.items.length > 0)
-  }, [items])
+  const sections = useMemo(
+    () => buildSections(items, statusFilter),
+    [items, statusFilter]
+  )
 
   const totalCount = data?.pages?.[0]?.data?.page?.totalCount ?? 0
 
@@ -105,8 +125,5 @@ export function useUserSubstituteRequestsViewModel(
     isLoading: isPending,
     isError,
     refetch,
-    fetchNextPage,
-    hasNextPage: !!hasNextPage,
-    isFetchingNextPage,
   }
 }

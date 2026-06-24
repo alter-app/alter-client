@@ -163,7 +163,7 @@ export type SentSubstituteDetailApiResponse =
   CommonApiResponse<SentSubstituteRequestDetailApiDto>
 
 export interface SubstituteListQueryParams {
-  status?: string
+  status?: string | string[]
   cursor?: string
   pageSize?: number
   workspaceId?: number

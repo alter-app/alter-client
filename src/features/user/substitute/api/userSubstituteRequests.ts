@@ -11,9 +11,18 @@ import type {
 const DEFAULT_PAGE_SIZE = 20
 
 function listParams(params: SubstituteListQueryParams) {
+  const status =
+    params.status == null
+      ? undefined
+      : Array.isArray(params.status)
+        ? params.status.length > 0
+          ? params.status
+          : undefined
+        : params.status
+
   return {
     pageSize: params.pageSize ?? DEFAULT_PAGE_SIZE,
-    ...(params.status && { status: params.status }),
+    ...(status != null && { status }),
     ...(params.cursor != null &&
       params.cursor !== '' && { cursor: params.cursor }),
     ...(params.workspaceId != null && { workspaceId: params.workspaceId }),

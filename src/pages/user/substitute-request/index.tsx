@@ -16,6 +16,7 @@ import type {
   UserSubstituteListItem,
 } from '@/features/user/substitute/types'
 import { useUserSubstituteRequestsViewModel } from '@/features/user/substitute/hooks/useUserSubstituteRequestsViewModel'
+import type { SubstituteListStatusFilter } from '@/features/user/substitute/lib/substituteListFilters'
 import { useWorkspacesViewModel } from '@/features/user'
 import { SubstituteCreateFab } from '@/pages/user/substitute-request/components/SubstituteCreateFab'
 import { SubstituteRejectReasonModal } from '@/pages/user/substitute-request/components/SubstituteRejectReasonModal'
@@ -90,6 +91,10 @@ export function SubstituteRequestPage() {
         locationState?.directionTab ?? locationState?.direction
       ) ?? 'sent'
   )
+  const [sentStatusFilter, setSentStatusFilter] =
+    useState<SubstituteListStatusFilter>('all')
+  const [receivedStatusFilter, setReceivedStatusFilter] =
+    useState<SubstituteListStatusFilter>('all')
   const [storePickerOpen, setStorePickerOpen] = useState(false)
   const [createFlow, setCreateFlow] = useState<CreateFlowState | null>(null)
   const [rejectRequestId, setRejectRequestId] = useState<number | null>(null)
@@ -97,12 +102,17 @@ export function SubstituteRequestPage() {
   const { workspaces, isLoading: workspacesLoading } = useWorkspacesViewModel()
 
   const apiDirection = directionTab === 'sent' ? 'SENT' : 'RECEIVED'
+  const statusFilter =
+    directionTab === 'sent' ? sentStatusFilter : receivedStatusFilter
+  const setStatusFilter =
+    directionTab === 'sent' ? setSentStatusFilter : setReceivedStatusFilter
+
   const {
     sections,
     isLoading: listLoading,
     isError: listError,
     refetch,
-  } = useUserSubstituteRequestsViewModel(apiDirection)
+  } = useUserSubstituteRequestsViewModel(apiDirection, { statusFilter })
 
   const invalidateLists = async () => {
     await queryClient.invalidateQueries({
@@ -257,6 +267,8 @@ export function SubstituteRequestPage() {
           <SubstituteRequestListSections
             sections={sections}
             directionTab={directionTab}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
             onItemClick={handleItemClick}
             onAccept={
               directionTab === 'received'

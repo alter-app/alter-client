@@ -62,8 +62,11 @@ export const queryKeys = {
     }) => ['substitute', 'list', params] as const,
   },
   userSubstitute: {
-    list: (params: { direction: string; pageSize: number }) =>
-      ['userSubstitute', 'list', params] as const,
+    list: (params: {
+      direction: string
+      pageSize: number
+      statusFilter?: string
+    }) => ['userSubstitute', 'list', params] as const,
     sentDetail: (requestId: number) =>
       ['userSubstitute', 'sentDetail', requestId] as const,
   },
