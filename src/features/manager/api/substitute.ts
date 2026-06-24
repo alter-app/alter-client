@@ -6,11 +6,15 @@ import type {
 
 export async function approveSubstituteRequest(
   requestId: number,
-  body: { approvalComment: string }
+  body: { approvalComment?: string } = {}
 ): Promise<void> {
+  const payload =
+    body.approvalComment != null && body.approvalComment.trim() !== ''
+      ? { approvalComment: body.approvalComment.trim() }
+      : {}
   await axiosInstance.post(
     `/manager/substitute-requests/${requestId}/approve`,
-    body
+    payload
   )
 }
 
