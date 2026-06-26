@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchTodaySchedules } from '@/features/manager/api/schedule'
 import { queryKeys } from '@/shared/lib/queryKeys'
-import { formatIsoTimeRangeLabel } from '@/features/home/common/schedule/lib/date'
+import { formatIsoTimeRangeLabel } from '@/shared/lib/calendarUtils'
 import type { TodayWorkerItem } from '@/features/manager/home/ui/TodayWorkerList'
 
 export function useTodaySchedulesViewModel(workspaceId: number | null) {

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useScrollLock } from '@/shared/lib/useScrollLock'
 
 interface ConfirmModalProps {
   isOpen: boolean
@@ -30,13 +31,7 @@ export function ConfirmModal({
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [isOpen, onClose])
 
-  useEffect(() => {
-    const prev = document.body.style.overflow
-    if (isOpen) document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [isOpen])
+  useScrollLock(isOpen)
 
   if (!isOpen) return null
 

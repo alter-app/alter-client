@@ -6,4 +6,9 @@ export interface WorkerScheduleCalendarProps {
   selectedDate?: string | null
   onEditClick?: () => void
   onDateClick?: (dateKey: string) => void
+  onMonthChange?: (date: Date) => void
+  totalWorkHoursText?: string
+  estimatedEarningsText?: string
+  isLoading?: boolean
+  showTitle?: boolean
 }

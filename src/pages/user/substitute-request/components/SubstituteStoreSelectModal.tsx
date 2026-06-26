@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useScrollLock } from '@/shared/lib/useScrollLock'
 
 import type { WorkingStoreItem } from '@/features/user/home/workspace/types/workingStore'
 import { Avatar } from '@/shared/ui/common/Avatar'
@@ -38,13 +39,7 @@ export function SubstituteStoreSelectModal({
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [open, handleClose])
 
-  useEffect(() => {
-    const prev = document.body.style.overflow
-    if (open) document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [open])
+  useScrollLock(open)
 
   if (!open) return null
 

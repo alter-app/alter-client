@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useScrollLock } from '@/shared/lib/useScrollLock'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { useProfileImageEditor, useUserMe } from '@/features/user/me'
@@ -31,13 +32,7 @@ function DeleteProfileImageModal({
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [open, onClose])
 
-  useEffect(() => {
-    const prev = document.body.style.overflow
-    if (open) document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [open])
+  useScrollLock(open)
 
   if (!open) return null
 

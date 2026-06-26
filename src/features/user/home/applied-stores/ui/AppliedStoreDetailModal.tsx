@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useScrollLock } from '@/shared/lib/useScrollLock'
 import {
   WEEKDAY_LABELS,
   type AppliedApplicationDetail,
@@ -23,14 +24,7 @@ export function AppliedStoreDetailModal({
   onCancel,
   isCancelling = false,
 }: AppliedStoreDetailModalProps) {
-  useEffect(() => {
-    if (!isOpen) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [isOpen])
+  useScrollLock(isOpen)
 
   useEffect(() => {
     if (!isOpen) return

@@ -7,7 +7,7 @@ import {
   getDurationHours,
   toDateKey,
   toTimeLabel,
-} from '@/features/home/common/schedule/lib/date'
+} from '@/shared/lib/calendarUtils'
 import { formatScheduleTimeRange } from '@/features/user/home/schedule/lib/date'
 import type {
   WorkspaceScheduleApiResponse,

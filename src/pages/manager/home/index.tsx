@@ -10,7 +10,7 @@ import {
   useManagerHomeViewModel,
 } from '@/features/manager'
 import { useNavbarNotificationProps } from '@/features/notification'
-import { MonthlyCalendar } from '@/features/home/common/schedule/ui/MonthlyCalendar'
+import { WorkerScheduleCalendar } from '@/features/manager/worker-list/ui/WorkerScheduleCalendar'
 import { OngoingPostingCard } from '@/shared/ui/manager/OngoingPostingCard'
 import { SubstituteApprovalCard } from '@/shared/ui/manager/SubstituteApprovalCard'
 import { MoreButton } from '@/shared/ui/common/MoreButton'
@@ -18,10 +18,12 @@ import { WorkCategoryBadge } from '@/shared/ui/home/WorkCategoryBadge'
 import managerHomeBannerImage from '@/assets/manager-home-banner.jpg'
 import managerHomeBannerListIcon from '@/assets/icons/home/manager-home-banner-list.svg'
 import managerWorkspaceModalPlusIcon from '@/assets/icons/home/manager-workspace-modal-plus.svg'
-import managerScheduleEditIcon from '@/assets/icons/home/edit.svg'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
 import { useResignWorkerMutation } from '@/features/manager/worker-list/hooks/mutation/useResignWorkerMutation'
 import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
+import { Modal } from '@/shared/ui/common/Modal'
+import { WorkerListItem } from '@/features/manager/worker-list/ui/WorkerListItem'
+import type { WorkerListEntry } from '@/features/manager/worker-list/lib/workerSchedule'
 import ResignIcon from '@/assets/icons/home/resign.svg?react'
 
 export function ManagerHomePage() {
@@ -31,6 +33,8 @@ export function ManagerHomePage() {
     number | null
   >(null)
   const [isResignErrorOpen, setIsResignErrorOpen] = useState(false)
+  const [deleteTargetWorker, setDeleteTargetWorker] =
+    useState<WorkerListEntry | null>(null)
   const {
     todayWorkers,
     storeWorkers,
@@ -158,56 +162,31 @@ export function ManagerHomePage() {
             <div className="typography-headline02">
               {format(new Date(), 'M월 d일', { locale: ko })}
             </div>
-            <button
-              type="button"
-              className="typography-bg"
-              onClick={() => navigate(ROUTES.MANAGER.WORKER_LIST)}
-            >
-              전체 보기
-            </button>
           </div>
           <div className="pt-6">
             <TodayWorkerList workers={todayWorkers} />
           </div>
         </div>
         <section className="px-4 pt-4">
-          <MonthlyCalendar
+          <WorkerScheduleCalendar
             baseDate={schedule.baseDate}
-            data={schedule.data}
-            workspaceName="우리 매장 시간표"
-            layout="manager"
+            data={schedule.scheduleData}
             isLoading={schedule.isLoading}
-            selectedDateKey={schedule.selectedDateKey}
-            onMonthChange={schedule.onDateChange}
-            rightAction={
-              <button
-                type="button"
-                aria-label="업장 스케줄 수정"
-                className="flex h-6 w-6 items-center justify-center"
-                onClick={() => {
-                  if (
-                    activeWorkspaceId === null ||
-                    storeWorkers[0] === undefined
-                  ) {
-                    navigate(ROUTES.MANAGER.WORKER_SCHEDULE)
-                    return
-                  }
-                  navigate(
-                    managerWorkerSchedulePath(
-                      activeWorkspaceId,
-                      storeWorkers[0].id
-                    )
-                  )
-                }}
-              >
-                <img
-                  src={managerScheduleEditIcon}
-                  alt=""
-                  aria-hidden="true"
-                  className="h-full w-full"
-                />
-              </button>
-            }
+            showTitle={false}
+            selectedDate={schedule.selectedDateKey}
+            totalWorkHoursText={schedule.totalWorkHoursText}
+            estimatedEarningsText={schedule.estimatedEarningsText}
+            onMonthChange={schedule.onMonthChange}
+            onDateClick={schedule.handleDateClick}
+            onEditClick={() => {
+              if (activeWorkspaceId === null || storeWorkers[0] === undefined) {
+                navigate(ROUTES.MANAGER.WORKER_SCHEDULE)
+                return
+              }
+              navigate(
+                managerWorkerSchedulePath(activeWorkspaceId, storeWorkers[0].id)
+              )
+            }}
           />
         </section>
 
@@ -321,6 +300,55 @@ export function ManagerHomePage() {
         description="퇴사 처리에 실패했습니다. 다시 시도해 주세요."
         onConfirm={() => setIsResignErrorOpen(false)}
         onClose={() => setIsResignErrorOpen(false)}
+      />
+
+      <Modal
+        isOpen={schedule.isModalOpen}
+        onClose={schedule.closeModal}
+        title={
+          schedule.modalDateKey ? `${schedule.modalDateKey} 근무자` : undefined
+        }
+        ariaLabel="해당 날짜 근무자 목록"
+      >
+        {schedule.deleteError && (
+          <p className="px-1 pb-2 typography-body02-regular text-error">
+            {schedule.deleteError}
+          </p>
+        )}
+        {schedule.visibleWorkers.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            {schedule.visibleWorkers.map(worker => (
+              <WorkerListItem
+                key={worker.workerId}
+                name={worker.name}
+                workspaceName={worker.workspaceName}
+                nextShiftTime={worker.nextShiftTime}
+                scheduleColor={worker.scheduleColor}
+                role={worker.role}
+                onEdit={() => schedule.handleEditWorker(worker)}
+                onDelete={() => setDeleteTargetWorker(worker)}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="px-4 py-8 text-center typography-body02-regular text-text-50">
+            해당 날짜에 근무자가 없습니다
+          </p>
+        )}
+      </Modal>
+
+      <ConfirmModal
+        isOpen={deleteTargetWorker !== null}
+        title="근무자를 삭제하시겠어요?"
+        description="삭제 후에는 되돌릴 수 없습니다."
+        confirmLabel="삭제"
+        cancelLabel="취소"
+        onConfirm={() => {
+          if (!deleteTargetWorker) return
+          schedule.handleDeleteWorker(deleteTargetWorker.shiftId)
+          setDeleteTargetWorker(null)
+        }}
+        onClose={() => setDeleteTargetWorker(null)}
       />
     </>
   )

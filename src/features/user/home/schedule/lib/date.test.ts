@@ -17,7 +17,7 @@ import {
   toDateKey,
   toTimeLabel,
   getDurationHours,
-} from '@/features/home/common/schedule/lib/date'
+} from '@/shared/lib/calendarUtils'
 
 describe('toDateKey', () => {
   it('ISO 문자열에서 날짜 부분만 반환한다', () => {
