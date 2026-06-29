@@ -306,16 +306,17 @@ export function ManagerHomePage() {
         </div>
       </div>
 
-      <WorkspaceImageCarousel
-        isOpen={isImageCarouselOpen}
-        images={workspaceImages}
-        onClose={() => setIsImageCarouselOpen(false)}
-        onEdit={() => {
-          if (activeWorkspaceId === null) return
-          setIsImageCarouselOpen(false)
-          navigate(managerWorkspaceImagesEditPath(activeWorkspaceId))
-        }}
-      />
+      {isImageCarouselOpen && (
+        <WorkspaceImageCarousel
+          images={workspaceImages}
+          onClose={() => setIsImageCarouselOpen(false)}
+          onEdit={() => {
+            if (activeWorkspaceId === null) return
+            setIsImageCarouselOpen(false)
+            navigate(managerWorkspaceImagesEditPath(activeWorkspaceId))
+          }}
+        />
+      )}
 
       <ConfirmModal
         isOpen={resignTargetWorkerId !== null}
