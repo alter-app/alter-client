@@ -5,7 +5,6 @@ import { ChevronRightIcon } from '@/assets/icons/ChevronRightIcon'
 import type { WorkspaceImageDto } from '@/features/manager/workspace-image/types/workspaceImage'
 
 interface WorkspaceImageCarouselProps {
-  isOpen: boolean
   images: WorkspaceImageDto[]
   onClose: () => void
   onEdit: () => void
@@ -14,16 +13,15 @@ interface WorkspaceImageCarouselProps {
 /**
  * 업장 대표 이미지 캐러셀 — 홈 카드 탭 시 열리는 전체화면 모달.
  * 좌·우 화살표/썸네일로 모든 이미지를 넘겨 보고, 편집 버튼으로 수정 화면에 진입.
+ * 열림 상태는 호출부에서 조건부 렌더링으로 제어하므로, 마운트 시 첫 이미지부터 시작한다.
  */
 export function WorkspaceImageCarousel({
-  isOpen,
   images,
   onClose,
   onEdit,
 }: WorkspaceImageCarouselProps) {
   const total = images.length
   const [index, setIndex] = useState(0)
-  const [wasOpen, setWasOpen] = useState(isOpen)
 
   const goPrev = useCallback(
     () => setIndex(i => (i - 1 + total) % total),
@@ -31,15 +29,8 @@ export function WorkspaceImageCarousel({
   )
   const goNext = useCallback(() => setIndex(i => (i + 1) % total), [total])
 
-  // 열릴 때 첫 이미지로 초기화 (effect 대신 렌더 중 파생 상태 조정)
-  if (isOpen !== wasOpen) {
-    setWasOpen(isOpen)
-    if (isOpen) setIndex(0)
-  }
-
   // 스크롤 잠금 + 키보드 조작
   useEffect(() => {
-    if (!isOpen) return
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
 
@@ -54,9 +45,9 @@ export function WorkspaceImageCarousel({
       document.body.style.overflow = previousOverflow
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isOpen, onClose, goPrev, goNext])
+  }, [onClose, goPrev, goNext])
 
-  if (!isOpen || total === 0) return null
+  if (total === 0) return null
 
   // images 길이가 줄어도 카운터·썸네일·점·표시 이미지가 어긋나지 않도록 클램프
   const safeIndex = Math.min(index, total - 1)
