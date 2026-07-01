@@ -185,6 +185,11 @@ export type UserSubstituteListDto =
 export interface UserSubstituteListItem {
   id: number
   displayName: string
+  storeName: string
+  scheduleDateTitle: string
+  scheduleTimeRangeLabel: string
+  positionLabel: string
+  createdAtLabel: string
   role: WorkerRole
   scheduledDateLabel: string
   uiStatus: SubstituteUiStatus
@@ -221,5 +226,5 @@ export interface MyScheduleItemDto {
 }
 
 export type ExchangeableSchedulesApiResponse = CommonApiResponse<
-  MyScheduleItemDto[] | { schedules: MyScheduleItemDto[] }
+  MyScheduleItemDto[]
 >
