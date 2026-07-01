@@ -29,6 +29,7 @@ import { StoreRegisterPage } from '@/pages/manager/store-register'
 import { StoreRegisterRequestsPage } from '@/pages/store-register/requests'
 import { StoreRegisterRequestDetailPage } from '@/pages/store-register/request-detail'
 import { ManagerWorkerInvitePage } from '@/pages/manager/worker-invite'
+import { WorkspaceImageEditPage } from '@/pages/manager/workspace-image-edit'
 import { WorkspaceJoinPage } from '@/pages/user/workspace-join'
 import { NotificationPage } from '@/pages/notification'
 import { NotificationSettingsPage } from '@/pages/notification/settings'
@@ -155,6 +156,10 @@ export function App() {
           <Route
             path={ROUTES.MANAGER.WORKER_INVITE}
             element={<ManagerWorkerInvitePage />}
+          />
+          <Route
+            path={ROUTES.MANAGER.WORKSPACE_IMAGES_EDIT_PATTERN}
+            element={<WorkspaceImageEditPage />}
           />
         </Route>
 

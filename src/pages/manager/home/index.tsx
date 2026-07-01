@@ -15,10 +15,17 @@ import { OngoingPostingCard } from '@/shared/ui/manager/OngoingPostingCard'
 import { SubstituteApprovalCard } from '@/shared/ui/manager/SubstituteApprovalCard'
 import { MoreButton } from '@/shared/ui/common/MoreButton'
 import { WorkCategoryBadge } from '@/shared/ui/home/WorkCategoryBadge'
-import managerHomeBannerImage from '@/assets/manager-home-banner.jpg'
 import managerHomeBannerListIcon from '@/assets/icons/home/manager-home-banner-list.svg'
 import managerWorkspaceModalPlusIcon from '@/assets/icons/home/manager-workspace-modal-plus.svg'
-import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
+import {
+  ROUTES,
+  managerWorkerSchedulePath,
+  managerWorkspaceImagesEditPath,
+} from '@/shared/constants/routes'
+import {
+  useWorkspaceImagesQuery,
+  WorkspaceImageCarousel,
+} from '@/features/manager/workspace-image'
 import { useResignWorkerMutation } from '@/features/manager/worker-list/hooks/mutation/useResignWorkerMutation'
 import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import { Modal } from '@/shared/ui/common/Modal'
@@ -35,6 +42,7 @@ export function ManagerHomePage() {
   const [isResignErrorOpen, setIsResignErrorOpen] = useState(false)
   const [deleteTargetWorker, setDeleteTargetWorker] =
     useState<WorkerListEntry | null>(null)
+  const [isImageCarouselOpen, setIsImageCarouselOpen] = useState(false)
   const {
     todayWorkers,
     storeWorkers,
@@ -62,6 +70,18 @@ export function ManagerHomePage() {
   const { mutate: resignWorker, isPending: isResigning } =
     useResignWorkerMutation(activeWorkspaceId ?? 0)
 
+  const { images: workspaceImages } = useWorkspaceImagesQuery(activeWorkspaceId)
+  const mainImageUrl = workspaceImages[0]?.url
+
+  const handleBannerClick = () => {
+    if (activeWorkspaceId === null) return
+    if (workspaceImages.length > 0) {
+      setIsImageCarouselOpen(true)
+    } else {
+      navigate(managerWorkspaceImagesEditPath(activeWorkspaceId))
+    }
+  }
+
   return (
     <>
       <div className="flex min-h-[100dvh] flex-col box-border bg-bg-light">
@@ -70,14 +90,25 @@ export function ManagerHomePage() {
         </div>
 
         <div className="relative h-[200px] w-full overflow-hidden">
-          <img
-            src={managerHomeBannerImage}
-            alt="가게 배너 이미지"
-            className="h-full w-full object-cover"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-text-100" />
+          <button
+            type="button"
+            aria-label="업장 대표 이미지 보기"
+            className="absolute inset-0 h-full w-full"
+            onClick={handleBannerClick}
+          >
+            {mainImageUrl ? (
+              <img
+                src={mainImageUrl}
+                alt="가게 배너 이미지"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full bg-sub" />
+            )}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-text-100" />
+          </button>
 
-          <div className="absolute bottom-8 left-[20px] text-white">
+          <div className="pointer-events-none absolute bottom-8 left-[20px] text-white">
             <div className="mb-1 flex items-center gap-2">
               <p className="typography-headline01">
                 {workspaceDetail?.businessName ?? ''}
@@ -94,8 +125,8 @@ export function ManagerHomePage() {
 
           <button
             type="button"
-            aria-label="배너 상세 보기"
-            className="absolute bottom-[40px] right-[20px] h-[26px] w-[26px]"
+            aria-label="관리 중인 업장 목록"
+            className="absolute bottom-[40px] right-[20px] z-10 h-[26px] w-[26px]"
             onClick={openWorkspaceChangeModal}
           >
             <img
@@ -274,6 +305,18 @@ export function ManagerHomePage() {
           </div>
         </div>
       </div>
+
+      {isImageCarouselOpen && (
+        <WorkspaceImageCarousel
+          images={workspaceImages}
+          onClose={() => setIsImageCarouselOpen(false)}
+          onEdit={() => {
+            if (activeWorkspaceId === null) return
+            setIsImageCarouselOpen(false)
+            navigate(managerWorkspaceImagesEditPath(activeWorkspaceId))
+          }}
+        />
+      )}
 
       <ConfirmModal
         isOpen={resignTargetWorkerId !== null}
