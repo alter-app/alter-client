@@ -12,12 +12,7 @@ import type {
 function normalizeScheduleItems(
   payload: ExchangeableSchedulesApiResponse['data']
 ): MyScheduleItemDto[] {
-  if (payload == null) return []
-  if (Array.isArray(payload)) return payload
-  if (typeof payload === 'object' && Array.isArray(payload.schedules)) {
-    return payload.schedules
-  }
-  return []
+  return Array.isArray(payload) ? payload : []
 }
 
 export function adaptExchangeableSchedulesToCalendar(
