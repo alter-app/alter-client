@@ -7,8 +7,8 @@ import {
   approveSubstituteRequest,
   rejectSubstituteRequest,
 } from '@/features/manager/api/substitute'
-import type { ManagerSubstituteListFilters } from '@/features/manager/substitute/lib/managerSubstituteListFilters'
-import type { SubstituteListStatusFilter } from '@/features/user/substitute/lib/substituteListFilters'
+import type { ManagerSubstituteListFilters } from '@/features/manager/substitute'
+import type { SubstituteListStatusFilter } from '@/shared/types/substituteListFilters'
 import type { SubstituteRequestItem } from '@/shared/types/substituteRequest'
 import type { SubstituteActionType } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
 import { SubstituteApiStatus } from '@/shared/types/substituteStatus'

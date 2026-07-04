@@ -6,7 +6,7 @@ import {
   SUBSTITUTE_STATUS_FILTER_OPTIONS,
   statusFilterLabel,
   type SubstituteListStatusFilter,
-} from '@/features/user/substitute/lib/substituteListFilters'
+} from '@/shared/types/substituteListFilters'
 
 interface SubstituteStatusFilterDropdownProps {
   value: SubstituteListStatusFilter

@@ -16,7 +16,7 @@ import type {
   UserSubstituteListItem,
 } from '@/features/user/substitute/types'
 import { useUserSubstituteRequestsViewModel } from '@/features/user/substitute/hooks/useUserSubstituteRequestsViewModel'
-import type { SubstituteListStatusFilter } from '@/features/user/substitute/lib/substituteListFilters'
+import type { SubstituteListStatusFilter } from '@/shared/types/substituteListFilters'
 import { useWorkspacesViewModel } from '@/features/user'
 import { SubstituteCreateFab } from '@/pages/user/substitute-request/components/SubstituteCreateFab'
 import { SubstituteRejectReasonModal } from '@/pages/user/substitute-request/components/SubstituteRejectReasonModal'

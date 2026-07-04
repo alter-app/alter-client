@@ -5,7 +5,7 @@ import type { SubstituteListSection } from '@/features/user/substitute/hooks/use
 import {
   statusFilterLabel,
   type SubstituteListStatusFilter,
-} from '@/features/user/substitute/lib/substituteListFilters'
+} from '@/shared/types/substituteListFilters'
 import type { UserSubstituteListItem } from '@/features/user/substitute/types'
 
 interface SubstituteRequestListSectionsProps {

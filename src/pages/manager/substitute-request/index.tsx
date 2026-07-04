@@ -10,9 +10,11 @@ import { useNavbarNotificationProps } from '@/features/notification'
 import {
   useManagerSubstituteRequestViewModel,
   type ManagerSubstituteSection,
-} from '@/features/manager/substitute/hooks/useManagerSubstituteRequestViewModel'
-import type { SubstituteListStatusFilter } from '@/features/user/substitute/lib/substituteListFilters'
-import { statusFilterLabel } from '@/features/user/substitute/lib/substituteListFilters'
+} from '@/features/manager/substitute'
+import {
+  statusFilterLabel,
+  type SubstituteListStatusFilter,
+} from '@/shared/types/substituteListFilters'
 import { ManagerSubstituteActionModal } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import type { SubstituteRequestItem } from '@/shared/types/substituteRequest'
