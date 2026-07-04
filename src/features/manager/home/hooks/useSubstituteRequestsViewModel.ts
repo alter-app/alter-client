@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { fetchSubstituteRequests } from '@/features/manager/api/substitute'
+import { resolveManagerApiStatuses } from '@/features/manager/substitute'
 import { adaptSubstituteRequestDto } from '@/features/manager/home/types/substitute'
-import { resolveManagerApiStatuses } from '@/features/manager/substitute/lib/managerSubstituteListFilters'
-import type { SubstituteListStatusFilter } from '@/features/user/substitute/lib/substituteListFilters'
+import type { SubstituteListStatusFilter } from '@/shared/types/substituteListFilters'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 export function useSubstituteRequestsViewModel(

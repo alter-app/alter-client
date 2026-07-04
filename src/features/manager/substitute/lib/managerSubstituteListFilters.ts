@@ -1,4 +1,4 @@
-import type { SubstituteListStatusFilter } from '@/features/user/substitute/lib/substituteListFilters'
+import type { SubstituteListStatusFilter } from '@/shared/types/substituteListFilters'
 import { SubstituteApiStatus } from '@/shared/types/substituteStatus'
 
 export type ManagerSubstituteListFilters = {
