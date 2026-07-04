@@ -22,8 +22,17 @@ export function unwrapSubstituteEnum<T extends string>(
   field: SubstituteEnumValueDto<T> | T | string | null | undefined
 ): string {
   if (field == null) return ''
-  if (typeof field === 'object' && 'value' in field) return field.value
-  return String(field)
+  if (typeof field === 'object' && 'value' in field) {
+    const value = field.value
+    if (typeof value !== 'string') return ''
+    const trimmed = value.trim()
+    return trimmed !== '' ? trimmed : ''
+  }
+  if (typeof field === 'string') {
+    const trimmed = field.trim()
+    return trimmed !== '' ? trimmed : ''
+  }
+  return ''
 }
 
 /** GET sent/{requestId} 응답 → 어댑터용 DTO */
@@ -55,7 +64,7 @@ export function normalizeSentSubstituteDetailDto(
 }
 
 export function normalizeSubstituteStatus(status: string): string {
-  return status.toUpperCase()
+  return (status ?? '').toUpperCase()
 }
 
 export function mapApiStatusToUi(status: string): SubstituteUiStatus {

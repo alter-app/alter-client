@@ -5,6 +5,7 @@ import type {
   SentSubstituteRequestDetailApiDto,
   SentSubstituteRequestDetailDto,
   SentSubstituteRequestListItemDto,
+  SubstituteEnumValueDto,
   SubstituteTargetDto,
 } from '@/features/user/substitute/types'
 
@@ -13,6 +14,7 @@ import {
   adaptSentSubstituteDetail,
   adaptUserSubstituteListItem,
   normalizeSentSubstituteDetailDto,
+  unwrapSubstituteEnum,
 } from './adaptUserSubstituteRequest'
 
 const schedule = {
@@ -193,5 +195,55 @@ describe('대타요청 프로필 이미지 데이터 흐름', () => {
     expect(
       normalizeSentSubstituteDetailDto(api).targets[0].profileImageUrl
     ).toBe('https://img/target.png')
+  })
+})
+
+describe('unwrapSubstituteEnum', () => {
+  it('enum 래퍼에서 value 문자열을 반환한다', () => {
+    expect(
+      unwrapSubstituteEnum({ value: 'PENDING', description: '대기중' })
+    ).toBe('PENDING')
+  })
+
+  it('value가 null·undefined·빈 문자열이면 빈 문자열을 반환한다', () => {
+    expect(
+      unwrapSubstituteEnum({
+        value: null as unknown as string,
+        description: '대기중',
+      })
+    ).toBe('')
+    expect(
+      unwrapSubstituteEnum({
+        value: undefined as unknown as string,
+        description: '대기중',
+      })
+    ).toBe('')
+    expect(unwrapSubstituteEnum({ value: '', description: '대기중' })).toBe('')
+    expect(unwrapSubstituteEnum({ value: '   ', description: '대기중' })).toBe(
+      ''
+    )
+  })
+
+  it('value 키가 없는 객체면 빈 문자열을 반환한다', () => {
+    expect(
+      unwrapSubstituteEnum({
+        description: '대기중',
+      } as unknown as SubstituteEnumValueDto)
+    ).toBe('')
+  })
+
+  it('비정상 enum 래퍼여도 목록 어댑터가 에러 없이 동작한다', () => {
+    const item = adaptUserSubstituteListItem(
+      {
+        ...received(),
+        status: {
+          value: null,
+          description: '대기중',
+        } as unknown as ReceivedSubstituteRequestDto['status'],
+      },
+      'RECEIVED'
+    )
+    expect(item.rawStatus).toBe('')
+    expect(item.uiStatus).toBe('pending')
   })
 })
