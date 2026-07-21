@@ -54,7 +54,7 @@ export function formatSalaryChipLabel(
       return `${selection.max.toLocaleString('ko-KR')}원 이하`
     }
   }
-  return '전체'
+  return '급여'
 }
 
 export function isSalaryFilterApplied(
