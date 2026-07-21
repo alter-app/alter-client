@@ -15,6 +15,7 @@ import type { AlbaFindMode } from '@/features/job-lookup-map/common/AlbaFindCate
 import { AlbaFindList } from '@/features/job-lookup-map/common/AlbaFindList'
 import { Albabox } from '@/features/job-lookup-map/common/Albabox'
 import { usePostings } from '@/features/job-lookup-map/hooks/usePosting'
+import { useAddFavoritePosting } from '@/features/job-lookup-map/hooks/useAddFavoritePosting'
 import { usePostingMapMarkers } from '@/features/job-lookup-map/hooks/usePostingMapMarkers'
 import { usePostingSearch } from '@/features/job-lookup-map/hooks/usePostingSearch'
 import { moveMapToWorkspace } from '@/features/job-lookup-map/lib/moveMapToWorkspace'
@@ -85,6 +86,8 @@ export function JobLookupMapPage() {
     isLoading,
     isError,
   } = usePostings(listFilters)
+
+  const { mutate: addFavorite } = useAddFavoritePosting()
 
   const { search } = usePostingSearch()
 
@@ -365,12 +368,21 @@ export function JobLookupMapPage() {
                   key={posting.id}
                   {...base}
                   saved={saved}
-                  onBookmarkClick={() =>
+                  onBookmarkClick={() => {
+                    if (saved) return
                     setBookmarkById(prev => ({
                       ...prev,
-                      [posting.id]: !saved,
+                      [posting.id]: true,
                     }))
-                  }
+                    addFavorite(posting.id, {
+                      onError: () => {
+                        setBookmarkById(prev => ({
+                          ...prev,
+                          [posting.id]: false,
+                        }))
+                      },
+                    })
+                  }}
                   onClick={() => {
                     if (isSearchActive) {
                       moveToPosting(posting)

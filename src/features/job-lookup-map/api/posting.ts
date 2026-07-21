@@ -227,6 +227,13 @@ export async function fetchFavoritePostings(params: {
   return normalizeFavoritePostingListResponse(response.data)
 }
 
+/** POST /app/users/me/postings/favorites/{postingId} — 사용자 공고 스크랩 등록 */
+export async function addFavoritePosting(postingId: number): Promise<void> {
+  await axiosInstance.post<CommonApiResponse<Record<string, never>>>(
+    `/app/users/me/postings/favorites/${postingId}`
+  )
+}
+
 /** GET /app/postings/filter-options — 공고 목록 필터 옵션 조회 */
 export async function fetchPostingFilterOptions(): Promise<PostingFilterOptions> {
   const response = await axiosInstance.get<
