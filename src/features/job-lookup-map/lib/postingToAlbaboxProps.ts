@@ -2,10 +2,7 @@ import { formatDistanceToNowStrict } from 'date-fns'
 import { ko } from 'date-fns/locale'
 
 import type { AlbaboxProps } from '@/features/job-lookup-map/common/Albabox'
-import type {
-  FavoritePostingItem,
-  Posting,
-} from '@/features/job-lookup-map/types/posting'
+import type { Posting } from '@/features/job-lookup-map/types/posting'
 
 export function formatPostedAgo(createdAt: string): string {
   const d = new Date(createdAt)
@@ -92,22 +89,5 @@ export function postingToAlbaboxProps(
     town: p.workspace.town?.trim() || '-',
     postedAgo: formatPostedAgo(p.createdAt),
     saved: p.scrapped,
-  }
-}
-
-/** `GET /app/users/me/postings/favorites` 항목 → Albabox props */
-export function favoritePostingToAlbaboxProps(
-  item: FavoritePostingItem
-): Omit<AlbaboxProps, 'onBookmarkClick' | 'onClick'> {
-  const { posting, createdAt } = item
-  return {
-    storeName: posting.businessName,
-    title: posting.title,
-    wageAmount: posting.payAmount.toLocaleString('ko-KR'),
-    timeRange: '-',
-    workDays: '-',
-    town: '-',
-    postedAgo: formatPostedAgo(createdAt),
-    saved: true,
   }
 }

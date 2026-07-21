@@ -15,8 +15,7 @@ import type { AlbaFindMode } from '@/features/job-lookup-map/common/AlbaFindCate
 import { AlbaFindList } from '@/features/job-lookup-map/common/AlbaFindList'
 import { Albabox } from '@/features/job-lookup-map/common/Albabox'
 import { usePostings } from '@/features/job-lookup-map/hooks/usePosting'
-import { useAddFavoritePosting } from '@/features/job-lookup-map/hooks/useAddFavoritePosting'
-import { useRemoveFavoritePosting } from '@/features/job-lookup-map/hooks/useRemoveFavoritePosting'
+import { useToggleFavoritePosting } from '@/features/job-lookup-map/hooks/useToggleFavoritePosting'
 import { usePostingMapMarkers } from '@/features/job-lookup-map/hooks/usePostingMapMarkers'
 import { usePostingSearch } from '@/features/job-lookup-map/hooks/usePostingSearch'
 import { moveMapToWorkspace } from '@/features/job-lookup-map/lib/moveMapToWorkspace'
@@ -88,8 +87,7 @@ export function JobLookupMapPage() {
     isError,
   } = usePostings(listFilters)
 
-  const { mutate: addFavorite } = useAddFavoritePosting()
-  const { mutate: removeFavorite } = useRemoveFavoritePosting()
+  const { toggleFavorite } = useToggleFavoritePosting()
 
   const { search } = usePostingSearch()
 
@@ -371,32 +369,19 @@ export function JobLookupMapPage() {
                   {...base}
                   saved={saved}
                   onBookmarkClick={() => {
-                    if (saved) {
-                      setBookmarkById(prev => ({
-                        ...prev,
-                        [posting.id]: false,
-                      }))
-                      removeFavorite(posting.id, {
-                        onError: () => {
-                          setBookmarkById(prev => ({
-                            ...prev,
-                            [posting.id]: true,
-                          }))
-                        },
-                      })
-                      return
-                    }
-                    setBookmarkById(prev => ({
-                      ...prev,
-                      [posting.id]: true,
-                    }))
-                    addFavorite(posting.id, {
-                      onError: () => {
+                    toggleFavorite({
+                      postingId: posting.id,
+                      saved,
+                      onOptimistic: nextSaved =>
                         setBookmarkById(prev => ({
                           ...prev,
-                          [posting.id]: false,
-                        }))
-                      },
+                          [posting.id]: nextSaved,
+                        })),
+                      onError: rollbackSaved =>
+                        setBookmarkById(prev => ({
+                          ...prev,
+                          [posting.id]: rollbackSaved,
+                        })),
                     })
                   }}
                   onClick={() => {
