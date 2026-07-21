@@ -40,6 +40,7 @@ import { NicknameEditPage } from '@/pages/my/profile/nickname'
 import { PasswordEditPage } from '@/pages/my/profile/password'
 import { SocialAccountPage } from '@/pages/my/profile/social'
 import { WithdrawPage } from '@/pages/my/withdraw'
+import { ScrappedPostingsPage } from '@/pages/my/scrapped'
 import { ErrorPageRoute } from '@/pages/error'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { MobileLayoutWithDocbar } from '@/shared/ui/MobileLayoutWithDocbar'
@@ -133,6 +134,10 @@ export function App() {
             element={<SocialAccountPage />}
           />
           <Route path={ROUTES.MY.WITHDRAW} element={<WithdrawPage />} />
+          <Route
+            path={ROUTES.MY.SCRAPPED_POSTINGS}
+            element={<ScrappedPostingsPage />}
+          />
           <Route
             path={ROUTES.MANAGER.WORKER_SCHEDULE}
             element={<ManagerWorkerScheduleLegacyEntryRedirect />}

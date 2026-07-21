@@ -2,6 +2,8 @@ import axiosInstance from '@/shared/lib/axiosInstance'
 import type { CommonApiResponse } from '@/shared/types/common'
 import type {
   ApplyPostingRequest,
+  FavoritePostingItem,
+  FavoritePostingListResponse,
   PostingDetailResponse,
   PostingFilterOptions,
   PostingListResponse,
@@ -160,6 +162,69 @@ export async function applyPosting(
     `/app/postings/apply/${postingId}`,
     body
   )
+}
+
+function normalizeFavoritePostingListResponse(
+  value: unknown
+): FavoritePostingListResponse {
+  const payload = isCommonApiEnvelope(value) ? value.data : value
+  if (payload === null || typeof payload !== 'object') {
+    throw new Error('스크랩 목록을 불러오지 못했습니다.')
+  }
+
+  const record = payload as Record<string, unknown>
+  const data = Array.isArray(record.data)
+    ? (record.data as FavoritePostingItem[])
+    : []
+  const pageRaw = record.page
+
+  if (pageRaw !== null && typeof pageRaw === 'object') {
+    const page = pageRaw as Record<string, unknown>
+    const cursor = page.cursor
+    return {
+      data,
+      page: {
+        cursor:
+          typeof cursor === 'string'
+            ? cursor
+            : cursor == null
+              ? null
+              : String(cursor),
+        pageSize:
+          typeof page.pageSize === 'number' ? page.pageSize : data.length,
+        totalCount:
+          typeof page.totalCount === 'number' ? page.totalCount : data.length,
+      },
+    }
+  }
+
+  return {
+    data,
+    page: {
+      cursor: null,
+      pageSize: data.length,
+      totalCount: data.length,
+    },
+  }
+}
+
+/** GET /app/users/me/postings/favorites — 사용자 공고 스크랩 목록 조회 */
+export async function fetchFavoritePostings(params: {
+  pageSize: number
+  cursor?: string
+}): Promise<FavoritePostingListResponse> {
+  const { pageSize, cursor } = params
+
+  const response = await axiosInstance.get<unknown>(
+    '/app/users/me/postings/favorites',
+    {
+      params: {
+        pageSize,
+        ...(cursor !== undefined && cursor !== '' && { cursor }),
+      },
+    }
+  )
+  return normalizeFavoritePostingListResponse(response.data)
 }
 
 /** GET /app/postings/filter-options — 공고 목록 필터 옵션 조회 */

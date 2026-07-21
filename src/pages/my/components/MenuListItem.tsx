@@ -6,6 +6,7 @@ interface MenuListItemProps {
   label: string
   onClick?: () => void
   isLast?: boolean
+  iconClassName?: string
 }
 
 export function MenuListItem({
@@ -13,6 +14,7 @@ export function MenuListItem({
   label,
   onClick,
   isLast = false,
+  iconClassName,
 }: MenuListItemProps) {
   return (
     <button
@@ -24,7 +26,9 @@ export function MenuListItem({
     >
       {Icon && (
         <Icon
-          className="h-5 w-5 shrink-0 text-text-100 [&_*]:!stroke-current"
+          className={`h-5 w-5 shrink-0 [&_*]:!stroke-current ${
+            iconClassName ?? 'text-text-100'
+          }`}
           aria-hidden="true"
         />
       )}

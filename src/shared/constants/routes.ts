@@ -43,6 +43,7 @@ export const ROUTES = {
     PROFILE: '/my/profile',
     PROFILE_NICKNAME: '/my/profile/nickname',
     PROFILE_PASSWORD: '/my/profile/password',
+    SCRAPPED_POSTINGS: '/my/profile/scrapped',
     PROFILE_EMAIL: '/my/profile/email',
     PROFILE_SOCIAL: '/my/profile/social',
     WITHDRAW: '/my/withdraw',

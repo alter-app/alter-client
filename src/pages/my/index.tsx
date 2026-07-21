@@ -6,6 +6,7 @@ import { useUserMe } from '@/features/user/me'
 import { ProfileCard } from './components/ProfileCard'
 import { MenuListItem } from './components/MenuListItem'
 import UserIcon from '@/assets/icons/my/user.svg?react'
+import BookmarkIcon from '@/assets/icons/job-lookup-map/Bookmark.svg?react'
 import StoreIcon from '@/assets/icons/my/store.svg?react'
 import HeadphonesIcon from '@/assets/icons/my/headphones.svg?react'
 import FileTextIcon from '@/assets/icons/my/file-text.svg?react'
@@ -24,6 +25,12 @@ interface MenuItem {
 
 const MENU_ITEMS: MenuItem[] = [
   { key: 'info', label: '내 정보', icon: UserIcon, path: '/my/info' },
+  {
+    key: 'scrapped-postings',
+    label: '스크랩한 알바',
+    icon: BookmarkIcon,
+    path: ROUTES.MY.SCRAPPED_POSTINGS,
+  },
   {
     key: 'store-apply',
     label: '업장 등록 신청',
