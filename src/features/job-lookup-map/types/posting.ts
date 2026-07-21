@@ -15,8 +15,16 @@ export interface PostingDetailResponse {
   schedules: Schedule[]
   scrapped: boolean
 }
+
+export interface PostingFilterOptions {
+  provinces: string[]
+  districts: string[]
+  towns: string[]
+  sortOptions: PostingSortOption[]
+}
+
 export interface Page {
-  cursor: string
+  cursor: string | null
   pageSize: number
   totalCount: number
 }
@@ -60,5 +68,10 @@ export interface Workspace {
 
 export interface ApplyPostingRequest {
   postingScheduleId: number
+  description: string
+}
+
+export interface PostingSortOption {
+  value: string
   description: string
 }

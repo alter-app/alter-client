@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type KeyboardEvent,
@@ -10,10 +11,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import { animate, motion, useMotionValue } from 'framer-motion'
 import { AlbaFindCategoryBar } from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
 import { ROUTES } from '@/shared/constants/routes'
-import type {
-  AlbaFindFilterId,
-  AlbaFindMode,
-} from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
+import type { AlbaFindMode } from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
 import { AlbaFindList } from '@/features/job-lookup-map/common/AlbaFindList'
 import { Albabox } from '@/features/job-lookup-map/common/Albabox'
 import { usePostings } from '@/features/job-lookup-map/hooks/usePosting'
@@ -22,6 +20,17 @@ import { usePostingSearch } from '@/features/job-lookup-map/hooks/usePostingSear
 import { moveMapToWorkspace } from '@/features/job-lookup-map/lib/moveMapToWorkspace'
 import { pickSearchTargetPosting } from '@/features/job-lookup-map/lib/pickSearchTargetPosting'
 import { postingToAlbaboxProps } from '@/features/job-lookup-map/lib/postingToAlbaboxProps'
+import {
+  EMPTY_REGION_SELECTION,
+  isRegionSelectionComplete,
+  type RegionSelection,
+} from '@/features/job-lookup-map/lib/regionOptions'
+import {
+  DEFAULT_SORT_VALUE,
+  EMPTY_SALARY_FILTER,
+  buildPostingsListFilters,
+  type SalaryFilterSelection,
+} from '@/features/job-lookup-map/lib/postingFilters'
 import {
   getNaverMaps,
   type NaverMapInstance,
@@ -44,7 +53,12 @@ export function JobLookupMapPage() {
   const sheetRef = useRef<HTMLDivElement>(null)
   const [maxTranslateY, setMaxTranslateY] = useState(0)
   const [mode, setMode] = useState<AlbaFindMode>('nearby')
-  const [activeFilter, setActiveFilter] = useState<AlbaFindFilterId>('sort')
+  const [regionSelection, setRegionSelection] = useState<RegionSelection>(
+    EMPTY_REGION_SELECTION
+  )
+  const [sortValue, setSortValue] = useState(DEFAULT_SORT_VALUE)
+  const [salaryFilter, setSalaryFilter] =
+    useState<SalaryFilterSelection>(EMPTY_SALARY_FILTER)
   const [bookmarkById, setBookmarkById] = useState<Record<number, boolean>>({})
   const [searchQuery, setSearchQuery] = useState('')
   const [searchList, setSearchList] = useState<Posting[] | null>(null)
@@ -52,8 +66,25 @@ export function JobLookupMapPage() {
   const hasSetInitialSheetYRef = useRef(false)
   const y = useMotionValue(0)
 
-  const { postings, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    usePostings()
+  const listFilters = useMemo(
+    () =>
+      buildPostingsListFilters({
+        mode,
+        regionSelection,
+        sortValue,
+        salaryFilter,
+      }),
+    [mode, regionSelection, sortValue, salaryFilter]
+  )
+
+  const {
+    postings,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = usePostings(listFilters)
 
   const { search } = usePostingSearch()
 
@@ -293,10 +324,39 @@ export function JobLookupMapPage() {
           <AlbaFindCategoryBar
             mode={mode}
             onModeChange={setMode}
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
+            regionSelection={regionSelection}
+            onRegionChange={selection => {
+              setRegionSelection(selection)
+              setSearchList(null)
+              if (isRegionSelectionComplete(selection)) {
+                setMode('region')
+              }
+            }}
+            sortValue={sortValue}
+            onSortChange={value => {
+              setSortValue(value)
+              setSearchList(null)
+            }}
+            salaryFilter={salaryFilter}
+            onSalaryChange={selection => {
+              setSalaryFilter(selection)
+              setSearchList(null)
+            }}
           />
           <AlbaFindList className="mt-3 min-h-0 flex-1 gap-0">
+            {isLoading && displayedPostings.length === 0 ? (
+              <p className="py-8 text-center typography-body02-regular text-text-50">
+                공고를 불러오는 중…
+              </p>
+            ) : isError ? (
+              <p className="py-8 text-center typography-body02-regular text-text-50">
+                공고를 불러오지 못했습니다.
+              </p>
+            ) : displayedPostings.length === 0 ? (
+              <p className="py-8 text-center typography-body02-regular text-text-50">
+                조건에 맞는 공고가 없습니다.
+              </p>
+            ) : null}
             {displayedPostings.map(posting => {
               const base = postingToAlbaboxProps(posting)
               const saved = bookmarkById[posting.id] ?? posting.scrapped
