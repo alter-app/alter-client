@@ -21,6 +21,7 @@ interface MenuItem {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
   path?: string
   onlyManager?: boolean
+  onlyWorker?: boolean
 }
 
 const MENU_ITEMS: MenuItem[] = [
@@ -30,6 +31,7 @@ const MENU_ITEMS: MenuItem[] = [
     label: '스크랩한 알바',
     icon: BookmarkIcon,
     path: ROUTES.MY.SCRAPPED_POSTINGS,
+    onlyWorker: true,
   },
   {
     key: 'store-apply',
@@ -76,6 +78,11 @@ export function MyPage() {
   const isManager = scope === 'MANAGER'
   const nickname = user.nickname || user.name || '알터'
   const realName = user.name
+  const visibleMenuItems = MENU_ITEMS.filter(item => {
+    if (item.onlyManager && !isManager) return false
+    if (item.onlyWorker && isManager) return false
+    return true
+  })
 
   const handleEditProfile = () => {
     navigate(ROUTES.MY.PROFILE)
@@ -132,12 +139,12 @@ export function MyPage() {
           aria-label="마이페이지 메뉴"
           className="mt-3 flex flex-col rounded-2xl"
         >
-          {MENU_ITEMS.map((item, index) => (
+          {visibleMenuItems.map((item, index) => (
             <MenuListItem
               key={item.key}
               icon={item.icon}
               label={item.label}
-              isLast={index === MENU_ITEMS.length - 1}
+              isLast={index === visibleMenuItems.length - 1}
               onClick={() => item.path && navigate(item.path)}
             />
           ))}

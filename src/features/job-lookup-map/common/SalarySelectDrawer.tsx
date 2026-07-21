@@ -66,6 +66,11 @@ function SalarySelectDrawerBody({
   }
 
   const handleApply = () => {
+    if (draft.min != null && draft.max != null && draft.min > draft.max) {
+      onApply({ ...draft, min: draft.max, max: draft.min })
+      onOpenChange(false)
+      return
+    }
     onApply(draft)
     onOpenChange(false)
   }

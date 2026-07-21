@@ -28,6 +28,75 @@ function isCommonApiEnvelope(
   )
 }
 
+function normalizePageCursor(cursor: unknown): string | null {
+  if (typeof cursor === 'string') {
+    return cursor !== '' ? cursor : null
+  }
+  if (cursor == null) return null
+  const asString = String(cursor)
+  return asString !== '' ? asString : null
+}
+
+function isPostingListItem(
+  value: unknown
+): value is PostingListResponse['data'][number] {
+  if (value === null || typeof value !== 'object') return false
+  const record = value as Record<string, unknown>
+  const workspace = record.workspace
+  return (
+    typeof record.id === 'number' &&
+    typeof record.title === 'string' &&
+    typeof record.payAmount === 'number' &&
+    typeof record.paymentType === 'string' &&
+    typeof record.createdAt === 'string' &&
+    typeof record.scrapped === 'boolean' &&
+    Array.isArray(record.keywords) &&
+    Array.isArray(record.schedules) &&
+    workspace !== null &&
+    typeof workspace === 'object' &&
+    typeof (workspace as { id?: unknown }).id === 'number' &&
+    typeof (workspace as { businessName?: unknown }).businessName === 'string'
+  )
+}
+
+function isFavoritePostingItem(value: unknown): value is FavoritePostingItem {
+  if (value === null || typeof value !== 'object') return false
+  const record = value as Record<string, unknown>
+  const posting = record.posting
+  if (posting === null || typeof posting !== 'object') return false
+  const postingRecord = posting as Record<string, unknown>
+  return (
+    typeof record.id === 'number' &&
+    typeof record.createdAt === 'string' &&
+    typeof postingRecord.id === 'number' &&
+    typeof postingRecord.businessName === 'string' &&
+    typeof postingRecord.title === 'string' &&
+    typeof postingRecord.payAmount === 'number' &&
+    typeof postingRecord.paymentType === 'string'
+  )
+}
+
+function normalizePage(
+  pageRaw: unknown,
+  fallbackCount: number
+): PostingListResponse['page'] {
+  if (pageRaw === null || typeof pageRaw !== 'object') {
+    return {
+      cursor: null,
+      pageSize: fallbackCount,
+      totalCount: fallbackCount,
+    }
+  }
+
+  const page = pageRaw as Record<string, unknown>
+  return {
+    cursor: normalizePageCursor(page.cursor),
+    pageSize: typeof page.pageSize === 'number' ? page.pageSize : fallbackCount,
+    totalCount:
+      typeof page.totalCount === 'number' ? page.totalCount : fallbackCount,
+  }
+}
+
 function normalizePostingListResponse(value: unknown): PostingListResponse {
   const payload = isCommonApiEnvelope(value) ? value.data : value
   if (payload === null || typeof payload !== 'object') {
@@ -35,38 +104,16 @@ function normalizePostingListResponse(value: unknown): PostingListResponse {
   }
 
   const record = payload as Record<string, unknown>
-  const data = Array.isArray(record.data)
-    ? (record.data as PostingListResponse['data'])
-    : []
-  const pageRaw = record.page
-
-  if (pageRaw !== null && typeof pageRaw === 'object') {
-    const page = pageRaw as Record<string, unknown>
-    const cursor = page.cursor
-    return {
-      data,
-      page: {
-        cursor:
-          typeof cursor === 'string'
-            ? cursor
-            : cursor == null
-              ? null
-              : String(cursor),
-        pageSize:
-          typeof page.pageSize === 'number' ? page.pageSize : data.length,
-        totalCount:
-          typeof page.totalCount === 'number' ? page.totalCount : data.length,
-      },
-    }
+  if (!Array.isArray(record.data)) {
+    throw new Error('공고 목록 응답 형식이 올바르지 않습니다.')
+  }
+  if (!record.data.every(isPostingListItem)) {
+    throw new Error('공고 목록 응답 형식이 올바르지 않습니다.')
   }
 
   return {
-    data,
-    page: {
-      cursor: null,
-      pageSize: data.length,
-      totalCount: data.length,
-    },
+    data: record.data,
+    page: normalizePage(record.page, record.data.length),
   }
 }
 
@@ -173,38 +220,16 @@ function normalizeFavoritePostingListResponse(
   }
 
   const record = payload as Record<string, unknown>
-  const data = Array.isArray(record.data)
-    ? (record.data as FavoritePostingItem[])
-    : []
-  const pageRaw = record.page
-
-  if (pageRaw !== null && typeof pageRaw === 'object') {
-    const page = pageRaw as Record<string, unknown>
-    const cursor = page.cursor
-    return {
-      data,
-      page: {
-        cursor:
-          typeof cursor === 'string'
-            ? cursor
-            : cursor == null
-              ? null
-              : String(cursor),
-        pageSize:
-          typeof page.pageSize === 'number' ? page.pageSize : data.length,
-        totalCount:
-          typeof page.totalCount === 'number' ? page.totalCount : data.length,
-      },
-    }
+  if (!Array.isArray(record.data)) {
+    throw new Error('스크랩 목록 응답 형식이 올바르지 않습니다.')
+  }
+  if (!record.data.every(isFavoritePostingItem)) {
+    throw new Error('스크랩 목록 응답 형식이 올바르지 않습니다.')
   }
 
   return {
-    data,
-    page: {
-      cursor: null,
-      pageSize: data.length,
-      totalCount: data.length,
-    },
+    data: record.data,
+    page: normalizePage(record.page, record.data.length),
   }
 }
 
