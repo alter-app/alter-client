@@ -55,6 +55,7 @@ export interface Workspace {
   latitude: number
   longitude: number
   fullAddress: string
+  town: string
 }
 
 export interface ApplyPostingRequest {

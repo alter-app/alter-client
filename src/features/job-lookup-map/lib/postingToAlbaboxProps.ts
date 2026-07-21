@@ -86,7 +86,7 @@ export function postingToAlbaboxProps(
     wageAmount: p.payAmount.toLocaleString('ko-KR'),
     timeRange,
     workDays,
-    distance: '-',
+    town: p.workspace.town?.trim() || '-',
     postedAgo: formatPostedAgo(p.createdAt),
     saved: p.scrapped,
   }
