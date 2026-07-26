@@ -37,6 +37,19 @@ export const ROUTES = {
     WORKER_INVITE: '/manager/worker-invite',
     SOCIAL: '/manager/social',
     SOCIAL_CHAT: '/manager/social/chat',
+    /** 구인구직 — 내 공고 목록 (사장님 알바찾기 탭 진입점) */
+    POSTINGS: '/manager/postings',
+    /** 공고 등록 */
+    POSTING_NEW: '/manager/postings/new',
+    /** 지원자 목록 */
+    POSTING_APPLICATIONS: '/manager/postings/applications',
+    /** 지원자 상세·채용 결정 (파라미터) */
+    POSTING_APPLICATION_DETAIL_PATTERN:
+      '/manager/postings/applications/:applicationId',
+    /** 공고 상세·마감 (파라미터) */
+    POSTING_DETAIL_PATTERN: '/manager/postings/:postingId',
+    /** 공고 수정 (파라미터) */
+    POSTING_EDIT_PATTERN: '/manager/postings/:postingId/edit',
   },
   MY: {
     ROOT: '/my',
@@ -71,4 +84,22 @@ export function managerWorkerSchedulePath(
 
 export function managerWorkspaceImagesEditPath(workspaceId: number) {
   return `/manager/workspaces/${workspaceId}/images/edit`
+}
+
+export function managerPostingDetailPath(postingId: number) {
+  return `/manager/postings/${postingId}`
+}
+
+export function managerPostingEditPath(postingId: number) {
+  return `/manager/postings/${postingId}/edit`
+}
+
+export function managerPostingApplicationsPath(postingId?: number) {
+  return postingId === undefined
+    ? '/manager/postings/applications'
+    : `/manager/postings/applications?postingId=${postingId}`
+}
+
+export function managerPostingApplicationDetailPath(applicationId: number) {
+  return `/manager/postings/applications/${applicationId}`
 }
