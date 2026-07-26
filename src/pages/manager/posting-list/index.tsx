@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 
+import WriteIcon from '@/assets/icons/posting/Write.svg?react'
 import { usePostingListViewModel } from '@/features/manager/posting/hooks/usePostingListViewModel'
 import { POSTING_STATUS_FILTER_OPTIONS } from '@/features/manager/posting/lib/postingStatus'
 import { FilterBar } from '@/features/manager/posting/ui/FilterBar'
 import { PostingListCard } from '@/features/manager/posting/ui/PostingListCard'
 import { managerPostingDetailPath, ROUTES } from '@/shared/constants/routes'
-import { AuthButton } from '@/shared/ui/common/AuthButton'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Skeleton } from '@/shared/ui/common/Skeleton'
 
@@ -47,10 +47,21 @@ export function ManagerPostingListPage() {
       <Navbar
         variant="detail"
         title="내 공고"
-        onBackClick={() => navigate(-1)}
+        showBack={false}
+        rightAction={
+          <button
+            type="button"
+            aria-label="공고 작성"
+            onClick={() => navigate(ROUTES.MANAGER.POSTING_NEW)}
+            className="flex h-6 w-6 items-center justify-center text-text-100 transition-colors hover:text-main"
+          >
+            <WriteIcon className="h-6 w-6" />
+          </button>
+        }
       />
 
-      <main className="mx-auto flex w-full max-w-[400px] flex-1 flex-col gap-3 px-4 pb-32 pt-4">
+      {/* 하단 Docbar(h-14)에 가리지 않도록 여유 패딩 */}
+      <main className="mx-auto flex w-full max-w-[400px] flex-1 flex-col gap-3 px-4 pb-24 pt-4">
         <FilterBar
           workspaceOptions={workspaceOptions}
           workspaceValue={workspaceFilter}
@@ -87,12 +98,6 @@ export function ManagerPostingListPage() {
           </ul>
         ) : null}
       </main>
-
-      <div className="fixed bottom-14 left-1/2 z-10 w-full max-w-[428px] -translate-x-1/2 border-t border-line-1 bg-white px-4 pb-4 pt-3">
-        <AuthButton onClick={() => navigate(ROUTES.MANAGER.POSTING_NEW)}>
-          공고 작성
-        </AuthButton>
-      </div>
     </div>
   )
 }
