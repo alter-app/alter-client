@@ -13,6 +13,8 @@ interface NavbarProps {
   onBackClick?: () => void
   /** 상세 헤더(`variant="detail"`) 우측 영역 — 알림·메뉴 자리에 커스텀 노출 시 사용 */
   rightAction?: ReactNode
+  /** 뒤로가기 버튼 노출 — 기본 true. Docbar 탭 진입점처럼 돌아갈 곳이 없는 화면은 false */
+  showBack?: boolean
   /** 하단 구분선 — 기본 true */
   showBorder?: boolean
   /** 메인 헤더 알림 뱃지 표시 여부 */
@@ -26,6 +28,7 @@ export function Navbar({
   title = '',
   onBackClick,
   rightAction,
+  showBack = true,
   showBorder = true,
   hasUnread = false,
   onNotificationClick,
@@ -55,14 +58,16 @@ export function Navbar({
             <span className="typography-logo">알터</span>
           </div>
         ) : (
-          <button
-            type="button"
-            aria-label="뒤로가기"
-            onClick={handleBackClick}
-            className="flex h-6 w-6 items-center justify-center"
-          >
-            <img src={ChevronLeftIcon} alt="Back" className="h-6 w-6" />
-          </button>
+          showBack && (
+            <button
+              type="button"
+              aria-label="뒤로가기"
+              onClick={handleBackClick}
+              className="flex h-6 w-6 items-center justify-center"
+            >
+              <img src={ChevronLeftIcon} alt="Back" className="h-6 w-6" />
+            </button>
+          )
         )}
       </div>
 
