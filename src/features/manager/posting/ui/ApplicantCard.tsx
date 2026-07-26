@@ -1,5 +1,6 @@
+import CalendarIcon from '@/assets/icons/posting/Calendar.svg?react'
+import ClockIcon from '@/assets/icons/posting/Clock.svg?react'
 import { ManagerApplicationStatusBadge } from '@/features/manager/posting/ui/ManagerApplicationStatusBadge'
-import { CalendarIcon, ClockIcon } from '@/features/manager/posting/ui/icons'
 import {
   formatRelativeTime,
   formatTimeRange,

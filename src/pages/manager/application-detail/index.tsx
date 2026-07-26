@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useApplicationDetailViewModel } from '@/features/manager/posting/hooks/useApplicationDetailViewModel'
 import { HiringActionBar } from '@/features/manager/posting/ui/HiringActionBar'
 import { ManagerApplicationStatusBadge } from '@/features/manager/posting/ui/ManagerApplicationStatusBadge'
-import { CheckCircleIcon } from '@/features/manager/posting/ui/icons'
+import CheckCircleIcon from '@/assets/icons/posting/CheckCircle.svg?react'
 import {
   formatTimeRange,
   formatWorkingDays,

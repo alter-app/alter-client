@@ -4,7 +4,7 @@ import { useApplicationListViewModel } from '@/features/manager/posting/hooks/us
 import { APPLICATION_STATUS_FILTER_OPTIONS } from '@/features/manager/posting/lib/applicationStatus'
 import { ApplicantCard } from '@/features/manager/posting/ui/ApplicantCard'
 import { FilterBar } from '@/features/manager/posting/ui/FilterBar'
-import { PersonIcon } from '@/features/manager/posting/ui/icons'
+import PersonIcon from '@/assets/icons/posting/Person.svg?react'
 import { managerPostingApplicationDetailPath } from '@/shared/constants/routes'
 import { MoreButton } from '@/shared/ui/common/MoreButton'
 import { Navbar } from '@/shared/ui/common/Navbar'

@@ -1,5 +1,6 @@
+import CloseIcon from '@/assets/icons/posting/Close.svg?react'
+import PlusIcon from '@/assets/icons/posting/Plus.svg?react'
 import type { PostingFormViewModel } from '@/features/manager/posting/hooks/usePostingForm'
-import { CloseIcon, PlusIcon } from '@/features/manager/posting/ui/icons'
 import {
   WORKING_DAYS,
   WORKING_DAY_LABEL,

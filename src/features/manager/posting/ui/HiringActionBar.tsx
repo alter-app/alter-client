@@ -2,7 +2,7 @@ import {
   HIRING_DECISIONS,
   type HiringDecision,
 } from '@/features/manager/posting/lib/applicationStatus'
-import { LockIcon } from '@/features/manager/posting/ui/icons'
+import LockIcon from '@/assets/icons/posting/Lock.svg?react'
 import { cn } from '@/shared/lib/utils'
 
 interface HiringActionBarProps {

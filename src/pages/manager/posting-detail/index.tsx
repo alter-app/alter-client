@@ -1,13 +1,11 @@
 import { useNavigate, useParams } from 'react-router-dom'
 
+import CalendarIcon from '@/assets/icons/posting/Calendar.svg?react'
+import ChevronRightIcon from '@/assets/icons/posting/ChevronRight.svg?react'
+import ClockIcon from '@/assets/icons/posting/Clock.svg?react'
+import PersonIcon from '@/assets/icons/posting/Person.svg?react'
 import { usePostingDetailViewModel } from '@/features/manager/posting/hooks/usePostingDetailViewModel'
 import { ManagerPostingStatusBadge } from '@/features/manager/posting/ui/ManagerPostingStatusBadge'
-import {
-  CalendarIcon,
-  ChevronRightIcon,
-  ClockIcon,
-  PersonIcon,
-} from '@/features/manager/posting/ui/icons'
 import {
   formatTimeRange,
   formatWorkingDays,

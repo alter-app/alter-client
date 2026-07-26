@@ -5,7 +5,7 @@ import {
   MOCK_KEYWORDS,
   MOCK_WORKSPACES,
 } from '@/features/manager/posting/mocks/data'
-import { AlertIcon } from '@/features/manager/posting/ui/icons'
+import AlertIcon from '@/assets/icons/posting/Alert.svg?react'
 import { ScheduleEditor } from '@/features/manager/posting/ui/ScheduleEditor'
 import {
   MAX_KEYWORDS,
