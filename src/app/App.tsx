@@ -178,6 +178,14 @@ export function App() {
             }
           />
           <Route
+            path={ROUTES.MANAGER.POSTING_APPLICATIONS_BY_POSTING_PATTERN}
+            element={
+              <HomeRouteGuard expected="MANAGER">
+                <ManagerApplicationListPage />
+              </HomeRouteGuard>
+            }
+          />
+          <Route
             path={ROUTES.MANAGER.POSTING_APPLICATION_DETAIL_PATTERN}
             element={
               <HomeRouteGuard expected="MANAGER">

@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { useApplicationListViewModel } from '@/features/manager/posting/hooks/useApplicationListViewModel'
 import { APPLICATION_STATUS_FILTER_OPTIONS } from '@/features/manager/posting/lib/applicationStatus'
@@ -33,11 +33,15 @@ function ApplicantListSkeleton() {
 /** SCREEN 2 · 지원자 목록 */
 export function ManagerApplicationListPage() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
+  const { postingId: postingIdParam } = useParams()
 
-  // 공고 상세 → '지원자 보기'로 진입한 경우 해당 공고로 한정
-  const postingIdParam = searchParams.get('postingId')
+  /**
+   * 진입 경로 2가지
+   * - Docbar '지원자' 탭: /manager/postings/applications — 전체 지원자, 뒤로가기 없음
+   * - 공고 상세 '지원자 보기': /manager/postings/:postingId/applications — 해당 공고로 한정
+   */
   const postingId = postingIdParam ? Number(postingIdParam) : undefined
+  const isFromPosting = postingId !== undefined
 
   const {
     applications,
@@ -55,7 +59,7 @@ export function ManagerApplicationListPage() {
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-bg-light">
-      <Navbar variant="detail" title="지원자 목록" />
+      <Navbar variant="detail" title="지원자 목록" showBack={isFromPosting} />
 
       {/* 하단 Docbar(h-14)에 가리지 않도록 여유 패딩 */}
       <main className="mx-auto flex w-full max-w-[400px] flex-1 flex-col gap-3 px-4 pb-24 pt-4">

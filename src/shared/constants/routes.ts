@@ -41,8 +41,11 @@ export const ROUTES = {
     POSTINGS: '/manager/postings',
     /** 공고 등록 */
     POSTING_NEW: '/manager/postings/new',
-    /** 지원자 목록 */
+    /** 지원자 목록 — Docbar 탭 진입점(전체 지원자) */
     POSTING_APPLICATIONS: '/manager/postings/applications',
+    /** 특정 공고의 지원자 목록 — 공고 상세에서 진입(Docbar 없음) */
+    POSTING_APPLICATIONS_BY_POSTING_PATTERN:
+      '/manager/postings/:postingId/applications',
     /** 지원자 상세·채용 결정 (파라미터) */
     POSTING_APPLICATION_DETAIL_PATTERN:
       '/manager/postings/applications/:applicationId',
@@ -95,9 +98,10 @@ export function managerPostingEditPath(postingId: number) {
 }
 
 export function managerPostingApplicationsPath(postingId?: number) {
+  // 공고 지정 시 Docbar 없는 하위 경로로, 미지정 시 탭 진입점으로
   return postingId === undefined
     ? '/manager/postings/applications'
-    : `/manager/postings/applications?postingId=${postingId}`
+    : `/manager/postings/${postingId}/applications`
 }
 
 export function managerPostingApplicationDetailPath(applicationId: number) {
