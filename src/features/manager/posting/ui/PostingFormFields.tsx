@@ -1,0 +1,197 @@
+import type { ReactNode } from 'react'
+
+import type { PostingFormViewModel } from '@/features/manager/posting/hooks/usePostingForm'
+import {
+  MOCK_KEYWORDS,
+  MOCK_WORKSPACES,
+} from '@/features/manager/posting/mocks/data'
+import { AlertIcon } from '@/features/manager/posting/ui/icons'
+import { ScheduleEditor } from '@/features/manager/posting/ui/ScheduleEditor'
+import {
+  MAX_KEYWORDS,
+  PAYMENT_TYPES,
+  PAYMENT_TYPE_LABEL,
+} from '@/features/manager/posting/types/posting'
+import { cn } from '@/shared/lib/utils'
+import { SelectDropdown } from '@/shared/ui/common/SelectDropdown'
+
+interface PostingFormFieldsProps {
+  form: PostingFormViewModel
+}
+
+/** 섹션 카드 — 라벨 + 필수 표시 + 에러 테두리/메시지 */
+function Section({
+  label,
+  required = false,
+  error,
+  hint,
+  children,
+}: {
+  label: string
+  required?: boolean
+  error?: string
+  hint?: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <section
+      className={cn(
+        'rounded-2xl bg-white p-4 shadow-sm',
+        error && 'border border-error'
+      )}
+    >
+      <div className="mb-2.5 flex items-center justify-between">
+        <h2 className="typography-body02-semibold text-text-100">
+          {label}
+          {required ? <span className="ml-0.5 text-error">*</span> : null}
+        </h2>
+        {hint}
+      </div>
+      {children}
+      {error ? (
+        <p className="mt-2 flex items-center gap-1 typography-body03-regular text-error">
+          <AlertIcon className="size-3.5 shrink-0" />
+          {error}
+        </p>
+      ) : null}
+    </section>
+  )
+}
+
+const inputClassName =
+  'h-12 w-full rounded-xl border bg-white px-3.5 typography-body02-regular text-text-100 placeholder:text-text-50 focus:outline-none'
+
+/** 공고 등록·수정 공용 폼 — 업장/제목/키워드/근무일정/급여/상세내용 */
+export function PostingFormFields({ form }: PostingFormFieldsProps) {
+  const { values, errors } = form
+
+  const workspaceOptions = MOCK_WORKSPACES.map(workspace => ({
+    value: workspace.id,
+    label: workspace.businessName,
+  }))
+
+  return (
+    <div className="flex flex-col gap-3">
+      <Section label="업장 선택" required error={errors.workspaceId}>
+        <SelectDropdown
+          ariaLabel="업장 선택"
+          placeholder="업장을 선택해 주세요"
+          options={workspaceOptions}
+          value={values.workspaceId ?? -1}
+          onChange={form.setWorkspaceId}
+        />
+      </Section>
+
+      <Section label="공고 제목" required error={errors.title}>
+        <input
+          type="text"
+          value={values.title}
+          placeholder="예: 주말 홀서빙 구합니다"
+          onChange={e => form.setTitle(e.target.value)}
+          className={cn(
+            inputClassName,
+            errors.title ? 'border-error' : 'border-line-1 focus:border-main'
+          )}
+        />
+      </Section>
+
+      <Section
+        label="업직종 키워드"
+        required
+        error={errors.keywords}
+        hint={
+          <span className="typography-body03-regular text-text-50">
+            최대 {MAX_KEYWORDS}개
+          </span>
+        }
+      >
+        <div className="flex flex-wrap gap-2">
+          {MOCK_KEYWORDS.map(keyword => {
+            const isSelected = values.keywords.includes(keyword)
+            const isDisabled =
+              !isSelected && values.keywords.length >= MAX_KEYWORDS
+            return (
+              <button
+                key={keyword}
+                type="button"
+                aria-pressed={isSelected}
+                disabled={isDisabled}
+                onClick={() => form.toggleKeyword(keyword)}
+                className={cn(
+                  'h-9 rounded-lg px-3.5 typography-body02-semibold transition-colors',
+                  isSelected
+                    ? 'bg-main-100 text-sub'
+                    : 'border border-dashed border-line-2 bg-white text-text-70',
+                  isDisabled && 'opacity-40'
+                )}
+              >
+                {isSelected ? keyword : `+ ${keyword}`}
+              </button>
+            )
+          })}
+        </div>
+      </Section>
+
+      <Section label="근무일정" required error={errors.schedules}>
+        <ScheduleEditor form={form} />
+      </Section>
+
+      <Section label="급여" required error={errors.payAmount}>
+        <div className="mb-2 flex gap-1.5">
+          {PAYMENT_TYPES.map(paymentType => {
+            const isSelected = values.paymentType === paymentType
+            return (
+              <button
+                key={paymentType}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => form.setPaymentType(paymentType)}
+                className={cn(
+                  'h-9 flex-1 rounded-lg typography-body02-semibold transition-colors',
+                  isSelected
+                    ? 'bg-main text-white'
+                    : 'border border-line-1 bg-white text-text-70'
+                )}
+              >
+                {PAYMENT_TYPE_LABEL[paymentType]}
+              </button>
+            )
+          })}
+        </div>
+        <div className="relative">
+          <input
+            type="text"
+            inputMode="numeric"
+            value={
+              values.payAmount === ''
+                ? ''
+                : Number(values.payAmount).toLocaleString('ko-KR')
+            }
+            placeholder="예: 12,000"
+            onChange={e => form.setPayAmount(e.target.value)}
+            className={cn(
+              inputClassName,
+              'pr-10',
+              errors.payAmount
+                ? 'border-error'
+                : 'border-line-1 focus:border-main'
+            )}
+          />
+          <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 typography-body02-regular text-text-70">
+            원
+          </span>
+        </div>
+      </Section>
+
+      <Section label="상세내용">
+        <textarea
+          value={values.description}
+          rows={5}
+          placeholder="근무 조건, 우대 사항 등을 자유롭게 작성해 주세요"
+          onChange={e => form.setDescription(e.target.value)}
+          className="w-full resize-none rounded-xl border border-line-1 bg-white p-3.5 typography-body02-regular text-text-100 placeholder:text-text-50 focus:border-main focus:outline-none"
+        />
+      </Section>
+    </div>
+  )
+}
