@@ -73,6 +73,21 @@ function ScheduleCard({
   const isExisting = schedule.id !== null
   const [pickerTarget, setPickerTarget] = useState<TimeTarget | null>(null)
 
+  /**
+   * 픽커는 휠 조작 시에만 onChange를 발생시키므로, 빈 값인 채로 열면
+   * 하이라이트된 '오전 12시 00분'을 그대로 닫아도 아무것도 기록되지 않습니다.
+   * 열기 전에 기본값(00:00)을 먼저 커밋해 보이는 값과 기록 값을 일치시킵니다.
+   */
+  const openPicker = (target: TimeTarget) => {
+    if (target === 'start' && schedule.startTime === '') {
+      form.updateSchedule(schedule.key, { startTime: '00:00' })
+    }
+    if (target === 'end' && schedule.endTime === '') {
+      form.updateSchedule(schedule.key, { endTime: '00:00' })
+    }
+    setPickerTarget(target)
+  }
+
   const start = splitTime(schedule.startTime)
   const end = splitTime(schedule.endTime)
 
@@ -166,12 +181,12 @@ function ScheduleCard({
         <TimeField
           label="시작"
           value={schedule.startTime}
-          onOpen={() => setPickerTarget('start')}
+          onOpen={() => openPicker('start')}
         />
         <TimeField
           label="종료"
           value={schedule.endTime}
-          onOpen={() => setPickerTarget('end')}
+          onOpen={() => openPicker('end')}
         />
       </div>
 
@@ -203,13 +218,24 @@ function ScheduleCard({
           <span className="mb-1 block typography-body03-regular text-text-70">
             모집 인원
           </span>
+          {/* 편집 중에는 빈 값(0)을 허용하고 blur 시점에 최소 1로 보정 */}
           <input
             type="number"
             min={1}
-            value={schedule.positionsNeeded}
+            value={
+              schedule.positionsNeeded === 0 ? '' : schedule.positionsNeeded
+            }
             onChange={e =>
               form.updateSchedule(schedule.key, {
-                positionsNeeded: Math.max(1, Number(e.target.value) || 1),
+                positionsNeeded: Math.max(
+                  0,
+                  Number(e.target.value.replace(/[^0-9]/g, '')) || 0
+                ),
+              })
+            }
+            onBlur={() =>
+              form.updateSchedule(schedule.key, {
+                positionsNeeded: Math.max(1, schedule.positionsNeeded),
               })
             }
             className="h-11 w-full rounded-xl border border-line-1 bg-white px-3 typography-body02-regular text-text-100 focus:border-main focus:outline-none"

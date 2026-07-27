@@ -52,7 +52,8 @@ function toPostingSchedules(
     startTime: schedule.startTime,
     endTime: schedule.endTime,
     position: schedule.position,
-    positionsNeeded: schedule.positionsNeeded,
+    // 편집 중 빈 값(0)이 남아 있어도 저장 시 최소 1명 보장
+    positionsNeeded: Math.max(1, schedule.positionsNeeded),
   }))
 }
 
