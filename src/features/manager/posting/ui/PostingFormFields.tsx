@@ -69,12 +69,14 @@ export function PostingFormFields({ form }: PostingFormFieldsProps) {
   return (
     <div className="flex flex-col gap-3">
       <Section label="업장 선택" required error={errors.workspaceId}>
+        {/* 공고의 소속 업장은 등록 시 확정 — 수정 화면에서는 변경 불가 */}
         <SelectDropdown
           ariaLabel="업장 선택"
           placeholder="업장을 선택해 주세요"
           options={workspaceOptions}
           value={values.workspaceId ?? -1}
           onChange={form.setWorkspaceId}
+          disabled={form.isEditMode}
         />
       </Section>
 
