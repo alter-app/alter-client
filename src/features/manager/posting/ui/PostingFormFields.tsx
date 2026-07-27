@@ -1,14 +1,10 @@
 import type { ReactNode } from 'react'
 
 import type { PostingFormViewModel } from '@/features/manager/posting/hooks/usePostingForm'
-import {
-  MOCK_KEYWORDS,
-  MOCK_WORKSPACES,
-} from '@/features/manager/posting/mocks/data'
+import { MOCK_WORKSPACES } from '@/features/manager/posting/mocks/data'
 import AlertIcon from '@/assets/icons/posting/Alert.svg?react'
 import { ScheduleEditor } from '@/features/manager/posting/ui/ScheduleEditor'
 import {
-  MAX_KEYWORDS,
   PAYMENT_TYPES,
   PAYMENT_TYPE_LABEL,
 } from '@/features/manager/posting/types/posting'
@@ -93,43 +89,6 @@ export function PostingFormFields({ form }: PostingFormFieldsProps) {
             errors.title ? 'border-error' : 'border-line-1 focus:border-main'
           )}
         />
-      </Section>
-
-      <Section
-        label="업직종 키워드"
-        required
-        error={errors.keywords}
-        hint={
-          <span className="typography-body03-regular text-text-50">
-            최대 {MAX_KEYWORDS}개
-          </span>
-        }
-      >
-        <div className="flex flex-wrap gap-2">
-          {MOCK_KEYWORDS.map(keyword => {
-            const isSelected = values.keywords.includes(keyword)
-            const isDisabled =
-              !isSelected && values.keywords.length >= MAX_KEYWORDS
-            return (
-              <button
-                key={keyword}
-                type="button"
-                aria-pressed={isSelected}
-                disabled={isDisabled}
-                onClick={() => form.toggleKeyword(keyword)}
-                className={cn(
-                  'h-9 rounded-lg px-3.5 typography-body02-semibold transition-colors',
-                  isSelected
-                    ? 'bg-main-100 text-sub'
-                    : 'border border-dashed border-line-2 bg-white text-text-70',
-                  isDisabled && 'opacity-40'
-                )}
-              >
-                {isSelected ? keyword : `+ ${keyword}`}
-              </button>
-            )
-          })}
-        </div>
       </Section>
 
       <Section label="근무일정" required error={errors.schedules}>

@@ -73,7 +73,6 @@ export interface Posting {
   businessType: string
   title: string
   description: string
-  keywords: string[]
   paymentType: PaymentType
   payAmount: number
   status: PostingStatus
@@ -124,7 +123,6 @@ export interface PostingFormSchedule extends PostingSchedule {
 export interface PostingFormValues {
   workspaceId: number | null
   title: string
-  keywords: string[]
   schedules: PostingFormSchedule[]
   paymentType: PaymentType
   payAmount: string
@@ -135,13 +133,9 @@ export interface PostingFormValues {
 export interface PostingFormErrors {
   workspaceId?: string
   title?: string
-  keywords?: string
   schedules?: string
   payAmount?: string
 }
-
-/** 공고당 선택 가능한 최대 키워드 수 */
-export const MAX_KEYWORDS = 3
 
 // ---- 포맷터 ----
 export function formatPay(paymentType: PaymentType, payAmount: number): string {

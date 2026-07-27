@@ -13,18 +13,6 @@ export const MOCK_WORKSPACES: Workspace[] = [
   { id: 2, businessName: '알터 성수 로스터리', businessType: '카페' },
 ]
 
-/** 업직종 키워드 — GET /manager/postings/available-keywords 대체 */
-export const MOCK_KEYWORDS: string[] = [
-  '카페',
-  '홀서빙',
-  '바리스타',
-  '베이킹',
-  '주방보조',
-  '마감청소',
-  '캐셔',
-  '배달',
-]
-
 export const MOCK_POSTINGS: Posting[] = [
   {
     id: 1,
@@ -34,7 +22,6 @@ export const MOCK_POSTINGS: Posting[] = [
     title: '주말 홀서빙 · 오후 마감조 구합니다',
     description:
       '주말 오후 마감조 홀서빙 아르바이트를 구합니다. 성실하게 근무하실 분 환영해요. 경험자 우대하며, 미경험자도 교육 후 근무 가능합니다.',
-    keywords: ['카페', '홀서빙'],
     paymentType: 'HOURLY',
     payAmount: 12000,
     status: 'OPEN',
@@ -67,7 +54,6 @@ export const MOCK_POSTINGS: Posting[] = [
     title: '평일 오픈 바리스타',
     description:
       '평일 오픈조 바리스타를 모집합니다. 바리스타 자격증 보유자 우대합니다.',
-    keywords: ['카페', '바리스타'],
     paymentType: 'HOURLY',
     payAmount: 12500,
     status: 'OPEN',
@@ -91,7 +77,6 @@ export const MOCK_POSTINGS: Posting[] = [
     businessType: '카페',
     title: '여름 성수기 주말 단기',
     description: '여름 성수기 주말 단기 아르바이트를 모집합니다.',
-    keywords: ['카페', '베이킹'],
     paymentType: 'DAILY',
     payAmount: 90000,
     status: 'CLOSED',

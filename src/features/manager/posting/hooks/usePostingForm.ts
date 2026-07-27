@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 
 import {
-  MAX_KEYWORDS,
   type PaymentType,
   type Posting,
   type PostingFormErrors,
@@ -30,7 +29,6 @@ function createInitialValues(posting?: Posting | null): PostingFormValues {
     return {
       workspaceId: null,
       title: '',
-      keywords: [],
       schedules: [createEmptySchedule()],
       paymentType: 'HOURLY',
       payAmount: '',
@@ -41,7 +39,6 @@ function createInitialValues(posting?: Posting | null): PostingFormValues {
   return {
     workspaceId: posting.workspaceId,
     title: posting.title,
-    keywords: [...posting.keywords],
     schedules: posting.schedules.map(schedule => {
       scheduleKeySeq += 1
       return {
@@ -65,10 +62,6 @@ function validate(values: PostingFormValues): PostingFormErrors {
   if (values.title.trim() === '') {
     errors.title = '공고 제목을 입력해 주세요'
   }
-  if (values.keywords.length === 0) {
-    errors.keywords = '업직종을 1개 이상 선택해 주세요'
-  }
-
   const hasIncompleteSchedule = values.schedules.some(
     schedule =>
       schedule.workingDays.length === 0 ||
@@ -122,19 +115,6 @@ export function usePostingForm({ posting }: UsePostingFormOptions = {}) {
 
   const setTitle = useCallback((title: string) => {
     setValues(prev => ({ ...prev, title }))
-  }, [])
-
-  const toggleKeyword = useCallback((keyword: string) => {
-    setValues(prev => {
-      if (prev.keywords.includes(keyword)) {
-        return {
-          ...prev,
-          keywords: prev.keywords.filter(item => item !== keyword),
-        }
-      }
-      if (prev.keywords.length >= MAX_KEYWORDS) return prev
-      return { ...prev, keywords: [...prev.keywords, keyword] }
-    })
   }, [])
 
   const setPaymentType = useCallback((paymentType: PaymentType) => {
@@ -206,7 +186,6 @@ export function usePostingForm({ posting }: UsePostingFormOptions = {}) {
     isEditMode,
     setWorkspaceId,
     setTitle,
-    toggleKeyword,
     setPaymentType,
     setPayAmount,
     setDescription,

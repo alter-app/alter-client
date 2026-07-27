@@ -64,19 +64,6 @@ export function ManagerPostingDetailPage() {
             </p>
             <ManagerPostingStatusBadge status={posting.status} />
           </div>
-
-          {posting.keywords.length > 0 ? (
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {posting.keywords.map(keyword => (
-                <span
-                  key={keyword}
-                  className="rounded-lg bg-main-100 px-2.5 py-1 typography-body03-semibold text-sub"
-                >
-                  {keyword}
-                </span>
-              ))}
-            </div>
-          ) : null}
         </section>
 
         <section className="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm">
