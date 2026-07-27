@@ -1,6 +1,11 @@
 import CloseIcon from '@/assets/icons/posting/Close.svg?react'
 import PlusIcon from '@/assets/icons/posting/Plus.svg?react'
+import { useState } from 'react'
+
 import type { PostingFormViewModel } from '@/features/manager/posting/hooks/usePostingForm'
+import { formatKoreanTimePart } from '@/shared/lib/formatKoreanWorkTime'
+import type { WorkTimeEditorState } from '@/shared/types/workTime'
+import { WorkTimePickerDrawer } from '@/shared/ui/common/WorkTimePickerDrawer'
 import {
   WORKING_DAYS,
   WORKING_DAY_LABEL,
@@ -10,6 +15,48 @@ import { cn } from '@/shared/lib/utils'
 
 interface ScheduleEditorProps {
   form: PostingFormViewModel
+}
+
+type TimeTarget = 'start' | 'end'
+
+/** 'HH:MM' → { hour, minute }. 미입력이면 빈 문자열 */
+function splitTime(time: string) {
+  const [hour = '', minute = ''] = time.split(':')
+  return { hour, minute }
+}
+
+/** 시간 선택 버튼 — 미입력 시 플레이스홀더를 노출합니다 */
+function TimeField({
+  label,
+  value,
+  onOpen,
+}: {
+  label: string
+  value: string
+  onOpen: () => void
+}) {
+  const { hour, minute } = splitTime(value)
+  const isEmpty = value === ''
+
+  return (
+    <div className="flex-1">
+      <span className="mb-1 block typography-body03-regular text-text-70">
+        {label}
+      </span>
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-haspopup="dialog"
+        aria-label={`${label} 시간 선택`}
+        className={cn(
+          'h-11 w-full rounded-xl border border-line-1 bg-white px-3 text-left typography-body02-regular transition-colors hover:border-main',
+          isEmpty ? 'text-text-50' : 'text-text-100'
+        )}
+      >
+        {isEmpty ? '시간 선택' : formatKoreanTimePart(hour, minute)}
+      </button>
+    </div>
+  )
 }
 
 function ScheduleCard({
@@ -24,6 +71,37 @@ function ScheduleCard({
   canRemove: boolean
 }) {
   const isExisting = schedule.id !== null
+  const [pickerTarget, setPickerTarget] = useState<TimeTarget | null>(null)
+
+  const start = splitTime(schedule.startTime)
+  const end = splitTime(schedule.endTime)
+
+  /**
+   * 폼의 'HH:MM' 문자열을 픽커가 요구하는 시/분 단위 상태로 어댑트합니다.
+   * 한쪽만 선택된 경우 나머지는 '00'으로 채웁니다.
+   */
+  const workTime: WorkTimeEditorState = {
+    startHour: start.hour,
+    startMinute: start.minute,
+    endHour: end.hour,
+    endMinute: end.minute,
+    setStartHour: hour =>
+      form.updateSchedule(schedule.key, {
+        startTime: `${hour}:${start.minute || '00'}`,
+      }),
+    setStartMinute: minute =>
+      form.updateSchedule(schedule.key, {
+        startTime: `${start.hour || '00'}:${minute}`,
+      }),
+    setEndHour: hour =>
+      form.updateSchedule(schedule.key, {
+        endTime: `${hour}:${end.minute || '00'}`,
+      }),
+    setEndMinute: minute =>
+      form.updateSchedule(schedule.key, {
+        endTime: `${end.hour || '00'}:${minute}`,
+      }),
+  }
 
   return (
     <div
@@ -85,33 +163,26 @@ function ScheduleCard({
       </div>
 
       <div className="mb-3 flex gap-2">
-        <label className="flex-1">
-          <span className="mb-1 block typography-body03-regular text-text-70">
-            시작
-          </span>
-          <input
-            type="time"
-            value={schedule.startTime}
-            onChange={e =>
-              form.updateSchedule(schedule.key, { startTime: e.target.value })
-            }
-            className="h-11 w-full rounded-xl border border-line-1 bg-white px-3 typography-body02-regular text-text-100 focus:border-main focus:outline-none"
-          />
-        </label>
-        <label className="flex-1">
-          <span className="mb-1 block typography-body03-regular text-text-70">
-            종료
-          </span>
-          <input
-            type="time"
-            value={schedule.endTime}
-            onChange={e =>
-              form.updateSchedule(schedule.key, { endTime: e.target.value })
-            }
-            className="h-11 w-full rounded-xl border border-line-1 bg-white px-3 typography-body02-regular text-text-100 focus:border-main focus:outline-none"
-          />
-        </label>
+        <TimeField
+          label="시작"
+          value={schedule.startTime}
+          onOpen={() => setPickerTarget('start')}
+        />
+        <TimeField
+          label="종료"
+          value={schedule.endTime}
+          onOpen={() => setPickerTarget('end')}
+        />
       </div>
+
+      <WorkTimePickerDrawer
+        open={pickerTarget !== null}
+        target={pickerTarget}
+        workTime={workTime}
+        onOpenChange={open => {
+          if (!open) setPickerTarget(null)
+        }}
+      />
 
       <div className="flex gap-2">
         <label className="flex-1">
