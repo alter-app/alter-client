@@ -36,8 +36,9 @@ export function ManagerPostingEditPage() {
   }
 
   return (
+    // key로 공고 전환 시 컴포넌트를 리마운트해 폼 초기값(usePostingForm의 lazy useState)을 재계산
     <PostingEditContent
-      postingId={numericPostingId}
+      key={numericPostingId}
       posting={posting}
       onSubmit={values => {
         updatePosting(numericPostingId, values)
@@ -49,20 +50,15 @@ export function ManagerPostingEditPage() {
 }
 
 interface PostingEditContentProps {
-  postingId: number
   posting: Posting
   onSubmit: (values: PostingFormValues) => void
 }
 
 /**
  * 폼 초기값이 `posting`에 의존하므로, 공고를 찾은 뒤에 마운트되도록 분리합니다
- * (훅 순서를 안정적으로 유지).
+ * (훅 순서를 안정적으로 유지). 공고 전환 시 리마운트는 호출부의 key가 담당합니다.
  */
-function PostingEditContent({
-  postingId,
-  posting,
-  onSubmit,
-}: PostingEditContentProps) {
+function PostingEditContent({ posting, onSubmit }: PostingEditContentProps) {
   const form = usePostingForm({ posting })
 
   const handleSubmit = () => {
@@ -71,7 +67,7 @@ function PostingEditContent({
   }
 
   return (
-    <div key={postingId} className="flex min-h-[100dvh] flex-col bg-bg-light">
+    <div className="flex min-h-[100dvh] flex-col bg-bg-light">
       <Navbar variant="detail" title="공고 수정" />
 
       <main className="mx-auto flex w-full max-w-[400px] flex-1 flex-col px-4 pb-28 pt-4">
