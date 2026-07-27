@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { formatKoreanTimePart } from '@/pages/manager/worker-schedule/lib/formatKoreanWorkTime'
-import { WorkTimePickerDrawer } from '@/pages/manager/worker-schedule/components/WorkTimePickerDrawer'
-import type { WorkTimeEditorState } from '@/pages/manager/worker-schedule/types/workTime'
+import { formatKoreanTimePart } from '@/shared/lib/formatKoreanWorkTime'
+import { WorkTimePickerDrawer } from '@/shared/ui/common/WorkTimePickerDrawer'
+import type { WorkTimeEditorState } from '@/shared/types/workTime'
 import { cn } from '@/shared/lib/utils'
 
 type EditTarget = 'start' | 'end'

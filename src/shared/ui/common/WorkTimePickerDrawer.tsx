@@ -1,5 +1,5 @@
 import { Drawer } from 'vaul'
-import { WheelPicker } from '@/pages/manager/worker-schedule/components/WheelPicker'
+import { WheelPicker } from '@/shared/ui/common/WheelPicker'
 import {
   hour24To12Parts,
   partsToHour24,
@@ -7,8 +7,8 @@ import {
   minuteToTenMinuteIndex,
   WORK_TIME_MINUTE_OPTIONS,
   type TimePeriod,
-} from '@/pages/manager/worker-schedule/lib/formatKoreanWorkTime'
-import type { WorkTimeEditorState } from '@/pages/manager/worker-schedule/types/workTime'
+} from '@/shared/lib/formatKoreanWorkTime'
+import type { WorkTimeEditorState } from '@/shared/types/workTime'
 
 const PERIOD_ITEMS = ['오전', '오후'] as const
 const HOUR_ITEMS = Array.from({ length: 12 }, (_, i) => `${i + 1}시`)

@@ -7,7 +7,7 @@ import { ScheduleDateDisplayRow } from '@/pages/manager/worker-schedule/componen
 import { ScheduleDatePickerDrawer } from '@/pages/manager/worker-schedule/components/ScheduleDatePickerDrawer'
 import { WeekdayPicker } from '@/pages/manager/worker-schedule/components/WeekdayPicker'
 import { WorkTimeRangeField } from '@/pages/manager/worker-schedule/components/WorkTimeRangeField'
-import type { WorkTimeEditorState } from '@/pages/manager/worker-schedule/types/workTime'
+import type { WorkTimeEditorState } from '@/shared/types/workTime'
 
 type DatePickerTarget = 'start' | 'end' | null
 
