@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { useApplicationListViewModel } from '@/features/manager/posting/hooks/useApplicationListViewModel'
@@ -6,8 +7,8 @@ import { ApplicantCard } from '@/features/manager/posting/ui/ApplicantCard'
 import { FilterBar } from '@/features/manager/posting/ui/FilterBar'
 import PersonIcon from '@/assets/icons/posting/Person.svg?react'
 import { managerPostingApplicationDetailPath } from '@/shared/constants/routes'
-import { MoreButton } from '@/shared/ui/common/MoreButton'
 import { Navbar } from '@/shared/ui/common/Navbar'
+import { Spinner } from '@/shared/ui/Spinner'
 import { Skeleton } from '@/shared/ui/common/Skeleton'
 
 function ApplicantListSkeleton() {
@@ -49,6 +50,7 @@ export function ManagerApplicationListPage() {
     isLoading,
     isEmpty,
     hasNextPage,
+    isFetchingNextPage,
     fetchNextPage,
     workspaceFilter,
     setWorkspaceFilter,
@@ -56,6 +58,28 @@ export function ManagerApplicationListPage() {
     setStatusFilter,
     workspaceOptions,
   } = useApplicationListViewModel({ postingId })
+
+  // 커서 기반 무한스크롤 — 목록 하단 sentinel이 보이면 다음 페이지 로드
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  /** sentinel은 로딩이 끝난 뒤에야 마운트되므로 deps에 isLoading·개수를 포함해야 관찰이 붙는다 */
+  const visibleCount = applications.length
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage()
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, isLoading, visibleCount])
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-bg-light">
@@ -107,7 +131,14 @@ export function ManagerApplicationListPage() {
                 </li>
               ))}
             </ul>
-            {hasNextPage ? <MoreButton onClick={fetchNextPage} /> : null}
+            {/* 무한스크롤 감지 지점 */}
+            <div
+              ref={sentinelRef}
+              className="flex h-10 items-center justify-center"
+              aria-hidden={!isFetchingNextPage}
+            >
+              {isFetchingNextPage ? <Spinner size={24} /> : null}
+            </div>
           </>
         ) : null}
       </main>

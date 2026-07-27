@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { ApplicationStatusFilter } from '@/features/manager/posting/lib/applicationStatus'
 import { MOCK_WORKSPACES } from '@/features/manager/posting/mocks/data'
@@ -31,22 +31,48 @@ export function useApplicationListViewModel({
     useState<ApplicationStatusFilter>('ALL')
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [isLoading, setIsLoading] = useState(true)
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false)
+  /** 다음 페이지 로딩 타이머 — 언마운트·필터 변경 시 취소 */
+  const nextPageTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), MOCK_LATENCY)
     return () => clearTimeout(timer)
   }, [])
 
-  // 필터가 바뀌면 페이지를 처음으로 되돌림
-  const setWorkspaceFilter = useCallback((value: WorkspaceFilter) => {
-    setWorkspaceFilterState(value)
+  useEffect(
+    () => () => {
+      if (nextPageTimer.current) clearTimeout(nextPageTimer.current)
+    },
+    []
+  )
+
+  /** 진행 중인 다음 페이지 로딩을 취소하고 첫 페이지로 되돌림 */
+  const resetPaging = useCallback(() => {
+    if (nextPageTimer.current) {
+      clearTimeout(nextPageTimer.current)
+      nextPageTimer.current = null
+    }
+    setIsFetchingNextPage(false)
     setVisibleCount(PAGE_SIZE)
   }, [])
 
-  const setStatusFilter = useCallback((value: ApplicationStatusFilter) => {
-    setStatusFilterState(value)
-    setVisibleCount(PAGE_SIZE)
-  }, [])
+  // 필터가 바뀌면 페이지를 처음으로 되돌림
+  const setWorkspaceFilter = useCallback(
+    (value: WorkspaceFilter) => {
+      setWorkspaceFilterState(value)
+      resetPaging()
+    },
+    [resetPaging]
+  )
+
+  const setStatusFilter = useCallback(
+    (value: ApplicationStatusFilter) => {
+      setStatusFilterState(value)
+      resetPaging()
+    },
+    [resetPaging]
+  )
 
   const filteredApplications = useMemo(
     () =>
@@ -71,8 +97,15 @@ export function useApplicationListViewModel({
   const visibleApplications = filteredApplications.slice(0, visibleCount)
   const hasNextPage = visibleCount < filteredApplications.length
 
+  /** 커서 기반 다음 페이지 로드 — 실제 API 연동 시 useInfiniteQuery로 교체 */
   const fetchNextPage = useCallback(() => {
-    setVisibleCount(prev => prev + PAGE_SIZE)
+    if (nextPageTimer.current) return
+    setIsFetchingNextPage(true)
+    nextPageTimer.current = setTimeout(() => {
+      setVisibleCount(prev => prev + PAGE_SIZE)
+      setIsFetchingNextPage(false)
+      nextPageTimer.current = null
+    }, MOCK_LATENCY)
   }, [])
 
   const workspaceOptions = useMemo(
@@ -92,6 +125,7 @@ export function useApplicationListViewModel({
     isLoading,
     isEmpty: !isLoading && filteredApplications.length === 0,
     hasNextPage,
+    isFetchingNextPage,
     fetchNextPage,
     workspaceFilter,
     setWorkspaceFilter,
