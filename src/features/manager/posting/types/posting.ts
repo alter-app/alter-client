@@ -2,10 +2,10 @@
  * 사장님 구인구직 — 매니저 측 공고/지원자 UI 모델
  *
  * 서버 DTO(`@/features/manager/home/types/posting`)와 지원 상태 enum
- * (`@/features/user/home/applied-stores/types/application`)을 계승합니다.
+ * (`@/shared/types/applicationStatus`)을 계승합니다.
  * API 미연동 단계이므로 화면이 소비하는 UI 모델을 이 파일에서 정의합니다.
  */
-import type { ApplicationApiStatus } from '@/features/user/home/applied-stores/types/application'
+import type { ApplicationApiStatus } from '@/shared/types/applicationStatus'
 import type { PaymentType } from '@/shared/constants/payment'
 import type { WorkingDay } from '@/shared/constants/workingDays'
 import { WORKING_DAYS, WORKING_DAY_LABEL } from '@/shared/constants/workingDays'
