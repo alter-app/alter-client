@@ -6,40 +6,14 @@
  * API 미연동 단계이므로 화면이 소비하는 UI 모델을 이 파일에서 정의합니다.
  */
 import type { ApplicationApiStatus } from '@/features/user/home/applied-stores/types/application'
+import type { PaymentType } from '@/shared/constants/payment'
+import type { WorkingDay } from '@/shared/constants/workingDays'
+import { WORKING_DAYS, WORKING_DAY_LABEL } from '@/shared/constants/workingDays'
 
-// ---- 요일 ----
-export const WORKING_DAYS = [
-  'MONDAY',
-  'TUESDAY',
-  'WEDNESDAY',
-  'THURSDAY',
-  'FRIDAY',
-  'SATURDAY',
-  'SUNDAY',
-] as const
-
-export type WorkingDay = (typeof WORKING_DAYS)[number]
-
-export const WORKING_DAY_LABEL: Record<WorkingDay, string> = {
-  MONDAY: '월',
-  TUESDAY: '화',
-  WEDNESDAY: '수',
-  THURSDAY: '목',
-  FRIDAY: '금',
-  SATURDAY: '토',
-  SUNDAY: '일',
-}
-
-// ---- 급여 ----
-export const PAYMENT_TYPES = ['HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY'] as const
-export type PaymentType = (typeof PAYMENT_TYPES)[number]
-
-export const PAYMENT_TYPE_LABEL: Record<PaymentType, string> = {
-  HOURLY: '시급',
-  DAILY: '일급',
-  WEEKLY: '주급',
-  MONTHLY: '월급',
-}
+// ---- 요일·급여 (shared 재노출 — 슬라이스 내 호출부 경로 유지) ----
+export type { PaymentType, WorkingDay }
+export { PAYMENT_TYPES, PAYMENT_TYPE_LABEL } from '@/shared/constants/payment'
+export { WORKING_DAYS, WORKING_DAY_LABEL }
 
 // ---- 공고 상태 ----
 /** OPEN=모집중, CLOSED=모집완료 */
@@ -138,10 +112,6 @@ export interface PostingFormErrors {
 }
 
 // ---- 포맷터 ----
-export function formatPay(paymentType: PaymentType, payAmount: number): string {
-  return `${PAYMENT_TYPE_LABEL[paymentType]} ${payAmount.toLocaleString('ko-KR')}원`
-}
-
 export function formatWorkingDays(days: WorkingDay[]): string {
   if (days.length === 0) return '-'
   return WORKING_DAYS.filter(day => days.includes(day))
@@ -153,20 +123,4 @@ export function formatTimeRange(startTime: string, endTime: string): string {
   return `${startTime}~${endTime}`
 }
 
-/** 지원 시각을 '방금 전 / N시간 전 / 어제 / N일 전' 형태로 변환 */
-export function formatRelativeTime(isoDate: string, now = new Date()): string {
-  const target = new Date(isoDate)
-  const diffMs = now.getTime() - target.getTime()
-  if (Number.isNaN(diffMs)) return ''
-
-  const diffMinutes = Math.floor(diffMs / (1000 * 60))
-  if (diffMinutes < 1) return '방금 전'
-  if (diffMinutes < 60) return `${diffMinutes}분 전`
-
-  const diffHours = Math.floor(diffMinutes / 60)
-  if (diffHours < 24) return `${diffHours}시간 전`
-
-  const diffDays = Math.floor(diffHours / 24)
-  if (diffDays === 1) return '어제'
-  return `${diffDays}일 전`
-}
+export { formatRelativeTime } from '@/shared/lib/formatRelativeTime'

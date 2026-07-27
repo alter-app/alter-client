@@ -1,3 +1,5 @@
+import { PAYMENT_TYPE_LABEL as SHARED_PAYMENT_TYPE_LABEL } from '@/shared/constants/payment'
+import { WORKING_DAYS, WORKING_DAY_LABEL } from '@/shared/constants/workingDays'
 import type { CommonApiResponse } from '@/shared/types/common'
 import type { JobPostingItem } from '@/shared/ui/manager/OngoingPostingCard'
 
@@ -51,22 +53,10 @@ export interface ManagedPostingsQueryParams {
 }
 
 // ---- Mappers ----
-const PAYMENT_TYPE_LABEL: Record<string, string> = {
-  HOURLY: '시급',
-  DAILY: '일급',
-  MONTHLY: '월급',
-  WEEKLY: '주급',
-}
+// 서버 응답의 paymentType/workingDays는 string이므로 안전한 폴백을 위해 넓은 타입으로 참조
+const PAYMENT_TYPE_LABEL: Record<string, string> = SHARED_PAYMENT_TYPE_LABEL
 
-const WORKING_DAY_KO: Record<string, string> = {
-  MONDAY: '월',
-  TUESDAY: '화',
-  WEDNESDAY: '수',
-  THURSDAY: '목',
-  FRIDAY: '금',
-  SATURDAY: '토',
-  SUNDAY: '일',
-}
+const WORKING_DAY_KO: Record<string, string> = WORKING_DAY_LABEL
 
 function formatWage(payAmount: number, paymentType: string): string {
   const label = PAYMENT_TYPE_LABEL[paymentType] ?? paymentType
@@ -84,17 +74,8 @@ function formatWorkHours(schedules: PostingScheduleDto[]): string {
 function formatWorkDays(schedules: PostingScheduleDto[]): string {
   if (schedules.length === 0) return '-'
   // 모든 스케줄의 요일을 합산 후 중복 제거 + 요일 순서 정렬
-  const DAY_ORDER = [
-    'MONDAY',
-    'TUESDAY',
-    'WEDNESDAY',
-    'THURSDAY',
-    'FRIDAY',
-    'SATURDAY',
-    'SUNDAY',
-  ]
   const daySet = new Set(schedules.flatMap(s => s.workingDays))
-  return DAY_ORDER.filter(d => daySet.has(d))
+  return WORKING_DAYS.filter(d => daySet.has(d))
     .map(d => WORKING_DAY_KO[d] ?? d)
     .join(', ')
 }
