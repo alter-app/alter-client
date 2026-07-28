@@ -321,9 +321,9 @@ export function JobLookupMapPage() {
         }}
         className="absolute inset-x-0 bottom-[30px] z-[40] mx-auto flex h-[calc(100dvh-78px)] max-h-[calc(100dvh-78px)] w-full max-w-[428px] flex-col overflow-hidden rounded-t-[32px] border border-line-2 border-b-0 bg-white"
       >
-        <div className="mx-auto mt-4 h-1 w-[50px] shrink-0 rounded-full bg-line-2" />
+        <motion.div className="mx-auto mt-4 h-1 w-[50px] rounded-full bg-line-2" />
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-[calc(1.5rem+78px+env(safe-area-inset-bottom))] pt-3">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pt-3 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
           <AlbaFindCategoryBar
             mode={mode}
             onModeChange={setMode}

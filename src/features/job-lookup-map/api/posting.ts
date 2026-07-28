@@ -37,43 +37,95 @@ function normalizePageCursor(cursor: unknown): string | null {
   return asString !== '' ? asString : null
 }
 
-function isPostingListItem(
+function parsePostingListItem(
   value: unknown
-): value is PostingListResponse['data'][number] {
-  if (value === null || typeof value !== 'object') return false
+): PostingListResponse['data'][number] | null {
+  if (value === null || typeof value !== 'object') return null
   const record = value as Record<string, unknown>
-  const workspace = record.workspace
-  return (
-    typeof record.id === 'number' &&
-    typeof record.title === 'string' &&
-    typeof record.payAmount === 'number' &&
-    typeof record.paymentType === 'string' &&
-    typeof record.createdAt === 'string' &&
-    typeof record.scrapped === 'boolean' &&
-    Array.isArray(record.keywords) &&
-    Array.isArray(record.schedules) &&
-    workspace !== null &&
-    typeof workspace === 'object' &&
-    typeof (workspace as { id?: unknown }).id === 'number' &&
-    typeof (workspace as { businessName?: unknown }).businessName === 'string'
-  )
+  const workspaceRaw = record.workspace
+
+  // 목록 렌더에 필수인 필드만 엄격 검사. 나머지는 기본값으로 보정.
+  if (
+    typeof record.id !== 'number' ||
+    typeof record.title !== 'string' ||
+    typeof record.payAmount !== 'number' ||
+    workspaceRaw === null ||
+    typeof workspaceRaw !== 'object'
+  ) {
+    return null
+  }
+
+  const workspace = workspaceRaw as Record<string, unknown>
+  if (typeof workspace.id !== 'number') return null
+
+  const businessName =
+    typeof workspace.businessName === 'string'
+      ? workspace.businessName
+      : typeof workspace.name === 'string'
+        ? workspace.name
+        : ''
+
+  return {
+    id: record.id,
+    title: record.title,
+    payAmount: record.payAmount,
+    paymentType:
+      typeof record.paymentType === 'string' ? record.paymentType : 'HOURLY',
+    createdAt: typeof record.createdAt === 'string' ? record.createdAt : '',
+    keywords: Array.isArray(record.keywords)
+      ? (record.keywords as PostingListResponse['data'][number]['keywords'])
+      : [],
+    schedules: Array.isArray(record.schedules)
+      ? (record.schedules as PostingListResponse['data'][number]['schedules'])
+      : [],
+    workspace: {
+      id: workspace.id,
+      businessName,
+      name: typeof workspace.name === 'string' ? workspace.name : businessName,
+      latitude: typeof workspace.latitude === 'number' ? workspace.latitude : 0,
+      longitude:
+        typeof workspace.longitude === 'number' ? workspace.longitude : 0,
+      fullAddress:
+        typeof workspace.fullAddress === 'string' ? workspace.fullAddress : '',
+      town: typeof workspace.town === 'string' ? workspace.town : '',
+    },
+    scrapped: typeof record.scrapped === 'boolean' ? record.scrapped : false,
+  }
 }
 
-function isFavoritePostingItem(value: unknown): value is FavoritePostingItem {
-  if (value === null || typeof value !== 'object') return false
+function parseFavoritePostingItem(value: unknown): FavoritePostingItem | null {
+  if (value === null || typeof value !== 'object') return null
   const record = value as Record<string, unknown>
   const posting = record.posting
-  if (posting === null || typeof posting !== 'object') return false
+  if (posting === null || typeof posting !== 'object') return null
   const postingRecord = posting as Record<string, unknown>
-  return (
-    typeof record.id === 'number' &&
-    typeof record.createdAt === 'string' &&
-    typeof postingRecord.id === 'number' &&
-    typeof postingRecord.businessName === 'string' &&
-    typeof postingRecord.title === 'string' &&
-    typeof postingRecord.payAmount === 'number' &&
-    typeof postingRecord.paymentType === 'string'
-  )
+
+  if (
+    typeof record.id !== 'number' ||
+    typeof postingRecord.id !== 'number' ||
+    typeof postingRecord.title !== 'string' ||
+    typeof postingRecord.payAmount !== 'number'
+  ) {
+    return null
+  }
+
+  return {
+    id: record.id,
+    createdAt: typeof record.createdAt === 'string' ? record.createdAt : '',
+    posting: {
+      id: postingRecord.id,
+      businessName:
+        typeof postingRecord.businessName === 'string'
+          ? postingRecord.businessName
+          : '',
+      title: postingRecord.title,
+      payAmount: postingRecord.payAmount,
+      paymentType:
+        typeof postingRecord.paymentType === 'string'
+          ? postingRecord.paymentType
+          : 'HOURLY',
+    },
+  }
 }
 
 function normalizePage(
@@ -107,13 +159,19 @@ function normalizePostingListResponse(value: unknown): PostingListResponse {
   if (!Array.isArray(record.data)) {
     throw new Error('공고 목록 응답 형식이 올바르지 않습니다.')
   }
-  if (!record.data.every(isPostingListItem)) {
+
+  const data = record.data
+    .map(parsePostingListItem)
+    .filter((item): item is PostingListResponse['data'][number] => item != null)
+
+  // 항목이 있는데 전부 파싱 실패하면 스키마 문제로 보고 에러 처리
+  if (record.data.length > 0 && data.length === 0) {
     throw new Error('공고 목록 응답 형식이 올바르지 않습니다.')
   }
 
   return {
-    data: record.data,
-    page: normalizePage(record.page, record.data.length),
+    data,
+    page: normalizePage(record.page, data.length),
   }
 }
 
@@ -223,13 +281,18 @@ function normalizeFavoritePostingListResponse(
   if (!Array.isArray(record.data)) {
     throw new Error('스크랩 목록 응답 형식이 올바르지 않습니다.')
   }
-  if (!record.data.every(isFavoritePostingItem)) {
+
+  const data = record.data
+    .map(parseFavoritePostingItem)
+    .filter((item): item is FavoritePostingItem => item != null)
+
+  if (record.data.length > 0 && data.length === 0) {
     throw new Error('스크랩 목록 응답 형식이 올바르지 않습니다.')
   }
 
   return {
-    data: record.data,
-    page: normalizePage(record.page, record.data.length),
+    data,
+    page: normalizePage(record.page, data.length),
   }
 }
 
