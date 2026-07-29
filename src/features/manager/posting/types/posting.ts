@@ -57,7 +57,7 @@ export interface Applicant {
   name: string
   phoneNumber: string
   birthDate: string
-  gender: '남성' | '여성'
+  gender: '남성' | '여성' | '-'
   email: string
   certificates: Certificate[]
 }

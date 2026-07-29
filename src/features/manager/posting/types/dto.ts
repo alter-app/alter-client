@@ -228,12 +228,20 @@ function toCertificate(dto: PostingApplicantCertificateDto): Certificate {
   }
 }
 
+function toGender(
+  gender: PostingApplicantDetailDto['gender']
+): Applicant['gender'] {
+  if (gender === 'GENDER_MALE') return '남성'
+  if (gender === 'GENDER_FEMALE') return '여성'
+  return '-'
+}
+
 function adaptApplicant(dto: PostingApplicantDetailDto): Applicant {
   return {
     name: dto?.name ?? '',
     phoneNumber: dto?.contact ?? '-',
     birthDate: dto?.birthday ?? '-',
-    gender: dto?.gender === 'GENDER_FEMALE' ? '여성' : '남성',
+    gender: toGender(dto?.gender),
     email: dto?.email ?? '-',
     certificates: (dto?.userCertificates ?? []).map(toCertificate),
   }
