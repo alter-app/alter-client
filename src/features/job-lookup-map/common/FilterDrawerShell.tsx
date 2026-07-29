@@ -40,8 +40,8 @@ export function FilterDrawerShell({
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-[60] bg-black/40" />
-        <Drawer.Content className="fixed inset-x-0 bottom-0 z-[60] flex items-end justify-center outline-none">
-          <div className="flex w-full max-w-[428px] flex-col overflow-hidden rounded-t-[32px] bg-white">
+        <Drawer.Content className="fixed inset-x-0 bottom-0 z-[60] outline-none">
+          <div className="mx-auto flex w-full max-w-[428px] -translate-x-1.5 flex-col overflow-hidden rounded-t-[32px] bg-white">
             {open ? (
               <>
                 <div className="mx-auto mt-4 h-1 w-[50px] shrink-0 rounded-full bg-line-2" />

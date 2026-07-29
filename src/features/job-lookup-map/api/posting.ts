@@ -180,41 +180,89 @@ function unwrapPostingListBody(body: unknown): PostingListResponse {
   return normalizePostingListResponse(body)
 }
 
-function isPostingDetailResponse(
+function parseWorkspace(
   value: unknown
-): value is PostingDetailResponse {
-  if (value === null || typeof value !== 'object') return false
+): PostingDetailResponse['workspace'] | null {
+  if (value === null || typeof value !== 'object') return null
+  const workspace = value as Record<string, unknown>
+  if (typeof workspace.id !== 'number') return null
+
+  const businessName =
+    typeof workspace.businessName === 'string'
+      ? workspace.businessName
+      : typeof workspace.name === 'string'
+        ? workspace.name
+        : ''
+
+  return {
+    id: workspace.id,
+    businessName,
+    name: typeof workspace.name === 'string' ? workspace.name : businessName,
+    latitude: typeof workspace.latitude === 'number' ? workspace.latitude : 0,
+    longitude:
+      typeof workspace.longitude === 'number' ? workspace.longitude : 0,
+    fullAddress:
+      typeof workspace.fullAddress === 'string' ? workspace.fullAddress : '',
+    town: typeof workspace.town === 'string' ? workspace.town : '',
+  }
+}
+
+function parsePostingDetail(value: unknown): PostingDetailResponse | null {
+  if (value === null || typeof value !== 'object') return null
   const record = value as Record<string, unknown>
-  const workspace = record.workspace
-  return (
-    typeof record.id === 'number' &&
-    typeof record.title === 'string' &&
-    typeof record.description === 'string' &&
-    typeof record.payAmount === 'number' &&
-    typeof record.paymentType === 'string' &&
-    typeof record.createdAt === 'string' &&
-    typeof record.scrapped === 'boolean' &&
-    Array.isArray(record.keywords) &&
-    Array.isArray(record.schedules) &&
-    workspace !== null &&
-    typeof workspace === 'object' &&
-    typeof (workspace as { id?: unknown }).id === 'number'
-  )
+  const workspace = parseWorkspace(record.workspace)
+
+  if (
+    typeof record.id !== 'number' ||
+    typeof record.title !== 'string' ||
+    typeof record.payAmount !== 'number' ||
+    workspace == null
+  ) {
+    return null
+  }
+
+  return {
+    id: record.id,
+    title: record.title,
+    description:
+      typeof record.description === 'string' ? record.description : '',
+    payAmount: record.payAmount,
+    paymentType:
+      typeof record.paymentType === 'string' ? record.paymentType : 'HOURLY',
+    createdAt: typeof record.createdAt === 'string' ? record.createdAt : '',
+    keywords: Array.isArray(record.keywords)
+      ? (record.keywords as PostingDetailResponse['keywords'])
+      : [],
+    schedules: Array.isArray(record.schedules)
+      ? (record.schedules as PostingDetailResponse['schedules'])
+      : [],
+    workspace,
+    scrapped: typeof record.scrapped === 'boolean' ? record.scrapped : false,
+  }
+}
+
+function unwrapPostingDetailPayload(payload: unknown): PostingDetailResponse {
+  if (payload !== null && typeof payload === 'object' && 'posting' in payload) {
+    const nested = (payload as { posting: unknown }).posting
+    const parsed = parsePostingDetail(nested)
+    if (parsed) return parsed
+  }
+
+  const parsed = parsePostingDetail(payload)
+  if (parsed) return parsed
+
+  throw new Error('공고 상세 응답 형식이 올바르지 않습니다.')
 }
 
 function unwrapPostingDetailBody(body: unknown): PostingDetailResponse {
   if (isCommonApiEnvelope(body)) {
-    if (!isPostingDetailResponse(body.data)) {
-      throw new Error('공고 상세 응답 형식이 올바르지 않습니다.')
+    if (body.data == null) {
+      throw new Error('공고 상세를 불러오지 못했습니다.')
     }
-    return body.data
+    return unwrapPostingDetailPayload(body.data)
   }
 
-  if (isPostingDetailResponse(body)) {
-    return body
-  }
-
-  throw new Error('공고 상세를 불러오지 못했습니다.')
+  return unwrapPostingDetailPayload(body)
 }
 
 export async function fetchPostings(

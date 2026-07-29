@@ -237,7 +237,7 @@ function RegionSelectDrawerBody({
         })}
       </div>
 
-      <div className="max-h-[calc(85dvh-220px)] min-h-0 overflow-y-auto px-4 py-1">
+      <div className="scrollbar-hide max-h-[calc(85dvh-220px)] min-h-0 overflow-y-auto overscroll-contain px-4 py-1 [-webkit-overflow-scrolling:touch]">
         {isLoading ? (
           <p className="py-8 text-center typography-body02-regular text-text-50">
             지역 정보를 불러오는 중…
@@ -318,8 +318,8 @@ export function RegionSelectDrawer({
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-[60] bg-black/40" />
-        <Drawer.Content className="fixed inset-x-0 bottom-0 z-[60] flex items-end justify-center outline-none">
-          <div className="flex max-h-[85dvh] w-full max-w-[428px] flex-col overflow-hidden rounded-t-[32px] bg-white">
+        <Drawer.Content className="fixed inset-x-0 bottom-0 z-[60] outline-none">
+          <div className="mx-auto flex max-h-[85dvh] w-full max-w-[428px] -translate-x-1.5 flex-col overflow-hidden rounded-t-[32px] bg-white">
             {open ? (
               <RegionSelectDrawerBody
                 key={`${value.sido ?? ''}-${value.sigungu ?? ''}-${value.dong ?? ''}`}

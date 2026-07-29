@@ -110,7 +110,7 @@ export function JobLookupMapApplyPage() {
   const postingId = Number(postingIdParam)
   const idOk = Number.isFinite(postingId) && postingId > 0
 
-  const { data, isPending, isError } = usePostingDetail(
+  const { data, isLoading, isError } = usePostingDetail(
     idOk ? postingId : undefined
   )
   const [introduction, setIntroduction] = useState('')
@@ -124,7 +124,7 @@ export function JobLookupMapApplyPage() {
     isError: isSubmitError,
   } = useApplyPosting()
 
-  const showLoading = idOk && isPending && !data
+  const showLoading = idOk && isLoading && !data
   const showError = idOk && isError && !data
   const showEmpty = !idOk
 

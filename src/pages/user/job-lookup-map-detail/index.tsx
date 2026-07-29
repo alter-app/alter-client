@@ -36,7 +36,7 @@ export function JobLookupMapDetailPage() {
   const postingId = Number(postingIdParam)
   const idOk = Number.isFinite(postingId) && postingId > 0
 
-  const { data, isPending, isError } = usePostingDetail(
+  const { data, isLoading, isError } = usePostingDetail(
     idOk ? postingId : undefined
   )
   const { toggleFavorite, isPending: isFavoritePending } =
@@ -124,7 +124,7 @@ export function JobLookupMapDetailPage() {
         </main>
       )}
 
-      {idOk && isPending && !data && (
+      {idOk && isLoading && !data && (
         <main className="flex flex-1 items-center justify-center px-4">
           <p className="typography-body03-regular text-text-50">
             공고 정보를 불러오는 중…
