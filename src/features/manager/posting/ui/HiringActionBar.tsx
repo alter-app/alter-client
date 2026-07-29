@@ -6,7 +6,6 @@ import LockIcon from '@/assets/icons/posting/Lock.svg?react'
 import { cn } from '@/shared/lib/utils'
 
 interface HiringActionBarProps {
-  /** false면 '상태 변경 불가' 안내를 표시하고 액션을 숨깁니다 */
   canDecide: boolean
   onDecide: (decision: HiringDecision) => void
 }
@@ -17,7 +16,6 @@ const DECISION_CLASS: Record<HiringDecision, string> = {
   REJECTED: 'border border-error bg-white text-error',
 }
 
-/** 채용 결정 하단 고정 바 — [서류합격][최종합격][불합격] */
 export function HiringActionBar({ canDecide, onDecide }: HiringActionBarProps) {
   return (
     <div className="fixed bottom-0 left-1/2 z-10 w-full max-w-[428px] -translate-x-1/2 border-t border-line-1 bg-white px-4 pb-8 pt-3">

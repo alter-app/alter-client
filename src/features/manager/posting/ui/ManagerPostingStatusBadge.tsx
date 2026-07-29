@@ -7,7 +7,6 @@ interface ManagerPostingStatusBadgeProps {
   className?: string
 }
 
-/** 공고 상태 배지 — 모집중 / 모집완료 */
 export function ManagerPostingStatusBadge({
   status,
   className,

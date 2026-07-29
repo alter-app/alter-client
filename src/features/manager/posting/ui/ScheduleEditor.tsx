@@ -19,13 +19,11 @@ interface ScheduleEditorProps {
 
 type TimeTarget = 'start' | 'end'
 
-/** 'HH:MM' → { hour, minute }. 미입력이면 빈 문자열 */
 function splitTime(time: string) {
   const [hour = '', minute = ''] = time.split(':')
   return { hour, minute }
 }
 
-/** 시간 선택 버튼 — 미입력 시 플레이스홀더를 노출합니다 */
 function TimeField({
   label,
   value,
@@ -73,11 +71,8 @@ function ScheduleCard({
   const isExisting = schedule.id !== null
   const [pickerTarget, setPickerTarget] = useState<TimeTarget | null>(null)
 
-  /**
-   * 픽커는 휠 조작 시에만 onChange를 발생시키므로, 빈 값인 채로 열면
-   * 하이라이트된 '오전 12시 00분'을 그대로 닫아도 아무것도 기록되지 않습니다.
-   * 열기 전에 기본값(00:00)을 먼저 커밋해 보이는 값과 기록 값을 일치시킵니다.
-   */
+  // 픽커는 휠 조작 시에만 onChange가 발생하므로, 열기 전에 기본값을 먼저 커밋해야
+  // 보이는 값 그대로 닫아도 기록된다
   const openPicker = (target: TimeTarget) => {
     if (target === 'start' && schedule.startTime === '') {
       form.updateSchedule(schedule.key, { startTime: '00:00' })
@@ -91,10 +86,6 @@ function ScheduleCard({
   const start = splitTime(schedule.startTime)
   const end = splitTime(schedule.endTime)
 
-  /**
-   * 폼의 'HH:MM' 문자열을 픽커가 요구하는 시/분 단위 상태로 어댑트합니다.
-   * 한쪽만 선택된 경우 나머지는 '00'으로 채웁니다.
-   */
   const workTime: WorkTimeEditorState = {
     startHour: start.hour,
     startMinute: start.minute,
@@ -246,7 +237,6 @@ function ScheduleCard({
   )
 }
 
-/** 근무일정 편집기 — 일정 카드 추가/삭제, 요일 토글, 시간·포지션·인원 입력 */
 export function ScheduleEditor({ form }: ScheduleEditorProps) {
   const { schedules } = form.values
 

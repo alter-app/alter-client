@@ -6,11 +6,6 @@ interface ApplicationStatusBadgeStyle {
   textClassName: string
 }
 
-/**
- * 지원 상태 배지 (PDF ApplicationStatusBadge).
- * 기존 `shared/ui/home/ApplicationStatusBadge`는 유저 측 4상태 전용이므로
- * 매니저 측 6상태는 여기서 별도로 매핑합니다.
- */
 const APPLICATION_STATUS_BADGE: Record<
   ApplicationStatus,
   ApplicationStatusBadgeStyle
@@ -56,7 +51,6 @@ export function resolveApplicationStatusBadge(status: ApplicationStatus) {
   return APPLICATION_STATUS_BADGE[status]
 }
 
-/** 더 이상 상태를 변경할 수 없는(종료된) 지원서 — 채용 결정 액션을 숨깁니다 */
 const TERMINAL_STATUSES: ApplicationStatus[] = [
   'ACCEPTED',
   'REJECTED',
@@ -69,7 +63,6 @@ export function isTerminalApplicationStatus(status: ApplicationStatus) {
   return TERMINAL_STATUSES.includes(status)
 }
 
-/** 채용 결정 액션 — PDF 하단 ActionBar */
 export const HIRING_DECISIONS = [
   { status: 'SHORTLISTED', label: '서류합격' },
   { status: 'ACCEPTED', label: '최종합격' },
@@ -84,7 +77,6 @@ interface DecisionCopy {
   toast: string
 }
 
-/** 채용 결정 확인 모달 · 성공 Toast 문구 */
 export const DECISION_COPY: Record<HiringDecision, DecisionCopy> = {
   SHORTLISTED: {
     title: '서류합격 처리할까요?',

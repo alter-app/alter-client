@@ -7,7 +7,6 @@ interface ManagerApplicationStatusBadgeProps {
   className?: string
 }
 
-/** 지원 상태 배지 — 지원완료 / 서류합격 / 최종합격 / 불합격 / 취소 / 만료 */
 export function ManagerApplicationStatusBadge({
   status,
   className,
