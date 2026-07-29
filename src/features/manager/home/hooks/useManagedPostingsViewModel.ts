@@ -30,19 +30,17 @@ export function useManagedPostingsViewModel(
         cursor: pageParam as string | undefined,
       }),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: lastPage => lastPage.data?.page?.cursor ?? undefined,
+    getNextPageParam: lastPage => lastPage.page?.cursor ?? undefined,
     enabled: workspaceId !== null,
   })
 
   const postings = useMemo(() => {
     const all =
-      data?.pages.flatMap(
-        page => page.data?.data?.map(adaptPostingDto) ?? []
-      ) ?? []
+      data?.pages.flatMap(page => page.data?.map(adaptPostingDto) ?? []) ?? []
     return [...new Map(all.map(p => [p.id, p])).values()]
   }, [data])
 
-  const totalCount = data?.pages[0]?.data?.page?.totalCount ?? 0
+  const totalCount = data?.pages[0]?.page?.totalCount ?? 0
 
   return {
     postings,
