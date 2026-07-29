@@ -85,7 +85,7 @@ export function AlbaFindCategoryBar({
     sortValue,
     resolvedSortOptions,
     salaryFilter
-  )
+  ).filter(item => mode === 'region' || item.id !== 'sort')
   const regionLabel = formatRegionLabel(regionSelection)
   const hasRegionSelected = regionLabel !== '지역 선택'
   const hasSortSelected = isSortFilterApplied(sortValue)
@@ -117,7 +117,10 @@ export function AlbaFindCategoryBar({
             type="button"
             role="tab"
             aria-selected={mode === 'nearby'}
-            onClick={() => onModeChange('nearby')}
+            onClick={() => {
+              setIsRegionDrawerOpen(false)
+              onModeChange('nearby')
+            }}
             className={`min-h-10 flex-1 rounded-lg typography-body01-semibold transition-colors ${
               mode === 'nearby'
                 ? 'border border-line-2 bg-white text-text-100 shadow-[0px_1px_4px_0px_rgba(0,0,0,0.12)]'
