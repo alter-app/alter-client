@@ -48,11 +48,20 @@ export const queryKeys = {
       ['managerWorkspace', 'images', workspaceId] as const,
   },
   posting: {
+    all: ['posting'] as const,
     list: (params?: {
       workspaceId?: number
       status?: string
       pageSize?: number
     }) => ['posting', 'list', params] as const,
+    detail: (postingId: number) => ['posting', 'detail', postingId] as const,
+    applicationList: (params?: {
+      workspaceId?: number
+      status?: string[]
+      pageSize?: number
+    }) => ['posting', 'application', 'list', params] as const,
+    applicationDetail: (postingApplicationId: number) =>
+      ['posting', 'application', 'detail', postingApplicationId] as const,
   },
   substitute: {
     list: (params?: {

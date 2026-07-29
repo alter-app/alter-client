@@ -1,27 +1,21 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 import {
   DECISION_COPY,
   isTerminalApplicationStatus,
   type HiringDecision,
 } from '@/features/manager/posting/lib/applicationStatus'
-import { useMockPostingStore } from '@/features/manager/posting/mocks/store'
+import { useUpdateApplicationStatusMutation } from '@/features/manager/posting/hooks/mutation/useUpdateApplicationStatusMutation'
+import { usePostingApplicationDetailQuery } from '@/features/manager/posting/hooks/query/usePostingApplicationDetailQuery'
 import { showToast } from '@/shared/stores/useToastStore'
 
-/** 지원자 상세 — 인적사항 조회 + 채용 결정(서류합격·최종합격·불합격) */
 export function useApplicationDetailViewModel(applicationId: number) {
-  const applications = useMockPostingStore(state => state.applications)
-  const updateApplicationStatus = useMockPostingStore(
-    state => state.updateApplicationStatus
-  )
+  const { application, isLoading, isError } =
+    usePostingApplicationDetailQuery(applicationId)
+  const updateStatus = useUpdateApplicationStatusMutation(applicationId)
 
   const [pendingDecision, setPendingDecision] = useState<HiringDecision | null>(
     null
-  )
-
-  const application = useMemo(
-    () => applications.find(item => item.id === applicationId) ?? null,
-    [applications, applicationId]
   )
 
   const isTerminal = application
@@ -30,19 +24,25 @@ export function useApplicationDetailViewModel(applicationId: number) {
 
   const confirmDecision = () => {
     if (!pendingDecision) return
-    updateApplicationStatus(applicationId, pendingDecision)
-    showToast(DECISION_COPY[pendingDecision].toast)
+    const decision = pendingDecision
     setPendingDecision(null)
+    updateStatus.mutate(decision, {
+      onSuccess: () => showToast(DECISION_COPY[decision].toast),
+    })
   }
 
   return {
     application,
-    isNotFound: application === null,
-    /** 종료된 지원서는 채용 결정 액션을 숨깁니다 */
+    isLoading,
+    isNotFound: !isLoading && (isError || application === null),
     canDecide: application !== null && !isTerminal,
+    isDeciding: updateStatus.isPending,
     pendingDecision,
     decisionCopy: pendingDecision ? DECISION_COPY[pendingDecision] : null,
-    requestDecision: (decision: HiringDecision) => setPendingDecision(decision),
+    requestDecision: (decision: HiringDecision) => {
+      if (updateStatus.isPending) return
+      setPendingDecision(decision)
+    },
     cancelDecision: () => setPendingDecision(null),
     confirmDecision,
   }

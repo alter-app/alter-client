@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { useCreatePostingMutation } from '@/features/manager/posting/hooks/mutation/useCreatePostingMutation'
 import { usePostingForm } from '@/features/manager/posting/hooks/usePostingForm'
-import { MOCK_WORKSPACES } from '@/features/manager/posting/mocks/data'
-import { useMockPostingStore } from '@/features/manager/posting/mocks/store'
 import { PostingFormFields } from '@/features/manager/posting/ui/PostingFormFields'
 import { ROUTES } from '@/shared/constants/routes'
 import { showToast } from '@/shared/stores/useToastStore'
@@ -11,11 +10,10 @@ import { AuthButton } from '@/shared/ui/common/AuthButton'
 import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import { Navbar } from '@/shared/ui/common/Navbar'
 
-/** SCREEN 1 · 공고 등록 */
 export function ManagerPostingCreatePage() {
   const navigate = useNavigate()
   const form = usePostingForm()
-  const createPosting = useMockPostingStore(state => state.createPosting)
+  const createPosting = useCreatePostingMutation()
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
   const handleSubmit = () => {
@@ -24,15 +22,19 @@ export function ManagerPostingCreatePage() {
   }
 
   const handleConfirm = () => {
-    const workspaceName =
-      MOCK_WORKSPACES.find(
-        workspace => workspace.id === form.values.workspaceId
-      )?.businessName ?? ''
+    const { workspaceId } = form.values
+    if (workspaceId === null) return
 
-    createPosting(form.values, workspaceName)
     setIsConfirmOpen(false)
-    showToast('공고를 등록했어요')
-    navigate(ROUTES.MANAGER.POSTINGS, { replace: true })
+    createPosting.mutate(
+      { values: form.values, workspaceId },
+      {
+        onSuccess: () => {
+          showToast('공고를 등록했어요')
+          navigate(ROUTES.MANAGER.POSTINGS, { replace: true })
+        },
+      }
+    )
   }
 
   return (
@@ -44,7 +46,10 @@ export function ManagerPostingCreatePage() {
       </main>
 
       <div className="fixed bottom-0 left-1/2 z-10 w-full max-w-[428px] -translate-x-1/2 border-t border-line-1 bg-white px-4 pb-8 pt-3">
-        <AuthButton onClick={handleSubmit} disabled={form.isSubmitDisabled}>
+        <AuthButton
+          onClick={handleSubmit}
+          disabled={form.isSubmitDisabled || createPosting.isPending}
+        >
           등록하기
         </AuthButton>
       </div>

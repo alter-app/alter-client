@@ -5,17 +5,16 @@ import {
   formatRelativeTime,
   formatTimeRange,
   formatWorkingDays,
-  type Application,
+  type ApplicationListItem,
 } from '@/features/manager/posting/types/posting'
 
 interface ApplicantCardProps {
-  application: Application
+  application: ApplicationListItem
   onClick: () => void
 }
 
-/** 지원자 카드 — 업장·상태·이름·지원시각·희망 근무 (PDF ApplicantCard) */
 export function ApplicantCard({ application, onClick }: ApplicantCardProps) {
-  const { applicant, schedule } = application
+  const { applicantName, schedule } = application
 
   return (
     <button
@@ -36,10 +35,10 @@ export function ApplicantCard({ application, onClick }: ApplicantCardProps) {
             className="flex size-8 shrink-0 items-center justify-center rounded-full bg-main-100 typography-body03-semibold text-sub"
             aria-hidden="true"
           >
-            {applicant.name.charAt(0)}
+            {applicantName.charAt(0)}
           </span>
           <span className="typography-body01-semibold text-text-100">
-            {applicant.name}
+            {applicantName}
           </span>
           <span className="ml-auto typography-body03-regular text-text-50">
             {formatRelativeTime(application.appliedAt)}
@@ -56,7 +55,9 @@ export function ApplicantCard({ application, onClick }: ApplicantCardProps) {
           <ClockIcon className="size-4 text-main" />
           {formatTimeRange(schedule.startTime, schedule.endTime)}
         </span>
-        <span className="text-text-70">{schedule.position}</span>
+        {schedule.position ? (
+          <span className="text-text-70">{schedule.position}</span>
+        ) : null}
       </div>
     </button>
   )

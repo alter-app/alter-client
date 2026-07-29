@@ -17,8 +17,8 @@ import {
 } from '@/shared/constants/routes'
 import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import { Navbar } from '@/shared/ui/common/Navbar'
+import { Skeleton } from '@/shared/ui/common/Skeleton'
 
-/** SCREEN 4 · 내 공고 상세 · 마감 */
 export function ManagerPostingDetailPage() {
   const navigate = useNavigate()
   const { postingId } = useParams()
@@ -26,13 +26,27 @@ export function ManagerPostingDetailPage() {
 
   const {
     posting,
-    applicantCount,
+    isLoading,
     isNotFound,
+    isClosing,
     isCloseModalOpen,
     openCloseModal,
     closeCloseModal,
     confirmClose,
   } = usePostingDetailViewModel(numericPostingId)
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[100dvh] flex-col bg-bg-light">
+        <Navbar variant="detail" title="공고 상세" />
+        <main className="mx-auto flex w-full max-w-[400px] flex-1 flex-col gap-3 px-4 pt-4">
+          <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-16 rounded-2xl" />
+          <Skeleton className="h-28 rounded-2xl" />
+        </main>
+      </div>
+    )
+  }
 
   if (isNotFound || !posting) {
     return (
@@ -47,7 +61,7 @@ export function ManagerPostingDetailPage() {
     )
   }
 
-  const isClosed = posting.status === 'CLOSED'
+  const isClosed = posting.status !== 'OPEN'
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-bg-light">
@@ -131,12 +145,8 @@ export function ManagerPostingDetailPage() {
               지원자 보기
             </span>
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-main px-1.5 typography-bg text-white">
-              {applicantCount}
-            </span>
-            <ChevronRightIcon className="size-4 text-text-50" />
-          </span>
+          {/* 지원자 수는 공고 상세 응답에 필드가 없어 노출하지 않습니다 (백엔드 추가 요청 중) */}
+          <ChevronRightIcon className="size-4 text-text-50" />
         </button>
       </main>
 
@@ -151,7 +161,7 @@ export function ManagerPostingDetailPage() {
         <button
           type="button"
           onClick={openCloseModal}
-          disabled={isClosed}
+          disabled={isClosed || isClosing}
           className="h-12 flex-1 rounded-xl border border-line-1 bg-white typography-bt text-text-90 transition-colors hover:bg-bg-light disabled:cursor-not-allowed disabled:text-text-50"
         >
           {isClosed ? '마감됨' : '모집 마감'}

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import WriteIcon from '@/assets/icons/posting/Write.svg?react'
@@ -8,6 +9,7 @@ import { PostingListCard } from '@/features/manager/posting/ui/PostingListCard'
 import { managerPostingDetailPath, ROUTES } from '@/shared/constants/routes'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Skeleton } from '@/shared/ui/common/Skeleton'
+import { Spinner } from '@/shared/ui/Spinner'
 
 function PostingListSkeleton() {
   return (
@@ -27,20 +29,44 @@ function PostingListSkeleton() {
   )
 }
 
-/** SCREEN 5 · 내 공고 목록 — 사장님 알바찾기(내 공고) 탭 진입점 */
 export function ManagerPostingListPage() {
   const navigate = useNavigate()
   const {
     postings,
     totalCount,
     isLoading,
+    isError,
     isEmpty,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
     workspaceFilter,
     setWorkspaceFilter,
     statusFilter,
     setStatusFilter,
     workspaceOptions,
   } = usePostingListViewModel()
+
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  // sentinel은 로딩 후에야 마운트되므로 deps에 isLoading·개수가 있어야 관찰이 붙는다
+  const visibleCount = postings.length
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage()
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, isLoading, visibleCount])
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-bg-light">
@@ -74,6 +100,17 @@ export function ManagerPostingListPage() {
 
         {isLoading ? <PostingListSkeleton /> : null}
 
+        {isError ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-2 py-16">
+            <p className="typography-body01-semibold text-text-100">
+              공고를 불러오지 못했어요
+            </p>
+            <p className="typography-body02-regular text-center text-text-70">
+              잠시 후 다시 시도해 주세요.
+            </p>
+          </div>
+        ) : null}
+
         {isEmpty ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 py-16">
             <p className="typography-body01-semibold text-text-100">
@@ -86,16 +123,28 @@ export function ManagerPostingListPage() {
         ) : null}
 
         {!isLoading && postings.length > 0 ? (
-          <ul className="flex flex-col gap-3">
-            {postings.map(posting => (
-              <li key={posting.id}>
-                <PostingListCard
-                  posting={posting}
-                  onClick={() => navigate(managerPostingDetailPath(posting.id))}
-                />
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="flex flex-col gap-3">
+              {postings.map(posting => (
+                <li key={posting.id}>
+                  <PostingListCard
+                    posting={posting}
+                    onClick={() =>
+                      navigate(managerPostingDetailPath(posting.id))
+                    }
+                  />
+                </li>
+              ))}
+            </ul>
+            {/* 무한스크롤 감지 지점 */}
+            <div
+              ref={sentinelRef}
+              className="flex h-10 items-center justify-center"
+              aria-hidden={!isFetchingNextPage}
+            >
+              {isFetchingNextPage ? <Spinner size={24} /> : null}
+            </div>
+          </>
         ) : null}
       </main>
     </div>

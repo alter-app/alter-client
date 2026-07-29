@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 import type { PostingFormViewModel } from '@/features/manager/posting/hooks/usePostingForm'
-import { MOCK_WORKSPACES } from '@/features/manager/posting/mocks/data'
+import { useWorkspaceSelectOptions } from '@/features/manager/posting/hooks/query/useWorkspaceFilterOptions'
 import AlertIcon from '@/assets/icons/posting/Alert.svg?react'
 import { ScheduleEditor } from '@/features/manager/posting/ui/ScheduleEditor'
 import {
@@ -15,7 +15,6 @@ interface PostingFormFieldsProps {
   form: PostingFormViewModel
 }
 
-/** 섹션 카드 — 라벨 + 필수 표시 + 에러 테두리/메시지 */
 function Section({
   label,
   required = false,
@@ -57,14 +56,9 @@ function Section({
 const inputClassName =
   'h-12 w-full rounded-xl border bg-white px-3.5 typography-body02-regular text-text-100 placeholder:text-text-50 focus:outline-none'
 
-/** 공고 등록·수정 공용 폼 — 업장/제목/키워드/근무일정/급여/상세내용 */
 export function PostingFormFields({ form }: PostingFormFieldsProps) {
   const { values, errors } = form
-
-  const workspaceOptions = MOCK_WORKSPACES.map(workspace => ({
-    value: workspace.id,
-    label: workspace.businessName,
-  }))
+  const { workspaceOptions } = useWorkspaceSelectOptions()
 
   return (
     <div className="flex flex-col gap-3">
@@ -144,13 +138,18 @@ export function PostingFormFields({ form }: PostingFormFieldsProps) {
         </div>
       </Section>
 
-      <Section label="상세내용">
+      <Section label="상세내용" required error={errors.description}>
         <textarea
           value={values.description}
           rows={5}
           placeholder="근무 조건, 우대 사항 등을 자유롭게 작성해 주세요"
           onChange={e => form.setDescription(e.target.value)}
-          className="w-full resize-none rounded-xl border border-line-1 bg-white p-3.5 typography-body02-regular text-text-100 placeholder:text-text-50 focus:border-main focus:outline-none"
+          className={cn(
+            'w-full resize-none rounded-xl border bg-white p-3.5 typography-body02-regular text-text-100 placeholder:text-text-50 focus:outline-none',
+            errors.description
+              ? 'border-error'
+              : 'border-line-1 focus:border-main'
+          )}
         />
       </Section>
     </div>

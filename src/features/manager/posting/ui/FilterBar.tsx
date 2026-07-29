@@ -1,4 +1,4 @@
-import type { WorkspaceFilter } from '@/features/manager/posting/hooks/usePostingListViewModel'
+import type { WorkspaceFilter } from '@/features/manager/posting/hooks/query/useWorkspaceFilterOptions'
 import { SelectDropdown } from '@/shared/ui/common/SelectDropdown'
 import type { SelectOption } from '@/shared/ui/common/SelectDropdown'
 
@@ -12,7 +12,6 @@ interface FilterBarProps<TStatus extends string> {
   totalCount: number
 }
 
-/** 업장·상태 드롭다운 + 총 N건 */
 export function FilterBar<TStatus extends string>({
   workspaceOptions,
   workspaceValue,

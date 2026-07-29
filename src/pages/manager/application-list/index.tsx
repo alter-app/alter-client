@@ -31,23 +31,17 @@ function ApplicantListSkeleton() {
   )
 }
 
-/** SCREEN 2 · 지원자 목록 */
 export function ManagerApplicationListPage() {
   const navigate = useNavigate()
   const { postingId: postingIdParam } = useParams()
 
-  /**
-   * 진입 경로 2가지
-   * - Docbar '지원자' 탭: /manager/postings/applications — 전체 지원자, 뒤로가기 없음
-   * - 공고 상세 '지원자 보기': /manager/postings/:postingId/applications — 해당 공고로 한정
-   */
-  const postingId = postingIdParam ? Number(postingIdParam) : undefined
-  const isFromPosting = postingId !== undefined
+  const isFromPosting = postingIdParam !== undefined
 
   const {
     applications,
     totalCount,
     isLoading,
+    isError,
     isEmpty,
     hasNextPage,
     isFetchingNextPage,
@@ -57,11 +51,10 @@ export function ManagerApplicationListPage() {
     statusFilter,
     setStatusFilter,
     workspaceOptions,
-  } = useApplicationListViewModel({ postingId })
+  } = useApplicationListViewModel()
 
-  // 커서 기반 무한스크롤 — 목록 하단 sentinel이 보이면 다음 페이지 로드
   const sentinelRef = useRef<HTMLDivElement>(null)
-  /** sentinel은 로딩이 끝난 뒤에야 마운트되므로 deps에 isLoading·개수를 포함해야 관찰이 붙는다 */
+  // sentinel은 로딩 후에야 마운트되므로 deps에 isLoading·개수가 있어야 관찰이 붙는다
   const visibleCount = applications.length
 
   useEffect(() => {
@@ -98,6 +91,17 @@ export function ManagerApplicationListPage() {
         />
 
         {isLoading ? <ApplicantListSkeleton /> : null}
+
+        {isError ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-2 py-16">
+            <p className="typography-body01-semibold text-text-100">
+              지원자를 불러오지 못했어요
+            </p>
+            <p className="typography-body02-regular text-center text-text-70">
+              잠시 후 다시 시도해 주세요.
+            </p>
+          </div>
+        ) : null}
 
         {isEmpty ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16">

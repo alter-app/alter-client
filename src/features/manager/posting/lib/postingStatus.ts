@@ -6,10 +6,6 @@ interface PostingStatusBadgeStyle {
   textClassName: string
 }
 
-/**
- * 공고 상태 배지 스타일.
- * PDF 기준: 마감임박(warning)은 이번 범위에서 미사용 — API에 마감일 필드 근거 없음.
- */
 const POSTING_STATUS_BADGE: Record<PostingStatus, PostingStatusBadgeStyle> = {
   OPEN: {
     label: '모집중',
@@ -20,6 +16,16 @@ const POSTING_STATUS_BADGE: Record<PostingStatus, PostingStatusBadgeStyle> = {
     label: '모집완료',
     containerClassName: 'bg-bg-dark',
     textClassName: 'text-text-70',
+  },
+  CANCELLED: {
+    label: '취소됨',
+    containerClassName: 'bg-bg-dark',
+    textClassName: 'text-text-50',
+  },
+  DELETED: {
+    label: '삭제됨',
+    containerClassName: 'bg-bg-dark',
+    textClassName: 'text-text-50',
   },
 }
 

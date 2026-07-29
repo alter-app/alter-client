@@ -12,6 +12,7 @@ import {
 import { resolveApplicationStatusBadge } from '@/features/manager/posting/lib/applicationStatus'
 import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import { Navbar } from '@/shared/ui/common/Navbar'
+import { Skeleton } from '@/shared/ui/common/Skeleton'
 
 function InfoRow({
   label,
@@ -34,7 +35,6 @@ function InfoRow({
   )
 }
 
-/** 종료된 지원서 안내 문구 */
 function TerminalNotice({ status }: { status: ApplicationStatus }) {
   const { label } = resolveApplicationStatusBadge(status)
   const isAccepted = status === 'ACCEPTED'
@@ -60,13 +60,13 @@ function TerminalNotice({ status }: { status: ApplicationStatus }) {
   )
 }
 
-/** SCREEN 3 · 지원자 상세 · 채용 결정 */
 export function ManagerApplicationDetailPage() {
   const { applicationId } = useParams()
   const numericApplicationId = Number(applicationId)
 
   const {
     application,
+    isLoading,
     isNotFound,
     canDecide,
     pendingDecision,
@@ -75,6 +75,19 @@ export function ManagerApplicationDetailPage() {
     cancelDecision,
     confirmDecision,
   } = useApplicationDetailViewModel(numericApplicationId)
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[100dvh] flex-col bg-bg-light">
+        <Navbar variant="detail" title="지원자 상세" />
+        <main className="mx-auto flex w-full max-w-[400px] flex-1 flex-col gap-3 px-4 pt-4">
+          <Skeleton className="h-16 rounded-2xl" />
+          <Skeleton className="h-40 rounded-2xl" />
+          <Skeleton className="h-24 rounded-2xl" />
+        </main>
+      </div>
+    )
+  }
 
   if (isNotFound || !application) {
     return (
@@ -136,7 +149,7 @@ export function ManagerApplicationDetailPage() {
             <ul className="rounded-2xl bg-white px-4 shadow-sm">
               {applicant.certificates.map((certificate, index) => (
                 <li
-                  key={certificate.name}
+                  key={`${certificate.name}-${index}`}
                   className={`flex items-center justify-between py-3 ${
                     index === applicant.certificates.length - 1
                       ? ''

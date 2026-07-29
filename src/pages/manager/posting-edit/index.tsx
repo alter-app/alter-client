@@ -1,7 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom'
 
+import { useUpdatePostingMutation } from '@/features/manager/posting/hooks/mutation/useUpdatePostingMutation'
+import { useManagerPostingDetailQuery } from '@/features/manager/posting/hooks/query/useManagerPostingDetailQuery'
 import { usePostingForm } from '@/features/manager/posting/hooks/usePostingForm'
-import { useMockPostingStore } from '@/features/manager/posting/mocks/store'
 import { PostingFormFields } from '@/features/manager/posting/ui/PostingFormFields'
 import type {
   Posting,
@@ -10,19 +11,31 @@ import type {
 import { showToast } from '@/shared/stores/useToastStore'
 import { AuthButton } from '@/shared/ui/common/AuthButton'
 import { Navbar } from '@/shared/ui/common/Navbar'
+import { Skeleton } from '@/shared/ui/common/Skeleton'
 
-/** SCREEN 4 · 공고 수정 — 등록 폼 재사용 · 프리필 */
 export function ManagerPostingEditPage() {
   const navigate = useNavigate()
   const { postingId } = useParams()
   const numericPostingId = Number(postingId)
 
-  const posting = useMockPostingStore(state =>
-    state.postings.find(item => item.id === numericPostingId)
-  )
-  const updatePosting = useMockPostingStore(state => state.updatePosting)
+  const { posting, isLoading, isError } =
+    useManagerPostingDetailQuery(numericPostingId)
+  const updatePosting = useUpdatePostingMutation(numericPostingId)
 
-  if (!posting) {
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[100dvh] flex-col bg-bg-light">
+        <Navbar variant="detail" title="공고 수정" />
+        <main className="mx-auto flex w-full max-w-[400px] flex-1 flex-col gap-3 px-4 pt-4">
+          <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-40 rounded-2xl" />
+        </main>
+      </div>
+    )
+  }
+
+  if (isError || !posting) {
     return (
       <div className="flex min-h-[100dvh] flex-col bg-bg-light">
         <Navbar variant="detail" title="공고 수정" />
@@ -35,30 +48,44 @@ export function ManagerPostingEditPage() {
     )
   }
 
+  const handleSubmit = (values: PostingFormValues) => {
+    const originalScheduleIds = posting.schedules
+      .map(schedule => schedule.id)
+      .filter((id): id is number => id !== null)
+
+    updatePosting.mutate(
+      { values, originalScheduleIds },
+      {
+        onSuccess: () => {
+          showToast('공고를 수정했어요')
+          navigate(-1)
+        },
+      }
+    )
+  }
+
   return (
-    // key로 공고 전환 시 컴포넌트를 리마운트해 폼 초기값(usePostingForm의 lazy useState)을 재계산
+    // key로 리마운트해야 폼 초기값(lazy useState)이 재계산된다
     <PostingEditContent
       key={numericPostingId}
       posting={posting}
-      onSubmit={values => {
-        updatePosting(numericPostingId, values)
-        showToast('공고를 수정했어요')
-        navigate(-1)
-      }}
+      isSubmitting={updatePosting.isPending}
+      onSubmit={handleSubmit}
     />
   )
 }
 
 interface PostingEditContentProps {
   posting: Posting
+  isSubmitting: boolean
   onSubmit: (values: PostingFormValues) => void
 }
 
-/**
- * 폼 초기값이 `posting`에 의존하므로, 공고를 찾은 뒤에 마운트되도록 분리합니다
- * (훅 순서를 안정적으로 유지). 공고 전환 시 리마운트는 호출부의 key가 담당합니다.
- */
-function PostingEditContent({ posting, onSubmit }: PostingEditContentProps) {
+function PostingEditContent({
+  posting,
+  isSubmitting,
+  onSubmit,
+}: PostingEditContentProps) {
   const form = usePostingForm({ posting })
 
   const handleSubmit = () => {
@@ -75,7 +102,10 @@ function PostingEditContent({ posting, onSubmit }: PostingEditContentProps) {
       </main>
 
       <div className="fixed bottom-0 left-1/2 z-10 w-full max-w-[428px] -translate-x-1/2 border-t border-line-1 bg-white px-4 pb-8 pt-3">
-        <AuthButton onClick={handleSubmit} disabled={form.isSubmitDisabled}>
+        <AuthButton
+          onClick={handleSubmit}
+          disabled={form.isSubmitDisabled || isSubmitting}
+        >
           수정 완료
         </AuthButton>
       </div>
