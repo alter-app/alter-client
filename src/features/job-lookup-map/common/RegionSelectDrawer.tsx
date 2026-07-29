@@ -2,12 +2,13 @@ import { useMemo, useState } from 'react'
 import { Drawer } from 'vaul'
 
 import { ChevronRightIcon } from '@/assets/icons/ChevronRightIcon'
-import { usePostingFilterOptions } from '@/features/job-lookup-map/hooks/usePostingFilterOptions'
+import { useAddresses } from '@/features/job-lookup-map/hooks/useAddresses'
 import {
   EMPTY_REGION_SELECTION,
   REGION_STEPS,
   getRegionOptionsForStep,
   isRegionSelectionComplete,
+  type RegionOption,
   type RegionSelection,
   type RegionStep,
 } from '@/features/job-lookup-map/lib/regionOptions'
@@ -69,48 +70,89 @@ function RegionSelectDrawerBody({
   onOpenChange: (open: boolean) => void
   onApply: (selection: RegionSelection) => void
 }) {
-  const { provinces, districts, towns, isLoading, isError } =
-    usePostingFilterOptions()
-
   const [draft, setDraft] = useState<RegionSelection>(value)
   const [step, setStep] = useState<RegionStep>('sido')
 
-  const options = useMemo(
-    () =>
-      getRegionOptionsForStep(step, {
-        provinces,
-        districts,
-        towns,
-      }),
-    [step, provinces, districts, towns]
+  const parentCode =
+    step === 'sigungu'
+      ? (draft.sidoCode ?? undefined)
+      : step === 'dong'
+        ? (draft.sigunguCode ?? undefined)
+        : undefined
+
+  const addressesEnabled =
+    step === 'sido' ||
+    (step === 'sigungu' && draft.sidoCode != null) ||
+    (step === 'dong' && draft.sigunguCode != null)
+
+  const { addresses, isLoading, isError } = useAddresses(
+    parentCode,
+    addressesEnabled
   )
 
-  const handleSelect = (option: string) => {
+  const options = useMemo(
+    () => getRegionOptionsForStep(step, addresses),
+    [step, addresses]
+  )
+
+  const handleSelect = (option: RegionOption) => {
     if (step === 'sido') {
+      if (option.name === '전국(전체)') {
+        setDraft(EMPTY_REGION_SELECTION)
+        return
+      }
+
       const next: RegionSelection = {
-        sido: option,
+        sido: option.name,
+        sidoCode: option.code,
         sigungu: null,
+        sigunguCode: null,
         dong: null,
+        dongCode: null,
       }
       setDraft(next)
-      if (option === '전국(전체)') return
       setStep('sigungu')
       return
     }
 
     if (step === 'sigungu') {
+      if (option.name === '전체') {
+        setDraft({
+          ...draft,
+          sigungu: '전체',
+          sigunguCode: null,
+          dong: '전체',
+          dongCode: null,
+        })
+        return
+      }
+
       const next: RegionSelection = {
         ...draft,
-        sigungu: option,
+        sigungu: option.name,
+        sigunguCode: option.code,
         dong: null,
+        dongCode: null,
       }
       setDraft(next)
-      if (option === '전체') return
       setStep('dong')
       return
     }
 
-    setDraft({ ...draft, dong: option })
+    if (option.name === '전체') {
+      setDraft({
+        ...draft,
+        dong: '전체',
+        dongCode: null,
+      })
+      return
+    }
+
+    setDraft({
+      ...draft,
+      dong: option.name,
+      dongCode: option.code,
+    })
   }
 
   const handleReset = () => {
@@ -146,7 +188,7 @@ function RegionSelectDrawerBody({
   const canApply = isRegionSelectionComplete(draft)
 
   return (
-    <>
+    <div className="flex min-h-0 flex-col">
       <div className="mx-auto mt-4 h-1 w-[50px] shrink-0 rounded-full bg-line-2" />
 
       <div className="flex items-center justify-between px-4 pb-3 pt-4">
@@ -195,7 +237,7 @@ function RegionSelectDrawerBody({
         })}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-1">
+      <div className="max-h-[calc(85dvh-220px)] min-h-0 overflow-y-auto px-4 py-1">
         {isLoading ? (
           <p className="py-8 text-center typography-body02-regular text-text-50">
             지역 정보를 불러오는 중…
@@ -211,9 +253,9 @@ function RegionSelectDrawerBody({
         ) : (
           <ul>
             {options.map(option => {
-              const selected = selectedForStep === option
+              const selected = selectedForStep === option.name
               return (
-                <li key={option}>
+                <li key={option.code ?? option.name}>
                   <button
                     type="button"
                     onClick={() => handleSelect(option)}
@@ -226,7 +268,7 @@ function RegionSelectDrawerBody({
                           : 'text-text-100'
                       }`}
                     >
-                      {option}
+                      {option.name}
                     </span>
                     {step === 'dong' && selected ? (
                       <CheckIcon className=" text-main" />
@@ -245,7 +287,7 @@ function RegionSelectDrawerBody({
         )}
       </div>
 
-      <div className="flex gap-2 border-t border-line-1 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3">
+      <div className="flex  gap-2 border-t border-line-1 px-4 pt-3 pb-[env(safe-area-inset-bottom,0px)]">
         <button
           type="button"
           onClick={handleReset}
@@ -262,7 +304,7 @@ function RegionSelectDrawerBody({
           적용하기
         </button>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -277,7 +319,7 @@ export function RegionSelectDrawer({
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-[60] bg-black/40" />
         <Drawer.Content className="fixed inset-x-0 bottom-0 z-[60] flex items-end justify-center outline-none">
-          <div className="flex w-full max-w-[428px] flex-col overflow-hidden rounded-t-[32px] bg-white">
+          <div className="flex max-h-[85dvh] w-full max-w-[428px] flex-col overflow-hidden rounded-t-[32px] bg-white">
             {open ? (
               <RegionSelectDrawerBody
                 key={`${value.sido ?? ''}-${value.sigungu ?? ''}-${value.dong ?? ''}`}

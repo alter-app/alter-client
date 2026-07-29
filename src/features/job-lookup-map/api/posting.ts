@@ -5,7 +5,8 @@ import type {
   FavoritePostingItem,
   FavoritePostingListResponse,
   PostingDetailResponse,
-  PostingFilterOptions,
+  AddressesResponse,
+  AddressItem,
   PostingListResponse,
 } from '@/features/job-lookup-map/types/posting'
 
@@ -329,10 +330,14 @@ export async function removeFavoritePosting(postingId: number): Promise<void> {
   )
 }
 
-/** GET /app/postings/filter-options — 공고 목록 필터 옵션 조회 */
-export async function fetchPostingFilterOptions(): Promise<PostingFilterOptions> {
+/** GET /app/addresses — 단계별 행정구역 주소 조회 */
+export async function fetchAddresses(code?: string): Promise<AddressItem[]> {
   const response = await axiosInstance.get<
-    CommonApiResponse<PostingFilterOptions>
-  >('/app/postings/filter-options')
-  return response.data.data
+    CommonApiResponse<AddressesResponse>
+  >('/app/addresses', {
+    params: code ? { code } : undefined,
+  })
+
+  const addresses = response.data.data?.addresses
+  return Array.isArray(addresses) ? addresses : []
 }

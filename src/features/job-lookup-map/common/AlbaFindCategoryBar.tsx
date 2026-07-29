@@ -3,7 +3,6 @@ import ChevrondownIcon from '@/assets/icons/job-lookup-map/Chevrondown.svg?react
 import { RegionSelectDrawer } from '@/features/job-lookup-map/common/RegionSelectDrawer'
 import { SalarySelectDrawer } from '@/features/job-lookup-map/common/SalarySelectDrawer'
 import { SortSelectDrawer } from '@/features/job-lookup-map/common/SortSelectDrawer'
-import { usePostingFilterOptions } from '@/features/job-lookup-map/hooks/usePostingFilterOptions'
 import {
   DEFAULT_SORT_VALUE,
   EMPTY_SALARY_FILTER,
@@ -75,9 +74,7 @@ export function AlbaFindCategoryBar({
   salaryFilter = EMPTY_SALARY_FILTER,
   onSalaryChange,
 }: AlbaFindCategoryBarProps) {
-  const { sortOptions } = usePostingFilterOptions()
-  const resolvedSortOptions =
-    sortOptions.length > 0 ? sortOptions : FALLBACK_SORT_OPTIONS
+  const resolvedSortOptions = FALLBACK_SORT_OPTIONS
 
   const [isRegionDrawerOpen, setIsRegionDrawerOpen] = useState(false)
   const [isSortDrawerOpen, setIsSortDrawerOpen] = useState(false)

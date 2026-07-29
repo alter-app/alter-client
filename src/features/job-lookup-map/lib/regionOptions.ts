@@ -1,4 +1,4 @@
-import type { PostingFilterOptions } from '@/features/job-lookup-map/types/posting'
+import type { AddressItem } from '@/features/job-lookup-map/types/posting'
 
 export type RegionStep = 'sido' | 'sigungu' | 'dong'
 
@@ -6,12 +6,18 @@ export type RegionSelection = {
   sido: string | null
   sigungu: string | null
   dong: string | null
+  sidoCode: string | null
+  sigunguCode: string | null
+  dongCode: string | null
 }
 
 export const EMPTY_REGION_SELECTION: RegionSelection = {
   sido: null,
   sigungu: null,
   dong: null,
+  sidoCode: null,
+  sigunguCode: null,
+  dongCode: null,
 }
 
 export const REGION_STEPS: { key: RegionStep; label: string }[] = [
@@ -19,6 +25,11 @@ export const REGION_STEPS: { key: RegionStep; label: string }[] = [
   { key: 'sigungu', label: '시/군/구' },
   { key: 'dong', label: '읍/면/동' },
 ]
+
+export type RegionOption = {
+  code: string | null
+  name: string
+}
 
 export function formatRegionLabel(selection: RegionSelection): string {
   if (!selection.sido || selection.sido === '전국(전체)') return '지역 선택'
@@ -39,9 +50,18 @@ export function isRegionSelectionComplete(selection: RegionSelection): boolean {
 
 export function getRegionOptionsForStep(
   step: RegionStep,
-  filterOptions: Pick<PostingFilterOptions, 'provinces' | 'districts' | 'towns'>
-): string[] {
-  if (step === 'sido') return ['전국(전체)', ...filterOptions.provinces]
-  if (step === 'sigungu') return ['전체', ...filterOptions.districts]
-  return ['전체', ...filterOptions.towns]
+  addresses: AddressItem[]
+): RegionOption[] {
+  const allOption: RegionOption =
+    step === 'sido'
+      ? { code: null, name: '전국(전체)' }
+      : { code: null, name: '전체' }
+
+  return [
+    allOption,
+    ...addresses.map(address => ({
+      code: address.code,
+      name: address.name,
+    })),
+  ]
 }
