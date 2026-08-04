@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg?react'
 import { useApplyPosting } from '@/features/job-lookup-map/hooks/useApplyPosting'
 import { usePostingDetail } from '@/features/job-lookup-map/hooks/usePostingDetail'
+import { resolveApplyPostingError } from '@/features/job-lookup-map/lib/applyPostingError'
 import type { Schedule } from '@/features/job-lookup-map/types/posting'
 import {
   formatPostedAgo,
@@ -122,7 +123,12 @@ export function JobLookupMapApplyPage() {
     mutate: submitApply,
     isPending: isSubmitting,
     isError: isSubmitError,
+    error: submitError,
   } = useApplyPosting()
+
+  const applyError = isSubmitError
+    ? resolveApplyPostingError(submitError)
+    : null
 
   const showLoading = idOk && isPending && !data
   const showError = idOk && isError && !data
@@ -265,11 +271,11 @@ export function JobLookupMapApplyPage() {
           </section>
 
           <section className="px-4 pb-4 pt-3">
-            {isSubmitError && (
+            {applyError ? (
               <p className="mb-2 text-center typography-body03-regular text-sub">
-                지원에 실패했습니다. 다시 시도해 주세요.
+                {applyError.message}
               </p>
-            )}
+            ) : null}
             <button
               type="button"
               disabled={isSubmitting}
@@ -286,7 +292,11 @@ export function JobLookupMapApplyPage() {
               }}
               className="h-12 w-full rounded-2xl bg-main typography-body01-semibold text-text-100 disabled:opacity-50"
             >
-              {isSubmitting ? '제출 중…' : '제출하기'}
+              {isSubmitting
+                ? '제출 중…'
+                : applyError?.retryable
+                  ? '다시 시도'
+                  : '제출하기'}
             </button>
           </section>
         </main>
