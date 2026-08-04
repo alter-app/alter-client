@@ -26,11 +26,11 @@ export function ManagerPostingCreatePage() {
     const { workspaceId } = form.values
     if (workspaceId === null) return
 
-    setIsConfirmOpen(false)
     createPosting.mutate(
       { values: form.values, workspaceId },
       {
         onSuccess: () => {
+          setIsConfirmOpen(false)
           showToast('공고를 등록했어요')
           navigate(ROUTES.MANAGER.POSTINGS, { replace: true })
         },
@@ -40,6 +40,7 @@ export function ManagerPostingCreatePage() {
             '공고를 등록하지 못했어요.'
           )
           form.setServerErrors(fieldErrors)
+          setIsConfirmOpen(false)
           if (message) showToast(message, 'error')
         },
       }
@@ -69,6 +70,7 @@ export function ManagerPostingCreatePage() {
         description="등록 후에도 내 공고에서 수정하거나 마감할 수 있어요."
         confirmLabel="등록"
         cancelLabel="취소"
+        isPending={createPosting.isPending}
         onConfirm={handleConfirm}
         onClose={() => setIsConfirmOpen(false)}
       />

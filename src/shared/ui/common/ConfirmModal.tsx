@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useScrollLock } from '@/shared/lib/useScrollLock'
 
 interface ConfirmModalProps {
@@ -22,14 +22,18 @@ export function ConfirmModal({
   onConfirm,
   onClose,
 }: ConfirmModalProps) {
+  const handleClose = useCallback(() => {
+    if (!isPending) onClose()
+  }, [isPending, onClose])
+
   useEffect(() => {
     if (!isOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') handleClose()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [isOpen, onClose])
+  }, [handleClose, isOpen])
 
   useScrollLock(isOpen)
 
@@ -44,7 +48,7 @@ export function ConfirmModal({
         type="button"
         className="absolute inset-0 bg-black/80 backdrop-blur-[2px]"
         aria-label="닫기"
-        onClick={onClose}
+        onClick={handleClose}
       />
       <div
         className="relative w-full max-w-[318px] overflow-hidden rounded-2xl bg-white shadow-lg"
@@ -71,7 +75,7 @@ export function ConfirmModal({
             <>
               <button
                 type="button"
-                onClick={onClose}
+                onClick={handleClose}
                 className="flex h-14 flex-1 items-center justify-center typography-body01-semibold text-text-70"
               >
                 {cancelLabel}
