@@ -145,8 +145,12 @@ export function ManagerPostingDetailPage() {
               지원자 보기
             </span>
           </span>
-          {/* 지원자 수는 공고 상세 응답에 필드가 없어 노출하지 않습니다 (백엔드 추가 요청 중) */}
-          <ChevronRightIcon className="size-4 text-text-50" />
+          <span className="flex items-center gap-2">
+            <span className="flex min-w-6 items-center justify-center rounded-full bg-main px-1.5 py-1 typography-bg text-white">
+              {posting.applicantCount}
+            </span>
+            <ChevronRightIcon className="size-4 text-text-50" />
+          </span>
         </button>
       </main>
 

@@ -29,6 +29,7 @@ export interface PostingListItem {
   title: string
   paymentType: PaymentType
   payAmount: number
+  status: PostingStatus
   schedules: PostingSchedule[]
   createdAt: string
 }
@@ -43,6 +44,7 @@ export interface Posting {
   paymentType: PaymentType
   payAmount: number
   status: PostingStatus
+  applicantCount: number
   schedules: PostingSchedule[]
   createdAt: string
 }

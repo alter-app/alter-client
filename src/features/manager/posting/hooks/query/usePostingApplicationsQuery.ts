@@ -10,11 +10,15 @@ import { queryKeys } from '@/shared/lib/queryKeys'
 const PAGE_SIZE = 10
 
 interface UsePostingApplicationsQueryOptions {
+  enabled?: boolean
+  postingId?: number
   workspaceId?: number
   status?: ApplicationApiStatus
 }
 
 export function usePostingApplicationsQuery({
+  enabled = true,
+  postingId,
   workspaceId,
   status,
 }: UsePostingApplicationsQueryOptions) {
@@ -28,7 +32,9 @@ export function usePostingApplicationsQuery({
     isPending,
     isError,
   } = useInfiniteQuery({
+    enabled,
     queryKey: queryKeys.posting.applicationList({
+      postingId,
       workspaceId,
       status: statusFilter,
       pageSize: PAGE_SIZE,
@@ -36,6 +42,7 @@ export function usePostingApplicationsQuery({
     queryFn: ({ pageParam }) =>
       fetchPostingApplications({
         pageSize: PAGE_SIZE,
+        postingId,
         workspaceId,
         status: statusFilter,
         cursor: pageParam,
@@ -56,7 +63,7 @@ export function usePostingApplicationsQuery({
   return {
     applications,
     totalCount: data?.pages[0]?.page?.totalCount ?? applications.length,
-    isLoading: isPending,
+    isLoading: enabled && isPending,
     isError,
     hasNextPage: Boolean(hasNextPage),
     isFetchingNextPage,

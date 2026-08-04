@@ -10,6 +10,7 @@ interface FilterBarProps<TStatus extends string> {
   statusValue: TStatus
   onStatusChange: (value: TStatus) => void
   totalCount: number
+  showWorkspaceFilter?: boolean
 }
 
 export function FilterBar<TStatus extends string>({
@@ -20,17 +21,20 @@ export function FilterBar<TStatus extends string>({
   statusValue,
   onStatusChange,
   totalCount,
+  showWorkspaceFilter = true,
 }: FilterBarProps<TStatus>) {
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm">
       <div className="flex items-center gap-2">
-        <SelectDropdown
-          className="flex-1"
-          ariaLabel="업장 필터"
-          options={workspaceOptions}
-          value={workspaceValue}
-          onChange={onWorkspaceChange}
-        />
+        {showWorkspaceFilter ? (
+          <SelectDropdown
+            className="flex-1"
+            ariaLabel="업장 필터"
+            options={workspaceOptions}
+            value={workspaceValue}
+            onChange={onWorkspaceChange}
+          />
+        ) : null}
         <SelectDropdown
           className="flex-1"
           ariaLabel="상태 필터"

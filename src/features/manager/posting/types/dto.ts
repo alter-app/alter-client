@@ -40,6 +40,7 @@ export interface ManagerPostingListItemDto {
   title: string
   payAmount: number
   paymentType: PaymentType
+  status: DescribedEnumDto<PostingStatus>
   createdAt: string
   schedules: PostingScheduleDto[]
   workspace: ManagerPostingListWorkspaceDto
@@ -61,6 +62,7 @@ export interface ManagerPostingDetailDto {
   payAmount: number
   paymentType: PaymentType
   status: DescribedEnumDto<PostingStatus>
+  applicantCount: number
   createdAt: string
   updatedAt: string
   schedules: PostingScheduleDto[]
@@ -176,6 +178,7 @@ export function adaptPostingListItem(
     title: dto.title,
     paymentType: dto.paymentType,
     payAmount: dto.payAmount,
+    status: dto.status.value,
     schedules: (dto.schedules ?? []).map(toPostingSchedule),
     createdAt: dto.createdAt,
   }
@@ -192,6 +195,7 @@ export function adaptPostingDetail(dto: ManagerPostingDetailDto): Posting {
     paymentType: dto.paymentType,
     payAmount: dto.payAmount,
     status: dto.status?.value ?? 'OPEN',
+    applicantCount: dto.applicantCount,
     schedules: (dto.schedules ?? []).map(toPostingSchedule),
     createdAt: dto.createdAt,
   }

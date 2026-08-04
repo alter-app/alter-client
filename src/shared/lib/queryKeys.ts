@@ -56,6 +56,7 @@ export const queryKeys = {
     }) => ['posting', 'list', params] as const,
     detail: (postingId: number) => ['posting', 'detail', postingId] as const,
     applicationList: (params?: {
+      postingId?: number
       workspaceId?: number
       status?: string[]
       pageSize?: number

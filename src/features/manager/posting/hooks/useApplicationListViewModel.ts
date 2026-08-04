@@ -8,8 +8,10 @@ import {
 } from '@/features/manager/posting/hooks/query/useWorkspaceFilterOptions'
 import type { ApplicationStatusFilter } from '@/features/manager/posting/lib/applicationStatus'
 
-// 서버에 postingId 필터가 없어 공고별로 좁힐 수 없음 (응답 DTO에도 postingId 없음)
-export function useApplicationListViewModel() {
+export function useApplicationListViewModel(
+  postingId?: number,
+  enabled: boolean = true
+) {
   const [workspaceFilter, setWorkspaceFilter] =
     useState<WorkspaceFilter>(ALL_WORKSPACES)
   const [statusFilter, setStatusFilter] =
@@ -26,6 +28,8 @@ export function useApplicationListViewModel() {
     isFetchingNextPage,
     fetchNextPage,
   } = usePostingApplicationsQuery({
+    enabled,
+    postingId,
     workspaceId:
       workspaceFilter === ALL_WORKSPACES ? undefined : workspaceFilter,
     status: statusFilter === 'ALL' ? undefined : statusFilter,

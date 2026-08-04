@@ -9,6 +9,7 @@ import type {
 
 export interface PostingApplicationsQueryParams {
   pageSize: number
+  postingId?: number
   workspaceId?: number
   status?: ApplicationApiStatus[]
   cursor?: string
@@ -26,6 +27,9 @@ export async function fetchPostingApplications(
     {
       params: {
         pageSize: params.pageSize,
+        ...(params.postingId !== undefined && {
+          postingId: params.postingId,
+        }),
         ...(params.workspaceId !== undefined && {
           workspaceId: params.workspaceId,
         }),

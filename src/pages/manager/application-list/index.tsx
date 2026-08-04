@@ -36,6 +36,11 @@ export function ManagerApplicationListPage() {
   const { postingId: postingIdParam } = useParams()
 
   const isFromPosting = postingIdParam !== undefined
+  const numericPostingId = Number(postingIdParam)
+  const postingId =
+    Number.isInteger(numericPostingId) && numericPostingId > 0
+      ? numericPostingId
+      : undefined
 
   const {
     applications,
@@ -51,7 +56,10 @@ export function ManagerApplicationListPage() {
     statusFilter,
     setStatusFilter,
     workspaceOptions,
-  } = useApplicationListViewModel()
+  } = useApplicationListViewModel(
+    postingId,
+    !isFromPosting || postingId !== undefined
+  )
 
   const sentinelRef = useRef<HTMLDivElement>(null)
   // sentinel은 로딩 후에야 마운트되므로 deps에 isLoading·개수가 있어야 관찰이 붙는다
@@ -88,6 +96,7 @@ export function ManagerApplicationListPage() {
           statusValue={statusFilter}
           onStatusChange={setStatusFilter}
           totalCount={totalCount}
+          showWorkspaceFilter={!isFromPosting}
         />
 
         {isLoading ? <ApplicantListSkeleton /> : null}
