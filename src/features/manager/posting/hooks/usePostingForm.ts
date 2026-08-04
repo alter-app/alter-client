@@ -53,7 +53,10 @@ function createInitialValues(posting?: Posting | null): PostingFormValues {
   }
 }
 
-function validate(values: PostingFormValues): PostingFormErrors {
+export function validatePostingForm(
+  values: PostingFormValues,
+  isEditMode: boolean
+): PostingFormErrors {
   const errors: PostingFormErrors = {}
 
   if (values.workspaceId === null) {
@@ -68,7 +71,7 @@ function validate(values: PostingFormValues): PostingFormErrors {
       schedule.startTime === '' ||
       schedule.endTime === ''
   )
-  if (values.schedules.length === 0) {
+  if (!isEditMode && values.schedules.length === 0) {
     errors.schedules = '근무일정을 1개 이상 추가해 주세요'
   } else if (hasIncompleteSchedule) {
     errors.schedules = '근무요일과 시작·종료 시간을 모두 입력해 주세요'
@@ -97,51 +100,96 @@ export function usePostingForm({ posting }: UsePostingFormOptions = {}) {
     createInitialValues(posting)
   )
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false)
+  const [serverErrors, setServerErrors] = useState<PostingFormErrors>({})
 
-  const errors = useMemo(() => validate(values), [values])
-  const isValid = Object.keys(errors).length === 0
-  const visibleErrors: PostingFormErrors = isSubmitAttempted ? errors : {}
-  const isSubmitDisabled = isSubmitAttempted && !isValid
+  const clientErrors = useMemo(
+    () => validatePostingForm(values, isEditMode),
+    [isEditMode, values]
+  )
+  const hasServerErrors = Object.keys(serverErrors).length > 0
+  const isValid = Object.keys(clientErrors).length === 0 && !hasServerErrors
+  const errors = {
+    ...serverErrors,
+    ...(isSubmitAttempted ? clientErrors : {}),
+  }
+  const isSubmitDisabled =
+    hasServerErrors ||
+    (isSubmitAttempted && Object.keys(clientErrors).length > 0)
 
-  const setWorkspaceId = useCallback((workspaceId: number) => {
-    setValues(prev => ({ ...prev, workspaceId }))
+  const clearServerError = useCallback((field: keyof PostingFormErrors) => {
+    setServerErrors(prev => {
+      if (!prev[field]) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
   }, [])
 
-  const setTitle = useCallback((title: string) => {
-    setValues(prev => ({ ...prev, title }))
-  }, [])
+  const setWorkspaceId = useCallback(
+    (workspaceId: number) => {
+      clearServerError('workspaceId')
+      setValues(prev => ({ ...prev, workspaceId }))
+    },
+    [clearServerError]
+  )
 
-  const setPaymentType = useCallback((paymentType: PaymentType) => {
-    setValues(prev => ({ ...prev, paymentType }))
-  }, [])
+  const setTitle = useCallback(
+    (title: string) => {
+      clearServerError('title')
+      setValues(prev => ({ ...prev, title }))
+    },
+    [clearServerError]
+  )
 
-  const setPayAmount = useCallback((payAmount: string) => {
-    setValues(prev => ({
-      ...prev,
-      payAmount: payAmount.replace(/[^0-9]/g, ''),
-    }))
-  }, [])
+  const setPaymentType = useCallback(
+    (paymentType: PaymentType) => {
+      clearServerError('paymentType')
+      setValues(prev => ({ ...prev, paymentType }))
+    },
+    [clearServerError]
+  )
 
-  const setDescription = useCallback((description: string) => {
-    setValues(prev => ({ ...prev, description }))
-  }, [])
+  const setPayAmount = useCallback(
+    (payAmount: string) => {
+      clearServerError('payAmount')
+      setValues(prev => ({
+        ...prev,
+        payAmount: payAmount.replace(/[^0-9]/g, ''),
+      }))
+    },
+    [clearServerError]
+  )
+
+  const setDescription = useCallback(
+    (description: string) => {
+      clearServerError('description')
+      setValues(prev => ({ ...prev, description }))
+    },
+    [clearServerError]
+  )
 
   const addSchedule = useCallback(() => {
+    clearServerError('schedules')
     setValues(prev => ({
       ...prev,
       schedules: [...prev.schedules, createEmptySchedule()],
     }))
-  }, [])
+  }, [clearServerError])
 
-  const removeSchedule = useCallback((key: string) => {
-    setValues(prev => ({
-      ...prev,
-      schedules: prev.schedules.filter(schedule => schedule.key !== key),
-    }))
-  }, [])
+  const removeSchedule = useCallback(
+    (key: string) => {
+      clearServerError('schedules')
+      setValues(prev => ({
+        ...prev,
+        schedules: prev.schedules.filter(schedule => schedule.key !== key),
+      }))
+    },
+    [clearServerError]
+  )
 
   const updateSchedule = useCallback(
     (key: string, patch: Partial<Omit<PostingFormSchedule, 'key'>>) => {
+      clearServerError('schedules')
       setValues(prev => ({
         ...prev,
         schedules: prev.schedules.map(schedule =>
@@ -149,30 +197,37 @@ export function usePostingForm({ posting }: UsePostingFormOptions = {}) {
         ),
       }))
     },
-    []
+    [clearServerError]
   )
 
-  const toggleScheduleDay = useCallback((key: string, day: WorkingDay) => {
-    setValues(prev => ({
-      ...prev,
-      schedules: prev.schedules.map(schedule => {
-        if (schedule.key !== key) return schedule
-        const workingDays = schedule.workingDays.includes(day)
-          ? schedule.workingDays.filter(item => item !== day)
-          : [...schedule.workingDays, day]
-        return { ...schedule, workingDays }
-      }),
-    }))
-  }, [])
+  const toggleScheduleDay = useCallback(
+    (key: string, day: WorkingDay) => {
+      clearServerError('schedules')
+      setValues(prev => ({
+        ...prev,
+        schedules: prev.schedules.map(schedule => {
+          if (schedule.key !== key) return schedule
+          const workingDays = schedule.workingDays.includes(day)
+            ? schedule.workingDays.filter(item => item !== day)
+            : [...schedule.workingDays, day]
+          return { ...schedule, workingDays }
+        }),
+      }))
+    },
+    [clearServerError]
+  )
 
   const attemptSubmit = useCallback(() => {
     setIsSubmitAttempted(true)
-    return Object.keys(validate(values)).length === 0
-  }, [values])
+    return (
+      Object.keys(validatePostingForm(values, isEditMode)).length === 0 &&
+      Object.keys(serverErrors).length === 0
+    )
+  }, [isEditMode, serverErrors, values])
 
   return {
     values,
-    errors: visibleErrors,
+    errors,
     isValid,
     isSubmitDisabled,
     isEditMode,
@@ -186,6 +241,7 @@ export function usePostingForm({ posting }: UsePostingFormOptions = {}) {
     updateSchedule,
     toggleScheduleDay,
     attemptSubmit,
+    setServerErrors,
   }
 }
 

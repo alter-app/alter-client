@@ -92,33 +92,39 @@ export function ManagerPostingDetailPage() {
           <h2 className="mb-2 typography-body02-semibold text-text-100">
             근무일정
           </h2>
-          <ul className="flex flex-col gap-2">
-            {posting.schedules.map((schedule, index) => (
-              <li
-                key={schedule.id ?? index}
-                className="rounded-2xl bg-white p-4 shadow-sm"
-              >
-                <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <span className="typography-body02-semibold text-text-100">
-                    {schedule.position || '포지션 미지정'}
-                  </span>
-                  <span className="typography-body03-regular text-text-70">
-                    모집 {schedule.positionsNeeded}명
-                  </span>
-                </div>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 typography-body03-regular text-text-90">
-                  <span className="flex items-center gap-1.5">
-                    <CalendarIcon className="size-4 text-main" />
-                    {formatWorkingDays(schedule.workingDays)}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <ClockIcon className="size-4 text-main" />
-                    {formatTimeRange(schedule.startTime, schedule.endTime)}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
+          {posting.schedules.length > 0 ? (
+            <ul className="flex flex-col gap-2">
+              {posting.schedules.map((schedule, index) => (
+                <li
+                  key={schedule.id ?? index}
+                  className="rounded-2xl bg-white p-4 shadow-sm"
+                >
+                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <span className="typography-body02-semibold text-text-100">
+                      {schedule.position || '포지션 미지정'}
+                    </span>
+                    <span className="typography-body03-regular text-text-70">
+                      모집 {schedule.positionsNeeded}명
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 typography-body03-regular text-text-90">
+                    <span className="flex items-center gap-1.5">
+                      <CalendarIcon className="size-4 text-main" />
+                      {formatWorkingDays(schedule.workingDays)}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <ClockIcon className="size-4 text-main" />
+                      {formatTimeRange(schedule.startTime, schedule.endTime)}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="rounded-2xl bg-white p-4 text-center typography-body02-regular text-text-70 shadow-sm">
+              등록된 근무일정이 없어요.
+            </p>
+          )}
         </section>
 
         {posting.description ? (

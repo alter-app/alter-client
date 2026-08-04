@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useUpdatePostingMutation } from '@/features/manager/posting/hooks/mutation/useUpdatePostingMutation'
 import { useManagerPostingDetailQuery } from '@/features/manager/posting/hooks/query/useManagerPostingDetailQuery'
 import { usePostingForm } from '@/features/manager/posting/hooks/usePostingForm'
+import { resolvePostingFormError } from '@/features/manager/posting/lib/postingErrorMessage'
 import { PostingFormFields } from '@/features/manager/posting/ui/PostingFormFields'
 import type {
   Posting,
@@ -48,7 +49,10 @@ export function ManagerPostingEditPage() {
     )
   }
 
-  const handleSubmit = (values: PostingFormValues) => {
+  const handleSubmit = (
+    values: PostingFormValues,
+    onError: (error: unknown) => void
+  ) => {
     const originalScheduleIds = posting.schedules
       .map(schedule => schedule.id)
       .filter((id): id is number => id !== null)
@@ -57,9 +61,14 @@ export function ManagerPostingEditPage() {
       { values, originalScheduleIds },
       {
         onSuccess: () => {
-          showToast('공고를 수정했어요')
+          showToast(
+            values.schedules.length === 0
+              ? '공고를 수정하고 모집을 마감했어요'
+              : '공고를 수정했어요'
+          )
           navigate(-1)
         },
+        onError,
       }
     )
   }
@@ -78,7 +87,10 @@ export function ManagerPostingEditPage() {
 interface PostingEditContentProps {
   posting: Posting
   isSubmitting: boolean
-  onSubmit: (values: PostingFormValues) => void
+  onSubmit: (
+    values: PostingFormValues,
+    onError: (error: unknown) => void
+  ) => void
 }
 
 function PostingEditContent({
@@ -90,7 +102,16 @@ function PostingEditContent({
 
   const handleSubmit = () => {
     if (!form.attemptSubmit()) return
-    onSubmit(form.values)
+    onSubmit(form.values, handleError)
+  }
+
+  const handleError = (error: unknown) => {
+    const { fieldErrors, message } = resolvePostingFormError(
+      error,
+      '공고를 수정하지 못했어요.'
+    )
+    form.setServerErrors(fieldErrors)
+    if (message) showToast(message, 'error')
   }
 
   return (

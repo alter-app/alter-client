@@ -91,7 +91,11 @@ export function PostingFormFields({ form }: PostingFormFieldsProps) {
         <ScheduleEditor form={form} />
       </Section>
 
-      <Section label="급여" required error={errors.payAmount}>
+      <Section
+        label="급여"
+        required
+        error={errors.paymentType ?? errors.payAmount}
+      >
         <div className="mb-2 flex gap-1.5">
           {PAYMENT_TYPES.map(paymentType => {
             const isSelected = values.paymentType === paymentType

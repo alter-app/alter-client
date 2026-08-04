@@ -6,6 +6,7 @@ import type { PostingFormViewModel } from '@/features/manager/posting/hooks/useP
 import { formatKoreanTimePart } from '@/shared/lib/formatKoreanWorkTime'
 import type { WorkTimeEditorState } from '@/shared/types/workTime'
 import { WorkTimePickerDrawer } from '@/shared/ui/common/WorkTimePickerDrawer'
+import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import {
   WORKING_DAYS,
   WORKING_DAY_LABEL,
@@ -62,11 +63,13 @@ function ScheduleCard({
   index,
   form,
   canRemove,
+  onRemove,
 }: {
   schedule: PostingFormSchedule
   index: number
   form: PostingFormViewModel
   canRemove: boolean
+  onRemove: () => void
 }) {
   const isExisting = schedule.id !== null
   const [pickerTarget, setPickerTarget] = useState<TimeTarget | null>(null)
@@ -136,7 +139,7 @@ function ScheduleCard({
         {canRemove ? (
           <button
             type="button"
-            onClick={() => form.removeSchedule(schedule.key)}
+            onClick={onRemove}
             aria-label={`일정 ${index + 1} 삭제`}
             className="flex size-7 items-center justify-center rounded-lg text-text-50 transition-colors hover:bg-bg-light"
           >
@@ -239,16 +242,45 @@ function ScheduleCard({
 
 export function ScheduleEditor({ form }: ScheduleEditorProps) {
   const { schedules } = form.values
+  const [pendingRemovalKey, setPendingRemovalKey] = useState<string | null>(
+    null
+  )
+  const pendingRemoval = schedules.find(
+    schedule => schedule.key === pendingRemovalKey
+  )
+  const willRemoveLastSchedule = Boolean(
+    pendingRemoval && schedules.length === 1
+  )
+
+  const requestRemoval = (schedule: PostingFormSchedule) => {
+    if (schedule.id === null && schedules.length > 1) {
+      form.removeSchedule(schedule.key)
+      return
+    }
+    setPendingRemovalKey(schedule.key)
+  }
+
+  const confirmRemoval = () => {
+    if (pendingRemovalKey) form.removeSchedule(pendingRemovalKey)
+    setPendingRemovalKey(null)
+  }
 
   return (
     <div className="flex flex-col gap-3">
+      {schedules.length === 0 ? (
+        <p className="rounded-xl bg-bg-light px-3 py-4 text-center typography-body03-regular text-text-70">
+          등록된 근무일정이 없어요.
+        </p>
+      ) : null}
+
       {schedules.map((schedule, index) => (
         <ScheduleCard
           key={schedule.key}
           schedule={schedule}
           index={index}
           form={form}
-          canRemove={schedules.length > 1}
+          canRemove={form.isEditMode || schedules.length > 1}
+          onRemove={() => requestRemoval(schedule)}
         />
       ))}
 
@@ -260,6 +292,20 @@ export function ScheduleEditor({ form }: ScheduleEditorProps) {
         <PlusIcon className="size-4" />
         <span className="typography-bt">일정 추가</span>
       </button>
+
+      <ConfirmModal
+        isOpen={pendingRemoval !== undefined}
+        title="근무일정을 삭제할까요?"
+        description={
+          willRemoveLastSchedule
+            ? '모든 근무일정을 삭제한 상태로 수정 완료하면 공고가 자동으로 모집 마감됩니다.'
+            : '삭제한 일정은 수정 완료 후 복구할 수 없어요.'
+        }
+        confirmLabel="삭제"
+        cancelLabel="취소"
+        onConfirm={confirmRemoval}
+        onClose={() => setPendingRemovalKey(null)}
+      />
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useCreatePostingMutation } from '@/features/manager/posting/hooks/mutation/useCreatePostingMutation'
 import { usePostingForm } from '@/features/manager/posting/hooks/usePostingForm'
+import { resolvePostingFormError } from '@/features/manager/posting/lib/postingErrorMessage'
 import { PostingFormFields } from '@/features/manager/posting/ui/PostingFormFields'
 import { ROUTES } from '@/shared/constants/routes'
 import { showToast } from '@/shared/stores/useToastStore'
@@ -32,6 +33,14 @@ export function ManagerPostingCreatePage() {
         onSuccess: () => {
           showToast('공고를 등록했어요')
           navigate(ROUTES.MANAGER.POSTINGS, { replace: true })
+        },
+        onError: error => {
+          const { fieldErrors, message } = resolvePostingFormError(
+            error,
+            '공고를 등록하지 못했어요.'
+          )
+          form.setServerErrors(fieldErrors)
+          if (message) showToast(message, 'error')
         },
       }
     )

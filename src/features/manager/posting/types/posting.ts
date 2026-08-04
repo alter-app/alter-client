@@ -107,6 +107,7 @@ export interface PostingFormErrors {
   workspaceId?: string
   title?: string
   schedules?: string
+  paymentType?: string
   payAmount?: string
   description?: string
 }

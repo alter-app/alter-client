@@ -1,7 +1,9 @@
 import axios from 'axios'
 
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
+import { parseErrorResponse } from '@/shared/lib/utils/errorUtils'
 import type { ErrorResponse } from '@/shared/types/common'
+import type { PostingFormErrors } from '@/features/manager/posting/types/posting'
 
 const POSTING_ERROR_MESSAGES: Record<string, string> = {
   B007: '존재하지 않는 공고예요.',
@@ -23,4 +25,49 @@ export function resolvePostingErrorMessage(
     }
   }
   return getAxiosErrorMessage(error, fallback)
+}
+
+const POSTING_FORM_FIELDS = new Set<keyof PostingFormErrors>([
+  'workspaceId',
+  'title',
+  'schedules',
+  'paymentType',
+  'payAmount',
+  'description',
+])
+
+export function resolvePostingFormError(
+  error: unknown,
+  fallback: string
+): { fieldErrors: PostingFormErrors; message: string | null } {
+  if (!axios.isAxiosError(error)) {
+    return {
+      fieldErrors: {},
+      message: resolvePostingErrorMessage(error, fallback),
+    }
+  }
+
+  const { fieldErrors: rawFieldErrors } = parseErrorResponse(
+    error.response?.data
+  )
+  const fieldErrors: PostingFormErrors = {}
+  let hasUnknownField = false
+
+  for (const [field, message] of Object.entries(rawFieldErrors)) {
+    const rootField = field.split(/[.[\]]/, 1)[0]
+    if (POSTING_FORM_FIELDS.has(rootField as keyof PostingFormErrors)) {
+      fieldErrors[rootField as keyof PostingFormErrors] = message
+    } else {
+      hasUnknownField = true
+    }
+  }
+
+  const hasKnownField = Object.keys(fieldErrors).length > 0
+  return {
+    fieldErrors,
+    message:
+      hasKnownField && !hasUnknownField
+        ? null
+        : resolvePostingErrorMessage(error, fallback),
+  }
 }
