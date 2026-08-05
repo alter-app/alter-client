@@ -10,6 +10,11 @@ import {
   type ApplicationStatus,
 } from '@/features/manager/posting/types/posting'
 import { resolveApplicationStatusBadge } from '@/features/manager/posting/lib/applicationStatus'
+import {
+  formatApplicantBirthDate,
+  formatApplicantPhoneNumber,
+  formatCertificateAcquiredMonth,
+} from '@/features/manager/posting/lib/applicationDetailFormat'
 import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Skeleton } from '@/shared/ui/common/Skeleton'
@@ -135,8 +140,14 @@ export function ManagerApplicationDetailPage() {
         {!canDecide ? <TerminalNotice status={application.status} /> : null}
 
         <section className="rounded-2xl bg-white px-4 shadow-sm">
-          <InfoRow label="연락처" value={applicant.phoneNumber} />
-          <InfoRow label="생년월일" value={applicant.birthDate} />
+          <InfoRow
+            label="연락처"
+            value={formatApplicantPhoneNumber(applicant.phoneNumber)}
+          />
+          <InfoRow
+            label="생년월일"
+            value={formatApplicantBirthDate(applicant.birthDate)}
+          />
           <InfoRow label="성별" value={applicant.gender} />
           <InfoRow label="이메일" value={applicant.email} isLast />
         </section>
@@ -165,7 +176,7 @@ export function ManagerApplicationDetailPage() {
                     </p>
                   </div>
                   <span className="typography-body03-regular text-text-70">
-                    {certificate.acquiredAt}
+                    {formatCertificateAcquiredMonth(certificate.acquiredAt)}
                   </span>
                 </li>
               ))}
