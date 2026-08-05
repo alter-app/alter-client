@@ -5,12 +5,12 @@ import ChevronRightIcon from '@/assets/icons/posting/ChevronRight.svg?react'
 import ClockIcon from '@/assets/icons/posting/Clock.svg?react'
 import PersonIcon from '@/assets/icons/posting/Person.svg?react'
 import { usePostingDetailViewModel } from '@/features/manager/posting/hooks/usePostingDetailViewModel'
-import { ManagerPostingStatusBadge } from '@/features/manager/posting/ui/ManagerPostingStatusBadge'
 import {
   formatTimeRange,
   formatWorkingDays,
   PAYMENT_TYPE_LABEL,
 } from '@/features/manager/posting/types/posting'
+import { PostingDetailHeader } from '@/features/manager/posting/ui/PostingDetailHeader'
 import {
   managerPostingApplicationsPath,
   managerPostingEditPath,
@@ -68,17 +68,12 @@ export function ManagerPostingDetailPage() {
       <Navbar variant="detail" title="공고 상세" />
 
       <main className="mx-auto flex w-full max-w-[400px] flex-1 flex-col gap-3 px-4 pb-28 pt-4">
-        <section className="rounded-2xl bg-white p-4 shadow-sm">
-          <h1 className="typography-headline03 text-text-100">
-            {posting.title}
-          </h1>
-          <div className="mt-1.5 flex items-center justify-between gap-2">
-            <p className="typography-body02-regular text-text-70">
-              {posting.workspaceName} · {posting.businessType}
-            </p>
-            <ManagerPostingStatusBadge status={posting.status} />
-          </div>
-        </section>
+        <PostingDetailHeader
+          title={posting.title}
+          workspaceName={posting.workspaceName}
+          businessType={posting.businessType}
+          status={posting.status}
+        />
 
         <section className="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm">
           <span className="typography-body02-regular text-text-70">급여</span>
