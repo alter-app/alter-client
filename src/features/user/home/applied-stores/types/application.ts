@@ -4,16 +4,11 @@ import type {
   FilterType,
   WeekdayLabel,
 } from '@/features/user/home/applied-stores/types/appliedStore'
+import type { ApplicationApiStatus } from '@/shared/types/applicationStatus'
 
 // ---- API Status ----
-export type ApplicationApiStatus =
-  | 'SUBMITTED'
-  | 'SHORTLISTED'
-  | 'ACCEPTED'
-  | 'REJECTED'
-  | 'CANCELLED'
-  | 'EXPIRED'
-  | 'DELETED'
+// 크로스 롤(유저·매니저) 공용 enum — 정의는 shared로 이동, 기존 소비처를 위해 재노출
+export type { ApplicationApiStatus } from '@/shared/types/applicationStatus'
 
 // ---- DTO ----
 export interface PostingScheduleDto {

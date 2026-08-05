@@ -1,7 +1,7 @@
 import calendarIcon from '@/assets/icons/schedule/schedule_calendar.svg'
 import { CollapsibleScheduleSection } from '@/pages/manager/worker-schedule/components/CollapsibleScheduleSection'
 import { WorkTimeRangeField } from '@/pages/manager/worker-schedule/components/WorkTimeRangeField'
-import type { WorkTimeEditorState } from '@/pages/manager/worker-schedule/types/workTime'
+import type { WorkTimeEditorState } from '@/shared/types/workTime'
 import { ManagerMonthCalendar } from '@/shared/ui/schedule/ManagerMonthCalendar'
 
 interface GeneralScheduleDateSectionProps {

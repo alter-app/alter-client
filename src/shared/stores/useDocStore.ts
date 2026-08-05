@@ -8,22 +8,22 @@ const PATHNAME_TAB_MAP: Array<{ matcher: RegExp; tab: TabKey }> = [
   { matcher: /^\/user\/substitute-request/, tab: 'substitute' },
   { matcher: /^\/manager\/home/, tab: 'home' },
   { matcher: /^\/user\/job-lookup-map/, tab: 'search' },
+  // 사장님 구인구직 — 지원자 경로가 아래 내 공고 패턴보다 먼저 매칭돼야 합니다
+  { matcher: /^\/manager\/postings\/applications/, tab: 'applicant' },
+  // 사장님 구인구직 — 알바찾기(내 공고) 탭 하이라이트
+  { matcher: /^\/manager\/postings/, tab: 'search' },
 ]
 
-const createSelectedTab = (activeTab?: TabKey) => ({
+const createSelectedTab = (activeTab?: TabKey): Record<TabKey, boolean> => ({
   home: activeTab === 'home',
   my: activeTab === 'my',
   search: activeTab === 'search',
   substitute: activeTab === 'substitute',
+  applicant: activeTab === 'applicant',
 })
 
 interface DocStoreState {
-  selectedTab: {
-    home: boolean
-    my: boolean
-    search: boolean
-    substitute: boolean
-  }
+  selectedTab: Record<TabKey, boolean>
   setSelectedTab: (selectedTab: DocStoreState['selectedTab']) => void
   setSelectedTabByPathname: (pathname: string) => void
 }

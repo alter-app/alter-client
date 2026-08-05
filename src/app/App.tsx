@@ -30,6 +30,12 @@ import { StoreRegisterRequestsPage } from '@/pages/store-register/requests'
 import { StoreRegisterRequestDetailPage } from '@/pages/store-register/request-detail'
 import { ManagerWorkerInvitePage } from '@/pages/manager/worker-invite'
 import { WorkspaceImageEditPage } from '@/pages/manager/workspace-image-edit'
+import { ManagerPostingListPage } from '@/pages/manager/posting-list'
+import { ManagerPostingCreatePage } from '@/pages/manager/posting-create'
+import { ManagerPostingDetailPage } from '@/pages/manager/posting-detail'
+import { ManagerPostingEditPage } from '@/pages/manager/posting-edit'
+import { ManagerApplicationListPage } from '@/pages/manager/application-list'
+import { ManagerApplicationDetailPage } from '@/pages/manager/application-detail'
 import { WorkspaceJoinPage } from '@/pages/user/workspace-join'
 import { NotificationPage } from '@/pages/notification'
 import { NotificationSettingsPage } from '@/pages/notification/settings'
@@ -44,6 +50,7 @@ import { ErrorPageRoute } from '@/pages/error'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { MobileLayoutWithDocbar } from '@/shared/ui/MobileLayoutWithDocbar'
 import { HomeRouteGuard } from '@/shared/ui/common/HomeRouteGuard'
+import { ToastViewport } from '@/shared/ui/common/ToastViewport'
 import { ROUTES } from '@/shared/constants/routes'
 
 const SignupPage = lazy(async () => {
@@ -161,6 +168,47 @@ export function App() {
             path={ROUTES.MANAGER.WORKSPACE_IMAGES_EDIT_PATTERN}
             element={<WorkspaceImageEditPage />}
           />
+          {/* 사장님 구인구직 — 정적 세그먼트가 :postingId보다 우선 매칭됩니다 */}
+          <Route
+            path={ROUTES.MANAGER.POSTING_NEW}
+            element={
+              <HomeRouteGuard expected="MANAGER">
+                <ManagerPostingCreatePage />
+              </HomeRouteGuard>
+            }
+          />
+          <Route
+            path={ROUTES.MANAGER.POSTING_APPLICATIONS_BY_POSTING_PATTERN}
+            element={
+              <HomeRouteGuard expected="MANAGER">
+                <ManagerApplicationListPage />
+              </HomeRouteGuard>
+            }
+          />
+          <Route
+            path={ROUTES.MANAGER.POSTING_APPLICATION_DETAIL_PATTERN}
+            element={
+              <HomeRouteGuard expected="MANAGER">
+                <ManagerApplicationDetailPage />
+              </HomeRouteGuard>
+            }
+          />
+          <Route
+            path={ROUTES.MANAGER.POSTING_EDIT_PATTERN}
+            element={
+              <HomeRouteGuard expected="MANAGER">
+                <ManagerPostingEditPage />
+              </HomeRouteGuard>
+            }
+          />
+          <Route
+            path={ROUTES.MANAGER.POSTING_DETAIL_PATTERN}
+            element={
+              <HomeRouteGuard expected="MANAGER">
+                <ManagerPostingDetailPage />
+              </HomeRouteGuard>
+            }
+          />
         </Route>
 
         <Route element={<MobileRouteLayoutWithDocbar />}>
@@ -205,6 +253,22 @@ export function App() {
             path={ROUTES.MANAGER.SOCIAL_CHAT}
             element={<SocialChatPage />}
           />
+          <Route
+            path={ROUTES.MANAGER.POSTINGS}
+            element={
+              <HomeRouteGuard expected="MANAGER">
+                <ManagerPostingListPage />
+              </HomeRouteGuard>
+            }
+          />
+          <Route
+            path={ROUTES.MANAGER.POSTING_APPLICATIONS}
+            element={
+              <HomeRouteGuard expected="MANAGER">
+                <ManagerApplicationListPage />
+              </HomeRouteGuard>
+            }
+          />
           <Route path={ROUTES.MY.ROOT} element={<MyPage />} />
           <Route
             path={ROUTES.USER.SUBSTITUTE_REQUEST_DETAIL_PATTERN}
@@ -227,6 +291,7 @@ export function App() {
         <Route path="/" element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
         <Route path="*" element={<ErrorPageRoute />} />
       </Routes>
+      <ToastViewport />
     </BrowserRouter>
   )
 }
