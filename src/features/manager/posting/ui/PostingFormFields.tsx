@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import type { PostingFormViewModel } from '@/features/manager/posting/hooks/usePostingForm'
 import { useWorkspaceSelectOptions } from '@/features/manager/posting/hooks/query/useWorkspaceFilterOptions'
 import AlertIcon from '@/assets/icons/posting/Alert.svg?react'
+import { PostingDescriptionTextarea } from '@/features/manager/posting/ui/PostingDescriptionTextarea'
 import { ScheduleEditor } from '@/features/manager/posting/ui/ScheduleEditor'
 import {
   PAYMENT_TYPES,
@@ -143,17 +144,10 @@ export function PostingFormFields({ form }: PostingFormFieldsProps) {
       </Section>
 
       <Section label="상세내용" required error={errors.description}>
-        <textarea
+        <PostingDescriptionTextarea
           value={values.description}
-          rows={5}
-          placeholder="근무 조건, 우대 사항 등을 자유롭게 작성해 주세요"
-          onChange={e => form.setDescription(e.target.value)}
-          className={cn(
-            'w-full resize-none rounded-xl border bg-white p-3.5 typography-body02-regular text-text-100 placeholder:text-text-50 focus:outline-none',
-            errors.description
-              ? 'border-error'
-              : 'border-line-1 focus:border-main'
-          )}
+          hasError={Boolean(errors.description)}
+          onChange={form.setDescription}
         />
       </Section>
     </div>
