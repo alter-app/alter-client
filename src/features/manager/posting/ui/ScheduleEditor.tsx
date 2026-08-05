@@ -3,7 +3,6 @@ import PlusIcon from '@/assets/icons/posting/Plus.svg?react'
 import { useState } from 'react'
 
 import type { PostingFormViewModel } from '@/features/manager/posting/hooks/usePostingForm'
-import { formatKoreanTimePart } from '@/shared/lib/formatKoreanWorkTime'
 import type { WorkTimeEditorState } from '@/shared/types/workTime'
 import { WorkTimePickerDrawer } from '@/shared/ui/common/WorkTimePickerDrawer'
 import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
@@ -25,6 +24,11 @@ function splitTime(time: string) {
   return { hour, minute }
 }
 
+function formatTime(time: string) {
+  const { hour, minute } = splitTime(time)
+  return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
+}
+
 function TimeField({
   label,
   value,
@@ -34,7 +38,6 @@ function TimeField({
   value: string
   onOpen: () => void
 }) {
-  const { hour, minute } = splitTime(value)
   const isEmpty = value === ''
 
   return (
@@ -52,7 +55,7 @@ function TimeField({
           isEmpty ? 'text-text-50' : 'text-text-100'
         )}
       >
-        {isEmpty ? '시간 선택' : formatKoreanTimePart(hour, minute)}
+        {isEmpty ? '시간 선택' : formatTime(value)}
       </button>
     </div>
   )
@@ -141,7 +144,7 @@ function ScheduleCard({
             type="button"
             onClick={onRemove}
             aria-label={`일정 ${index + 1} 삭제`}
-            className="flex size-7 items-center justify-center rounded-lg text-text-50 transition-colors hover:bg-bg-light"
+            className="flex size-7 items-center justify-center rounded-lg border border-line-1 text-text-50 transition-colors hover:bg-bg-light"
           >
             <CloseIcon className="size-4" />
           </button>
@@ -162,7 +165,7 @@ function ScheduleCard({
                 'size-9 rounded-lg typography-body02-semibold transition-colors',
                 isSelected
                   ? 'bg-main text-white'
-                  : 'border border-line-1 bg-white text-text-70'
+                  : 'border border-bg-dark bg-transparent text-text-50'
               )}
             >
               {WORKING_DAY_LABEL[day]}
