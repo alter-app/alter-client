@@ -1,10 +1,8 @@
 import { forwardRef, useImperativeHandle, useState } from 'react'
-import ChevrondownIcon from '@/assets/icons/job-lookup-map/Chevrondown.svg?react'
 import CloseIcon from '@/assets/icons/job-lookup-map/Close.svg?react'
 import FilterIcon from '@/assets/icons/job-lookup-map/Filter.svg?react'
+import { NearbyModeFilterDrawer } from '@/features/job-lookup-map/common/NearbyModeFilterDrawer'
 import { RegionModeFilterDrawer } from '@/features/job-lookup-map/common/RegionModeFilterDrawer'
-import { SalarySelectDrawer } from '@/features/job-lookup-map/common/SalarySelectDrawer'
-import { SortSelectDrawer } from '@/features/job-lookup-map/common/SortSelectDrawer'
 import {
   DEFAULT_SORT_VALUE,
   EMPTY_SALARY_FILTER,
@@ -23,8 +21,6 @@ import {
 } from '@/features/job-lookup-map/lib/regionOptions'
 
 export type AlbaFindMode = 'nearby' | 'region'
-
-export type AlbaFindFilterId = 'sort' | 'distance' | 'salary'
 
 type AlbaFindCategoryBarProps = {
   mode: AlbaFindMode
@@ -48,6 +44,52 @@ const FALLBACK_SORT_OPTIONS = [
   { value: 'PAY_AMOUNT', description: '급여순' },
 ]
 
+function FilterIconButton({
+  activeFilterCount,
+  onClick,
+}: {
+  activeFilterCount: number
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      aria-label="필터 열기"
+      onClick={onClick}
+      className="relative flex size-[42px] shrink-0 items-center justify-center rounded-xl border border-line-2 bg-white text-text-100"
+    >
+      <FilterIcon className="size-5" aria-hidden />
+      {activeFilterCount > 0 ? (
+        <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-main text-[10px] font-semibold leading-none text-text-100">
+          {activeFilterCount}
+        </span>
+      ) : null}
+    </button>
+  )
+}
+
+function ActiveFilterChip({
+  label,
+  onRemove,
+}: {
+  label: string
+  onRemove: () => void
+}) {
+  return (
+    <span className="inline-flex h-[34px] items-center gap-1 rounded-full bg-main-100 px-3 typography-body03-semibold text-sub">
+      {label}
+      <button
+        type="button"
+        aria-label={`${label} 필터 제거`}
+        onClick={onRemove}
+        className="flex size-4 items-center justify-center text-sub"
+      >
+        <CloseIcon className="size-3" aria-hidden />
+      </button>
+    </span>
+  )
+}
+
 export const AlbaFindCategoryBar = forwardRef<
   AlbaFindCategoryBarRef,
   AlbaFindCategoryBarProps
@@ -70,8 +112,8 @@ export const AlbaFindCategoryBar = forwardRef<
 
   const [internalRegionFilterDrawerOpen, setInternalRegionFilterDrawerOpen] =
     useState(false)
-  const [isSortDrawerOpen, setIsSortDrawerOpen] = useState(false)
-  const [isSalaryDrawerOpen, setIsSalaryDrawerOpen] = useState(false)
+  const [isNearbyFilterDrawerOpen, setIsNearbyFilterDrawerOpen] =
+    useState(false)
 
   const isRegionFilterDrawerOpen =
     regionFilterDrawerOpen ?? internalRegionFilterDrawerOpen
@@ -86,14 +128,10 @@ export const AlbaFindCategoryBar = forwardRef<
           setIsRegionFilterDrawerOpen(true)
           return
         }
-        if (isSalaryFilterApplied(salaryFilter)) {
-          setIsSalaryDrawerOpen(true)
-          return
-        }
-        setIsSortDrawerOpen(true)
+        setIsNearbyFilterDrawerOpen(true)
       },
     }),
-    [mode, salaryFilter, setIsRegionFilterDrawerOpen]
+    [mode, setIsRegionFilterDrawerOpen]
   )
 
   const activeFilterCount = countActiveFilters({
@@ -105,29 +143,8 @@ export const AlbaFindCategoryBar = forwardRef<
   const regionChipLabel = formatRegionChipLabel(regionSelection)
   const hasSortSelected = isSortFilterApplied(sortValue)
   const hasSalarySelected = isSalaryFilterApplied(salaryFilter)
-
-  const nearbyFilterItems = [
-    {
-      id: 'distance' as const,
-      label: formatSortChipLabel(sortValue, resolvedSortOptions),
-      active: hasSortSelected,
-    },
-    {
-      id: 'salary' as const,
-      label: formatSalaryChipLabel(salaryFilter),
-      active: hasSalarySelected,
-    },
-  ]
-
-  const handleNearbyFilterClick = (id: AlbaFindFilterId) => {
-    if (id === 'distance') {
-      setIsSortDrawerOpen(true)
-      return
-    }
-    if (id === 'salary') {
-      setIsSalaryDrawerOpen(true)
-    }
-  }
+  const sortChipLabel = formatSortChipLabel(sortValue, resolvedSortOptions)
+  const salaryChipLabel = formatSalaryChipLabel(salaryFilter)
 
   return (
     <>
@@ -156,7 +173,10 @@ export const AlbaFindCategoryBar = forwardRef<
             type="button"
             role="tab"
             aria-selected={mode === 'region'}
-            onClick={() => onModeChange('region')}
+            onClick={() => {
+              setIsNearbyFilterDrawerOpen(false)
+              onModeChange('region')
+            }}
             className={`min-h-10 flex-1 rounded-lg typography-body01-semibold transition-colors ${
               mode === 'region'
                 ? 'border border-line-2 bg-white text-text-100 shadow-[0px_1px_4px_0px_rgba(0,0,0,0.12)]'
@@ -169,60 +189,38 @@ export const AlbaFindCategoryBar = forwardRef<
 
         {mode === 'region' ? (
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              aria-label="필터 열기"
+            <FilterIconButton
+              activeFilterCount={activeFilterCount}
               onClick={() => setIsRegionFilterDrawerOpen(true)}
-              className="relative flex size-[42px] shrink-0 items-center justify-center rounded-xl border border-line-2 bg-white text-text-100"
-            >
-              <FilterIcon className="size-5" aria-hidden />
-              {activeFilterCount > 0 ? (
-                <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-main text-[10px] font-semibold leading-none text-text-100">
-                  {activeFilterCount}
-                </span>
-              ) : null}
-            </button>
+            />
 
             {hasRegionFilterApplied(regionSelection) && regionChipLabel ? (
-              <span className="inline-flex h-[34px] items-center gap-1 rounded-full bg-main-100 px-3 typography-body03-semibold text-sub">
-                {regionChipLabel}
-                <button
-                  type="button"
-                  aria-label={`${regionChipLabel} 필터 제거`}
-                  onClick={() => onRegionChange?.(EMPTY_REGION_SELECTION)}
-                  className="flex size-4 items-center justify-center text-sub"
-                >
-                  <CloseIcon className="size-3" aria-hidden />
-                </button>
-              </span>
+              <ActiveFilterChip
+                label={regionChipLabel}
+                onRemove={() => onRegionChange?.(EMPTY_REGION_SELECTION)}
+              />
             ) : null}
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2">
-            {nearbyFilterItems.map(({ id, label, active }, index) => (
-              <div key={id} className="flex items-center gap-2">
-                {index === 1 ? (
-                  <div
-                    className="h-[26px] w-px shrink-0 bg-line-2"
-                    aria-hidden
-                  />
-                ) : null}
-                <button
-                  type="button"
-                  onClick={() => handleNearbyFilterClick(id)}
-                  className={`inline-flex h-[26px] min-w-0 items-center gap-1 rounded-full px-3 transition-colors ${
-                    active
-                      ? 'bg-main typography-body03-semibold text-text-100'
-                      : 'border border-line-2 bg-white typography-body03-regular text-text-90'
-                  }`}
-                >
-                  <span>{label}</span>
-                  <ChevrondownIcon
-                    className={active ? 'text-text-100' : 'text-text-70'}
-                  />
-                </button>
-              </div>
-            ))}
+            <FilterIconButton
+              activeFilterCount={activeFilterCount}
+              onClick={() => setIsNearbyFilterDrawerOpen(true)}
+            />
+
+            {hasSortSelected ? (
+              <ActiveFilterChip
+                label={sortChipLabel}
+                onRemove={() => onSortChange?.(DEFAULT_SORT_VALUE)}
+              />
+            ) : null}
+
+            {hasSalarySelected ? (
+              <ActiveFilterChip
+                label={salaryChipLabel}
+                onRemove={() => onSalaryChange?.(EMPTY_SALARY_FILTER)}
+              />
+            ) : null}
           </div>
         )}
       </div>
@@ -241,17 +239,14 @@ export const AlbaFindCategoryBar = forwardRef<
           onSalaryChange?.(nextSalary)
         }}
       />
-      <SortSelectDrawer
-        open={isSortDrawerOpen}
-        onOpenChange={setIsSortDrawerOpen}
-        value={sortValue}
-        onApply={value => onSortChange?.(value)}
-      />
-      <SalarySelectDrawer
-        open={isSalaryDrawerOpen}
-        onOpenChange={setIsSalaryDrawerOpen}
-        value={salaryFilter}
-        onApply={selection => onSalaryChange?.(selection)}
+      <NearbyModeFilterDrawer
+        open={isNearbyFilterDrawerOpen}
+        onOpenChange={setIsNearbyFilterDrawerOpen}
+        value={{ sortValue, salaryFilter }}
+        onApply={({ sortValue: nextSort, salaryFilter: nextSalary }) => {
+          onSortChange?.(nextSort)
+          onSalaryChange?.(nextSalary)
+        }}
       />
     </>
   )
