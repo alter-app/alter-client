@@ -6,7 +6,12 @@ import {
 
 export type AlbaFindMode = 'nearby' | 'region'
 
-export type SalaryPreset = 'all' | '12000' | '15000' | 'custom'
+export type SalaryPreset = 'all' | 'custom'
+
+export const SORT_OPTIONS = [
+  { value: 'LATEST', label: '최신순', description: '최신순' },
+  { value: 'PAY_AMOUNT', label: '급여순', description: '급여순' },
+] as const
 
 export type SalaryFilterSelection = {
   preset: SalaryPreset
@@ -31,21 +36,9 @@ export function formatSortOptionLabel(option: {
   return option.description
 }
 
-export const SALARY_PRESETS: {
-  preset: SalaryPreset
-  label: string
-  min: number | null
-}[] = [
-  { preset: 'all', label: '전체', min: null },
-  { preset: '12000', label: '1.2만원 이상', min: 12000 },
-  { preset: '15000', label: '1.5만원 이상', min: 15000 },
-]
-
 export function formatSalaryChipLabel(
   selection: SalaryFilterSelection
 ): string {
-  if (selection.preset === '12000') return '1.2만원 이상'
-  if (selection.preset === '15000') return '1.5만원 이상'
   if (selection.preset === 'custom') {
     if (selection.min != null && selection.max != null) {
       return `${selection.min.toLocaleString('ko-KR')}~${selection.max.toLocaleString('ko-KR')}원`
@@ -68,11 +61,8 @@ export function isSalaryFilterApplied(
   )
 }
 
-export function formatSortChipLabel(
-  value: string,
-  options: { value: string; description: string }[]
-): string {
-  const option = options.find(item => item.value === value)
+export function formatSortChipLabel(value: string): string {
+  const option = SORT_OPTIONS.find(item => item.value === value)
   if (option) return formatSortOptionLabel(option)
   return '최신순'
 }

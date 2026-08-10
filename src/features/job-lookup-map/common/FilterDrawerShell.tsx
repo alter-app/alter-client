@@ -120,16 +120,3 @@ export function FilterDrawerApplyFooter({
     </div>
   )
 }
-
-export function RadioIndicator({ selected }: { selected: boolean }) {
-  return (
-    <span
-      className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 ${
-        selected ? 'border-main bg-main' : 'border-line-2 bg-white'
-      }`}
-      aria-hidden
-    >
-      {selected ? <span className="size-2 rounded-full bg-white" /> : null}
-    </span>
-  )
-}

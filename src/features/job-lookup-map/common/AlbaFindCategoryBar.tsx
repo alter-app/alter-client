@@ -31,18 +31,11 @@ type AlbaFindCategoryBarProps = {
   onSortChange?: (value: string) => void
   salaryFilter?: SalaryFilterSelection
   onSalaryChange?: (selection: SalaryFilterSelection) => void
-  regionFilterDrawerOpen?: boolean
-  onRegionFilterDrawerOpenChange?: (open: boolean) => void
 }
 
 export type AlbaFindCategoryBarRef = {
   openFilters: () => void
 }
-
-const FALLBACK_SORT_OPTIONS = [
-  { value: 'LATEST', description: '최신순' },
-  { value: 'PAY_AMOUNT', description: '급여순' },
-]
 
 function FilterIconButton({
   activeFilterCount,
@@ -103,22 +96,13 @@ export const AlbaFindCategoryBar = forwardRef<
     onSortChange,
     salaryFilter = EMPTY_SALARY_FILTER,
     onSalaryChange,
-    regionFilterDrawerOpen,
-    onRegionFilterDrawerOpenChange,
   },
   ref
 ) {
-  const resolvedSortOptions = FALLBACK_SORT_OPTIONS
-
-  const [internalRegionFilterDrawerOpen, setInternalRegionFilterDrawerOpen] =
+  const [isRegionFilterDrawerOpen, setIsRegionFilterDrawerOpen] =
     useState(false)
   const [isNearbyFilterDrawerOpen, setIsNearbyFilterDrawerOpen] =
     useState(false)
-
-  const isRegionFilterDrawerOpen =
-    regionFilterDrawerOpen ?? internalRegionFilterDrawerOpen
-  const setIsRegionFilterDrawerOpen =
-    onRegionFilterDrawerOpenChange ?? setInternalRegionFilterDrawerOpen
 
   useImperativeHandle(
     ref,
@@ -131,7 +115,7 @@ export const AlbaFindCategoryBar = forwardRef<
         setIsNearbyFilterDrawerOpen(true)
       },
     }),
-    [mode, setIsRegionFilterDrawerOpen]
+    [mode]
   )
 
   const activeFilterCount = countActiveFilters({
@@ -143,7 +127,7 @@ export const AlbaFindCategoryBar = forwardRef<
   const regionChipLabel = formatRegionChipLabel(regionSelection)
   const hasSortSelected = isSortFilterApplied(sortValue)
   const hasSalarySelected = isSalaryFilterApplied(salaryFilter)
-  const sortChipLabel = formatSortChipLabel(sortValue, resolvedSortOptions)
+  const sortChipLabel = formatSortChipLabel(sortValue)
   const salaryChipLabel = formatSalaryChipLabel(salaryFilter)
 
   return (
