@@ -9,7 +9,11 @@ import {
 } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 import { animate, motion, useMotionValue } from 'framer-motion'
-import { AlbaFindCategoryBar } from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
+import {
+  AlbaFindCategoryBar,
+  type AlbaFindCategoryBarRef,
+} from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
+import { AlbaFindFilteredEmptyState } from '@/features/job-lookup-map/common/AlbaFindFilteredEmptyState'
 import { ROUTES } from '@/shared/constants/routes'
 import type { AlbaFindMode } from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
 import { AlbaFindList } from '@/features/job-lookup-map/common/AlbaFindList'
@@ -30,6 +34,7 @@ import {
   DEFAULT_SORT_VALUE,
   EMPTY_SALARY_FILTER,
   buildPostingsListFilters,
+  isListFilterApplied,
   type SalaryFilterSelection,
 } from '@/features/job-lookup-map/lib/postingFilters'
 import {
@@ -64,6 +69,7 @@ export function JobLookupMapPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchList, setSearchList] = useState<Posting[] | null>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
+  const categoryBarRef = useRef<AlbaFindCategoryBarRef>(null)
   const hasSetInitialSheetYRef = useRef(false)
   const y = useMotionValue(0)
 
@@ -325,6 +331,7 @@ export function JobLookupMapPage() {
 
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pt-3 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
           <AlbaFindCategoryBar
+            ref={categoryBarRef}
             mode={mode}
             onModeChange={setMode}
             regionSelection={regionSelection}
@@ -356,9 +363,29 @@ export function JobLookupMapPage() {
                 공고를 불러오지 못했습니다.
               </p>
             ) : displayedPostings.length === 0 ? (
-              <p className="py-8 text-center typography-body02-regular text-text-50">
-                조건에 맞는 공고가 없습니다.
-              </p>
+              !isSearchActive &&
+              isListFilterApplied({
+                mode,
+                regionSelection,
+                sortValue,
+                salaryFilter,
+              }) ? (
+                <AlbaFindFilteredEmptyState
+                  title={
+                    mode === 'region'
+                      ? '이 지역에 공고가 없어요'
+                      : '조건에 맞는 공고가 없어요'
+                  }
+                  actionLabel={
+                    mode === 'region' ? '지역 변경하기' : '조건 변경하기'
+                  }
+                  onAction={() => categoryBarRef.current?.openFilters()}
+                />
+              ) : (
+                <p className="py-8 text-center typography-body02-regular text-text-50">
+                  조건에 맞는 공고가 없습니다.
+                </p>
+              )
             ) : null}
             {displayedPostings.map(posting => {
               const base = postingToAlbaboxProps(posting)

@@ -1,5 +1,8 @@
 import type { RegionSelection } from '@/features/job-lookup-map/lib/regionOptions'
-import { isRegionSelectionComplete } from '@/features/job-lookup-map/lib/regionOptions'
+import {
+  hasRegionFilterApplied,
+  isRegionSelectionComplete,
+} from '@/features/job-lookup-map/lib/regionOptions'
 
 export type AlbaFindMode = 'nearby' | 'region'
 
@@ -76,6 +79,29 @@ export function formatSortChipLabel(
 
 export function isSortFilterApplied(value: string): boolean {
   return value !== DEFAULT_SORT_VALUE
+}
+
+export function countActiveFilters(params: {
+  regionSelection: RegionSelection
+  sortValue: string
+  salaryFilter: SalaryFilterSelection
+  mode: AlbaFindMode
+}): number {
+  const { regionSelection, sortValue, salaryFilter, mode } = params
+  let count = 0
+  if (mode === 'region' && hasRegionFilterApplied(regionSelection)) count += 1
+  if (isSortFilterApplied(sortValue)) count += 1
+  if (isSalaryFilterApplied(salaryFilter)) count += 1
+  return count
+}
+
+export function isListFilterApplied(params: {
+  mode: AlbaFindMode
+  regionSelection: RegionSelection
+  sortValue: string
+  salaryFilter: SalaryFilterSelection
+}): boolean {
+  return countActiveFilters(params) > 0
 }
 
 export function parseSalaryInput(raw: string): number | null {

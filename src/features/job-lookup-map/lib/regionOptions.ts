@@ -40,6 +40,27 @@ export function formatRegionLabel(selection: RegionSelection): string {
   return `${selection.sigungu} ${selection.dong}`
 }
 
+export function formatRegionChipLabel(
+  selection: RegionSelection
+): string | null {
+  if (!selection.sido || selection.sido === '전국(전체)') return null
+  if (!selection.sigungu || selection.sigungu === '전체') {
+    return selection.sido
+  }
+  if (!selection.dong || selection.dong === '전체') {
+    return `${selection.sido} ${selection.sigungu}`
+  }
+  return `${selection.sido} ${selection.sigungu}`
+}
+
+export function hasRegionFilterApplied(selection: RegionSelection): boolean {
+  return (
+    selection.sido != null &&
+    selection.sido !== '전국(전체)' &&
+    isRegionSelectionComplete(selection)
+  )
+}
+
 export function isRegionSelectionComplete(selection: RegionSelection): boolean {
   return (
     selection.sido != null &&

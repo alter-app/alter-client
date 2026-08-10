@@ -47,7 +47,7 @@ export function FilterDrawerShell({
                 <div className="mx-auto mt-4 h-1 w-[50px] shrink-0 rounded-full bg-line-2" />
 
                 <div className="flex items-center justify-between px-4 pb-3 pt-4">
-                  <Drawer.Title className="typography-headline03 text-text-100">
+                  <Drawer.Title className="typography-headline02 text-text-100">
                     {title}
                   </Drawer.Title>
                   <button
@@ -77,11 +77,13 @@ export function FilterDrawerApplyFooter({
   disabled = false,
   showReset = false,
   onReset,
+  applyLabel = '적용하기',
 }: {
   onApply: () => void
   disabled?: boolean
   showReset?: boolean
   onReset?: () => void
+  applyLabel?: string
 }) {
   if (showReset) {
     return (
@@ -99,7 +101,7 @@ export function FilterDrawerApplyFooter({
           disabled={disabled}
           className="h-12 flex-1 rounded-2xl bg-main typography-body01-semibold text-text-100 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          적용하기
+          {applyLabel}
         </button>
       </div>
     )
