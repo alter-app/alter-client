@@ -15,8 +15,23 @@ export interface PostingDetailResponse {
   schedules: Schedule[]
   scrapped: boolean
 }
+
+export interface AddressItem {
+  code: string
+  name: string
+}
+
+export interface AddressesResponse {
+  addresses: AddressItem[]
+}
+
+export interface PostingSortOption {
+  value: string
+  description: string
+}
+
 export interface Page {
-  cursor: string
+  cursor: string | null
   pageSize: number
   totalCount: number
 }
@@ -55,9 +70,31 @@ export interface Workspace {
   latitude: number
   longitude: number
   fullAddress: string
+  town: string
 }
 
 export interface ApplyPostingRequest {
   postingScheduleId: number
   description: string
+}
+
+/** `GET /app/users/me/postings/favorites` 응답의 공고 요약 */
+export interface FavoritePostingSummary {
+  id: number
+  businessName: string
+  title: string
+  payAmount: number
+  paymentType: string
+}
+
+/** 스크랩(즐겨찾기) 한 건 */
+export interface FavoritePostingItem {
+  id: number
+  posting: FavoritePostingSummary
+  createdAt: string
+}
+
+export interface FavoritePostingListResponse {
+  page: Page
+  data: FavoritePostingItem[]
 }

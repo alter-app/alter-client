@@ -1,8 +1,10 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg?react'
+import BookmarkIcon from '@/assets/icons/job-lookup-map/Bookmark.svg?react'
 import { usePostingDetail } from '@/features/job-lookup-map/hooks/usePostingDetail'
+import { useToggleFavoritePosting } from '@/features/job-lookup-map/hooks/useToggleFavoritePosting'
 import {
   formatPostedAgo,
   formatWorkDaysForDisplay,
@@ -34,9 +36,14 @@ export function JobLookupMapDetailPage() {
   const postingId = Number(postingIdParam)
   const idOk = Number.isFinite(postingId) && postingId > 0
 
-  const { data, isPending, isError } = usePostingDetail(
+  const { data, isLoading, isError } = usePostingDetail(
     idOk ? postingId : undefined
   )
+  const { toggleFavorite, isPending: isFavoritePending } =
+    useToggleFavoritePosting()
+  const [savedById, setSavedById] = useState<Record<number, boolean>>({})
+  const saved =
+    (idOk ? savedById[postingId] : undefined) ?? data?.scrapped ?? false
 
   const schedule = data?.schedules?.[0]
   const workDaysLine = useMemo(() => {
@@ -57,6 +64,18 @@ export function JobLookupMapDetailPage() {
       ? formatDurationHint(schedule.startTime, schedule.endTime)
       : null
 
+  const handleBookmarkClick = () => {
+    if (!idOk || isFavoritePending) return
+    toggleFavorite({
+      postingId,
+      saved,
+      onOptimistic: nextSaved =>
+        setSavedById(prev => ({ ...prev, [postingId]: nextSaved })),
+      onError: rollbackSaved =>
+        setSavedById(prev => ({ ...prev, [postingId]: rollbackSaved })),
+    })
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-col bg-bg-light">
       <header className="flex h-14 shrink-0 items-center border-b border-line-2 bg-white px-4">
@@ -71,7 +90,23 @@ export function JobLookupMapDetailPage() {
         <h1 className="flex-1 text-center typography-headline03 text-text-100">
           알바 상세
         </h1>
-        <div className="w-6" />
+        <button
+          type="button"
+          onClick={e => {
+            e.preventDefault()
+            e.stopPropagation()
+            handleBookmarkClick()
+          }}
+          disabled={!data || isFavoritePending}
+          aria-label={saved ? '스크랩 해제' : '스크랩'}
+          className={`flex h-6 w-6 items-center justify-center rounded-md transition-colors disabled:opacity-40 ${
+            saved
+              ? 'text-main [&_path]:fill-main [&_path]:stroke-main'
+              : 'text-text-50'
+          }`}
+        >
+          <BookmarkIcon className="h-5 w-4" aria-hidden />
+        </button>
       </header>
 
       {!idOk && (
@@ -89,7 +124,7 @@ export function JobLookupMapDetailPage() {
         </main>
       )}
 
-      {idOk && isPending && !data && (
+      {idOk && isLoading && !data && (
         <main className="flex flex-1 items-center justify-center px-4">
           <p className="typography-body03-regular text-text-50">
             공고 정보를 불러오는 중…

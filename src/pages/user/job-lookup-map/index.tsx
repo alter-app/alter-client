@@ -2,26 +2,41 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type KeyboardEvent,
 } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 import { animate, motion, useMotionValue } from 'framer-motion'
-import { AlbaFindCategoryBar } from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
-import { ROUTES } from '@/shared/constants/routes'
-import type {
-  AlbaFindFilterId,
-  AlbaFindMode,
+import {
+  AlbaFindCategoryBar,
+  type AlbaFindCategoryBarRef,
 } from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
+import { AlbaFindFilteredEmptyState } from '@/features/job-lookup-map/common/AlbaFindFilteredEmptyState'
+import { ROUTES } from '@/shared/constants/routes'
+import type { AlbaFindMode } from '@/features/job-lookup-map/common/AlbaFindCategoryBar'
 import { AlbaFindList } from '@/features/job-lookup-map/common/AlbaFindList'
 import { Albabox } from '@/features/job-lookup-map/common/Albabox'
 import { usePostings } from '@/features/job-lookup-map/hooks/usePosting'
+import { useToggleFavoritePosting } from '@/features/job-lookup-map/hooks/useToggleFavoritePosting'
 import { usePostingMapMarkers } from '@/features/job-lookup-map/hooks/usePostingMapMarkers'
 import { usePostingSearch } from '@/features/job-lookup-map/hooks/usePostingSearch'
 import { moveMapToWorkspace } from '@/features/job-lookup-map/lib/moveMapToWorkspace'
 import { pickSearchTargetPosting } from '@/features/job-lookup-map/lib/pickSearchTargetPosting'
 import { postingToAlbaboxProps } from '@/features/job-lookup-map/lib/postingToAlbaboxProps'
+import {
+  EMPTY_REGION_SELECTION,
+  isRegionSelectionComplete,
+  type RegionSelection,
+} from '@/features/job-lookup-map/lib/regionOptions'
+import {
+  DEFAULT_SORT_VALUE,
+  EMPTY_SALARY_FILTER,
+  buildPostingsListFilters,
+  isListFilterApplied,
+  type SalaryFilterSelection,
+} from '@/features/job-lookup-map/lib/postingFilters'
 import {
   getNaverMaps,
   type NaverMapInstance,
@@ -44,16 +59,41 @@ export function JobLookupMapPage() {
   const sheetRef = useRef<HTMLDivElement>(null)
   const [maxTranslateY, setMaxTranslateY] = useState(0)
   const [mode, setMode] = useState<AlbaFindMode>('nearby')
-  const [activeFilter, setActiveFilter] = useState<AlbaFindFilterId>('sort')
+  const [regionSelection, setRegionSelection] = useState<RegionSelection>(
+    EMPTY_REGION_SELECTION
+  )
+  const [sortValue, setSortValue] = useState(DEFAULT_SORT_VALUE)
+  const [salaryFilter, setSalaryFilter] =
+    useState<SalaryFilterSelection>(EMPTY_SALARY_FILTER)
   const [bookmarkById, setBookmarkById] = useState<Record<number, boolean>>({})
   const [searchQuery, setSearchQuery] = useState('')
   const [searchList, setSearchList] = useState<Posting[] | null>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
+  const categoryBarRef = useRef<AlbaFindCategoryBarRef>(null)
   const hasSetInitialSheetYRef = useRef(false)
   const y = useMotionValue(0)
 
-  const { postings, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    usePostings()
+  const listFilters = useMemo(
+    () =>
+      buildPostingsListFilters({
+        mode,
+        regionSelection,
+        sortValue,
+        salaryFilter,
+      }),
+    [mode, regionSelection, sortValue, salaryFilter]
+  )
+
+  const {
+    postings,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = usePostings(listFilters)
+
+  const { toggleFavorite } = useToggleFavoritePosting()
 
   const { search } = usePostingSearch()
 
@@ -287,16 +327,66 @@ export function JobLookupMapPage() {
         }}
         className="absolute inset-x-0 bottom-[30px] z-[40] mx-auto flex h-[calc(100dvh-78px)] max-h-[calc(100dvh-78px)] w-full max-w-[428px] flex-col overflow-hidden rounded-t-[32px] border border-line-2 border-b-0 bg-white"
       >
-        <div className="mx-auto mt-4 h-1 w-[50px] shrink-0 rounded-full bg-line-2" />
+        <motion.div className="mx-auto mt-4 h-1 w-[50px] rounded-full bg-line-2" />
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-[calc(1.5rem+78px+env(safe-area-inset-bottom))] pt-3">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pt-3 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
           <AlbaFindCategoryBar
+            ref={categoryBarRef}
             mode={mode}
             onModeChange={setMode}
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
+            regionSelection={regionSelection}
+            onRegionChange={selection => {
+              setRegionSelection(selection)
+              setSearchList(null)
+              if (isRegionSelectionComplete(selection)) {
+                setMode('region')
+              }
+            }}
+            sortValue={sortValue}
+            onSortChange={value => {
+              setSortValue(value)
+              setSearchList(null)
+            }}
+            salaryFilter={salaryFilter}
+            onSalaryChange={selection => {
+              setSalaryFilter(selection)
+              setSearchList(null)
+            }}
           />
           <AlbaFindList className="mt-3 min-h-0 flex-1 gap-0">
+            {isLoading && displayedPostings.length === 0 ? (
+              <p className="py-8 text-center typography-body02-regular text-text-50">
+                공고를 불러오는 중…
+              </p>
+            ) : isError ? (
+              <p className="py-8 text-center typography-body02-regular text-text-50">
+                공고를 불러오지 못했습니다.
+              </p>
+            ) : displayedPostings.length === 0 ? (
+              !isSearchActive &&
+              isListFilterApplied({
+                mode,
+                regionSelection,
+                sortValue,
+                salaryFilter,
+              }) ? (
+                <AlbaFindFilteredEmptyState
+                  title={
+                    mode === 'region'
+                      ? '이 지역에 공고가 없어요'
+                      : '조건에 맞는 공고가 없어요'
+                  }
+                  actionLabel={
+                    mode === 'region' ? '지역 변경하기' : '조건 변경하기'
+                  }
+                  onAction={() => categoryBarRef.current?.openFilters()}
+                />
+              ) : (
+                <p className="py-8 text-center typography-body02-regular text-text-50">
+                  조건에 맞는 공고가 없습니다.
+                </p>
+              )
+            ) : null}
             {displayedPostings.map(posting => {
               const base = postingToAlbaboxProps(posting)
               const saved = bookmarkById[posting.id] ?? posting.scrapped
@@ -305,12 +395,22 @@ export function JobLookupMapPage() {
                   key={posting.id}
                   {...base}
                   saved={saved}
-                  onBookmarkClick={() =>
-                    setBookmarkById(prev => ({
-                      ...prev,
-                      [posting.id]: !saved,
-                    }))
-                  }
+                  onBookmarkClick={() => {
+                    toggleFavorite({
+                      postingId: posting.id,
+                      saved,
+                      onOptimistic: nextSaved =>
+                        setBookmarkById(prev => ({
+                          ...prev,
+                          [posting.id]: nextSaved,
+                        })),
+                      onError: rollbackSaved =>
+                        setBookmarkById(prev => ({
+                          ...prev,
+                          [posting.id]: rollbackSaved,
+                        })),
+                    })
+                  }}
                   onClick={() => {
                     if (isSearchActive) {
                       moveToPosting(posting)

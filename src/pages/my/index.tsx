@@ -6,6 +6,7 @@ import { useUserMe } from '@/features/user/me'
 import { ProfileCard } from './components/ProfileCard'
 import { MenuListItem } from './components/MenuListItem'
 import UserIcon from '@/assets/icons/my/user.svg?react'
+import BookmarkIcon from '@/assets/icons/job-lookup-map/Bookmark.svg?react'
 import StoreIcon from '@/assets/icons/my/store.svg?react'
 import HeadphonesIcon from '@/assets/icons/my/headphones.svg?react'
 import FileTextIcon from '@/assets/icons/my/file-text.svg?react'
@@ -20,10 +21,18 @@ interface MenuItem {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
   path?: string
   onlyManager?: boolean
+  onlyWorker?: boolean
 }
 
 const MENU_ITEMS: MenuItem[] = [
   { key: 'info', label: '내 정보', icon: UserIcon, path: '/my/info' },
+  {
+    key: 'scrapped-postings',
+    label: '스크랩한 알바',
+    icon: BookmarkIcon,
+    path: ROUTES.MY.SCRAPPED_POSTINGS,
+    onlyWorker: true,
+  },
   {
     key: 'store-apply',
     label: '업장 등록 신청',
@@ -69,6 +78,11 @@ export function MyPage() {
   const isManager = scope === 'MANAGER'
   const nickname = user.nickname || user.name || '알터'
   const realName = user.name
+  const visibleMenuItems = MENU_ITEMS.filter(item => {
+    if (item.onlyManager && !isManager) return false
+    if (item.onlyWorker && isManager) return false
+    return true
+  })
 
   const handleEditProfile = () => {
     navigate(ROUTES.MY.PROFILE)
@@ -125,12 +139,12 @@ export function MyPage() {
           aria-label="마이페이지 메뉴"
           className="mt-3 flex flex-col rounded-2xl"
         >
-          {MENU_ITEMS.map((item, index) => (
+          {visibleMenuItems.map((item, index) => (
             <MenuListItem
               key={item.key}
               icon={item.icon}
               label={item.label}
-              isLast={index === MENU_ITEMS.length - 1}
+              isLast={index === visibleMenuItems.length - 1}
               onClick={() => item.path && navigate(item.path)}
             />
           ))}

@@ -10,7 +10,7 @@ export type AlbaboxProps = {
   wageAmount: string
   timeRange: string
   workDays: string
-  distance: string
+  town: string
   postedAgo: string
   saved: boolean
   likeCount?: string
@@ -24,7 +24,7 @@ export function Albabox({
   wageAmount,
   timeRange,
   workDays,
-  distance,
+  town,
   postedAgo,
   saved,
   likeCount,
@@ -52,7 +52,7 @@ export function Albabox({
       <div className="flex items-start justify-between gap-2">
         <p className="typography-body02-semibold text-text-70">{storeName}</p>
         <div className="flex items-center gap-1 typography-body02-regular">
-          <span className="text-text-70">{distance}</span>
+          <span className="text-text-70">{town}</span>
           <span className="text-text-50">·</span>
           <span className="text-text-70">{postedAgo}</span>
         </div>
