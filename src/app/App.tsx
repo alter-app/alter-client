@@ -9,8 +9,8 @@ import {
 import { ManagerHomePage } from '@/pages/manager/home'
 import { ManagerWorkerSchedulePage } from '@/pages/manager/worker-schedule'
 import { ManagerWorkerScheduleLegacyEntryRedirect } from '@/pages/manager/worker-schedule/LegacyEntryRedirect'
-import { SocialPage } from '@/pages/manager/social'
-import { SocialChatPage } from '@/pages/manager/social-chat'
+import { ChatRoomsPage } from '@/pages/chat/rooms'
+import { ChatRoomPage } from '@/pages/chat/room'
 import { LoginPage } from '@/pages/login'
 import { FindPasswordPage } from '@/pages/find-password'
 import { KakaoCallbackPage } from '@/pages/oauth/KakaoCallbackPage'
@@ -169,6 +169,17 @@ export function App() {
             path={ROUTES.MANAGER.WORKER_INVITE}
             element={<ManagerWorkerInvitePage />}
           />
+          {/* 채팅방은 하단 입력바를 쓰므로 Docbar 없이 표시합니다 */}
+          <Route path={ROUTES.CHAT.ROOM_PATTERN} element={<ChatRoomPage />} />
+          {/* 구 사장님 전용 채팅 경로 — 공용 채팅으로 통합 */}
+          <Route
+            path={ROUTES.MANAGER.SOCIAL}
+            element={<Navigate to={ROUTES.CHAT.ROOMS} replace />}
+          />
+          <Route
+            path={ROUTES.MANAGER.SOCIAL_CHAT}
+            element={<Navigate to={ROUTES.CHAT.ROOMS} replace />}
+          />
           <Route
             path={ROUTES.MANAGER.WORKSPACE_IMAGES_EDIT_PATTERN}
             element={<WorkspaceImageEditPage />}
@@ -253,11 +264,7 @@ export function App() {
               </HomeRouteGuard>
             }
           />
-          <Route path={ROUTES.MANAGER.SOCIAL} element={<SocialPage />} />
-          <Route
-            path={ROUTES.MANAGER.SOCIAL_CHAT}
-            element={<SocialChatPage />}
-          />
+          <Route path={ROUTES.CHAT.ROOMS} element={<ChatRoomsPage />} />
           <Route
             path={ROUTES.MANAGER.POSTINGS}
             element={
