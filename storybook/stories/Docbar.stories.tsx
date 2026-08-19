@@ -11,7 +11,17 @@ const createSelectedTab = (activeTab: TabKey): DocbarSelectedTab => ({
   my: activeTab === 'my',
   search: activeTab === 'search',
   substitute: activeTab === 'substitute',
+  applicant: activeTab === 'applicant',
 })
+
+/** 사장님(MANAGER) 탭 구성 — 지원자 탭 포함 5탭 */
+const MANAGER_TABS: TabKey[] = [
+  'home',
+  'search',
+  'applicant',
+  'substitute',
+  'my',
+]
 
 const meta = {
   title: 'shared/ui/common/Docbar',
@@ -54,5 +64,24 @@ export const MySelected: Story = {
     selectedTab: createSelectedTab('my'),
     onTabClick: () => {},
     tabs: ['home', 'search', 'substitute', 'my'],
+  },
+}
+
+/** 사장님 5탭 — '알바 찾기'가 '내 공고'로 노출되고 지원자 탭이 추가됩니다 */
+export const ManagerApplicantSelected: Story = {
+  args: {
+    selectedTab: createSelectedTab('applicant'),
+    onTabClick: () => {},
+    tabs: MANAGER_TABS,
+    labelByTab: { search: '내 공고' },
+  },
+}
+
+export const ManagerPostingsSelected: Story = {
+  args: {
+    selectedTab: createSelectedTab('search'),
+    onTabClick: () => {},
+    tabs: MANAGER_TABS,
+    labelByTab: { search: '내 공고' },
   },
 }

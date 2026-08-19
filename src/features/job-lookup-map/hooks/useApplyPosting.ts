@@ -11,6 +11,7 @@ export function useApplyPosting() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    retry: false,
     mutationFn: ({ postingId, body }: ApplyPostingVariables) =>
       applyPosting(postingId, body),
     onSuccess: (_, { postingId }) => {
