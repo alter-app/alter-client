@@ -25,6 +25,7 @@
     "**/*.{js,jsx,json,css}": "prettier --write"
   },
   "dependencies": {
+    "@stomp/stompjs": "^7.3.0",
     "@tanstack/react-query": "^5.90.21",
     "axios": "^1.13.6",
     "clsx": "^2.1.1",
