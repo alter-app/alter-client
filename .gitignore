@@ -37,3 +37,24 @@ storybook-static
 
 CLAUDE.md
 .claude
+
+# Capacitor / native
+android/.gradle
+android/app/build
+android/build
+android/captures
+android/local.properties
+ios/App/Pods
+android/app/src/main/assets/public
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+ios/App/App/public
+ios/App/App/capacitor.config.json
+ios/App/App/capacitor.plugins.json
+ios/App/App.xcworkspace/xcuserdata
+ios/App/App.xcodeproj/xcuserdata
+*.apk
+*.aab
+*.ipa
+*.keystore
+*.jks

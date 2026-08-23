@@ -88,6 +88,37 @@ alter-client/
 - `npm run lint:fix` - ESLint 자동 수정
 - `npm run format` - Prettier 포맷팅
 - `npm run format:check` - Prettier 검사
+- `npm run cap:sync` - 웹 빌드 후 iOS/Android에 복사
+- `npm run cap:ios` - Xcode로 iOS 프로젝트 열기
+- `npm run cap:android` - Android Studio로 Android 프로젝트 열기
+
+## 📱 앱으로 패키징 (Capacitor)
+
+웹 빌드(`dist`)를 iOS/Android 네이티브 셸에 넣습니다.
+
+1. 최초 한 번: 플랫폼은 이미 추가되어 있습니다. 웹을 빌드하고 네이티브에 맞춥니다.
+
+```bash
+npm run cap:sync
+```
+
+2. iOS (macOS + Xcode 필요)
+
+```bash
+npm run cap:ios
+```
+
+Xcode에서 시뮬레이터 또는 실제 기기로 Run 합니다. 실기기/TestFlight/App Store는 Signing & Capabilities에서 팀과 Bundle ID(`com.alter.app`)를 설정한 뒤 Archive 합니다.
+
+3. Android (Android Studio 필요)
+
+```bash
+npm run cap:android
+```
+
+Android Studio에서 Run으로 APK를 설치하거나, Build > Generate Signed Bundle / APK로 AAB/APK를 만듭니다.
+
+코드나 에셋을 바꾼 뒤에는 다시 `npm run cap:sync` 한 다음 Xcode/Android Studio에서 Run 하세요.
 
 ## 🎨 상태 관리 (Zustand)
 
