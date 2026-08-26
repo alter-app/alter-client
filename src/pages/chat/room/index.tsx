@@ -41,6 +41,9 @@ export function ChatRoomPage() {
     draft,
     setDraft,
     handleSend,
+    sendImages,
+    isSendingImages,
+    retryFailedMessage,
     connectionState,
     isAttachmentOpen,
     toggleAttachment,
@@ -159,18 +162,28 @@ export function ChatRoomPage() {
               {isFetchingOlderMessages ? <Spinner size={20} /> : null}
             </div>
 
-            {timeline.map(entry =>
-              entry.kind === 'date' ? (
-                <ChatDateDivider key={entry.key} label={entry.label} />
-              ) : (
+            {timeline.map(entry => {
+              if (entry.kind === 'date') {
+                return <ChatDateDivider key={entry.key} label={entry.label} />
+              }
+
+              // 재전송은 낙관적 메시지(clientId 보유)에만 걸 수 있습니다
+              const { clientId, status } = entry.message
+
+              return (
                 <ChatBubble
                   key={entry.key}
                   message={entry.message}
                   showSenderMeta={entry.showSenderMeta}
                   reserveAvatarSpace={room.segment === 'group'}
+                  onRetry={
+                    status === 'failed' && clientId
+                      ? () => retryFailedMessage(clientId)
+                      : undefined
+                  }
                 />
               )
-            )}
+            })}
           </div>
         ) : null}
       </div>
@@ -183,7 +196,12 @@ export function ChatRoomPage() {
         isAttachmentOpen={isAttachmentOpen}
       />
 
-      {isAttachmentOpen ? <AttachmentTray /> : null}
+      {isAttachmentOpen ? (
+        <AttachmentTray
+          onSelectImages={files => void sendImages(files)}
+          isSending={isSendingImages}
+        />
+      ) : null}
     </div>
   )
 }

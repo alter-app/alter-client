@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, within } from 'storybook/test'
+import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { ChatBubble } from '@/features/chat/ui/ChatBubble'
 import type { ChatMessage } from '@/features/chat/types/chat'
@@ -114,6 +114,32 @@ export const Failed: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('전송 실패')).toBeVisible()
+
+    // 재전송 핸들러가 없으면 버튼을 걸지 않습니다
+    await expect(
+      canvas.queryByRole('button', { name: '다시 보내기' })
+    ).toBeNull()
+  },
+}
+
+/** 낙관적 메시지(clientId 보유)만 재전송할 수 있습니다 */
+export const FailedWithRetry: Story = {
+  args: {
+    message: message({
+      isMine: true,
+      clientId: 'pending-1',
+      content: '실패한 메시지',
+      status: 'failed',
+    }),
+    onRetry: fn(),
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    const retry = canvas.getByRole('button', { name: '다시 보내기' })
+    await userEvent.click(retry)
+
+    await expect(args.onRetry).toHaveBeenCalledOnce()
   },
 }
 

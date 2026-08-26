@@ -126,6 +126,48 @@ describe('낙관적 메시지 병합', () => {
 
     expect(mergeChatMessages(server, pending)).toHaveLength(2)
   })
+
+  it('이미지 전용 메시지끼리 본문이 비었다고 서로 지우지 않는다', () => {
+    // 첨부 1장짜리 echo 가 도착해도 아직 안 올라간 2장짜리 pending 은 남아야 한다
+    const server = [
+      message({
+        id: 10,
+        isMine: true,
+        content: '',
+        attachments: [{ fileId: 'server-1', url: 'https://cdn/1.png' }],
+      }),
+    ]
+    const pending = [
+      message({
+        id: -1,
+        clientId: 'pending-1',
+        isMine: true,
+        content: '',
+        attachments: [
+          { fileId: 'local-0', url: 'blob:0' },
+          { fileId: 'local-1', url: 'blob:1' },
+        ],
+      }),
+    ]
+
+    expect(mergeChatMessages(server, pending)).toHaveLength(2)
+  })
+
+  it('첨부 수까지 같은 이미지 메시지는 echo 로 보고 제거한다', () => {
+    const attachments = [{ fileId: 'x', url: 'https://cdn/x.png' }]
+    const server = [message({ id: 10, isMine: true, content: '', attachments })]
+    const pending = [
+      message({
+        id: -1,
+        clientId: 'pending-1',
+        isMine: true,
+        content: '',
+        attachments: [{ fileId: 'local-0', url: 'blob:0' }],
+      }),
+    ]
+
+    expect(mergeChatMessages(server, pending)).toHaveLength(1)
+  })
 })
 
 describe('메시지 정렬', () => {

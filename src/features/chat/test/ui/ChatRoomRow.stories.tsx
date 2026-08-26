@@ -13,6 +13,8 @@ function room(overrides: Partial<ChatRoomListItem> = {}): ChatRoomListItem {
     latestMessage: '혹시 저 대타 부탁드려도 될까요??',
     updatedAt: new Date().toISOString(),
     unreadCount: 0,
+    // 서버는 DIRECT 방에도 활성 멤버 수(2)를 내려줍니다
+    memberCount: 2,
     opponentId: 200,
     opponentScope: 'USER',
     ...overrides,
@@ -42,6 +44,9 @@ export const Read: Story = {
 
     await expect(canvas.getByText('이서준')).toBeVisible()
     await expect(canvas.queryByLabelText(/읽지 않은 메시지/)).toBeNull()
+
+    // 개인 채팅은 인원수(2)를 받아도 제목 옆에 표기하지 않습니다
+    await expect(canvas.queryByText('2')).toBeNull()
 
     // 읽은 방의 미리보기는 regular 400
     const preview = canvas.getByText('혹시 저 대타 부탁드려도 될까요??')

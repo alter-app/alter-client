@@ -2,15 +2,28 @@ import type {
   ChatMessage,
   ChatRoomDetail,
   ChatRoomListItem,
+  ChatRoomSummary,
+  ChatSegment,
 } from '@/features/chat/types/chat'
 import type {
   ChatMessageDto,
   ChatParticipantScope,
   ChatRoomDetailDto,
   ChatRoomListItemDto,
+  ChatRoomTypeDto,
+  ChatRoomTypeValue,
   ChatScopeDto,
   ChatServerScope,
+  DescribedEnumDto,
 } from '@/features/chat/types/dto'
+
+/** `"APP"` 과 `{ value: "APP" }` 두 직렬화를 모두 값으로 풉니다 */
+function unwrapEnum<T extends string>(
+  value: DescribedEnumDto<T> | null | undefined
+): T | undefined {
+  if (value === null || value === undefined) return undefined
+  return typeof value === 'string' ? value : value.value
+}
 
 /**
  * scope 를 도메인 표현으로 좁힙니다.
@@ -19,8 +32,14 @@ import type {
 export function toParticipantScope(
   value: ChatScopeDto | null | undefined
 ): ChatParticipantScope {
-  const raw = typeof value === 'string' ? value : value?.value
-  return raw === 'MANAGER' ? 'MANAGER' : 'USER'
+  return unwrapEnum(value) === 'MANAGER' ? 'MANAGER' : 'USER'
+}
+
+/** 상대방이 없는 전체 채팅방과 구분해야 해서 값이 없으면 undefined 로 둡니다 */
+function toOptionalParticipantScope(
+  value: ChatScopeDto | null | undefined
+): ChatParticipantScope | undefined {
+  return unwrapEnum(value) === undefined ? undefined : toParticipantScope(value)
 }
 
 /** 요청 바디용 — 서버 enum 은 USER 대신 APP */
@@ -28,30 +47,49 @@ export function toServerScope(scope: ChatParticipantScope): ChatServerScope {
   return scope === 'MANAGER' ? 'MANAGER' : 'APP'
 }
 
+/**
+ * 방 타입 → 세그먼트.
+ * `type` 이 없는 구 배포본에서는 상대방 유무로 추론합니다(GROUP 은 opponent 가 전부 null).
+ */
+export function toChatSegment(
+  type: ChatRoomTypeDto | null | undefined,
+  opponentId: number | null | undefined
+): ChatSegment {
+  const value: ChatRoomTypeValue | undefined = unwrapEnum(type)
+  if (value === 'GROUP') return 'group'
+  if (value === 'DIRECT') return 'personal'
+  return opponentId === null || opponentId === undefined ? 'group' : 'personal'
+}
+
+/** 목록·상세가 공유하는 필드셋 변환 */
+function adaptChatRoomSummary(
+  dto: ChatRoomListItemDto | ChatRoomDetailDto
+): ChatRoomSummary {
+  return {
+    id: dto.id,
+    segment: toChatSegment(dto.type, dto.opponentId),
+    // 서버가 roomName 을 주지 않는 구 배포본에서는 상대 이름으로 폴백합니다
+    title: dto.roomName ?? dto.opponentName ?? '알 수 없음',
+    profileImageUrl: dto.opponentProfileImageUrl ?? null,
+    memberCount: dto.memberCount,
+    opponentId: dto.opponentId ?? undefined,
+    opponentScope: toOptionalParticipantScope(dto.opponentScope),
+  }
+}
+
 export function adaptChatRoomListItem(
   dto: ChatRoomListItemDto
 ): ChatRoomListItem {
   return {
-    id: dto.id,
-    segment: 'personal',
-    title: dto.opponentName,
-    profileImageUrl: dto.opponentProfileImageUrl ?? null,
+    ...adaptChatRoomSummary(dto),
     latestMessage: dto.latestMessageContent ?? '',
     updatedAt: dto.updatedAt,
     unreadCount: dto.unreadCount ?? 0,
-    opponentId: dto.opponentId,
-    opponentScope: toParticipantScope(dto.opponentScope),
   }
 }
 
 export function adaptChatRoomDetail(dto: ChatRoomDetailDto): ChatRoomDetail {
-  return {
-    id: dto.id,
-    title: dto.opponentName,
-    profileImageUrl: dto.opponentProfileImageUrl ?? null,
-    opponentId: dto.opponentId,
-    opponentScope: toParticipantScope(dto.opponentScope),
-  }
+  return adaptChatRoomSummary(dto)
 }
 
 export interface AdaptChatMessageOptions {

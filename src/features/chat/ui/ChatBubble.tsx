@@ -9,6 +9,8 @@ interface ChatBubbleProps {
   showSenderMeta?: boolean
   /** 아바타 자리 유지 — 전체 채팅에서 같은 발신자의 연속 메시지 정렬용 */
   reserveAvatarSpace?: boolean
+  /** 전송 실패한 메시지 재전송 — 없으면 실패 표시만 합니다 */
+  onRetry?: () => void
 }
 
 const AVATAR_SIZE = 36
@@ -17,6 +19,7 @@ export function ChatBubble({
   message,
   showSenderMeta = false,
   reserveAvatarSpace = false,
+  onRetry,
 }: ChatBubbleProps) {
   const timeLabel = formatMessageTime(message.createdAt)
   const isPending = message.status === 'pending'
@@ -54,9 +57,22 @@ export function ChatBubble({
     </div>
   )
 
-  const meta = (
+  const meta = isFailed ? (
+    <span className="flex shrink-0 flex-col items-end gap-0.5">
+      <span className="typography-doc text-error">전송 실패</span>
+      {onRetry ? (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="typography-doc text-text-70 underline underline-offset-2"
+        >
+          다시 보내기
+        </button>
+      ) : null}
+    </span>
+  ) : (
     <span className="shrink-0 typography-doc text-text-70">
-      {isFailed ? '전송 실패' : isPending ? '전송 중' : timeLabel}
+      {isPending ? '전송 중' : timeLabel}
     </span>
   )
 

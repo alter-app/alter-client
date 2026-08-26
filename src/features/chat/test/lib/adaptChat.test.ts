@@ -20,6 +20,9 @@ function roomDto(
 ): ChatRoomListItemDto {
   return {
     id: 1,
+    type: { value: 'DIRECT', description: '개인 채팅' },
+    roomName: '최민석 점주님',
+    memberCount: 2,
     opponentId: 200,
     opponentScope: 'MANAGER',
     opponentName: '최민석 점주님',
@@ -28,6 +31,24 @@ function roomDto(
     updatedAt: '2026-08-19T09:10:00',
     ...overrides,
   }
+}
+
+/** 전체 채팅방 — 상대방 필드가 전부 null 로 내려옵니다 */
+function groupRoomDto(
+  overrides: Partial<ChatRoomListItemDto> = {}
+): ChatRoomListItemDto {
+  return roomDto({
+    id: 34,
+    type: { value: 'GROUP', description: '그룹 채팅' },
+    roomName: '알터 카페 강남점',
+    memberCount: 8,
+    opponentId: null,
+    opponentScope: null,
+    opponentName: null,
+    opponentProfileImageUrl: null,
+    latestMessageContent: '이번 주 스케줄 공유합니다',
+    ...overrides,
+  })
 }
 
 function messageDto(overrides: Partial<ChatMessageDto> = {}): ChatMessageDto {
@@ -73,6 +94,52 @@ describe('채팅방 목록 DTO 변환', () => {
     expect(item.segment).toBe('personal')
   })
 
+  it('DIRECT 방은 roomName 을 제목으로 쓰고 상대 정보를 채운다', () => {
+    const item = adaptChatRoomListItem(
+      roomDto({ opponentProfileImageUrl: 'https://cdn/p.png' })
+    )
+
+    expect(item.title).toBe('최민석 점주님')
+    expect(item.profileImageUrl).toBe('https://cdn/p.png')
+    expect(item.opponentId).toBe(200)
+    expect(item.memberCount).toBe(2)
+  })
+
+  it('GROUP 방은 전체 세그먼트로 넘기고 업장명·인원수를 쓴다', () => {
+    const item = adaptChatRoomListItem(groupRoomDto())
+
+    expect(item.segment).toBe('group')
+    expect(item.title).toBe('알터 카페 강남점')
+    expect(item.memberCount).toBe(8)
+  })
+
+  it('GROUP 방의 상대 정보는 null 대신 undefined 로 둔다', () => {
+    const item = adaptChatRoomListItem(groupRoomDto())
+
+    // USER 로 폴백하면 상대 없는 방을 1:1 처럼 다루게 됩니다
+    expect(item.opponentId).toBeUndefined()
+    expect(item.opponentScope).toBeUndefined()
+  })
+
+  it('type 이 없는 구 배포본은 상대방 유무로 세그먼트를 추론한다', () => {
+    expect(adaptChatRoomListItem(roomDto({ type: undefined })).segment).toBe(
+      'personal'
+    )
+    expect(
+      adaptChatRoomListItem(groupRoomDto({ type: undefined })).segment
+    ).toBe('group')
+  })
+
+  it('roomName 이 없으면 상대 이름으로, 그마저 없으면 안내 문구로 폴백한다', () => {
+    expect(adaptChatRoomListItem(roomDto({ roomName: null })).title).toBe(
+      '최민석 점주님'
+    )
+    expect(
+      adaptChatRoomListItem(roomDto({ roomName: null, opponentName: null }))
+        .title
+    ).toBe('알 수 없음')
+  })
+
   it('미읽음이 오면 그대로 사용한다', () => {
     expect(
       adaptChatRoomListItem(roomDto({ unreadCount: 12 })).unreadCount
@@ -97,6 +164,9 @@ describe('방 상세 DTO 변환', () => {
   it('상대 이름을 헤더 제목으로 쓰고 객체형 scope 를 언랩한다', () => {
     const detail = adaptChatRoomDetail({
       id: 5,
+      type: { value: 'DIRECT', description: '개인 채팅' },
+      roomName: '최민석 점주님',
+      memberCount: 2,
       opponentId: 200,
       opponentScope: { value: 'MANAGER', description: '점주' },
       opponentName: '최민석 점주님',
@@ -104,9 +174,29 @@ describe('방 상세 DTO 변환', () => {
       updatedAt: '2026-08-19T09:10:00',
     })
 
+    expect(detail.segment).toBe('personal')
     expect(detail.title).toBe('최민석 점주님')
     expect(detail.opponentScope).toBe('MANAGER')
     expect(detail.profileImageUrl).toBeNull()
+  })
+
+  it('GROUP 방 상세는 업장명·인원수만 채우고 상대는 비운다', () => {
+    const detail = adaptChatRoomDetail({
+      id: 34,
+      type: { value: 'GROUP', description: '그룹 채팅' },
+      roomName: '알터 카페 강남점',
+      memberCount: 8,
+      opponentId: null,
+      opponentScope: null,
+      opponentName: null,
+      createdAt: '2026-08-01T09:00:00',
+      updatedAt: '2026-08-20T08:40:00',
+    })
+
+    expect(detail.segment).toBe('group')
+    expect(detail.title).toBe('알터 카페 강남점')
+    expect(detail.memberCount).toBe(8)
+    expect(detail.opponentId).toBeUndefined()
   })
 })
 

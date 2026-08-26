@@ -26,6 +26,7 @@ export { NewChatSheet } from './ui/NewChatSheet'
 export { AttachmentTray } from './ui/AttachmentTray'
 
 export {
+  CHAT_ATTACHMENT_MAX_COUNT,
   CHAT_MESSAGE_MAX_LENGTH,
   CHAT_SEGMENTS,
   CHAT_SEGMENT_LABEL,
@@ -36,13 +37,17 @@ export type {
   ChatMessage,
   ChatMessageStatus,
   ChatRoomContext,
+  ChatRoomDetail,
   ChatRoomListItem,
+  ChatRoomSummary,
   ChatSegment,
   ChatTimelineEntry,
 } from './types/chat'
 export type {
   ChatMessageDto,
   ChatParticipantScope,
+  ChatRoomDetailDto,
   ChatRoomListItemDto,
+  ChatRoomTypeValue,
   CreateChatRoomRequest,
 } from './types/dto'

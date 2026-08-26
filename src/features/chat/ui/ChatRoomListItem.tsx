@@ -18,6 +18,8 @@ interface ChatRoomRowProps {
 
 export function ChatRoomRow({ room, onClick }: ChatRoomRowProps) {
   const hasUnread = room.unreadCount > 0
+  // 서버는 개인 채팅에도 인원수(2)를 주지만 표기는 전체 채팅에서만 의미가 있습니다
+  const memberCount = room.segment === 'group' ? room.memberCount : undefined
 
   return (
     <button
@@ -31,9 +33,9 @@ export function ChatRoomRow({ room, onClick }: ChatRoomRowProps) {
         <div className="flex items-baseline justify-between gap-2">
           <span className="truncate typography-body01-semibold text-text-100">
             {room.title}
-            {room.memberCount !== undefined && (
+            {memberCount !== undefined && (
               <span className="ml-1 typography-body03-regular text-text-50">
-                {room.memberCount}
+                {memberCount}
               </span>
             )}
           </span>
@@ -61,7 +63,10 @@ export function ChatRoomRow({ room, onClick }: ChatRoomRowProps) {
 }
 
 interface SwipeableChatRoomItemProps extends ChatRoomRowProps {
-  /** P1 — 스와이프 삭제는 백엔드 지원 후 연결합니다 */
+  /**
+   * 삭제 핸들러가 없으면 스와이프 자체를 막고 평범한 행으로 렌더합니다.
+   * 서버에 방 삭제·나가기 API 가 없어, 열어봐야 눌리지 않는 버튼만 드러납니다.
+   */
   onDelete?: () => void
 }
 
@@ -70,6 +75,18 @@ export function SwipeableChatRoomItem({
   onClick,
   onDelete,
 }: SwipeableChatRoomItemProps) {
+  if (!onDelete) {
+    return <ChatRoomRow room={room} onClick={onClick} />
+  }
+
+  return <SwipeToDeleteRow room={room} onClick={onClick} onDelete={onDelete} />
+}
+
+interface SwipeToDeleteRowProps extends ChatRoomRowProps {
+  onDelete: () => void
+}
+
+function SwipeToDeleteRow({ room, onClick, onDelete }: SwipeToDeleteRowProps) {
   const [translateX, setTranslateX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
 

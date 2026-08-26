@@ -6,8 +6,11 @@ import type {
 
 export type { ChatParticipantScope, ChatMessageType }
 
-/** 이미지 첨부 — 수신 표시용. 업로드 엔드포인트가 없어 아직 전송은 못 합니다 */
+/** 이미지 첨부 — 낙관적 렌더 중에는 `url` 이 로컬 object URL 입니다 */
 export type ChatAttachment = ChatAttachmentDto
+
+/** 메시지 한 건에 붙일 수 있는 이미지 수 — 초과분은 서버가 거부합니다 */
+export const CHAT_ATTACHMENT_MAX_COUNT = 10
 
 /** 채팅 탭 세그먼트 — 개인(1:1) · 전체(소속 업장 단위 단체방) */
 export type ChatSegment = 'personal' | 'group'
@@ -22,31 +25,30 @@ export const CHAT_SEGMENT_LABEL: Record<ChatSegment, string> = {
 /** 텍스트 전용 · 최대 1000자 */
 export const CHAT_MESSAGE_MAX_LENGTH = 1000
 
-/** 채팅 목록 행 */
-export interface ChatRoomListItem {
+/** 목록 행·방 상세가 공유하는 방 표현 — 두 API 가 같은 필드셋을 내려줍니다 */
+export interface ChatRoomSummary {
   id: number
   segment: ChatSegment
-  /** 개인=상대 이름(USER→점주, MANAGER→알바생) · 전체=업장 이름 */
+  /** 서버 `roomName` — 개인=상대 이름 · 전체=업장 이름 */
   title: string
   profileImageUrl: string | null
+  /** 활성 멤버 수 — 서버가 주지 않으면 undefined (헤더·목록은 전체 채팅에서만 노출) */
+  memberCount?: number
+  /** 전체 채팅방에는 상대방 개념이 없어 undefined */
+  opponentId?: number
+  opponentScope?: ChatParticipantScope
+}
+
+/** 채팅 목록 행 */
+export interface ChatRoomListItem extends ChatRoomSummary {
   latestMessage: string
   /** 정렬·상대 시각 표기 기준 */
   updatedAt: string
   unreadCount: number
-  opponentId?: number
-  opponentScope?: ChatParticipantScope
-  /** 전체 채팅방의 멤버 수 — 개인 채팅에서는 undefined */
-  memberCount?: number
 }
 
 /** 딥링크로 방에 바로 진입해 목록 캐시가 없을 때 헤더·발신자 판별을 채웁니다 */
-export interface ChatRoomDetail {
-  id: number
-  title: string
-  profileImageUrl: string | null
-  opponentId: number
-  opponentScope: ChatParticipantScope
-}
+export type ChatRoomDetail = ChatRoomSummary
 
 /** 낙관적 전송 상태 — STOMP echo 수신 전까지 pending */
 export type ChatMessageStatus = 'sent' | 'pending' | 'failed'
@@ -86,6 +88,7 @@ export interface ChatRoomContext {
   id: number
   segment: ChatSegment
   title: string
+  /** 전체 채팅 헤더의 "멤버 N" 표기 — 개인 채팅에서는 쓰지 않습니다 */
   memberCount?: number
 }
 

@@ -46,6 +46,14 @@ export function buildChatTimeline(
 }
 
 /**
+ * 낙관적 메시지와 서버 echo 를 짝지을 키.
+ * 본문만 쓰면 이미지 전용 메시지(본문 빈 문자열)끼리 서로 지워버려 첨부 수까지 함께 봅니다.
+ */
+export function chatMessageSignature(message: ChatMessage): string {
+  return `${message.content}|${message.attachments.length}`
+}
+
+/**
  * 낙관적 메시지와 서버 메시지를 합칩니다.
  * 서버 echo 가 도착하면 같은 내용의 pending 메시지를 제거해 중복을 막습니다.
  */
@@ -56,14 +64,13 @@ export function mergeChatMessages(
   if (pendingMessages.length === 0) return serverMessages
 
   const serverSignatures = new Set(
-    serverMessages
-      .filter(message => message.isMine)
-      .map(message => message.content)
+    serverMessages.filter(message => message.isMine).map(chatMessageSignature)
   )
 
   const remainingPending = pendingMessages.filter(
     pending =>
-      pending.status === 'failed' || !serverSignatures.has(pending.content)
+      pending.status === 'failed' ||
+      !serverSignatures.has(chatMessageSignature(pending))
   )
 
   return [...serverMessages, ...remainingPending]

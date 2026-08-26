@@ -8,15 +8,13 @@ import useAuthStore from '@/shared/stores/useAuthStore'
 
 const PAGE_SIZE = 20
 
+/** 개인(DIRECT)·전체(GROUP) 방이 한 목록에 섞여 옵니다 — 세그먼트 분기는 화면단에서 합니다 */
 export function useChatRoomsQuery() {
   const isLoggedIn = useAuthStore(state => state.isLoggedIn)
   const scope = useAuthStore(state => state.scope)
 
   const query = useInfiniteQuery({
-    queryKey: queryKeys.chat.rooms(scope, {
-      chatScope: 'personal',
-      pageSize: PAGE_SIZE,
-    }),
+    queryKey: queryKeys.chat.rooms(scope, { pageSize: PAGE_SIZE }),
     queryFn: ({ pageParam }) =>
       fetchChatRooms(scope, { pageSize: PAGE_SIZE, cursor: pageParam }),
     initialPageParam: undefined as string | undefined,

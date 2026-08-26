@@ -9,21 +9,21 @@ import { useChatStomp } from '@/features/chat/hooks/useChatStomp'
 import { adaptChatMessage } from '@/features/chat/lib/adaptChat'
 import {
   buildChatTimeline,
+  chatMessageSignature,
   mergeChatMessages,
   sortMessagesAscending,
 } from '@/features/chat/lib/chatTimeline'
+import { resolveChatErrorMessage } from '@/features/chat/lib/chatErrorMessage'
 import {
-  findGroupChatRoomSeed,
-  isGroupChatRoomId,
-  useGroupChatMockStore,
-} from '@/features/chat/mock/groupChatMockStore'
-import type {
-  ChatConnectionState,
-  ChatMessage,
-  ChatRoomContext,
+  CHAT_ATTACHMENT_MAX_COUNT,
+  type ChatAttachment,
+  type ChatMessage,
+  type ChatRoomContext,
 } from '@/features/chat/types/chat'
+import { uploadAppFile } from '@/shared/api/appFileUpload'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import useAuthStore from '@/shared/stores/useAuthStore'
+import { showToast } from '@/shared/stores/useToastStore'
 import { useUserMe } from '@/features/user/me/hooks/useUserMe'
 
 function createClientId(): string {
@@ -34,9 +34,6 @@ export function useChatRoomViewModel(roomId: number) {
   const queryClient = useQueryClient()
   const scope = useAuthStore(state => state.scope)
   const { user } = useUserMe()
-
-  const isGroupRoom = isGroupChatRoomId(roomId)
-  const groupSeed = findGroupChatRoomSeed(roomId)
 
   /**
    * 방 전환 시 초기화해야 하는 화면 상태를 roomId 와 함께 묶어 둡니다.
@@ -83,25 +80,22 @@ export function useChatRoomViewModel(roomId: number) {
   // 방이 목록 첫 페이지에 없을 수 있어(딥링크·새로고침) 상세로 폴백합니다
   const { room: detailRoom } = useChatRoomDetailQuery({
     roomId,
-    enabled: !isGroupRoom && !isRoomListLoading && !listRoom,
+    enabled: !isRoomListLoading && !listRoom,
   })
   const room = listRoom ?? detailRoom
+  const isGroupRoom = room?.segment === 'group'
+
+  /** 전체 채팅방에는 상대방이 없어 발신자 폴백에 쓰면 안 됩니다 */
+  const opponentName = isGroupRoom ? undefined : room?.title
 
   const messagesQuery = useChatMessagesQuery({
     roomId,
-    enabled: !isGroupRoom,
     myId: user.id,
     myScope: scope === 'MANAGER' ? 'MANAGER' : 'USER',
     opponentId: room?.opponentId,
     opponentScope: room?.opponentScope,
-    opponentName: room?.title,
+    opponentName,
   })
-
-  const groupMessages = useGroupChatMockStore(
-    state => state.messagesByRoomId[roomId]
-  )
-  const sendGroupMessage = useGroupChatMockStore(state => state.sendMessage)
-  const markGroupRead = useGroupChatMockStore(state => state.markRead)
 
   const markReadMutation = useMarkChatRoomReadMutation()
   const markReadMutate = markReadMutation.mutate
@@ -129,24 +123,12 @@ export function useChatRoomViewModel(roomId: number) {
 
   // 방을 열어둔 채 새 메시지를 받아도 읽음 상태를 따라 올립니다
   useEffect(() => {
-    if (isGroupRoom || !Number.isFinite(roomId)) return
+    if (!Number.isFinite(roomId)) return
     if (lastReadTargetId <= markedReadIdRef.current) return
 
     markedReadIdRef.current = lastReadTargetId
     markReadMutate({ roomId, lastReadMessageId: lastReadTargetId })
-  }, [roomId, isGroupRoom, lastReadTargetId, markReadMutate])
-
-  const hasMarkedGroupReadRef = useRef(false)
-
-  useEffect(() => {
-    hasMarkedGroupReadRef.current = false
-  }, [roomId])
-
-  useEffect(() => {
-    if (!isGroupRoom || hasMarkedGroupReadRef.current) return
-    hasMarkedGroupReadRef.current = true
-    markGroupRead(roomId)
-  }, [roomId, isGroupRoom, markGroupRead])
+  }, [roomId, lastReadTargetId, markReadMutate])
 
   const handleIncomingMessage = useCallback(
     (dto: Parameters<typeof adaptChatMessage>[0]) => {
@@ -155,20 +137,21 @@ export function useChatRoomViewModel(roomId: number) {
         myScope: scope === 'MANAGER' ? 'MANAGER' : 'USER',
         opponentId: room?.opponentId,
         opponentScope: room?.opponentScope,
-        opponentName: room?.title,
+        opponentName,
       })
 
       setRoomState(current => {
         if (current.liveMessages.some(existing => existing.id === message.id)) {
           return current
         }
+        const echoSignature = chatMessageSignature(message)
         return {
           ...current,
           liveMessages: [...current.liveMessages, message],
           // 내가 보낸 메시지의 echo 가 도착하면 낙관적 항목을 제거합니다
           pendingMessages: message.isMine
             ? current.pendingMessages.filter(
-                pending => pending.content !== message.content
+                pending => chatMessageSignature(pending) !== echoSignature
               )
             : current.pendingMessages,
         }
@@ -181,20 +164,17 @@ export function useChatRoomViewModel(roomId: number) {
       scope,
       room?.opponentId,
       room?.opponentScope,
-      room?.title,
+      opponentName,
       queryClient,
     ]
   )
 
   const { connectionState, isConnected, sendMessage } = useChatStomp({
     roomId,
-    enabled: !isGroupRoom,
     onMessage: handleIncomingMessage,
   })
 
   const messages = useMemo<ChatMessage[]>(() => {
-    if (isGroupRoom) return groupMessages ?? []
-
     const serverMessages = sortMessagesAscending([
       ...messagesQuery.messages,
       ...liveMessages.filter(
@@ -202,29 +182,18 @@ export function useChatRoomViewModel(roomId: number) {
       ),
     ])
     return mergeChatMessages(serverMessages, pendingMessages)
-  }, [
-    isGroupRoom,
-    groupMessages,
-    messagesQuery.messages,
-    liveMessages,
-    pendingMessages,
-  ])
+  }, [messagesQuery.messages, liveMessages, pendingMessages])
 
-  const roomContext = useMemo<ChatRoomContext>(() => {
-    if (isGroupRoom) {
-      return {
-        id: roomId,
-        segment: 'group',
-        title: groupSeed?.workspaceName ?? '전체 채팅',
-        memberCount: groupSeed?.memberCount,
-      }
-    }
-    return {
+  const roomContext = useMemo<ChatRoomContext>(
+    () => ({
       id: roomId,
-      segment: 'personal',
-      title: room?.title ?? '채팅',
-    }
-  }, [isGroupRoom, roomId, groupSeed, room?.title])
+      segment: isGroupRoom ? 'group' : 'personal',
+      title: room?.title ?? (isGroupRoom ? '전체 채팅' : '채팅'),
+      // 개인 채팅도 서버가 인원수(2)를 주지만 헤더에는 전체 채팅에서만 노출합니다
+      memberCount: isGroupRoom ? room?.memberCount : undefined,
+    }),
+    [roomId, isGroupRoom, room?.title, room?.memberCount]
+  )
 
   const timeline = useMemo(
     () => buildChatTimeline(messages, roomContext.segment),
@@ -234,12 +203,6 @@ export function useChatRoomViewModel(roomId: number) {
   const handleSend = useCallback(() => {
     const content = draft.trim()
     if (!content) return
-
-    if (isGroupRoom) {
-      setRoomState(current => ({ ...current, draft: '' }))
-      sendGroupMessage(roomId, content)
-      return
-    }
 
     const optimistic: ChatMessage = {
       id: -Date.now(),
@@ -251,7 +214,7 @@ export function useChatRoomViewModel(roomId: number) {
       content,
       createdAt: new Date().toISOString(),
       isMine: true,
-      status: sendMessage(content) ? 'pending' : 'failed',
+      status: sendMessage({ content }) ? 'pending' : 'failed',
       messageType: 'NORMAL',
       attachments: [],
     }
@@ -260,55 +223,176 @@ export function useChatRoomViewModel(roomId: number) {
       draft: '',
       pendingMessages: [...current.pendingMessages, optimistic],
     }))
-  }, [
-    draft,
-    isGroupRoom,
-    sendGroupMessage,
-    roomId,
-    user.id,
-    scope,
-    sendMessage,
-  ])
+  }, [draft, user.id, scope, sendMessage])
 
-  const retryFailedMessage = useCallback(
-    (clientId: string) => {
+  const [isSendingImages, setSendingImages] = useState(false)
+
+  /** 미리보기용 object URL — 방을 떠날 때 한 번에 해제합니다 */
+  const previewUrlsRef = useRef<string[]>([])
+
+  useEffect(() => {
+    const urls = previewUrlsRef.current
+    return () => {
+      urls.forEach(url => URL.revokeObjectURL(url))
+      previewUrlsRef.current = []
+    }
+  }, [roomId])
+
+  /** 재시도 때 다시 업로드할 원본 파일 — 방을 떠나면 함께 비웁니다 */
+  const pendingFilesRef = useRef(new Map<string, File[]>())
+
+  useEffect(() => {
+    const files = pendingFilesRef.current
+    return () => files.clear()
+  }, [roomId])
+
+  const setPendingStatus = useCallback(
+    (clientId: string, status: ChatMessage['status']) => {
       setRoomState(current => ({
         ...current,
         pendingMessages: current.pendingMessages.map(pending =>
-          pending.clientId === clientId
-            ? {
-                ...pending,
-                status: sendMessage(pending.content) ? 'pending' : 'failed',
-              }
-            : pending
+          pending.clientId === clientId ? { ...pending, status } : pending
         ),
       }))
     },
-    [sendMessage]
+    []
+  )
+
+  /** 업로드 → STOMP 전송. 최초 전송과 재시도가 같은 경로를 씁니다 */
+  const uploadAndPublish = useCallback(
+    async (clientId: string, files: File[], content: string) => {
+      setSendingImages(true)
+      try {
+        const fileIds = await Promise.all(
+          files.map(file =>
+            uploadAppFile({
+              file,
+              targetType: 'CHAT_MESSAGE',
+              // 채팅 이미지는 비공개 버킷 — 조회 시 presigned URL 로 내려옵니다
+              bucketType: 'PRIVATE',
+              scope,
+            })
+          )
+        )
+
+        if (!sendMessage({ content: content || undefined, fileIds })) {
+          throw new Error('연결이 끊겨 이미지를 보내지 못했습니다.')
+        }
+      } catch (error) {
+        setPendingStatus(clientId, 'failed')
+        showToast(
+          resolveChatErrorMessage(error, '이미지를 보내지 못했어요.'),
+          'error'
+        )
+      } finally {
+        setSendingImages(false)
+      }
+    },
+    [scope, sendMessage, setPendingStatus]
+  )
+
+  /**
+   * 이미지 전송 — 업로드로 fileId 를 받은 뒤 STOMP 로 보냅니다.
+   * 업로드 대기 동안에는 로컬 미리보기를 pending 으로 띄웁니다.
+   */
+  const sendImages = useCallback(
+    async (files: File[]) => {
+      if (files.length === 0) return
+
+      if (files.length > CHAT_ATTACHMENT_MAX_COUNT) {
+        showToast(
+          `이미지는 한 번에 ${CHAT_ATTACHMENT_MAX_COUNT}장까지 보낼 수 있어요.`,
+          'error'
+        )
+        return
+      }
+
+      const clientId = createClientId()
+      const previews: ChatAttachment[] = files.map((file, index) => {
+        const url = URL.createObjectURL(file)
+        previewUrlsRef.current.push(url)
+        return { fileId: `${clientId}-${index}`, url }
+      })
+
+      // 입력창에 쓰던 글이 있으면 이미지와 한 메시지로 함께 보냅니다
+      const content = draft.trim()
+
+      setRoomState(current => ({
+        ...current,
+        draft: '',
+        isAttachmentOpen: false,
+        pendingMessages: [
+          ...current.pendingMessages,
+          {
+            id: -Date.now(),
+            clientId,
+            senderId: user.id ?? -1,
+            senderScope: scope === 'MANAGER' ? 'MANAGER' : 'USER',
+            senderName: '',
+            senderProfileImageUrl: null,
+            content,
+            createdAt: new Date().toISOString(),
+            isMine: true,
+            status: 'pending',
+            messageType: 'NORMAL',
+            attachments: previews,
+          },
+        ],
+      }))
+
+      pendingFilesRef.current.set(clientId, files)
+      await uploadAndPublish(clientId, files, content)
+    },
+    [draft, user.id, scope, uploadAndPublish]
+  )
+
+  /**
+   * 실패한 메시지 재전송.
+   * 이미지 메시지는 업로드부터 다시 합니다 — 앞선 시도에서 fileId 를 받았는지 알 수 없어서
+   * 그대로 다시 올리는 편이 안전합니다.
+   */
+  const retryFailedMessage = useCallback(
+    (clientId: string) => {
+      const target = pendingMessages.find(
+        pending => pending.clientId === clientId
+      )
+      if (!target || target.status !== 'failed') return
+
+      const files = pendingFilesRef.current.get(clientId)
+
+      if (files?.length) {
+        setPendingStatus(clientId, 'pending')
+        void uploadAndPublish(clientId, files, target.content)
+        return
+      }
+
+      setPendingStatus(
+        clientId,
+        sendMessage({ content: target.content }) ? 'pending' : 'failed'
+      )
+    },
+    [pendingMessages, sendMessage, setPendingStatus, uploadAndPublish]
   )
 
   return {
     room: roomContext,
     timeline,
     messages,
-    isLoading: isGroupRoom ? false : messagesQuery.isLoading,
-    isError: isGroupRoom ? false : messagesQuery.isError,
+    isLoading: messagesQuery.isLoading,
+    isError: messagesQuery.isError,
     isEmpty: messages.length === 0,
     refetch: messagesQuery.refetch,
-    hasOlderMessages: isGroupRoom ? false : messagesQuery.hasOlderMessages,
-    isFetchingOlderMessages: isGroupRoom
-      ? false
-      : messagesQuery.isFetchingOlderMessages,
+    hasOlderMessages: messagesQuery.hasOlderMessages,
+    isFetchingOlderMessages: messagesQuery.isFetchingOlderMessages,
     fetchOlderMessages: messagesQuery.fetchOlderMessages,
     draft,
     setDraft,
     handleSend,
+    sendImages,
+    isSendingImages,
     retryFailedMessage,
-    /** 전체 채팅은 목업이라 항상 연결된 것으로 표시합니다 */
-    connectionState: isGroupRoom
-      ? ('connected' as ChatConnectionState)
-      : connectionState,
-    isConnected: isGroupRoom ? true : isConnected,
+    connectionState,
+    isConnected,
     isAttachmentOpen,
     toggleAttachment,
   }

@@ -74,9 +74,14 @@ export function useChatStomp({
     }
   }, [enabled, roomId])
 
+  /** `content` 와 `fileIds` 가 둘 다 비면 서버가 거부하므로 호출부에서 걸러 보냅니다 */
   const sendMessage = useCallback(
-    (content: string) => {
-      const payload: SendChatMessagePayload = { content, type: 'NORMAL' }
+    (message: { content?: string; fileIds?: string[] }) => {
+      const payload: SendChatMessagePayload = {
+        type: 'NORMAL',
+        ...(message.content && { content: message.content }),
+        ...(message.fileIds?.length && { fileIds: message.fileIds }),
+      }
       return stompConnection.publish(
         chatPublishDestination(scope, roomId),
         payload

@@ -4,10 +4,6 @@ import {
   readLastChatSegment,
   writeLastChatSegment,
 } from '@/features/chat/lib/segmentPreference'
-import {
-  buildGroupChatRooms,
-  useGroupChatMockStore,
-} from '@/features/chat/mock/groupChatMockStore'
 import type { ChatRoomListItem, ChatSegment } from '@/features/chat/types/chat'
 import { useChatUnreadStore } from '@/shared/stores/useChatUnreadStore'
 
@@ -37,22 +33,28 @@ export function useChatListViewModel() {
   const [segment, setSegment] = useState<ChatSegment>(readLastChatSegment)
   const [keyword, setKeyword] = useState('')
 
-  const personalQuery = useChatRoomsQuery()
-  const messagesByRoomId = useGroupChatMockStore(
-    state => state.messagesByRoomId
-  )
-  const unreadByRoomId = useGroupChatMockStore(state => state.unreadByRoomId)
-  const groupRooms = useMemo(
-    () => buildGroupChatRooms(messagesByRoomId, unreadByRoomId),
-    [messagesByRoomId, unreadByRoomId]
-  )
+  // 서버는 개인·전체를 한 커서 목록에 섞어 내려주므로 클라이언트에서 세그먼트로 나눕니다
+  const roomsQuery = useChatRoomsQuery()
   const setUnreadCount = useChatUnreadStore(state => state.setUnreadCount)
 
+  const roomsBySegment = useMemo(() => {
+    const personal: ChatRoomListItem[] = []
+    const group: ChatRoomListItem[] = []
+    roomsQuery.rooms.forEach(room => {
+      if (room.segment === 'group') group.push(room)
+      else personal.push(room)
+    })
+    return { personal, group }
+  }, [roomsQuery.rooms])
+
   const personalUnread = useMemo(
-    () => sumUnread(personalQuery.rooms),
-    [personalQuery.rooms]
+    () => sumUnread(roomsBySegment.personal),
+    [roomsBySegment.personal]
   )
-  const groupUnread = useMemo(() => sumUnread(groupRooms), [groupRooms])
+  const groupUnread = useMemo(
+    () => sumUnread(roomsBySegment.group),
+    [roomsBySegment.group]
+  )
 
   // Docbar 채팅 뱃지 = 개인 + 전체 합산
   useEffect(() => {
@@ -69,16 +71,25 @@ export function useChatListViewModel() {
     writeLastChatSegment(next)
   }, [])
 
-  const isPersonal = segment === 'personal'
-  const sourceRooms = isPersonal ? personalQuery.rooms : groupRooms
+  const sourceRooms = roomsBySegment[segment]
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = roomsQuery
+
+  /** 한 페이지가 전부 반대 세그먼트일 수 있어, 현재 탭이 비었으면 다음 페이지를 더 봅니다 */
+  const isAwaitingMorePages = sourceRooms.length === 0 && hasNextPage
+
+  useEffect(() => {
+    if (!isAwaitingMorePages || isFetchingNextPage) return
+    void fetchNextPage()
+  }, [isAwaitingMorePages, isFetchingNextPage, fetchNextPage])
 
   const rooms = useMemo(
     () => sortRooms(sourceRooms).filter(room => matchesKeyword(room, keyword)),
     [sourceRooms, keyword]
   )
 
-  const isLoading = isPersonal ? personalQuery.isLoading : false
-  const isError = isPersonal ? personalQuery.isError : false
+  // 자동 추가 로드 중에는 빈 상태 대신 스켈레톤을 유지합니다
+  const isLoading = roomsQuery.isLoading || isAwaitingMorePages
+  const isError = roomsQuery.isError
   const hasKeyword = keyword.trim().length > 0
 
   return {
@@ -93,9 +104,9 @@ export function useChatListViewModel() {
     isEmpty: !isLoading && !isError && rooms.length === 0,
     hasKeyword,
     unreadCountBySegment: { personal: personalUnread, group: groupUnread },
-    refetch: personalQuery.refetch,
-    hasNextPage: isPersonal && personalQuery.hasNextPage,
-    isFetchingNextPage: isPersonal && personalQuery.isFetchingNextPage,
-    fetchNextPage: personalQuery.fetchNextPage,
+    refetch: roomsQuery.refetch,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
   }
 }
