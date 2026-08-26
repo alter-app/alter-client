@@ -1,4 +1,5 @@
 import ApplicantIcon from '@/assets/icons/doc/Applicant.svg?react'
+import ChatIcon from '@/assets/icons/doc/Chat.svg?react'
 import HomeIcon from '@/assets/icons/doc/Home.svg?react'
 import MYIcon from '@/assets/icons/doc/MY.svg?react'
 import SearchIcon from '@/assets/icons/doc/Search.svg?react'
@@ -7,11 +8,16 @@ import type { ComponentType, SVGProps } from 'react'
 import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useDocStore } from '@/shared/stores/useDocStore'
+import {
+  selectTotalChatUnread,
+  useChatUnreadStore,
+} from '@/shared/stores/useChatUnreadStore'
 import { typography } from '@/shared/lib/tokens'
 import { TAB_TITLE_MAP, type TabKey } from '@/shared/types/tab'
 import { homePathForScope } from '@/shared/lib/homePath'
 import { ROUTES } from '@/shared/constants/routes'
 import useAuthStore from '@/shared/stores/useAuthStore'
+import { UnreadBadge } from '@/shared/ui/common/UnreadBadge'
 
 function DocContent({
   icon,
@@ -19,6 +25,7 @@ function DocContent({
   isSelected,
   titleKey,
   label,
+  badgeCount = 0,
   onClick,
 }: {
   icon: ComponentType<SVGProps<SVGSVGElement>>
@@ -26,6 +33,7 @@ function DocContent({
   isSelected: boolean
   titleKey: TabKey
   label?: string
+  badgeCount?: number
   onClick: () => void
 }) {
   const Icon = icon
@@ -36,10 +44,17 @@ function DocContent({
       className="flex min-w-0 flex-1 flex-col items-center gap-1 cursor-pointer h-[78px] pt-2.5 pb-3"
       onClick={onClick}
     >
-      <Icon
-        className={`${isSelected ? 'text-text-100' : 'text-text-50'} h-6 w-6 [&_*]:!fill-current [&_*]:!stroke-current`}
-        aria-label={alt}
-      />
+      <span className="relative flex h-6 w-6 items-center justify-center">
+        <Icon
+          className={`${isSelected ? 'text-text-100' : 'text-text-50'} h-6 w-6 [&_*]:!fill-current [&_*]:!stroke-current`}
+          aria-label={alt}
+        />
+        <UnreadBadge
+          count={badgeCount}
+          size="sm"
+          className="absolute -right-2 -top-1"
+        />
+      </span>
       <p
         className={isSelected ? 'text-text-100' : 'text-text-50'}
         style={{
@@ -63,6 +78,8 @@ interface DocbarViewProps {
   tabs: TabKey[]
   /** 탭별 라벨 오버라이드 — 미지정 탭은 TAB_TITLE_MAP 기본값을 사용 */
   labelByTab?: Partial<Record<TabKey, string>>
+  /** 탭별 미읽음 뱃지 수 — 0·미지정이면 뱃지를 숨깁니다 */
+  badgeCountByTab?: Partial<Record<TabKey, number>>
 }
 
 export function DocbarView({
@@ -70,12 +87,14 @@ export function DocbarView({
   onTabClick,
   tabs,
   labelByTab,
+  badgeCountByTab,
 }: DocbarViewProps) {
   const iconByTab: Record<TabKey, ComponentType<SVGProps<SVGSVGElement>>> = {
     home: HomeIcon,
     search: SearchIcon,
     applicant: ApplicantIcon,
     substitute: SubstituteIcon,
+    chat: ChatIcon,
     my: MYIcon,
   }
 
@@ -84,6 +103,7 @@ export function DocbarView({
     search: 'Search',
     applicant: 'Applicant',
     substitute: 'Substitute',
+    chat: 'Chat',
     my: 'MY',
   }
 
@@ -98,6 +118,7 @@ export function DocbarView({
             isSelected={selectedTab[tab]}
             titleKey={tab}
             label={labelByTab?.[tab]}
+            badgeCount={badgeCountByTab?.[tab]}
             onClick={() => onTabClick(tab)}
           />
         ))}
@@ -114,6 +135,7 @@ export function Docbar() {
     state => state.setSelectedTabByPathname
   )
   const { scope } = useAuthStore()
+  const chatUnreadCount = useChatUnreadStore(selectTotalChatUnread)
 
   useEffect(() => {
     setSelectedTabByPathname(pathname)
@@ -121,13 +143,10 @@ export function Docbar() {
 
   const isManager = scope === 'MANAGER'
 
-  /** 지원자 탭은 사장님 전용 — 일반 유저는 기존 4탭을 유지합니다 */
+  /** 채팅은 USER·MANAGER 공용 탭 — 사장님 지원자 목록은 내 공고 화면에서 진입합니다 */
   const tabs = useMemo<TabKey[]>(
-    () =>
-      isManager
-        ? ['home', 'search', 'applicant', 'substitute', 'my']
-        : ['home', 'search', 'substitute', 'my'],
-    [isManager]
+    () => ['home', 'search', 'substitute', 'chat', 'my'],
+    []
   )
 
   const pathByTab: Record<TabKey, string> = useMemo(
@@ -135,11 +154,12 @@ export function Docbar() {
       home: homePathForScope(scope),
       // 사장님은 구인구직(내 공고 목록), 일반 유저는 기존 알바찾기 경로 유지
       search: isManager ? ROUTES.MANAGER.POSTINGS : ROUTES.USER.JOB_LOOKUP_MAP,
-      // 사장님 전용 탭 — 일반 유저에게는 렌더링되지 않습니다
+      // 사장님 전용 — Docbar 에서는 제거됐고 내 공고 화면에서 진입합니다
       applicant: ROUTES.MANAGER.POSTING_APPLICATIONS,
       substitute: isManager
         ? ROUTES.MANAGER.SUBSTITUTE_REQUEST
         : ROUTES.USER.SUBSTITUTE_REQUEST,
+      chat: ROUTES.CHAT.ROOMS,
       my: ROUTES.MY.ROOT,
     }),
     [scope, isManager]
@@ -149,6 +169,11 @@ export function Docbar() {
   const labelByTab = useMemo<Partial<Record<TabKey, string>> | undefined>(
     () => (isManager ? { search: '내 공고' } : undefined),
     [isManager]
+  )
+
+  const badgeCountByTab = useMemo<Partial<Record<TabKey, number>>>(
+    () => ({ chat: chatUnreadCount }),
+    [chatUnreadCount]
   )
 
   const onTabClick = (tab: TabKey) => {
@@ -161,6 +186,7 @@ export function Docbar() {
       onTabClick={onTabClick}
       tabs={tabs}
       labelByTab={labelByTab}
+      badgeCountByTab={badgeCountByTab}
     />
   )
 }

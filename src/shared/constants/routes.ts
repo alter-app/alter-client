@@ -35,7 +35,9 @@ export const ROUTES = {
     STORE_REGISTER: '/manager/store-register',
     SUBSTITUTE_REQUEST: '/manager/substitute-request',
     WORKER_INVITE: '/manager/worker-invite',
+    /** @deprecated 공용 채팅으로 통합 — ROUTES.CHAT.ROOMS 사용 */
     SOCIAL: '/manager/social',
+    /** @deprecated 공용 채팅으로 통합 — ROUTES.CHAT.ROOM_PATTERN 사용 */
     SOCIAL_CHAT: '/manager/social/chat',
     /** 구인구직 — 내 공고 목록 (사장님 알바찾기 탭 진입점) */
     POSTINGS: '/manager/postings',
@@ -70,6 +72,13 @@ export const ROUTES = {
     REQUESTS: '/store-register/requests',
     /** 신청 상세 (파라미터) */
     REQUEST_DETAIL_PATTERN: '/store-register/requests/:requestId',
+  },
+  /** 채팅 — USER·MANAGER 공용. 스코프 차이는 API 경로(app|manager)로만 구분합니다 */
+  CHAT: {
+    /** 채팅 목록 — Docbar 탭 진입점(개인/전체 세그먼트) */
+    ROOMS: '/chat',
+    /** 채팅방 (파라미터) */
+    ROOM_PATTERN: '/chat/rooms/:roomId',
   },
   NOTIFICATIONS: '/notifications',
   NOTIFICATION_SETTINGS: '/notifications/settings',
@@ -107,4 +116,8 @@ export function managerPostingApplicationsPath(postingId?: number) {
 
 export function managerPostingApplicationDetailPath(applicationId: number) {
   return `/manager/postings/applications/${applicationId}`
+}
+
+export function chatRoomPath(roomId: number) {
+  return `/chat/rooms/${roomId}`
 }

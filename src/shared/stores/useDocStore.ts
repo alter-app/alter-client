@@ -2,6 +2,8 @@ import { create } from 'zustand'
 import type { TabKey } from '@/shared/types/tab'
 
 const PATHNAME_TAB_MAP: Array<{ matcher: RegExp; tab: TabKey }> = [
+  // 채팅은 USER·MANAGER 공용 경로라 스코프별 패턴보다 먼저 매칭합니다
+  { matcher: /^\/chat(\/|$)/, tab: 'chat' },
   { matcher: /(^|\/)home(\/|$)/, tab: 'home' },
   { matcher: /(^|\/)my(\/|$)/, tab: 'my' },
   { matcher: /(^|\/)search(\/|$)/, tab: 'search' },
@@ -20,6 +22,7 @@ const createSelectedTab = (activeTab?: TabKey): Record<TabKey, boolean> => ({
   search: activeTab === 'search',
   substitute: activeTab === 'substitute',
   applicant: activeTab === 'applicant',
+  chat: activeTab === 'chat',
 })
 
 interface DocStoreState {

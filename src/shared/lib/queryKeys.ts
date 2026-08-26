@@ -114,6 +114,25 @@ export const queryKeys = {
     comments: (scope: 'MANAGER' | 'USER' | null, requestId: number) =>
       ['storeRegisterRequest', 'comments', scope, requestId] as const,
   },
+  chat: {
+    all: ['chat'] as const,
+    /** 목록 전체 무효화용 prefix — pageSize 무관하게 매칭 */
+    roomsAll: ['chat', 'rooms'] as const,
+    /** 개인·전체 방이 한 목록으로 오므로 세그먼트는 키에 넣지 않습니다 */
+    rooms: (scope: 'MANAGER' | 'USER' | null, params?: { pageSize?: number }) =>
+      ['chat', 'rooms', scope, params] as const,
+    /** 딥링크 진입 시 목록 캐시 대신 쓰는 방 상세 */
+    roomDetail: (scope: 'MANAGER' | 'USER' | null, roomId: number) =>
+      ['chat', 'roomDetail', scope, roomId] as const,
+    messages: (
+      scope: 'MANAGER' | 'USER' | null,
+      roomId: number,
+      params?: { pageSize?: number }
+    ) => ['chat', 'messages', scope, roomId, params] as const,
+    /** 새 채팅 상대 후보 — 근무지 동료·점주 */
+    contacts: (scope: 'MANAGER' | 'USER' | null) =>
+      ['chat', 'contacts', scope] as const,
+  },
   notification: {
     list: (scope: 'MANAGER' | 'USER' | null, type?: string) =>
       ['notifications', scope, type] as const,
