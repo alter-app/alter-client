@@ -239,6 +239,19 @@ describe('메시지 DTO 변환 — 내 메시지 판별', () => {
     expect(fromMe.isMine).toBe(true)
   })
 
+  it('서버가 준 발신자 이름·프로필을 그대로 쓴다', () => {
+    // 단체방 발신자 표기는 이 필드에만 의존합니다(상대 개념이 없어 폴백이 불가)
+    const adapted = adaptChatMessage(
+      messageDto({
+        senderName: '이서준',
+        senderProfileImageUrl: 'https://cdn/sender.png',
+      })
+    )
+
+    expect(adapted.senderName).toBe('이서준')
+    expect(adapted.senderProfileImageUrl).toBe('https://cdn/sender.png')
+  })
+
   it('발신자 이름이 없으면 받은 메시지에 상대 이름을 채운다', () => {
     const adapted = adaptChatMessage(messageDto(), {
       opponentId: 200,

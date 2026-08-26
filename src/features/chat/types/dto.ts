@@ -1,6 +1,6 @@
 /**
  * 채팅 서버 응답 shape — USER(`/app/chat/*`) · MANAGER(`/manager/chat/*`) 공통.
- * 스펙에 아직 없는 필드(방별 미읽음·발신자 이름)와 구 배포본에 없는 필드(방 타입·표시명·인원수)는
+ * 아직 서버가 주지 않는 필드(방별 미읽음)와 구 배포본에 없는 필드(방 타입·표시명·인원수)는
  * optional 로 두고 클라이언트에서 폴백합니다.
  */
 
@@ -57,7 +57,10 @@ interface ChatRoomBaseDto {
 /** GET /{app|manager}/chat/rooms */
 export interface ChatRoomListItemDto extends ChatRoomBaseDto {
   latestMessageContent: string | null
-  /** API 미제공 — 없으면 0으로 간주 (목록 뱃지·Docbar 뱃지 소스) */
+  /**
+   * 목록 응답에는 아직 없는 필드입니다 — 없으면 0으로 간주합니다.
+   * 서버가 채워주기 전까지 목록 뱃지·Docbar 뱃지는 항상 0으로 보입니다.
+   */
   unreadCount?: number
 }
 
@@ -74,11 +77,12 @@ export interface ChatMessageDto {
   /** 이미지 전용 메시지는 null */
   content: string | null
   createdAt: string
+  /** 브로드캐스트 payload 에는 없어 클라이언트가 senderId·scope 로 판별합니다 */
   isMine?: boolean
-  /** 이 메시지를 아직 읽지 않은 멤버 수 */
+  /** 이 메시지를 아직 읽지 않은 멤버 수. 브로드캐스트 payload 에는 없습니다 */
   unreadCount?: number
   attachments?: ChatAttachmentDto[]
-  /** API 미제공 — 단체방 발신자 표기에 필요 */
+  /** 단체방 발신자 표기용 — 조회·브로드캐스트 양쪽 모두 내려줍니다 */
   senderName?: string
   senderProfileImageUrl?: string | null
 }
