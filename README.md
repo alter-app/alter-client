@@ -96,7 +96,10 @@ alter-client/
 
 웹 빌드(`dist`)를 iOS/Android 네이티브 셸에 넣습니다.
 
-1. 최초 한 번: 플랫폼은 이미 추가되어 있습니다. 웹을 빌드하고 네이티브에 맞춥니다.
+> **필수:** 저장소를 clone한 뒤, 또는 웹 코드를 변경한 뒤에는 Xcode/Android Studio를 열기 **전에** 반드시 `npm run cap:sync`를 실행하세요.  
+> `capacitor-cordova-*-plugins` 등 Gradle/Xcode가 참조하는 모듈은 Capacitator 기본값대로 git에 커밋하지 않고, `cap sync`로 생성합니다.
+
+1. 웹 빌드 + 네이티브 동기화
 
 ```bash
 npm run cap:sync
@@ -117,8 +120,6 @@ npm run cap:android
 ```
 
 Android Studio에서 Run으로 APK를 설치하거나, Build > Generate Signed Bundle / APK로 AAB/APK를 만듭니다.
-
-코드나 에셋을 바꾼 뒤에는 다시 `npm run cap:sync` 한 다음 Xcode/Android Studio에서 Run 하세요.
 
 ## 🎨 상태 관리 (Zustand)
 
