@@ -63,8 +63,21 @@ interface ApiError {
   message?: string
 }
 
+/** POST /public/users/signup · signup-social — 동의한 약관 타입 */
+export type AgreedTermsType = 'SERVICE' | 'PRIVACY' | 'LOCATION' | 'MARKETING'
+
+/** 회원가입 시 알림·약관 동의 — 서버 @NotNull */
+export interface SignupConsentFields {
+  /** 알림 수신 동의 */
+  notificationConsent: boolean
+  /** 야간 알림 수신 동의 */
+  nightNotificationConsent: boolean
+  /** 동의한 약관 타입 (SERVICE·PRIVACY 필수, MARKETING은 선택) */
+  agreedTermsTypes: AgreedTermsType[]
+}
+
 // 회원가입 요청 형태
-export interface SignupRequest {
+export interface SignupRequest extends SignupConsentFields {
   signupSessionId: string
   emailSessionId?: string // 이메일 인증 세션 ID (이메일 입력 시 필수)
   password: string
@@ -76,7 +89,7 @@ export interface SignupRequest {
 }
 
 /** POST /public/users/signup-social — 소셜 계정으로 회원가입 (이메일·비밀번호 없음) */
-export interface SignupSocialRequest {
+export interface SignupSocialRequest extends SignupConsentFields {
   signupSessionId: string
   provider: 'KAKAO' | 'APPLE'
   oauthToken?: {

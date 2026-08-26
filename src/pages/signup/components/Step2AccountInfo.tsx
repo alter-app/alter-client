@@ -25,6 +25,10 @@ interface Props {
     | 'setAgreed'
     | 'adAgreed'
     | 'setAdAgreed'
+    | 'notificationConsent'
+    | 'handleNotificationConsentChange'
+    | 'nightNotificationConsent'
+    | 'setNightNotificationConsent'
     | 'signupError'
     | 'isSubmitting'
   >
@@ -65,6 +69,10 @@ export function Step2AccountInfo({
     setAgreed,
     adAgreed,
     setAdAgreed,
+    notificationConsent,
+    handleNotificationConsentChange,
+    nightNotificationConsent,
+    setNightNotificationConsent,
     signupError,
     isSubmitting,
   } = form
@@ -188,8 +196,12 @@ export function Step2AccountInfo({
         <SignupTerms
           agreed={agreed}
           adAgreed={adAgreed}
+          notificationConsent={notificationConsent}
+          nightNotificationConsent={nightNotificationConsent}
           onAgreeChange={setAgreed}
           onAdAgreeChange={setAdAgreed}
+          onNotificationConsentChange={handleNotificationConsentChange}
+          onNightNotificationConsentChange={setNightNotificationConsent}
         />
       </div>
 

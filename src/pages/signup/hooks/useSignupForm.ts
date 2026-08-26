@@ -6,6 +6,7 @@ import {
   requestFreshKakaoAuthorizationCode,
 } from '@/shared/lib/socialLogin'
 import {
+  type AgreedTermsType,
   type SocialLoginRequest,
   checkNicknameDuplicate,
   createSignupSession,
@@ -67,6 +68,10 @@ export function useSignupForm(options?: UseSignupFormOptions) {
 
   const [agreed, setAgreed] = useState(false)
   const [adAgreed, setAdAgreed] = useState(false)
+  /** Swagger 예시 기본값 — 가입 후 설정에서 변경 가능 */
+  const [notificationConsent, setNotificationConsent] = useState(true)
+  const [nightNotificationConsent, setNightNotificationConsent] =
+    useState(false)
 
   const [signupError, setSignupError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -146,6 +151,23 @@ export function useSignupForm(options?: UseSignupFormOptions) {
     }
   }
 
+  /**
+   * UI 체크박스 → 서버 agreedTermsTypes
+   * - (필수) 이용약관·개인정보 → SERVICE, PRIVACY
+   * - (선택) 광고성 정보 → MARKETING
+   */
+  const buildAgreedTermsTypes = (): AgreedTermsType[] => {
+    const types: AgreedTermsType[] = ['SERVICE', 'PRIVACY']
+    if (adAgreed) types.push('MARKETING')
+    return types
+  }
+
+  /** 전체 알림을 끄면 야간 알림도 함께 끕니다 */
+  const handleNotificationConsentChange = (checked: boolean) => {
+    setNotificationConsent(checked)
+    if (!checked) setNightNotificationConsent(false)
+  }
+
   // ─── 제출 ─────────────────────────────────────────────────────────────
 
   const handleSubmit = async ({
@@ -183,6 +205,14 @@ export function useSignupForm(options?: UseSignupFormOptions) {
         }
         signupSessionId = await createSignupSession(contact, tokenForSession)
         signupSessionCacheRef.current = { contact, signupSessionId }
+      }
+
+      const consentFields = {
+        notificationConsent,
+        nightNotificationConsent: notificationConsent
+          ? nightNotificationConsent
+          : false,
+        agreedTermsTypes: buildAgreedTermsTypes(),
       }
 
       if (isSocialSignup && socialLoginData) {
@@ -226,6 +256,7 @@ export function useSignupForm(options?: UseSignupFormOptions) {
             nickname: nickname.trim(),
             gender: getGenderCode(gender),
             birthday,
+            ...consentFields,
           },
           setAuth,
           navigate
@@ -243,6 +274,7 @@ export function useSignupForm(options?: UseSignupFormOptions) {
           gender: getGenderCode(gender),
           birthday,
           contact: normalizePhone(phone),
+          ...consentFields,
         },
         setAuth,
         navigate
@@ -315,6 +347,10 @@ export function useSignupForm(options?: UseSignupFormOptions) {
     setAgreed,
     adAgreed,
     setAdAgreed,
+    notificationConsent,
+    handleNotificationConsentChange,
+    nightNotificationConsent,
+    setNightNotificationConsent,
 
     signupError,
     isSubmitting,
