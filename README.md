@@ -88,6 +88,38 @@ alter-client/
 - `npm run lint:fix` - ESLint 자동 수정
 - `npm run format` - Prettier 포맷팅
 - `npm run format:check` - Prettier 검사
+- `npm run cap:sync` - 웹 빌드 후 iOS/Android에 복사
+- `npm run cap:ios` - Xcode로 iOS 프로젝트 열기
+- `npm run cap:android` - Android Studio로 Android 프로젝트 열기
+
+## 📱 앱으로 패키징 (Capacitor)
+
+웹 빌드(`dist`)를 iOS/Android 네이티브 셸에 넣습니다.
+
+> **필수:** 저장소를 clone한 뒤, 또는 웹 코드를 변경한 뒤에는 Xcode/Android Studio를 열기 **전에** 반드시 `npm run cap:sync`를 실행하세요.  
+> `capacitor-cordova-*-plugins` 등 Gradle/Xcode가 참조하는 모듈은 Capacitator 기본값대로 git에 커밋하지 않고, `cap sync`로 생성합니다.
+
+1. 웹 빌드 + 네이티브 동기화
+
+```bash
+npm run cap:sync
+```
+
+2. iOS (macOS + Xcode 필요)
+
+```bash
+npm run cap:ios
+```
+
+Xcode에서 시뮬레이터 또는 실제 기기로 Run 합니다. 실기기/TestFlight/App Store는 Signing & Capabilities에서 팀과 Bundle ID(`com.alter.app`)를 설정한 뒤 Archive 합니다.
+
+3. Android (Android Studio 필요)
+
+```bash
+npm run cap:android
+```
+
+Android Studio에서 Run으로 APK를 설치하거나, Build > Generate Signed Bundle / APK로 AAB/APK를 만듭니다.
 
 ## 🎨 상태 관리 (Zustand)
 
