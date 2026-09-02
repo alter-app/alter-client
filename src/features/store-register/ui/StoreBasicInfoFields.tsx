@@ -1,25 +1,34 @@
 import type { ReactNode } from 'react'
 import { AuthInput } from '@/shared/ui/common/AuthInput'
+import { SelectDropdown } from '@/shared/ui/common/SelectDropdown'
 import { AlertCircleIcon } from '@/features/store-register/ui/icons'
+import type { BusinessTypeDto } from '@/features/store-register/types/workspaceRequests'
 
 type Props = {
   bizName: string
-  ownerName: string
   brn: string
   province: string
   district: string
   town: string
   address: string
-  type: string
+  /** 선택 전에는 null */
+  businessTypeId: number | null
+  /** 업종 상세 — 선택한 업종이 requiresDetail 이면 필수 */
+  businessTypeDetail: string
+  /** 서버에서 받은 업종 목록 ('기타'가 마지막) */
+  businessTypes: BusinessTypeDto[]
+  isBusinessTypesLoading: boolean
+  isBusinessTypesError: boolean
+  onRetryBusinessTypes: () => void
   contact: string
   onBizNameChange: (v: string) => void
-  onOwnerNameChange: (v: string) => void
   onBrnChange: (v: string) => void
   onProvinceChange: (v: string) => void
   onDistrictChange: (v: string) => void
   onTownChange: (v: string) => void
   onAddressChange: (v: string) => void
-  onTypeChange: (v: string) => void
+  onBusinessTypeIdChange: (v: number) => void
+  onBusinessTypeDetailChange: (v: string) => void
   onContactChange: (v: string) => void
 }
 
@@ -53,26 +62,38 @@ function Field({
 
 export function StoreBasicInfoFields({
   bizName,
-  ownerName,
   brn,
   province,
   district,
   town,
   address,
-  type,
+  businessTypeId,
+  businessTypeDetail,
+  businessTypes,
+  isBusinessTypesLoading,
+  isBusinessTypesError,
+  onRetryBusinessTypes,
   contact,
   onBizNameChange,
-  onOwnerNameChange,
   onBrnChange,
   onProvinceChange,
   onDistrictChange,
   onTownChange,
   onAddressChange,
-  onTypeChange,
+  onBusinessTypeIdChange,
+  onBusinessTypeDetailChange,
   onContactChange,
 }: Props) {
   const brnDigits = brn.replace(/\D/g, '').length
   const brnError = brnDigits > 0 && brnDigits < 10
+
+  const businessTypeOptions = businessTypes.map(({ id, name }) => ({
+    value: id,
+    label: name,
+  }))
+  const selectedBusinessType =
+    businessTypes.find(type => type.id === businessTypeId) ?? null
+  const detailRequired = selectedBusinessType?.requiresDetail ?? false
 
   return (
     <div className="flex w-full flex-col gap-[18px]">
@@ -84,21 +105,6 @@ export function StoreBasicInfoFields({
           value={bizName}
           onChange={e => onBizNameChange(e.target.value)}
           autoComplete="organization"
-        />
-      </Field>
-
-      <Field
-        label="대표자 성명"
-        hint="신분증 성명과 동일하게 입력해 주세요."
-        htmlFor="ownerName"
-      >
-        <AuthInput
-          id="ownerName"
-          type="text"
-          placeholder="대표자 성명"
-          value={ownerName}
-          onChange={e => onOwnerNameChange(e.target.value)}
-          autoComplete="name"
         />
       </Field>
 
@@ -120,13 +126,50 @@ export function StoreBasicInfoFields({
         ) : null}
       </Field>
 
-      <Field label="업종" htmlFor="type">
+      <Field label="업종" hint={selectedBusinessType?.description ?? undefined}>
+        <SelectDropdown
+          options={businessTypeOptions}
+          value={businessTypeId ?? 0}
+          onChange={onBusinessTypeIdChange}
+          ariaLabel="업종 선택"
+          placeholder={
+            isBusinessTypesLoading
+              ? '업종 목록 불러오는 중...'
+              : '업종을 선택해 주세요'
+          }
+          disabled={isBusinessTypesLoading || businessTypeOptions.length === 0}
+        />
+        {isBusinessTypesError ? (
+          <p className="flex items-center gap-1 typography-body03-regular text-error">
+            <AlertCircleIcon className="size-3.5 shrink-0" />
+            업종 목록을 불러오지 못했어요.
+            <button
+              type="button"
+              className="underline"
+              onClick={onRetryBusinessTypes}
+            >
+              다시 시도
+            </button>
+          </p>
+        ) : null}
+      </Field>
+
+      <Field
+        label={detailRequired ? '업종 상세' : '업종 상세 (선택)'}
+        hint={
+          detailRequired
+            ? '선택한 업종은 상세 입력이 필요해요.'
+            : '업종을 더 구체적으로 적어주세요.'
+        }
+        htmlFor="businessTypeDetail"
+      >
         <AuthInput
-          id="type"
+          id="businessTypeDetail"
           type="text"
-          placeholder="예) 카페 · 음료"
-          value={type}
-          onChange={e => onTypeChange(e.target.value)}
+          placeholder="예) 떡볶이 전문점"
+          value={businessTypeDetail}
+          onChange={e => onBusinessTypeDetailChange(e.target.value)}
+          maxLength={50}
         />
       </Field>
 

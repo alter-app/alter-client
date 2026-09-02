@@ -107,6 +107,8 @@ export const queryKeys = {
       ['fixedWorkerSchedule', 'list', workspaceId] as const,
   },
   storeRegisterRequest: {
+    businessTypes: (scope: 'MANAGER' | 'USER' | null) =>
+      ['storeRegisterRequest', 'businessTypes', scope] as const,
     list: (scope: 'MANAGER' | 'USER' | null) =>
       ['storeRegisterRequest', 'list', scope] as const,
     detail: (scope: 'MANAGER' | 'USER' | null, requestId: number) =>

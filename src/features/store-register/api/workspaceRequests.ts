@@ -2,6 +2,8 @@ import axiosInstance from '@/shared/lib/axiosInstance'
 import { getAuthApiBasePath } from '@/shared/lib/authApiPath'
 import type { CommonApiResponse } from '@/shared/types/common'
 import type {
+  BusinessTypeDto,
+  BusinessTypesApiResponse,
   CreateWorkspaceRequestCommentBody,
   WorkspaceRequestCommentDto,
   WorkspaceRequestCommentsApiResponse,
@@ -17,6 +19,16 @@ type AuthScope = 'MANAGER' | 'USER' | null | undefined
 /** `/app/workspace-requests` | `/manager/workspace-requests` */
 function requestsBasePath(scope: AuthScope): string {
   return `/${getAuthApiBasePath(scope)}/workspace-requests`
+}
+
+/** GET /{scope}/workspace-requests/business-types — 등록 신청 폼용 업종 목록 */
+export async function fetchBusinessTypes(
+  scope: AuthScope
+): Promise<BusinessTypeDto[]> {
+  const response = await axiosInstance.get<BusinessTypesApiResponse>(
+    `${requestsBasePath(scope)}/business-types`
+  )
+  return response.data.data
 }
 
 /** GET /{scope}/workspace-requests */

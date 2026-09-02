@@ -5,6 +5,8 @@ import { useCertificateFilePick } from '@/shared/hooks/useCertificateFilePick'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { createWorkspaceRegistrationRequest } from '@/features/store-register/api/workspaceRequests'
 import { uploadWorkspaceRegistrationFile } from '@/features/store-register/api/workspaceFileUpload'
+import { useBusinessTypes } from '@/features/store-register/hooks/useBusinessTypes'
+import { useRepresentativeImagePick } from '@/features/store-register/hooks/useRepresentativeImagePick'
 import { maskBrn, maskContact } from '@/features/store-register/lib/inputMask'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { queryKeys } from '@/shared/lib/queryKeys'
@@ -23,16 +25,23 @@ export function useStoreRegisterWizard() {
   const certFile = useCertificateFilePick({ maxBytes: CERTIFICATE_MAX_BYTES })
   const identityFile = useCertificateFilePick({ maxBytes: IDENTITY_MAX_BYTES })
   const warrantFile = useCertificateFilePick({ maxBytes: IDENTITY_MAX_BYTES })
+  const {
+    businessTypes,
+    isLoading: isBusinessTypesLoading,
+    isError: isBusinessTypesError,
+    refetch: refetchBusinessTypes,
+  } = useBusinessTypes()
+  const representativeImages = useRepresentativeImagePick(scope)
 
   const [step, setStep] = useState<Step>('info')
   const [bizName, setBizName] = useState('')
-  const [ownerName, setOwnerName] = useState('')
   const [brn, setBrn] = useState('')
   const [province, setProvince] = useState('')
   const [district, setDistrict] = useState('')
   const [town, setTown] = useState('')
   const [address, setAddress] = useState('')
-  const [type, setType] = useState('')
+  const [businessTypeId, setBusinessTypeId] = useState<number | null>(null)
+  const [businessTypeDetail, setBusinessTypeDetail] = useState('')
   const [contact, setContact] = useState('')
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -43,15 +52,22 @@ export function useStoreRegisterWizard() {
     []
   )
 
+  const selectedBusinessType =
+    businessTypes.find(type => type.id === businessTypeId) ?? null
+  // '기타'처럼 requiresDetail 인 업종은 상세 입력이 필수
+  const businessTypeValid =
+    selectedBusinessType !== null &&
+    (!selectedBusinessType.requiresDetail ||
+      businessTypeDetail.trim().length > 0)
+
   const infoValid =
     bizName.trim().length > 0 &&
-    ownerName.trim().length > 0 &&
     brn.replace(/\D/g, '').length === 10 &&
     province.trim().length > 0 &&
     district.trim().length > 0 &&
     town.trim().length > 0 &&
     address.trim().length > 0 &&
-    type.trim().length > 0 &&
+    businessTypeValid &&
     contact.trim().length > 0
 
   // 위임장은 선택 — 증명원·신분증만 필수
@@ -61,7 +77,7 @@ export function useStoreRegisterWizard() {
   const goCertificate = () => setStep('certificate')
 
   const submit = useCallback(async () => {
-    if (!certFile.file || !identityFile.file || !infoValid) {
+    if (!certFile.file || !identityFile.file || !infoValid || !businessTypeId) {
       return
     }
 
@@ -100,17 +116,21 @@ export function useStoreRegisterWizard() {
       try {
         await createWorkspaceRegistrationRequest(scope, {
           bizName,
-          ownerName,
           brn,
           province,
           district,
           town,
           address,
-          type,
+          businessTypeId,
+          businessTypeDetail: businessTypeDetail.trim() || null,
           contact,
           workspaceCertFileId,
           workspaceOwnIdentityFileId,
           workspaceWarrantFileId,
+          // 화면에 보이는 순서가 곧 sortOrder — 첫 장이 메인
+          representativeImages: representativeImages.images.map(
+            (image, index) => ({ fileId: image.fileId, sortOrder: index })
+          ),
           latitude: 37.5665,
           longitude: 126.978,
         })
@@ -142,11 +162,12 @@ export function useStoreRegisterWizard() {
     district,
     identityFile.file,
     infoValid,
-    ownerName,
     province,
+    representativeImages.images,
     scope,
     town,
-    type,
+    businessTypeId,
+    businessTypeDetail,
     warrantFile.file,
     bizName,
     queryClient,
@@ -158,26 +179,33 @@ export function useStoreRegisterWizard() {
   return {
     step,
     bizName,
-    ownerName,
     brn,
     province,
     district,
     town,
     address,
-    type,
+    businessTypeId,
+    businessTypeDetail,
+    businessTypes,
+    isBusinessTypesLoading,
+    isBusinessTypesError,
+    refetchBusinessTypes,
+    /** 선택한 업종이 상세 입력을 요구하는지 */
+    businessTypeDetailRequired: selectedBusinessType?.requiresDetail ?? false,
     contact,
     setBizName,
-    setOwnerName,
     setBrn: setBrnMasked,
     setProvince,
     setDistrict,
     setTown,
     setAddress,
-    setType,
+    setBusinessTypeId,
+    setBusinessTypeDetail,
     setContact: setContactMasked,
     certFile,
     identityFile,
     warrantFile,
+    representativeImages,
     infoValid,
     certificateValid,
     submitError,

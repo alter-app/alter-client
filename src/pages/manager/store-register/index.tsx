@@ -3,6 +3,7 @@ import { Navbar } from '@/shared/ui/common/Navbar'
 import { useStoreRegisterWizard } from '@/features/store-register/hooks/useStoreRegisterWizard'
 import { StoreBasicInfoFields } from '@/features/store-register/ui/StoreBasicInfoFields'
 import { CertificateUploader } from '@/features/store-register/ui/CertificateUploader'
+import { RepresentativeImagePicker } from '@/features/store-register/ui/RepresentativeImagePicker'
 import {
   CheckCircleIcon,
   ClockIcon,
@@ -76,26 +77,33 @@ export function StoreRegisterPage() {
 
       <main className="mx-auto flex w-full max-w-[400px] flex-1 flex-col px-4 pb-28 pt-4">
         {w.step === 'info' ? (
-          <StoreBasicInfoFields
-            bizName={w.bizName}
-            ownerName={w.ownerName}
-            brn={w.brn}
-            province={w.province}
-            district={w.district}
-            town={w.town}
-            address={w.address}
-            type={w.type}
-            contact={w.contact}
-            onBizNameChange={w.setBizName}
-            onOwnerNameChange={w.setOwnerName}
-            onBrnChange={w.setBrn}
-            onProvinceChange={w.setProvince}
-            onDistrictChange={w.setDistrict}
-            onTownChange={w.setTown}
-            onAddressChange={w.setAddress}
-            onTypeChange={w.setType}
-            onContactChange={w.setContact}
-          />
+          <div className="flex flex-col gap-6">
+            <StoreBasicInfoFields
+              bizName={w.bizName}
+              brn={w.brn}
+              province={w.province}
+              district={w.district}
+              town={w.town}
+              address={w.address}
+              businessTypeId={w.businessTypeId}
+              businessTypeDetail={w.businessTypeDetail}
+              businessTypes={w.businessTypes}
+              isBusinessTypesLoading={w.isBusinessTypesLoading}
+              isBusinessTypesError={w.isBusinessTypesError}
+              onRetryBusinessTypes={() => void w.refetchBusinessTypes()}
+              contact={w.contact}
+              onBizNameChange={w.setBizName}
+              onBrnChange={w.setBrn}
+              onProvinceChange={w.setProvince}
+              onDistrictChange={w.setDistrict}
+              onTownChange={w.setTown}
+              onAddressChange={w.setAddress}
+              onBusinessTypeIdChange={w.setBusinessTypeId}
+              onBusinessTypeDetailChange={w.setBusinessTypeDetail}
+              onContactChange={w.setContact}
+            />
+            <RepresentativeImagePicker picker={w.representativeImages} />
+          </div>
         ) : null}
 
         {w.step === 'certificate' ? (
@@ -150,7 +158,10 @@ export function StoreRegisterPage() {
 
       <div className="fixed bottom-0 left-1/2 z-10 w-full max-w-[428px] -translate-x-1/2 border-t border-line-1 bg-white px-4 pb-8 pt-3">
         {w.step === 'info' ? (
-          <PrimaryCta disabled={!w.infoValid} onClick={() => w.goCertificate()}>
+          <PrimaryCta
+            disabled={!w.infoValid || w.representativeImages.isUploading}
+            onClick={() => w.goCertificate()}
+          >
             다음
           </PrimaryCta>
         ) : null}
