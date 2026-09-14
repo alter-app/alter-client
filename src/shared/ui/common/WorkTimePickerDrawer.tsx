@@ -64,9 +64,9 @@ export function WorkTimePickerDrawer({
           data-vaul-no-drag
           className="fixed inset-x-0 bottom-0 z-50 flex h-[263px] flex-col rounded-t-[40px] bg-white shadow-[0_0_10px_rgba(0,0,0,0.15)] outline-none"
         >
-          <p className="pt-[18px] text-center typography-body01-semibold text-text-100">
+          <Drawer.Title className="pt-[18px] text-center typography-body01-semibold text-text-100">
             근무 시간 선택
-          </p>
+          </Drawer.Title>
 
           <div
             data-vaul-no-drag

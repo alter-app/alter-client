@@ -122,3 +122,26 @@ export const MultipleSchedules: Story = {
     }
   },
 }
+
+export const AccessibleTimePicker: Story = {
+  args: { initialPosting: posting },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(canvasElement.ownerDocument.body)
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: '시작 시간 선택' })
+    )
+    await expect(
+      body.getByRole('dialog', { name: '근무 시간 선택' })
+    ).toBeVisible()
+
+    await userEvent.keyboard('{Escape}')
+    await userEvent.click(
+      canvas.getByRole('button', { name: '종료 시간 선택' })
+    )
+    await expect(
+      body.getByRole('dialog', { name: '근무 시간 선택' })
+    ).toBeVisible()
+  },
+}
