@@ -10,6 +10,7 @@ import {
   type TimePeriod,
 } from '@/shared/lib/formatKoreanWorkTime'
 import type { WorkTimeEditorState } from '@/shared/types/workTime'
+import { useMobileLayoutMaxWidth } from '@/shared/ui/mobileLayoutWidth'
 
 const PERIOD_ITEMS = ['오전', '오후'] as const
 const HOUR_ITEMS = [
@@ -59,6 +60,7 @@ function OpenWorkTimePickerDrawer({
   workTime: WorkTimeEditorState
   onOpenChange: (open: boolean) => void
 }) {
+  const maxWidth = useMobileLayoutMaxWidth()
   const hour = target === 'start' ? workTime.startHour : workTime.endHour
   const minute = target === 'start' ? workTime.startMinute : workTime.endMinute
   const setTime =
@@ -111,10 +113,15 @@ function OpenWorkTimePickerDrawer({
   return (
     <Drawer.Root open onOpenChange={onOpenChange} handleOnly>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <Drawer.Overlay
+          data-testid="work-time-picker-overlay"
+          className="fixed inset-0 z-50 mx-auto w-full bg-black/40"
+          style={{ maxWidth }}
+        />
         <Drawer.Content
           data-vaul-no-drag
-          className="fixed inset-x-0 bottom-0 z-50 flex h-[263px] flex-col rounded-t-[40px] bg-white shadow-[0_0_10px_rgba(0,0,0,0.15)] outline-none"
+          className="fixed inset-x-0 bottom-0 z-50 mx-auto flex h-[263px] w-full flex-col rounded-t-[40px] bg-white shadow-[0_0_10px_rgba(0,0,0,0.15)] outline-none"
+          style={{ maxWidth }}
         >
           <Drawer.Title className="pt-[18px] text-center typography-body01-semibold text-text-100">
             근무 시간 선택

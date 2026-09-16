@@ -4,6 +4,7 @@ import { expect, userEvent, within } from 'storybook/test'
 import { usePostingForm } from '../../src/features/manager/posting/hooks/usePostingForm'
 import type { Posting } from '../../src/features/manager/posting/types/posting'
 import { ScheduleEditor } from '../../src/features/manager/posting/ui/ScheduleEditor'
+import { DEFAULT_MOBILE_LAYOUT_MAX_WIDTH } from '../../src/shared/ui/mobileLayoutWidth'
 
 const posting: Posting = {
   id: 1,
@@ -132,9 +133,21 @@ export const AccessibleTimePicker: Story = {
     await userEvent.click(
       canvas.getByRole('button', { name: '시작 시간 선택' })
     )
-    await expect(
-      body.getByRole('dialog', { name: '근무 시간 선택' })
-    ).toBeVisible()
+    const dialog = body.getByRole('dialog', { name: '근무 시간 선택' })
+    const overlay = body.getByTestId('work-time-picker-overlay')
+    await expect(dialog).toBeVisible()
+
+    const expectedWidth = Math.min(
+      window.innerWidth,
+      Number.parseInt(DEFAULT_MOBILE_LAYOUT_MAX_WIDTH, 10)
+    )
+    for (const element of [dialog, overlay]) {
+      const bounds = element.getBoundingClientRect()
+      await expect(bounds.width).toBe(expectedWidth)
+      await expect(bounds.left).toBeCloseTo(
+        (window.innerWidth - expectedWidth) / 2
+      )
+    }
 
     await userEvent.keyboard('{Escape}')
     await userEvent.click(
