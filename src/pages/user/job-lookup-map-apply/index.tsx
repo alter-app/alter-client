@@ -286,9 +286,18 @@ export function JobLookupMapApplyPage() {
             ) : null}
             <button
               type="button"
-              disabled={isSubmitting || eligibilityStatus !== 'eligible'}
+              disabled={
+                isSubmitting ||
+                eligibilityStatus !== 'eligible' ||
+                applyError?.blocked
+              }
               onClick={() => {
-                if (eligibilityStatus !== 'eligible' || isSubmitting) return
+                if (
+                  eligibilityStatus !== 'eligible' ||
+                  isSubmitting ||
+                  applyError?.blocked
+                )
+                  return
                 const scheduleId = selectedScheduleId ?? data.schedules[0]?.id
                 if (!scheduleId) return
                 submitApply({
@@ -303,9 +312,9 @@ export function JobLookupMapApplyPage() {
             >
               {isSubmitting
                 ? '제출 중…'
-                : eligibilityStatus === 'employed'
+                : eligibilityStatus === 'employed' || applyError?.blocked
                   ? '이미 근무 중인 업장'
-                  : applyError?.retryable
+                  : applyError?.retryable && eligibilityStatus === 'eligible'
                     ? '다시 시도'
                     : '제출하기'}
             </button>

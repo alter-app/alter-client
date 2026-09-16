@@ -6,11 +6,20 @@ import type { ErrorResponse } from '@/shared/types/common'
 export interface ApplyPostingError {
   message: string
   retryable: boolean
+  blocked?: boolean
 }
 
 export function resolveApplyPostingError(error: unknown): ApplyPostingError {
   if (axios.isAxiosError(error)) {
     const response = error.response?.data as ErrorResponse | undefined
+    if (response?.code === 'B018') {
+      return {
+        message: '이미 근무 중인 업장에는 지원할 수 없어요.',
+        retryable: false,
+        blocked: true,
+      }
+    }
+
     const retryable =
       error.response?.status === 429 || response?.code === 'E001'
 
