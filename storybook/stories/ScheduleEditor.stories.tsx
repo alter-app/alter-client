@@ -145,3 +145,57 @@ export const AccessibleTimePicker: Story = {
     ).toBeVisible()
   },
 }
+
+export const EmptyTimeRemainsUnselected: Story = {
+  args: {
+    initialPosting: {
+      ...posting,
+      schedules: [{ ...posting.schedules[0], startTime: '', endTime: '' }],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(canvasElement.ownerDocument.body)
+    const start = canvas.getByRole('button', { name: '시작 시간 선택' })
+    const end = canvas.getByRole('button', { name: '종료 시간 선택' })
+
+    await userEvent.click(start)
+    await expect(
+      within(body.getByRole('listbox', { name: '시' })).getByText('시')
+    ).toHaveClass('text-text-100')
+    await expect(
+      within(body.getByRole('listbox', { name: '분' })).getByText('분')
+    ).toHaveClass('text-text-100')
+    await userEvent.keyboard('{Escape}')
+    await expect(start).toHaveTextContent('시간 선택')
+
+    await userEvent.click(end)
+    await userEvent.keyboard('{Escape}')
+    await expect(end).toHaveTextContent('시간 선택')
+
+    await userEvent.click(start)
+    body.getByRole('listbox', { name: '시' }).focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(start).toHaveTextContent('시간 선택')
+    await userEvent.keyboard('{Escape}')
+    await userEvent.click(start)
+    await expect(
+      within(body.getByRole('listbox', { name: '시' })).getByText('시')
+    ).toHaveClass('text-text-100')
+    body.getByRole('listbox', { name: '시' }).focus()
+    await userEvent.keyboard('{ArrowDown}')
+    body.getByRole('listbox', { name: '분' }).focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(start).toHaveTextContent('00:00')
+    await userEvent.keyboard('{Escape}')
+    await expect(start).toHaveTextContent('00:00')
+
+    await userEvent.click(end)
+    body.getByRole('listbox', { name: '분' }).focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(end).toHaveTextContent('시간 선택')
+    body.getByRole('listbox', { name: '시' }).focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(end).toHaveTextContent('00:00')
+  },
+}

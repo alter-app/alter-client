@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Drawer } from 'vaul'
 import { WheelPicker } from '@/shared/ui/common/WheelPicker'
 import {
@@ -11,10 +12,19 @@ import {
 import type { WorkTimeEditorState } from '@/shared/types/workTime'
 
 const PERIOD_ITEMS = ['오전', '오후'] as const
-const HOUR_ITEMS = Array.from({ length: 12 }, (_, i) => `${i + 1}시`)
-const MINUTE_ITEMS = WORK_TIME_MINUTE_OPTIONS.map(m => `${m}분`)
+const HOUR_ITEMS = [
+  '시',
+  '12시',
+  ...Array.from({ length: 11 }, (_, i) => `${i + 1}시`),
+]
+const MINUTE_ITEMS = ['분', ...WORK_TIME_MINUTE_OPTIONS.map(m => `${m}분`)]
 
 type TimeTarget = 'start' | 'end'
+type TimeSelection = {
+  period: TimePeriod
+  hour12: number | null
+  minute: string
+}
 
 interface WorkTimePickerDrawerProps {
   open: boolean
@@ -31,33 +41,75 @@ export function WorkTimePickerDrawer({
 }: WorkTimePickerDrawerProps) {
   if (!open || !target) return null
 
+  return (
+    <OpenWorkTimePickerDrawer
+      target={target}
+      workTime={workTime}
+      onOpenChange={onOpenChange}
+    />
+  )
+}
+
+function OpenWorkTimePickerDrawer({
+  target,
+  workTime,
+  onOpenChange,
+}: {
+  target: TimeTarget
+  workTime: WorkTimeEditorState
+  onOpenChange: (open: boolean) => void
+}) {
   const hour = target === 'start' ? workTime.startHour : workTime.endHour
   const minute = target === 'start' ? workTime.startMinute : workTime.endMinute
-  const setHour =
-    target === 'start' ? workTime.setStartHour : workTime.setEndHour
-  const setMinute =
-    target === 'start' ? workTime.setStartMinute : workTime.setEndMinute
+  const setTime =
+    target === 'start' ? workTime.setStartTime : workTime.setEndTime
 
-  const { period, hour12 } = hour24To12Parts(hour)
-  const periodIndex = period === '오후' ? 1 : 0
-  const hourIndex = Math.min(11, Math.max(0, hour12 - 1))
-  const minuteIndex = Math.max(0, minuteToTenMinuteIndex(minute))
+  const [selection, setSelection] = useState<TimeSelection>(() => {
+    const { period, hour12 } = hour24To12Parts(hour)
+    return { period, hour12: hour ? hour12 : null, minute }
+  })
+
+  const select = (next: TimeSelection) => {
+    setSelection(next)
+    if (next.hour12 !== null && next.minute) {
+      setTime(partsToHour24(next.period, next.hour12), next.minute)
+    }
+  }
+
+  const periodIndex = selection.period === '오후' ? 1 : 0
+  const hourIndex =
+    selection.hour12 === null
+      ? 0
+      : selection.hour12 === 12
+        ? 1
+        : selection.hour12 + 1
+  const minuteIndex = selection.minute
+    ? minuteToTenMinuteIndex(selection.minute) + 1
+    : 0
 
   const applyPeriod = (index: number) => {
-    const nextPeriod: TimePeriod = index === 1 ? '오후' : '오전'
-    setHour(partsToHour24(nextPeriod, hour12))
+    select({ ...selection, period: index === 1 ? '오후' : '오전' })
   }
 
   const applyHour = (index: number) => {
-    setHour(partsToHour24(period, index + 1))
+    select({
+      ...selection,
+      hour12: index === 0 ? null : index === 1 ? 12 : index - 1,
+    })
   }
 
   const applyMinute = (index: number) => {
-    setMinute(snapMinuteToTen(WORK_TIME_MINUTE_OPTIONS[index] ?? '00'))
+    select({
+      ...selection,
+      minute:
+        index === 0
+          ? ''
+          : snapMinuteToTen(WORK_TIME_MINUTE_OPTIONS[index - 1] ?? '00'),
+    })
   }
 
   return (
-    <Drawer.Root open={open} onOpenChange={onOpenChange} handleOnly>
+    <Drawer.Root open onOpenChange={onOpenChange} handleOnly>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-50 bg-black/40" />
         <Drawer.Content

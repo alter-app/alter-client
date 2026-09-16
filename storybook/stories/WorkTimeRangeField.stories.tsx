@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { WorkTimeRangeField } from '../../src/pages/manager/worker-schedule/components/WorkTimeRangeField'
 
@@ -19,13 +19,11 @@ export const AccessibleTimePicker: Story = {
       startMinute: '00',
       endHour: '18',
       endMinute: '00',
-      setStartHour: () => {},
-      setStartMinute: () => {},
-      setEndHour: () => {},
-      setEndMinute: () => {},
+      setStartTime: fn(),
+      setEndTime: fn(),
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ args, canvasElement }) => {
     const buttons = within(
       within(canvasElement).getByRole('group', { name: '근무 시간 범위' })
     ).getAllByRole('button')
@@ -35,6 +33,9 @@ export const AccessibleTimePicker: Story = {
     await expect(
       body.getByRole('dialog', { name: '근무 시간 선택' })
     ).toBeVisible()
+    body.getByRole('listbox', { name: '시' }).focus()
+    await userEvent.keyboard('{ArrowUp}')
+    await expect(args.workTime.setStartTime).toHaveBeenCalledWith('08', '00')
 
     await userEvent.keyboard('{Escape}')
     await userEvent.click(buttons[1])
