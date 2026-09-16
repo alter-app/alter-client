@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg?react'
 import { useApplyPosting } from '@/features/job-lookup-map/hooks/useApplyPosting'
 import { usePostingDetail } from '@/features/job-lookup-map/hooks/usePostingDetail'
+import { usePostingWorkspaceEligibility } from '@/features/job-lookup-map/hooks/usePostingWorkspaceEligibility'
+import { PostingWorkspaceEligibilityNotice } from '@/features/job-lookup-map/common/PostingWorkspaceEligibilityNotice'
 import { resolveApplyPostingError } from '@/features/job-lookup-map/lib/applyPostingError'
 import type { Schedule } from '@/features/job-lookup-map/types/posting'
 import {
@@ -114,6 +116,8 @@ export function JobLookupMapApplyPage() {
   const { data, isLoading, isError } = usePostingDetail(
     idOk ? postingId : undefined
   )
+  const { status: eligibilityStatus, retry: retryEligibility } =
+    usePostingWorkspaceEligibility(data?.workspace.id)
   const [introduction, setIntroduction] = useState('')
   const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(
     null
@@ -271,6 +275,10 @@ export function JobLookupMapApplyPage() {
           </section>
 
           <section className="px-4 pb-4 pt-3">
+            <PostingWorkspaceEligibilityNotice
+              status={eligibilityStatus}
+              onRetry={() => void retryEligibility()}
+            />
             {applyError ? (
               <p className="mb-2 text-center typography-body03-regular text-sub">
                 {applyError.message}
@@ -278,8 +286,9 @@ export function JobLookupMapApplyPage() {
             ) : null}
             <button
               type="button"
-              disabled={isSubmitting}
+              disabled={isSubmitting || eligibilityStatus !== 'eligible'}
               onClick={() => {
+                if (eligibilityStatus !== 'eligible' || isSubmitting) return
                 const scheduleId = selectedScheduleId ?? data.schedules[0]?.id
                 if (!scheduleId) return
                 submitApply({
@@ -294,9 +303,11 @@ export function JobLookupMapApplyPage() {
             >
               {isSubmitting
                 ? '제출 중…'
-                : applyError?.retryable
-                  ? '다시 시도'
-                  : '제출하기'}
+                : eligibilityStatus === 'employed'
+                  ? '이미 근무 중인 업장'
+                  : applyError?.retryable
+                    ? '다시 시도'
+                    : '제출하기'}
             </button>
           </section>
         </main>

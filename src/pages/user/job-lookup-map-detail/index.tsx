@@ -4,6 +4,8 @@ import { ROUTES } from '@/shared/constants/routes'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg?react'
 import BookmarkIcon from '@/assets/icons/job-lookup-map/Bookmark.svg?react'
 import { usePostingDetail } from '@/features/job-lookup-map/hooks/usePostingDetail'
+import { usePostingWorkspaceEligibility } from '@/features/job-lookup-map/hooks/usePostingWorkspaceEligibility'
+import { PostingWorkspaceEligibilityNotice } from '@/features/job-lookup-map/common/PostingWorkspaceEligibilityNotice'
 import { useToggleFavoritePosting } from '@/features/job-lookup-map/hooks/useToggleFavoritePosting'
 import {
   formatPostedAgo,
@@ -39,6 +41,8 @@ export function JobLookupMapDetailPage() {
   const { data, isLoading, isError } = usePostingDetail(
     idOk ? postingId : undefined
   )
+  const { status: eligibilityStatus, retry: retryEligibility } =
+    usePostingWorkspaceEligibility(data?.workspace.id)
   const { toggleFavorite, isPending: isFavoritePending } =
     useToggleFavoritePosting()
   const [savedById, setSavedById] = useState<Record<number, boolean>>({})
@@ -250,18 +254,26 @@ export function JobLookupMapDetailPage() {
             </div>
           </section>
           <section className="px-4 pb-4 pt-5">
+            <PostingWorkspaceEligibilityNotice
+              status={eligibilityStatus}
+              onRetry={() => void retryEligibility()}
+            />
             <button
               type="button"
-              onClick={() =>
+              disabled={eligibilityStatus !== 'eligible'}
+              onClick={() => {
+                if (eligibilityStatus !== 'eligible') return
                 navigate(
                   generatePath(ROUTES.USER.JOB_LOOKUP_MAP_APPLY, {
                     postingId: String(data.id),
                   })
                 )
-              }
-              className="h-12 w-full rounded-2xl bg-main typography-body01-semibold text-text-100"
+              }}
+              className="h-12 w-full rounded-2xl bg-main typography-body01-semibold text-text-100 disabled:opacity-50"
             >
-              지원하기
+              {eligibilityStatus === 'employed'
+                ? '이미 근무 중인 업장'
+                : '지원하기'}
             </button>
           </section>
         </main>
