@@ -137,6 +137,11 @@ export function JobLookupMapApplyPage() {
     : null
   const introductionError = applyError?.descriptionError
   const isIntroductionEmpty = !isPostingIntroductionValid(introduction)
+  const isSubmitDisabled =
+    isSubmitting ||
+    isIntroductionEmpty ||
+    eligibilityStatus !== 'eligible' ||
+    Boolean(applyError?.blocked)
 
   const showLoading = idOk && isLoading && !data
   const showError = idOk && isError && !data
@@ -311,20 +316,9 @@ export function JobLookupMapApplyPage() {
             ) : null}
             <button
               type="button"
-              disabled={
-                isSubmitting ||
-                isIntroductionEmpty ||
-                eligibilityStatus !== 'eligible' ||
-                applyError?.blocked
-              }
+              disabled={isSubmitDisabled}
               onClick={() => {
-                if (
-                  eligibilityStatus !== 'eligible' ||
-                  isSubmitting ||
-                  isIntroductionEmpty ||
-                  applyError?.blocked
-                )
-                  return
+                if (isSubmitDisabled) return
                 const scheduleId = selectedScheduleId ?? data.schedules[0]?.id
                 if (!scheduleId) return
                 submitApply({
