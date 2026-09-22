@@ -6,6 +6,7 @@ import { usePostingDetail } from '@/features/job-lookup-map/hooks/usePostingDeta
 import { usePostingWorkspaceEligibility } from '@/features/job-lookup-map/hooks/usePostingWorkspaceEligibility'
 import { PostingWorkspaceEligibilityNotice } from '@/features/job-lookup-map/common/PostingWorkspaceEligibilityNotice'
 import { resolveApplyPostingError } from '@/features/job-lookup-map/lib/applyPostingError'
+import { isPostingIntroductionValid } from '@/features/job-lookup-map/lib/postingApplicationValidation'
 import type { Schedule } from '@/features/job-lookup-map/types/posting'
 import {
   formatPostedAgo,
@@ -133,6 +134,7 @@ export function JobLookupMapApplyPage() {
   const applyError = isSubmitError
     ? resolveApplyPostingError(submitError)
     : null
+  const isIntroductionEmpty = !isPostingIntroductionValid(introduction)
 
   const showLoading = idOk && isLoading && !data
   const showError = idOk && isError && !data
@@ -269,7 +271,7 @@ export function JobLookupMapApplyPage() {
               type="text"
               value={introduction}
               onChange={e => setIntroduction(e.target.value)}
-              placeholder="자신을 장점을 마음껏 작성해 주세요!"
+              placeholder="자신의 장점을 마음껏 작성해 주세요!"
               className="mt-3 h-12 w-full rounded-2xl bg-bg-light px-4 typography-body03-regular text-text-100 placeholder:text-text-50 outline-none"
             />
           </section>
@@ -288,6 +290,7 @@ export function JobLookupMapApplyPage() {
               type="button"
               disabled={
                 isSubmitting ||
+                isIntroductionEmpty ||
                 eligibilityStatus !== 'eligible' ||
                 applyError?.blocked
               }
@@ -295,6 +298,7 @@ export function JobLookupMapApplyPage() {
                 if (
                   eligibilityStatus !== 'eligible' ||
                   isSubmitting ||
+                  isIntroductionEmpty ||
                   applyError?.blocked
                 )
                   return
