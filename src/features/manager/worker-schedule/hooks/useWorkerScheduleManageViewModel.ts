@@ -451,11 +451,10 @@ export function useWorkerScheduleManageViewModel(args: {
       startMinute,
       endHour,
       endMinute,
-      setStartHour: (hour: string) => patchActiveForm({ startHour: hour }),
-      setStartMinute: (minute: string) =>
-        patchActiveForm({ startMinute: minute }),
-      setEndHour: (hour: string) => patchActiveForm({ endHour: hour }),
-      setEndMinute: (minute: string) => patchActiveForm({ endMinute: minute }),
+      setStartTime: (hour: string, minute: string) =>
+        patchActiveForm({ startHour: hour, startMinute: minute }),
+      setEndTime: (hour: string, minute: string) =>
+        patchActiveForm({ endHour: hour, endMinute: minute }),
     },
     handleSave,
     isSaving: saveMutation.isPending,

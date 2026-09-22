@@ -1,8 +1,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
-import {
-  adaptWorkspaceListResponse,
-  getMyWorkspaces,
-} from '@/features/user/home/workspace/api/workspace'
+import { getMyWorkspaces } from '@/entities/workspace'
+import { adaptWorkspaceListResponse } from '@/features/user/home/workspace/api/workspace'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 const PAGE_SIZE = 10
