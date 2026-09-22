@@ -3,14 +3,14 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg?react'
 import BookmarkIcon from '@/assets/icons/job-lookup-map/Bookmark.svg?react'
-import { usePostingDetail } from '@/features/job-lookup-map/hooks/usePostingDetail'
-import { usePostingWorkspaceEligibility } from '@/features/job-lookup-map/hooks/usePostingWorkspaceEligibility'
-import { PostingWorkspaceEligibilityNotice } from '@/features/job-lookup-map/common/PostingWorkspaceEligibilityNotice'
-import { useToggleFavoritePosting } from '@/features/job-lookup-map/hooks/useToggleFavoritePosting'
 import {
   formatPostedAgo,
   formatWorkDaysForDisplay,
-} from '@/features/job-lookup-map/lib/postingToAlbaboxProps'
+  PostingWorkspaceEligibilityNotice,
+  usePostingDetail,
+  usePostingWorkspaceEligibility,
+  useToggleFavoritePosting,
+} from '@/features/job-lookup-map'
 
 const WEEK_DAYS = ['월', '화', '수', '목', '금', '토', '일'] as const
 

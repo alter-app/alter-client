@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg?react'
-import { useApplyPosting } from '@/features/job-lookup-map/hooks/useApplyPosting'
-import { usePostingDetail } from '@/features/job-lookup-map/hooks/usePostingDetail'
-import { usePostingWorkspaceEligibility } from '@/features/job-lookup-map/hooks/usePostingWorkspaceEligibility'
-import { PostingWorkspaceEligibilityNotice } from '@/features/job-lookup-map/common/PostingWorkspaceEligibilityNotice'
-import { resolveApplyPostingError } from '@/features/job-lookup-map/lib/applyPostingError'
-import { isPostingIntroductionValid } from '@/features/job-lookup-map/lib/postingApplicationValidation'
-import type { Schedule } from '@/features/job-lookup-map/types/posting'
 import {
   formatPostedAgo,
   formatWorkDaysForDisplay,
-} from '@/features/job-lookup-map/lib/postingToAlbaboxProps'
+  isPostingIntroductionValid,
+  PostingWorkspaceEligibilityNotice,
+  resolveApplyPostingError,
+  type Schedule,
+  useApplyPosting,
+  usePostingDetail,
+  usePostingWorkspaceEligibility,
+} from '@/features/job-lookup-map'
 
 function parseSelectedWorkDaysFromSchedule(schedule: Schedule): string[] {
   if (!schedule.workingDays?.length) return []
