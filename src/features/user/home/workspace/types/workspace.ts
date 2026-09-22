@@ -1,25 +1,10 @@
-import type { CommonApiResponse } from '@/shared/types/common'
-
-// DTO
-export interface WorkspaceItemDto {
-  workspaceId: number
-  businessName: string
-  employedAt: string
-  nextShiftDateTime?: string | null
-}
-
-export interface WorkspacePageDto {
-  cursor: string
-  pageSize: number
-  totalCount: number
-}
-
-export interface WorkspaceListDto {
-  page: WorkspacePageDto
-  data: WorkspaceItemDto[]
-}
-
-export type WorkspaceListApiResponse = CommonApiResponse<WorkspaceListDto>
+export type {
+  WorkspaceItemDto,
+  WorkspaceListApiResponse,
+  WorkspaceListDto,
+  WorkspaceListQueryParams,
+  WorkspacePageDto,
+} from '@/entities/workspace'
 
 // UI Model
 export interface WorkspaceItem {
@@ -27,9 +12,4 @@ export interface WorkspaceItem {
   businessName: string
   employedAt: string
   nextShiftDateTime: string | null
-}
-
-export interface WorkspaceListQueryParams {
-  cursor?: string
-  pageSize: number
 }

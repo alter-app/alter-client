@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { getMyWorkspaces } from '@/features/user/home/workspace/api/workspace'
+import { getMyWorkspaces } from '@/entities/workspace'
 import { isEmployedAtWorkspace } from '../../lib/postingWorkspaceEligibility'
 
-vi.mock('@/features/user/home/workspace/api/workspace', () => ({
+vi.mock('@/entities/workspace', () => ({
   getMyWorkspaces: vi.fn(),
 }))
 

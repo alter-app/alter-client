@@ -1,4 +1,4 @@
-import { getMyWorkspaces } from '@/features/user/home/workspace/api/workspace'
+import { getMyWorkspaces } from '@/entities/workspace'
 
 const PAGE_SIZE = 10
 
