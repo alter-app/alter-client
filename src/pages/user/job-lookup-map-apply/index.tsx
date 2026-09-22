@@ -129,11 +129,13 @@ export function JobLookupMapApplyPage() {
     isPending: isSubmitting,
     isError: isSubmitError,
     error: submitError,
+    reset: resetApply,
   } = useApplyPosting()
 
   const applyError = isSubmitError
     ? resolveApplyPostingError(submitError)
     : null
+  const introductionError = applyError?.descriptionError
   const isIntroductionEmpty = !isPostingIntroductionValid(introduction)
 
   const showLoading = idOk && isLoading && !data
@@ -264,16 +266,37 @@ export function JobLookupMapApplyPage() {
           </section>
 
           <section className="mt-3 bg-white px-4 py-5">
-            <h3 className="typography-body01-semibold text-text-100">
+            <h3
+              id="posting-introduction-label"
+              className="typography-body01-semibold text-text-100"
+            >
               자기소개
             </h3>
             <input
+              id="posting-introduction"
               type="text"
               value={introduction}
-              onChange={e => setIntroduction(e.target.value)}
+              onChange={e => {
+                setIntroduction(e.target.value)
+                if (introductionError) resetApply()
+              }}
+              aria-labelledby="posting-introduction-label"
+              aria-invalid={Boolean(introductionError)}
+              aria-describedby={
+                introductionError ? 'posting-introduction-error' : undefined
+              }
               placeholder="자신의 장점을 마음껏 작성해 주세요!"
               className="mt-3 h-12 w-full rounded-2xl bg-bg-light px-4 typography-body03-regular text-text-100 placeholder:text-text-50 outline-none"
             />
+            {introductionError ? (
+              <p
+                id="posting-introduction-error"
+                className="mt-2 typography-body03-regular text-sub"
+                role="alert"
+              >
+                {introductionError}
+              </p>
+            ) : null}
           </section>
 
           <section className="px-4 pb-4 pt-3">
@@ -281,7 +304,7 @@ export function JobLookupMapApplyPage() {
               status={eligibilityStatus}
               onRetry={() => void retryEligibility()}
             />
-            {applyError ? (
+            {applyError?.message ? (
               <p className="mb-2 text-center typography-body03-regular text-sub">
                 {applyError.message}
               </p>

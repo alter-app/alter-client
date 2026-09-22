@@ -1,10 +1,12 @@
 import axios from 'axios'
 
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
+import { parseErrorResponse } from '@/shared/lib/utils/errorUtils'
 import type { ErrorResponse } from '@/shared/types/common'
 
 export interface ApplyPostingError {
-  message: string
+  message: string | null
+  descriptionError?: string
   retryable: boolean
   blocked?: boolean
 }
@@ -17,6 +19,15 @@ export function resolveApplyPostingError(error: unknown): ApplyPostingError {
         message: '이미 근무 중인 업장에는 지원할 수 없어요.',
         retryable: false,
         blocked: true,
+      }
+    }
+
+    const { fieldErrors } = parseErrorResponse(response)
+    if (fieldErrors.description) {
+      return {
+        message: null,
+        descriptionError: fieldErrors.description,
+        retryable: false,
       }
     }
 

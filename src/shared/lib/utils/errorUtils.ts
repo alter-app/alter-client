@@ -16,10 +16,15 @@ export function parseErrorResponse(data: unknown): {
           fieldErrors[item.field] = item.message
         }
       }
-    } else if (
-      typedData.fieldErrors &&
-      typeof typedData.fieldErrors === 'object'
-    ) {
+    } else if (typedData.data && typeof typedData.data === 'object') {
+      for (const [field, message] of Object.entries(typedData.data)) {
+        if (typeof message === 'string') {
+          fieldErrors[field] = message
+        }
+      }
+    }
+
+    if (typedData.fieldErrors && typeof typedData.fieldErrors === 'object') {
       Object.assign(fieldErrors, typedData.fieldErrors)
     }
 
