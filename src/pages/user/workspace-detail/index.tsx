@@ -225,7 +225,7 @@ export function WorkspaceDetailPage() {
             className="w-full mt-12 mb-6 py-[14px] rounded-xl bg-error/10 typography-body01-semibold text-error"
             onClick={() => setIsResignModalOpen(true)}
           >
-            퇴사하기
+            퇴사 처리
           </button>
         </div>
       </div>
@@ -234,7 +234,7 @@ export function WorkspaceDetailPage() {
         isOpen={isResignModalOpen}
         title="퇴사 처리하시겠어요?"
         description="퇴사 처리 후에는 되돌릴 수 없습니다."
-        confirmLabel="퇴사하기"
+        confirmLabel="퇴사 처리"
         cancelLabel="취소"
         isPending={isResigning}
         onConfirm={() =>
