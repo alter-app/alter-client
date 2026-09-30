@@ -4,6 +4,7 @@ import { expect, userEvent, within } from 'storybook/test'
 import { usePostingForm } from '../../src/features/manager/posting/hooks/usePostingForm'
 import type { Posting } from '../../src/features/manager/posting/types/posting'
 import { ScheduleEditor } from '../../src/features/manager/posting/ui/ScheduleEditor'
+import { DEFAULT_MOBILE_LAYOUT_MAX_WIDTH } from '../../src/shared/ui/mobileLayoutWidth'
 
 const posting: Posting = {
   id: 1,
@@ -120,5 +121,94 @@ export const MultipleSchedules: Story = {
       await expect(style.borderStyle).toBe('solid')
       await expect(style.borderColor).toBe('rgb(229, 229, 229)')
     }
+  },
+}
+
+export const AccessibleTimePicker: Story = {
+  args: { initialPosting: posting },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(canvasElement.ownerDocument.body)
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: '시작 시간 선택' })
+    )
+    const dialog = body.getByRole('dialog', { name: '근무 시간 선택' })
+    const overlay = body.getByTestId('work-time-picker-overlay')
+    await expect(dialog).toBeVisible()
+
+    const expectedWidth = Math.min(
+      window.innerWidth,
+      Number.parseInt(DEFAULT_MOBILE_LAYOUT_MAX_WIDTH, 10)
+    )
+    for (const element of [dialog, overlay]) {
+      const bounds = element.getBoundingClientRect()
+      await expect(bounds.width).toBe(expectedWidth)
+      await expect(bounds.left).toBeCloseTo(
+        (window.innerWidth - expectedWidth) / 2
+      )
+    }
+
+    await userEvent.keyboard('{Escape}')
+    await userEvent.click(
+      canvas.getByRole('button', { name: '종료 시간 선택' })
+    )
+    await expect(
+      body.getByRole('dialog', { name: '근무 시간 선택' })
+    ).toBeVisible()
+  },
+}
+
+export const EmptyTimeRemainsUnselected: Story = {
+  args: {
+    initialPosting: {
+      ...posting,
+      schedules: [{ ...posting.schedules[0], startTime: '', endTime: '' }],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(canvasElement.ownerDocument.body)
+    const start = canvas.getByRole('button', { name: '시작 시간 선택' })
+    const end = canvas.getByRole('button', { name: '종료 시간 선택' })
+
+    await userEvent.click(start)
+    await expect(
+      within(body.getByRole('listbox', { name: '시' })).getByText('시')
+    ).toHaveClass('text-text-100')
+    await expect(
+      within(body.getByRole('listbox', { name: '분' })).getByText('분')
+    ).toHaveClass('text-text-100')
+    await userEvent.keyboard('{Escape}')
+    await expect(start).toHaveTextContent('시간 선택')
+
+    await userEvent.click(end)
+    await userEvent.keyboard('{Escape}')
+    await expect(end).toHaveTextContent('시간 선택')
+
+    await userEvent.click(start)
+    body.getByRole('listbox', { name: '시' }).focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(start).toHaveTextContent('시간 선택')
+    await userEvent.keyboard('{Escape}')
+    await userEvent.click(start)
+    await expect(
+      within(body.getByRole('listbox', { name: '시' })).getByText('시')
+    ).toHaveClass('text-text-100')
+    body.getByRole('listbox', { name: '시' }).focus()
+    await userEvent.keyboard('{ArrowDown}')
+    body.getByRole('listbox', { name: '분' }).focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(start).toHaveTextContent('00:00')
+    await userEvent.keyboard('{Escape}')
+    await expect(start).toHaveTextContent('00:00')
+
+    await userEvent.click(end)
+    body.getByRole('listbox', { name: '분' }).focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(end).toHaveTextContent('시간 선택')
+    body.getByRole('listbox', { name: '시' }).focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(end).toHaveTextContent('00:00')
   },
 }

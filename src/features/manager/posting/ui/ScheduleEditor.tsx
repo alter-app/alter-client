@@ -77,18 +77,6 @@ function ScheduleCard({
   const isExisting = schedule.id !== null
   const [pickerTarget, setPickerTarget] = useState<TimeTarget | null>(null)
 
-  // 픽커는 휠 조작 시에만 onChange가 발생하므로, 열기 전에 기본값을 먼저 커밋해야
-  // 보이는 값 그대로 닫아도 기록된다
-  const openPicker = (target: TimeTarget) => {
-    if (target === 'start' && schedule.startTime === '') {
-      form.updateSchedule(schedule.key, { startTime: '00:00' })
-    }
-    if (target === 'end' && schedule.endTime === '') {
-      form.updateSchedule(schedule.key, { endTime: '00:00' })
-    }
-    setPickerTarget(target)
-  }
-
   const start = splitTime(schedule.startTime)
   const end = splitTime(schedule.endTime)
 
@@ -97,21 +85,13 @@ function ScheduleCard({
     startMinute: start.minute,
     endHour: end.hour,
     endMinute: end.minute,
-    setStartHour: hour =>
+    setStartTime: (hour, minute) =>
       form.updateSchedule(schedule.key, {
-        startTime: `${hour}:${start.minute || '00'}`,
+        startTime: hour && minute ? `${hour}:${minute}` : '',
       }),
-    setStartMinute: minute =>
+    setEndTime: (hour, minute) =>
       form.updateSchedule(schedule.key, {
-        startTime: `${start.hour || '00'}:${minute}`,
-      }),
-    setEndHour: hour =>
-      form.updateSchedule(schedule.key, {
-        endTime: `${hour}:${end.minute || '00'}`,
-      }),
-    setEndMinute: minute =>
-      form.updateSchedule(schedule.key, {
-        endTime: `${end.hour || '00'}:${minute}`,
+        endTime: hour && minute ? `${hour}:${minute}` : '',
       }),
   }
 
@@ -178,12 +158,12 @@ function ScheduleCard({
         <TimeField
           label="시작"
           value={schedule.startTime}
-          onOpen={() => openPicker('start')}
+          onOpen={() => setPickerTarget('start')}
         />
         <TimeField
           label="종료"
           value={schedule.endTime}
-          onOpen={() => openPicker('end')}
+          onOpen={() => setPickerTarget('end')}
         />
       </div>
 

@@ -53,6 +53,11 @@ function createInitialValues(posting?: Posting | null): PostingFormValues {
   }
 }
 
+function toMinuteOfDay(time: string): number {
+  const [hour, minute] = time.split(':')
+  return Number(hour) * 60 + Number(minute)
+}
+
 export function validatePostingForm(
   values: PostingFormValues,
   isEditMode: boolean
@@ -75,6 +80,14 @@ export function validatePostingForm(
     errors.schedules = '근무일정을 1개 이상 추가해 주세요'
   } else if (hasIncompleteSchedule) {
     errors.schedules = '근무요일과 시작·종료 시간을 모두 입력해 주세요'
+  } else {
+    const zeroDurationScheduleIndex = values.schedules.findIndex(
+      schedule =>
+        toMinuteOfDay(schedule.startTime) === toMinuteOfDay(schedule.endTime)
+    )
+    if (zeroDurationScheduleIndex !== -1) {
+      errors.schedules = `근무 시작 시간과 종료 시간은 같을 수 없어요`
+    }
   }
 
   const payAmount = Number(values.payAmount.replace(/[^0-9]/g, ''))
