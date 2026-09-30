@@ -5,30 +5,25 @@ import { ROUTES } from '@/shared/constants/routes'
 import { useUserMe } from '@/features/user/me'
 import { ProfileCard } from './components/ProfileCard'
 import { MenuListItem } from './components/MenuListItem'
-import UserIcon from '@/assets/icons/my/user.svg?react'
 import BookmarkIcon from '@/assets/icons/job-lookup-map/Bookmark.svg?react'
 import StoreIcon from '@/assets/icons/my/store.svg?react'
-import HeadphonesIcon from '@/assets/icons/my/headphones.svg?react'
-import FileTextIcon from '@/assets/icons/my/file-text.svg?react'
-import SirenIcon from '@/assets/icons/my/siren.svg?react'
 import BellIcon from '@/assets/icons/my/bell.svg?react'
-import MegaphoneIcon from '@/assets/icons/my/megaphone.svg?react'
-import AlertCircleIcon from '@/assets/icons/my/alert-circle.svg?react'
 
 interface MenuItem {
   key: string
   label: string
+  description: string
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
-  path?: string
+  path: string
   onlyManager?: boolean
   onlyWorker?: boolean
 }
 
 const MENU_ITEMS: MenuItem[] = [
-  { key: 'info', label: '내 정보', icon: UserIcon, path: '/my/info' },
   {
     key: 'scrapped-postings',
     label: '스크랩한 알바',
+    description: '저장해 둔 채용 공고를 확인해요',
     icon: BookmarkIcon,
     path: ROUTES.MY.SCRAPPED_POSTINGS,
     onlyWorker: true,
@@ -36,36 +31,23 @@ const MENU_ITEMS: MenuItem[] = [
   {
     key: 'store-apply',
     label: '업장 등록 신청',
+    description: '신청 현황과 처리 결과를 확인해요',
     icon: StoreIcon,
     path: ROUTES.STORE_REGISTER.REQUESTS,
   },
   {
-    key: 'support',
-    label: '문의하기',
-    icon: HeadphonesIcon,
-    path: '/my/support',
-  },
-  { key: 'faq', label: '자주 묻는 질문', icon: FileTextIcon, path: '/my/faq' },
-  { key: 'reports', label: '신고 내역', icon: SirenIcon, path: '/my/reports' },
-  {
     key: 'notifications',
     label: '알림 설정',
+    description: '받고 싶은 알림을 선택해요',
     icon: BellIcon,
-    path: '/my/notifications',
-  },
-  { key: 'notice', label: '공지사항', icon: MegaphoneIcon, path: '/my/notice' },
-  {
-    key: 'app-info',
-    label: '앱 정보',
-    icon: AlertCircleIcon,
-    path: '/my/app-info',
+    path: ROUTES.NOTIFICATION_SETTINGS,
   },
 ]
 
 function MyPageHeader() {
   return (
-    <header className="flex h-14 w-full items-center justify-center border-b border-line-2 bg-bg-light px-4">
-      <span className="text-text-100 typography-headline03">마이페이지</span>
+    <header className="flex h-14 w-full items-center bg-white/95 px-5 backdrop-blur">
+      <h1 className="text-text-100 typography-headline02">마이페이지</h1>
     </header>
   )
 }
@@ -105,11 +87,11 @@ export function MyPage() {
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-bg-light">
-      <div className="sticky top-0 z-10 bg-bg-light">
+      <div className="sticky top-0 z-10 bg-white">
         <MyPageHeader />
       </div>
 
-      <div className="flex flex-1 flex-col px-4 pt-4">
+      <main className="flex flex-1 flex-col px-4 pb-8 pt-5">
         <ProfileCard
           nickname={nickname}
           realName={realName}
@@ -135,44 +117,53 @@ export function MyPage() {
           </p>
         )}
 
-        <nav
-          aria-label="마이페이지 메뉴"
-          className="mt-3 flex flex-col rounded-2xl"
-        >
-          {visibleMenuItems.map((item, index) => (
-            <MenuListItem
-              key={item.key}
-              icon={item.icon}
-              label={item.label}
-              isLast={index === visibleMenuItems.length - 1}
-              onClick={() => item.path && navigate(item.path)}
-            />
-          ))}
-        </nav>
+        <section className="mt-7">
+          <h2 className="mb-2 px-1 text-text-70 typography-body02-semibold">
+            내 활동 및 설정
+          </h2>
+          <nav
+            aria-label="마이페이지 메뉴"
+            className="overflow-hidden rounded-2xl bg-white shadow-[0_4px_16px_rgba(35,35,35,0.04)]"
+          >
+            {visibleMenuItems.map((item, index) => (
+              <MenuListItem
+                key={item.key}
+                icon={item.icon}
+                label={item.label}
+                description={item.description}
+                isLast={index === visibleMenuItems.length - 1}
+                onClick={() => navigate(item.path)}
+              />
+            ))}
+          </nav>
+        </section>
 
         {!isManager && (
-          <p className="mt-2 px-1 typography-body03-regular text-text-70">
-            승인 완료 후 사장님 계정 전환이 활성화됩니다.
-          </p>
+          <div className="mt-3 rounded-xl bg-main-100 px-4 py-3">
+            <p className="text-sub typography-body03-regular">
+              업장 등록 승인 후 사장님으로 전환할 수 있어요.
+            </p>
+          </div>
         )}
 
-        <div className="mt-6 flex items-center gap-4 pb-6">
+        <div className="mt-6 flex items-center justify-center gap-3 text-text-70 typography-body03-regular">
           <button
             type="button"
             onClick={handleLogout}
-            className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-main text-white typography-body01-regular"
+            className="rounded-md px-2 py-1 underline-offset-4 hover:text-text-100 hover:underline"
           >
             로그아웃
           </button>
+          <span aria-hidden="true" className="h-3 w-px bg-line-2" />
           <button
             type="button"
             onClick={handleWithdraw}
-            className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-white text-text-100 typography-body01-regular"
+            className="rounded-md px-2 py-1 underline-offset-4 hover:text-error hover:underline"
           >
             회원 탈퇴
           </button>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
