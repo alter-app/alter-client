@@ -47,7 +47,7 @@ export const SingleItem: Story = {
     items: [
       {
         icon: <AlertCircleIcon width={20} height={20} />,
-        label: '퇴사하기',
+        label: '퇴사 처리',
         iconColor: '#FF4444',
         onClick: () => {},
       },

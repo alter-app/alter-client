@@ -252,7 +252,7 @@ export function ManagerHomePage() {
                     menuItems={[
                       {
                         icon: <ResignIcon width={20} height={20} />,
-                        label: '퇴사하기',
+                        label: '퇴사 처리',
                         onClick: () => setResignTargetWorkerId(worker.id),
                       },
                     ]}
@@ -322,7 +322,7 @@ export function ManagerHomePage() {
         isOpen={resignTargetWorkerId !== null}
         title="퇴사 처리하시겠어요?"
         description="퇴사 처리 후에는 되돌릴 수 없습니다."
-        confirmLabel="퇴사하기"
+        confirmLabel="퇴사 처리"
         cancelLabel="취소"
         isPending={isResigning}
         onConfirm={() => {
