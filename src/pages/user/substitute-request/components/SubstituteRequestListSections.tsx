@@ -1,5 +1,5 @@
 import { SubstituteRequestCard } from '@/pages/user/substitute-request/components/SubstituteRequestCard'
-import { SubstituteStatusFilterDropdown } from '@/pages/user/substitute-request/components/SubstituteStatusFilterDropdown'
+import { SubstituteStatusFilterDropdown } from '@/shared/ui/substitute/SubstituteStatusFilterDropdown'
 import type { SubstituteDirectionTab } from '@/pages/user/substitute-request/components/SubstituteRequestTabs'
 import type { SubstituteListSection } from '@/features/user/substitute/lib/buildSubstituteListSections'
 import {
