@@ -25,8 +25,6 @@ interface SubstituteRequestModalFlowProps {
   calendarData?: CalendarViewData | null
   /** 캘린더 단계 초기 표시 월(페이지 스케줄 `baseDate`와 동기) */
   initialMonth?: Date
-  /** 요약(3단계) 자기소개 초기값(비워 두면 textarea는 비우고 플레이스홀더로 기본 문구 노출) */
-  summarySelfIntroduction?: string
   /** 대타 생성 성공 시 스케줄 목록 무효화용 */
   workspaceId?: number
 }
@@ -37,13 +35,11 @@ export function SubstituteRequestModalFlow({
   storeName,
   calendarData,
   initialMonth,
-  summarySelfIntroduction,
   workspaceId,
 }: SubstituteRequestModalFlowProps) {
   const flow = useSubstituteRequestFlow({
     calendarData,
     initialMonth,
-    summarySelfIntroduction,
     workspaceId,
     onClose,
   })
@@ -269,23 +265,6 @@ export function SubstituteRequestModalFlow({
                   {flow.summarySelectedTimeLabel}
                 </p>
               </div>
-            </div>
-
-            <div className="px-5 pt-4">
-              <label
-                className="mb-2 block typography-body03-regular text-text-70"
-                htmlFor="substitute-self-intro-input"
-              >
-                자기소개
-              </label>
-              <textarea
-                id="substitute-self-intro-input"
-                rows={4}
-                value={flow.selfIntroduction}
-                onChange={e => flow.setSelfIntroduction(e.target.value)}
-                placeholder="필요하신 시간에 맞춰 성실히 근무하겠습니다. 근처라 호출 시 대응도 빠릅니다. 연락 부탁드립니다!"
-                className="min-h-[70px] w-full resize-none rounded-2xl border border-transparent bg-bg-dark px-[14px] py-4 typography-body03-regular text-text-100 outline-none placeholder:text-text-50 focus:border-main-300"
-              />
             </div>
 
             <div className="px-5 pb-5 pt-6">
