@@ -50,6 +50,7 @@ import { ScrappedPostingsPage } from '@/pages/my/scrapped'
 import { ErrorPageRoute } from '@/pages/error'
 import { MobileLayout } from '@/shared/ui/MobileLayout'
 import { MobileLayoutWithDocbar } from '@/shared/ui/MobileLayoutWithDocbar'
+import { AuthRouteGuard } from '@/shared/ui/common/AuthRouteGuard'
 import { HomeRouteGuard } from '@/shared/ui/common/HomeRouteGuard'
 import { ToastViewport } from '@/shared/ui/common/ToastViewport'
 import { ROUTES } from '@/shared/constants/routes'
@@ -121,29 +122,77 @@ export function App() {
             path={ROUTES.USER.APPLIED_STORES}
             element={<AppliedStoresPage />}
           />
-          <Route path={ROUTES.MY.PROFILE} element={<ProfileEditPage />} />
-          <Route path={ROUTES.NOTIFICATIONS} element={<NotificationPage />} />
+          <Route
+            path={ROUTES.MY.PROFILE}
+            element={
+              <AuthRouteGuard>
+                <ProfileEditPage />
+              </AuthRouteGuard>
+            }
+          />
+          <Route
+            path={ROUTES.NOTIFICATIONS}
+            element={
+              <AuthRouteGuard>
+                <NotificationPage />
+              </AuthRouteGuard>
+            }
+          />
           <Route
             path={ROUTES.NOTIFICATION_SETTINGS}
-            element={<NotificationSettingsPage />}
+            element={
+              <AuthRouteGuard>
+                <NotificationSettingsPage />
+              </AuthRouteGuard>
+            }
           />
           <Route
             path={ROUTES.MY.PROFILE_NICKNAME}
-            element={<NicknameEditPage />}
+            element={
+              <AuthRouteGuard>
+                <NicknameEditPage />
+              </AuthRouteGuard>
+            }
           />
           <Route
             path={ROUTES.MY.PROFILE_PASSWORD}
-            element={<PasswordEditPage />}
+            element={
+              <AuthRouteGuard>
+                <PasswordEditPage />
+              </AuthRouteGuard>
+            }
           />
-          <Route path={ROUTES.MY.PROFILE_EMAIL} element={<EmailEditPage />} />
+          <Route
+            path={ROUTES.MY.PROFILE_EMAIL}
+            element={
+              <AuthRouteGuard>
+                <EmailEditPage />
+              </AuthRouteGuard>
+            }
+          />
           <Route
             path={ROUTES.MY.PROFILE_SOCIAL}
-            element={<SocialAccountPage />}
+            element={
+              <AuthRouteGuard>
+                <SocialAccountPage />
+              </AuthRouteGuard>
+            }
           />
-          <Route path={ROUTES.MY.WITHDRAW} element={<WithdrawPage />} />
+          <Route
+            path={ROUTES.MY.WITHDRAW}
+            element={
+              <AuthRouteGuard>
+                <WithdrawPage />
+              </AuthRouteGuard>
+            }
+          />
           <Route
             path={ROUTES.MY.SCRAPPED_POSTINGS}
-            element={<ScrappedPostingsPage />}
+            element={
+              <HomeRouteGuard expected="USER">
+                <ScrappedPostingsPage />
+              </HomeRouteGuard>
+            }
           />
           <Route
             path={ROUTES.MANAGER.WORKER_SCHEDULE}
@@ -170,15 +219,30 @@ export function App() {
             element={<ManagerWorkerInvitePage />}
           />
           {/* 채팅방은 하단 입력바를 쓰므로 Docbar 없이 표시합니다 */}
-          <Route path={ROUTES.CHAT.ROOM_PATTERN} element={<ChatRoomPage />} />
+          <Route
+            path={ROUTES.CHAT.ROOM_PATTERN}
+            element={
+              <AuthRouteGuard>
+                <ChatRoomPage />
+              </AuthRouteGuard>
+            }
+          />
           {/* 구 사장님 전용 채팅 경로 — 공용 채팅으로 통합 */}
           <Route
             path={ROUTES.MANAGER.SOCIAL}
-            element={<Navigate to={ROUTES.CHAT.ROOMS} replace />}
+            element={
+              <AuthRouteGuard>
+                <Navigate to={ROUTES.CHAT.ROOMS} replace />
+              </AuthRouteGuard>
+            }
           />
           <Route
             path={ROUTES.MANAGER.SOCIAL_CHAT}
-            element={<Navigate to={ROUTES.CHAT.ROOMS} replace />}
+            element={
+              <AuthRouteGuard>
+                <Navigate to={ROUTES.CHAT.ROOMS} replace />
+              </AuthRouteGuard>
+            }
           />
           <Route
             path={ROUTES.MANAGER.WORKSPACE_IMAGES_EDIT_PATTERN}
@@ -230,15 +294,27 @@ export function App() {
         <Route element={<MobileRouteLayoutWithDocbar />}>
           <Route
             path={ROUTES.USER.JOB_LOOKUP_MAP}
-            element={<JobLookupMapPage />}
+            element={
+              <HomeRouteGuard expected="USER">
+                <JobLookupMapPage />
+              </HomeRouteGuard>
+            }
           />
           <Route
             path={ROUTES.USER.JOB_LOOKUP_MAP_DETAIL}
-            element={<JobLookupMapDetailPage />}
+            element={
+              <HomeRouteGuard expected="USER">
+                <JobLookupMapDetailPage />
+              </HomeRouteGuard>
+            }
           />
           <Route
             path={ROUTES.USER.JOB_LOOKUP_MAP_APPLY}
-            element={<JobLookupMapApplyPage />}
+            element={
+              <HomeRouteGuard expected="USER">
+                <JobLookupMapApplyPage />
+              </HomeRouteGuard>
+            }
           />
           <Route
             path={ROUTES.USER.HOME}
@@ -264,7 +340,14 @@ export function App() {
               </HomeRouteGuard>
             }
           />
-          <Route path={ROUTES.CHAT.ROOMS} element={<ChatRoomsPage />} />
+          <Route
+            path={ROUTES.CHAT.ROOMS}
+            element={
+              <AuthRouteGuard>
+                <ChatRoomsPage />
+              </AuthRouteGuard>
+            }
+          />
           <Route
             path={ROUTES.MANAGER.POSTINGS}
             element={
@@ -281,7 +364,14 @@ export function App() {
               </HomeRouteGuard>
             }
           />
-          <Route path={ROUTES.MY.ROOT} element={<MyPage />} />
+          <Route
+            path={ROUTES.MY.ROOT}
+            element={
+              <AuthRouteGuard>
+                <MyPage />
+              </AuthRouteGuard>
+            }
+          />
           <Route
             path={ROUTES.USER.SUBSTITUTE_REQUEST_DETAIL_PATTERN}
             element={
