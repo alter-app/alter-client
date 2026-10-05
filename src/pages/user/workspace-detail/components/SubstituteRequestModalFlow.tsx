@@ -21,7 +21,7 @@ interface SubstituteRequestModalFlowProps {
   onClose: () => void
   /** 모달 상단에 표시할 업장명 */
   storeName: string
-  /** 스케줄 ID(교환 가능 근무자 API) — `workspaceId`가 있으면 플로우 내부에서 교환 가능 스케줄 API로 조회 */
+  /** `workspaceId`가 없을 때 쓰는 레거시 달력 데이터. `workspaceId`가 있으면 플로우 내부에서 교환 가능 스케줄 API로 조회 */
   calendarData?: CalendarViewData | null
   /** 캘린더 단계 초기 표시 월(페이지 스케줄 `baseDate`와 동기) */
   initialMonth?: Date
