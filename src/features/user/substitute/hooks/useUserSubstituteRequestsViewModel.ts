@@ -7,6 +7,8 @@ import {
 } from '@/features/user/substitute/api/userSubstituteRequests'
 import { adaptUserSubstituteListItem } from '@/features/user/substitute/lib/adaptUserSubstituteRequest'
 import {
+  USER_SUBSTITUTE_STATUS_ORDER,
+  USER_SUBSTITUTE_STATUS_TITLE,
   resolveApiStatuses,
   type SubstituteListFilters,
 } from '@/features/user/substitute/lib/substituteListFilters'
@@ -31,20 +33,6 @@ export type SubstituteListSection = {
   items: UserSubstituteListItem[]
 }
 
-const SECTION_ORDER: SubstituteUiStatus[] = [
-  'pending',
-  'accepted',
-  'approved',
-  'cancelled',
-]
-
-const SECTION_TITLE: Record<SubstituteUiStatus, string> = {
-  pending: '요청됨',
-  accepted: '수락됨',
-  approved: '승인됨',
-  cancelled: '취소됨',
-}
-
 function buildSections(
   items: UserSubstituteListItem[],
   statusFilter: SubstituteListFilters['statusFilter']
@@ -53,22 +41,22 @@ function buildSections(
     return [
       {
         key: statusFilter,
-        title: SECTION_TITLE[statusFilter],
+        title: USER_SUBSTITUTE_STATUS_TITLE[statusFilter],
         items,
       },
     ].filter(section => section.items.length > 0)
   }
 
   const grouped = new Map<SubstituteUiStatus, UserSubstituteListItem[]>()
-  for (const status of SECTION_ORDER) {
+  for (const status of USER_SUBSTITUTE_STATUS_ORDER) {
     grouped.set(status, [])
   }
   for (const item of items) {
     grouped.get(item.uiStatus)?.push(item)
   }
-  return SECTION_ORDER.map(status => ({
+  return USER_SUBSTITUTE_STATUS_ORDER.map(status => ({
     key: status,
-    title: SECTION_TITLE[status],
+    title: USER_SUBSTITUTE_STATUS_TITLE[status],
     items: grouped.get(status) ?? [],
   })).filter(section => section.items.length > 0)
 }
