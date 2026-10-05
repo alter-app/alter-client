@@ -8,14 +8,12 @@ import { SubstituteRequestStatusBadge } from '@/pages/user/substitute-request/co
 import { SubstituteStatusFilterDropdown } from '@/pages/user/substitute-request/components/SubstituteStatusFilterDropdown'
 import { useNavbarNotificationProps } from '@/features/notification'
 import {
+  MANAGER_SUBSTITUTE_STATUS_FILTER_OPTIONS,
+  managerStatusFilterLabel,
   useManagerSubstituteRequestViewModel,
+  type ManagerSubstituteListStatusFilter,
   type ManagerSubstituteSection,
 } from '@/features/manager/substitute'
-import {
-  SUBSTITUTE_STATUS_FILTER_OPTIONS,
-  statusFilterLabel,
-  type SubstituteListStatusFilter,
-} from '@/shared/types/substituteListFilters'
 import { ManagerSubstituteActionModal } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import type { SubstituteRequestItem } from '@/shared/types/substituteRequest'
@@ -95,8 +93,8 @@ function SectionList({
 }: {
   section: ManagerSubstituteSection
   showFilter: boolean
-  statusFilter: SubstituteListStatusFilter
-  onStatusFilterChange: (value: SubstituteListStatusFilter) => void
+  statusFilter: ManagerSubstituteListStatusFilter
+  onStatusFilterChange: (value: ManagerSubstituteListStatusFilter) => void
   actionsDisabled: boolean
   onApproveClick: (id: number) => void
   onRejectClick: (id: number) => void
@@ -108,7 +106,7 @@ function SectionList({
         {showFilter ? (
           <SubstituteStatusFilterDropdown
             value={statusFilter}
-            options={SUBSTITUTE_STATUS_FILTER_OPTIONS}
+            options={MANAGER_SUBSTITUTE_STATUS_FILTER_OPTIONS}
             onChange={onStatusFilterChange}
           />
         ) : null}
@@ -140,7 +138,7 @@ function SectionList({
 export function ManagerSubstituteRequestPage() {
   const notificationProps = useNavbarNotificationProps()
   const [statusFilter, setStatusFilter] =
-    useState<SubstituteListStatusFilter>('all')
+    useState<ManagerSubstituteListStatusFilter>('all')
   const {
     isLoading,
     isError,
@@ -173,11 +171,11 @@ export function ManagerSubstituteRequestPage() {
           <div className="flex flex-col">
             <div className="flex items-center justify-between px-4 pb-2 pt-6">
               <h2 className="typography-headline01 text-text-100">
-                {statusFilterLabel(statusFilter)}
+                {managerStatusFilterLabel(statusFilter)}
               </h2>
               <SubstituteStatusFilterDropdown
                 value={statusFilter}
-                options={SUBSTITUTE_STATUS_FILTER_OPTIONS}
+                options={MANAGER_SUBSTITUTE_STATUS_FILTER_OPTIONS}
                 onChange={setStatusFilter}
               />
             </div>
