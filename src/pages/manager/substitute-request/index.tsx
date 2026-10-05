@@ -3,9 +3,9 @@ import { useState } from 'react'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
 import { Avatar } from '@/shared/ui/common/Avatar'
-import { SubstituteRequestResponseActions } from '@/pages/user/substitute-request/components/SubstituteRequestResponseActions'
-import { SubstituteRequestStatusBadge } from '@/pages/user/substitute-request/components/SubstituteRequestStatusBadge'
-import { SubstituteStatusFilterDropdown } from '@/pages/user/substitute-request/components/SubstituteStatusFilterDropdown'
+import { SubstituteRequestResponseActions } from '@/shared/ui/substitute/SubstituteRequestResponseActions'
+import { SubstituteRequestStatusBadge } from '@/shared/ui/substitute/SubstituteRequestStatusBadge'
+import { SubstituteStatusFilterDropdown } from '@/shared/ui/substitute/SubstituteStatusFilterDropdown'
 import { useNavbarNotificationProps } from '@/features/notification'
 import {
   MANAGER_SUBSTITUTE_STATUS_FILTER_OPTIONS,
@@ -77,7 +77,7 @@ function StatusCard({
   return (
     <div className="flex h-[72px] w-full items-center gap-4 rounded-2xl border border-line-1 bg-white px-5">
       <CardBase item={item} />
-      <SubstituteRequestStatusBadge uiStatus={uiStatus} label={label} />
+      <SubstituteRequestStatusBadge tone={uiStatus} label={label} />
     </div>
   )
 }

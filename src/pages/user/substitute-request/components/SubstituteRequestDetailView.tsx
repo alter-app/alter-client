@@ -4,7 +4,7 @@ import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 import type { SubstituteDirectionTab } from '@/pages/user/substitute-request/components/SubstituteRequestTabs'
 import { Avatar } from '@/shared/ui/common/Avatar'
 import { SubstituteRejectReasonModal } from '@/pages/user/substitute-request/components/SubstituteRejectReasonModal'
-import { SubstituteRequestStatusBadge } from '@/pages/user/substitute-request/components/SubstituteRequestStatusBadge'
+import { SubstituteRequestStatusBadge } from '@/shared/ui/substitute/SubstituteRequestStatusBadge'
 import { useUserSubstituteRequestDetailViewModel } from '@/features/user/substitute/hooks/useUserSubstituteRequestDetailViewModel'
 import type { ReceivedSubstituteRequestDto } from '@/features/user/substitute/types'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
@@ -130,7 +130,7 @@ export function SubstituteRequestDetailView({
                       {detail.dateTitle}
                     </h2>
                     <SubstituteRequestStatusBadge
-                      uiStatus={detail.uiStatus}
+                      tone={detail.uiStatus}
                       label={detail.statusLabel}
                     />
                   </div>
