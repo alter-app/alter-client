@@ -2,21 +2,17 @@ import { useEffect, useRef, useState } from 'react'
 
 import DownIcon from '@/assets/icons/home/chevron-down.svg?react'
 
-import {
-  SUBSTITUTE_STATUS_FILTER_OPTIONS,
-  statusFilterLabel,
-  type SubstituteListStatusFilter,
-} from '@/shared/types/substituteListFilters'
-
-interface SubstituteStatusFilterDropdownProps {
-  value: SubstituteListStatusFilter
-  onChange: (value: SubstituteListStatusFilter) => void
+interface SubstituteStatusFilterDropdownProps<T extends string> {
+  value: T
+  options: readonly { key: T; label: string }[]
+  onChange: (value: T) => void
 }
 
-export function SubstituteStatusFilterDropdown({
+export function SubstituteStatusFilterDropdown<T extends string>({
   value,
+  options,
   onChange,
-}: SubstituteStatusFilterDropdownProps) {
+}: SubstituteStatusFilterDropdownProps<T>) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -44,7 +40,7 @@ export function SubstituteStatusFilterDropdown({
         aria-expanded={isOpen}
         onClick={() => setIsOpen(prev => !prev)}
       >
-        {statusFilterLabel(value)}
+        {options.find(option => option.key === value)?.label ?? '전체'}
         <DownIcon
           className={`size-4 text-text-50 transition-transform ${
             isOpen ? 'rotate-180' : ''
@@ -55,7 +51,7 @@ export function SubstituteStatusFilterDropdown({
 
       {isOpen ? (
         <ul className="absolute right-0 top-full z-20 mt-1 min-w-[120px] overflow-hidden rounded-xl border border-line-1 bg-white shadow-md">
-          {SUBSTITUTE_STATUS_FILTER_OPTIONS.map(option => (
+          {options.map(option => (
             <li key={option.key}>
               <button
                 type="button"

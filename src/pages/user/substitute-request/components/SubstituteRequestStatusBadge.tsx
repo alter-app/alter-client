@@ -19,6 +19,10 @@ const BADGE_STYLE_MAP: Record<
     containerClassName: 'border border-subBlue/30 bg-subBlue/10',
     textClassName: 'text-subBlue',
   },
+  approved: {
+    containerClassName: 'border border-main bg-main',
+    textClassName: 'text-white',
+  },
   cancelled: {
     containerClassName: 'border border-error/30 bg-white',
     textClassName: 'text-error',

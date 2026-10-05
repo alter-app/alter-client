@@ -31,11 +31,17 @@ export type SubstituteListSection = {
   items: UserSubstituteListItem[]
 }
 
-const SECTION_ORDER: SubstituteUiStatus[] = ['pending', 'accepted', 'cancelled']
+const SECTION_ORDER: SubstituteUiStatus[] = [
+  'pending',
+  'accepted',
+  'approved',
+  'cancelled',
+]
 
 const SECTION_TITLE: Record<SubstituteUiStatus, string> = {
   pending: '요청됨',
   accepted: '수락됨',
+  approved: '승인됨',
   cancelled: '취소됨',
 }
 

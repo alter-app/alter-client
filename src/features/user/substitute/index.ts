@@ -6,5 +6,5 @@ export { adaptExchangeableSchedulesToCalendar } from '@/features/user/substitute
 export {
   resolveApiStatuses,
   type SubstituteListFilters,
+  type UserSubstituteListStatusFilter,
 } from '@/features/user/substitute/lib/substituteListFilters'
-export type { SubstituteListStatusFilter } from '@/shared/types/substituteListFilters'
