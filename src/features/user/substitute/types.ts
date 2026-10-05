@@ -16,7 +16,13 @@ export type SubstituteRequestStatus =
 
 export type SubstituteRequestType = 'ALL' | 'SPECIFIC'
 
-export type SubstituteUiStatus = 'pending' | 'accepted' | 'cancelled'
+export type SubstituteUiStatus =
+  | 'pending'
+  | 'accepted'
+  | 'approved'
+  | 'cancelled'
+
+export type UserSubstituteListStatusFilter = 'all' | SubstituteUiStatus
 
 /** API enum 래퍼 — `{ value, description }` */
 export interface SubstituteEnumValueDto<T extends string = string> {
@@ -210,6 +216,7 @@ export interface UserSubstituteDetailViewModel {
   endTimeLabel: string
   reason: string
   uiStatus: SubstituteUiStatus
+  statusLabel: string
   canRespond: boolean
   canCancel: boolean
   rawStatus: string

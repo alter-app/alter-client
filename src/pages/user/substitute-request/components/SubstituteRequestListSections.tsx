@@ -3,16 +3,17 @@ import { SubstituteStatusFilterDropdown } from '@/pages/user/substitute-request/
 import type { SubstituteDirectionTab } from '@/pages/user/substitute-request/components/SubstituteRequestTabs'
 import type { SubstituteListSection } from '@/features/user/substitute/hooks/useUserSubstituteRequestsViewModel'
 import {
-  statusFilterLabel,
-  type SubstituteListStatusFilter,
-} from '@/shared/types/substituteListFilters'
+  USER_SUBSTITUTE_STATUS_FILTER_OPTIONS,
+  userStatusFilterLabel,
+  type UserSubstituteListStatusFilter,
+} from '@/features/user/substitute/lib/substituteListFilters'
 import type { UserSubstituteListItem } from '@/features/user/substitute/types'
 
 interface SubstituteRequestListSectionsProps {
   sections: SubstituteListSection[]
   directionTab: SubstituteDirectionTab
-  statusFilter?: SubstituteListStatusFilter
-  onStatusFilterChange?: (value: SubstituteListStatusFilter) => void
+  statusFilter?: UserSubstituteListStatusFilter
+  onStatusFilterChange?: (value: UserSubstituteListStatusFilter) => void
   onItemClick: (item: UserSubstituteListItem) => void
   onAccept?: (item: UserSubstituteListItem) => void
   onReject?: (item: UserSubstituteListItem) => void
@@ -37,10 +38,11 @@ export function SubstituteRequestListSections({
         {showStatusFilter ? (
           <div className="flex items-center justify-between px-4 pb-2 pt-6">
             <h2 className="typography-headline01 text-text-100">
-              {statusFilterLabel(statusFilter)}
+              {userStatusFilterLabel(statusFilter)}
             </h2>
             <SubstituteStatusFilterDropdown
               value={statusFilter}
+              options={USER_SUBSTITUTE_STATUS_FILTER_OPTIONS}
               onChange={onStatusFilterChange}
             />
           </div>
@@ -65,6 +67,7 @@ export function SubstituteRequestListSections({
             {showStatusFilter && index === 0 ? (
               <SubstituteStatusFilterDropdown
                 value={statusFilter}
+                options={USER_SUBSTITUTE_STATUS_FILTER_OPTIONS}
                 onChange={onStatusFilterChange}
               />
             ) : null}

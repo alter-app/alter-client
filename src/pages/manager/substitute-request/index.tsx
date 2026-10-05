@@ -12,6 +12,7 @@ import {
   type ManagerSubstituteSection,
 } from '@/features/manager/substitute'
 import {
+  SUBSTITUTE_STATUS_FILTER_OPTIONS,
   statusFilterLabel,
   type SubstituteListStatusFilter,
 } from '@/shared/types/substituteListFilters'
@@ -107,6 +108,7 @@ function SectionList({
         {showFilter ? (
           <SubstituteStatusFilterDropdown
             value={statusFilter}
+            options={SUBSTITUTE_STATUS_FILTER_OPTIONS}
             onChange={onStatusFilterChange}
           />
         ) : null}
@@ -175,6 +177,7 @@ export function ManagerSubstituteRequestPage() {
               </h2>
               <SubstituteStatusFilterDropdown
                 value={statusFilter}
+                options={SUBSTITUTE_STATUS_FILTER_OPTIONS}
                 onChange={setStatusFilter}
               />
             </div>

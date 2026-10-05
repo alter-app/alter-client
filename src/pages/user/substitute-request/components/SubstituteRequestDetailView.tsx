@@ -4,6 +4,7 @@ import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 import type { SubstituteDirectionTab } from '@/pages/user/substitute-request/components/SubstituteRequestTabs'
 import { Avatar } from '@/shared/ui/common/Avatar'
 import { SubstituteRejectReasonModal } from '@/pages/user/substitute-request/components/SubstituteRejectReasonModal'
+import { SubstituteRequestStatusBadge } from '@/pages/user/substitute-request/components/SubstituteRequestStatusBadge'
 import { useUserSubstituteRequestDetailViewModel } from '@/features/user/substitute/hooks/useUserSubstituteRequestDetailViewModel'
 import type { ReceivedSubstituteRequestDto } from '@/features/user/substitute/types'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
@@ -122,9 +123,15 @@ export function SubstituteRequestDetailView({
               </div>
 
               <section className="mt-6 px-2">
-                <h2 className="typography-headline03 text-text-100">
-                  {detail.dateTitle}
-                </h2>
+                <div className="flex items-center justify-between gap-2">
+                  <h2 className="min-w-0 typography-headline03 text-text-100">
+                    {detail.dateTitle}
+                  </h2>
+                  <SubstituteRequestStatusBadge
+                    uiStatus={detail.uiStatus}
+                    label={detail.statusLabel}
+                  />
+                </div>
                 <p className="mt-1 typography-body02-regular text-text-100">
                   {detail.totalHoursLabel}
                 </p>
