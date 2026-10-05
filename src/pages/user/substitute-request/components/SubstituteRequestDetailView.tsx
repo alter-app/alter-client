@@ -73,6 +73,7 @@ export function SubstituteRequestDetailView({
   })
 
   const showFooter = detail?.canRespond || detail?.canCancel
+  // fixed 오버레이는 레이아웃 컨테이너 폭을 상속하지 않아 같은 최대 폭을 직접 적용한다.
   const maxWidth = useMobileLayoutMaxWidth()
 
   return (
