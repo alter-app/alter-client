@@ -36,7 +36,10 @@ export const queryKeys = {
     workers: (
       workspaceId: number,
       params?: { status?: string; name?: string; pageSize?: number }
-    ) => ['managerWorkspace', 'workers', workspaceId, params] as const,
+    ) =>
+      params === undefined
+        ? (['managerWorkspace', 'workers', workspaceId] as const)
+        : (['managerWorkspace', 'workers', workspaceId, params] as const),
     workerFixedSchedule: (workspaceId: number, workerId: number) =>
       [
         'managerWorkspace',
