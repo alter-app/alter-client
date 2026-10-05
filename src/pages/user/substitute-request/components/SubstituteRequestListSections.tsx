@@ -1,7 +1,7 @@
 import { SubstituteRequestCard } from '@/pages/user/substitute-request/components/SubstituteRequestCard'
 import { SubstituteStatusFilterDropdown } from '@/pages/user/substitute-request/components/SubstituteStatusFilterDropdown'
 import type { SubstituteDirectionTab } from '@/pages/user/substitute-request/components/SubstituteRequestTabs'
-import type { SubstituteListSection } from '@/features/user/substitute/hooks/useUserSubstituteRequestsViewModel'
+import type { SubstituteListSection } from '@/features/user/substitute/lib/buildSubstituteListSections'
 import {
   USER_SUBSTITUTE_STATUS_FILTER_OPTIONS,
   userStatusFilterLabel,

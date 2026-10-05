@@ -6,9 +6,8 @@ import {
   fetchSentSubstituteRequests,
 } from '@/features/user/substitute/api/userSubstituteRequests'
 import { adaptUserSubstituteListItem } from '@/features/user/substitute/lib/adaptUserSubstituteRequest'
+import { buildSubstituteListSections } from '@/features/user/substitute/lib/buildSubstituteListSections'
 import {
-  USER_SUBSTITUTE_STATUS_ORDER,
-  USER_SUBSTITUTE_STATUS_TITLE,
   resolveApiStatuses,
   type SubstituteListFilters,
 } from '@/features/user/substitute/lib/substituteListFilters'
@@ -16,8 +15,6 @@ import type {
   ReceivedSubstituteListApiResponse,
   SentSubstituteListApiResponse,
   SubstituteRequestDirection,
-  SubstituteUiStatus,
-  UserSubstituteListItem,
 } from '@/features/user/substitute/types'
 
 type SubstituteListPage =
@@ -26,40 +23,6 @@ type SubstituteListPage =
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 const PAGE_LIMIT = 20
-
-export type SubstituteListSection = {
-  key: SubstituteUiStatus
-  title: string
-  items: UserSubstituteListItem[]
-}
-
-function buildSections(
-  items: UserSubstituteListItem[],
-  statusFilter: SubstituteListFilters['statusFilter']
-): SubstituteListSection[] {
-  if (statusFilter !== 'all') {
-    return [
-      {
-        key: statusFilter,
-        title: USER_SUBSTITUTE_STATUS_TITLE[statusFilter],
-        items,
-      },
-    ].filter(section => section.items.length > 0)
-  }
-
-  const grouped = new Map<SubstituteUiStatus, UserSubstituteListItem[]>()
-  for (const status of USER_SUBSTITUTE_STATUS_ORDER) {
-    grouped.set(status, [])
-  }
-  for (const item of items) {
-    grouped.get(item.uiStatus)?.push(item)
-  }
-  return USER_SUBSTITUTE_STATUS_ORDER.map(status => ({
-    key: status,
-    title: USER_SUBSTITUTE_STATUS_TITLE[status],
-    items: grouped.get(status) ?? [],
-  })).filter(section => section.items.length > 0)
-}
 
 export function useUserSubstituteRequestsViewModel(
   direction: SubstituteRequestDirection,
@@ -106,7 +69,7 @@ export function useUserSubstituteRequestsViewModel(
   )
 
   const sections = useMemo(
-    () => buildSections(items, statusFilter),
+    () => buildSubstituteListSections(items, statusFilter),
     [items, statusFilter]
   )
 
