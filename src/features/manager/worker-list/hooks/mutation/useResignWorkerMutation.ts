@@ -10,7 +10,7 @@ export function useResignWorkerMutation(workspaceId: number) {
     mutationFn: (workerId: ResignWorkerParams['workerId']) =>
       resignWorker({ workspaceId, workerId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({
+      return queryClient.invalidateQueries({
         queryKey: queryKeys.managerWorkspace.workers(workspaceId),
       })
     },
