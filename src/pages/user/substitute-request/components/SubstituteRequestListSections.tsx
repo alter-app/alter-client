@@ -1,12 +1,12 @@
 import { SubstituteRequestCard } from '@/pages/user/substitute-request/components/SubstituteRequestCard'
 import { SubstituteStatusFilterDropdown } from '@/shared/ui/substitute/SubstituteStatusFilterDropdown'
 import type { SubstituteDirectionTab } from '@/pages/user/substitute-request/components/SubstituteRequestTabs'
-import type { SubstituteListSection } from '@/features/user/substitute/lib/buildSubstituteListSections'
 import {
   USER_SUBSTITUTE_STATUS_FILTER_OPTIONS,
   userStatusFilterLabel,
+  type SubstituteListSection,
   type UserSubstituteListStatusFilter,
-} from '@/features/user/substitute/lib/substituteListFilters'
+} from '@/features/user/substitute'
 import type { UserSubstituteListItem } from '@/features/user/substitute/types'
 
 interface SubstituteRequestListSectionsProps {
