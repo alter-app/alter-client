@@ -1,20 +1,59 @@
-import type { SubstituteListStatusFilter } from '@/shared/types/substituteListFilters'
+import type {
+  SubstituteRequestStatus,
+  SubstituteUiStatus,
+  UserSubstituteListStatusFilter,
+} from '@/features/user/substitute/types'
 
-import type { SubstituteRequestStatus } from '@/features/user/substitute/types'
-
-export type { SubstituteListStatusFilter } from '@/shared/types/substituteListFilters'
+export type { UserSubstituteListStatusFilter } from '@/features/user/substitute/types'
 
 export type SubstituteListFilters = {
-  statusFilter: SubstituteListStatusFilter
+  statusFilter: UserSubstituteListStatusFilter
+}
+
+export const USER_SUBSTITUTE_STATUS_ORDER: SubstituteUiStatus[] = [
+  'pending',
+  'accepted',
+  'approved',
+  'cancelled',
+]
+
+export const USER_SUBSTITUTE_STATUS_TITLE: Record<SubstituteUiStatus, string> =
+  {
+    pending: '요청됨',
+    accepted: '수락됨',
+    approved: '승인됨',
+    cancelled: '취소됨',
+  }
+
+const ALL_FILTER_LABEL = '전체'
+
+export const USER_SUBSTITUTE_STATUS_FILTER_OPTIONS: {
+  key: UserSubstituteListStatusFilter
+  label: string
+}[] = [
+  { key: 'all', label: ALL_FILTER_LABEL },
+  ...USER_SUBSTITUTE_STATUS_ORDER.map(status => ({
+    key: status,
+    label: USER_SUBSTITUTE_STATUS_TITLE[status],
+  })),
+]
+
+export function userStatusFilterLabel(
+  filter: UserSubstituteListStatusFilter
+): string {
+  return filter === 'all'
+    ? ALL_FILTER_LABEL
+    : USER_SUBSTITUTE_STATUS_TITLE[filter]
 }
 
 export const FILTER_TO_API_STATUS: Record<
-  SubstituteListStatusFilter,
+  UserSubstituteListStatusFilter,
   SubstituteRequestStatus[]
 > = {
   all: [],
   pending: ['PENDING'],
-  accepted: ['ACCEPTED', 'APPROVED'],
+  accepted: ['ACCEPTED'],
+  approved: ['APPROVED'],
   cancelled: [
     'CANCELLED',
     'REJECTED_BY_TARGET',
@@ -24,7 +63,7 @@ export const FILTER_TO_API_STATUS: Record<
 }
 
 export function resolveApiStatuses(
-  filter: SubstituteListStatusFilter
+  filter: UserSubstituteListStatusFilter
 ): SubstituteRequestStatus[] {
   return FILTER_TO_API_STATUS[filter]
 }

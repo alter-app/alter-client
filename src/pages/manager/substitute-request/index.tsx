@@ -3,18 +3,17 @@ import { useState } from 'react'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
 import { Avatar } from '@/shared/ui/common/Avatar'
-import { SubstituteRequestResponseActions } from '@/pages/user/substitute-request/components/SubstituteRequestResponseActions'
-import { SubstituteRequestStatusBadge } from '@/pages/user/substitute-request/components/SubstituteRequestStatusBadge'
-import { SubstituteStatusFilterDropdown } from '@/pages/user/substitute-request/components/SubstituteStatusFilterDropdown'
+import { SubstituteRequestResponseActions } from '@/shared/ui/substitute/SubstituteRequestResponseActions'
+import { SubstituteRequestStatusBadge } from '@/shared/ui/substitute/SubstituteRequestStatusBadge'
+import { SubstituteStatusFilterDropdown } from '@/shared/ui/substitute/SubstituteStatusFilterDropdown'
 import { useNavbarNotificationProps } from '@/features/notification'
 import {
+  MANAGER_SUBSTITUTE_STATUS_FILTER_OPTIONS,
+  managerStatusFilterLabel,
   useManagerSubstituteRequestViewModel,
+  type ManagerSubstituteListStatusFilter,
   type ManagerSubstituteSection,
 } from '@/features/manager/substitute'
-import {
-  statusFilterLabel,
-  type SubstituteListStatusFilter,
-} from '@/shared/types/substituteListFilters'
 import { ManagerSubstituteActionModal } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
 import { WorkerRoleBadge } from '@/shared/ui/home/WorkerRoleBadge'
 import type { SubstituteRequestItem } from '@/shared/types/substituteRequest'
@@ -78,7 +77,7 @@ function StatusCard({
   return (
     <div className="flex h-[72px] w-full items-center gap-4 rounded-2xl border border-line-1 bg-white px-5">
       <CardBase item={item} />
-      <SubstituteRequestStatusBadge uiStatus={uiStatus} label={label} />
+      <SubstituteRequestStatusBadge tone={uiStatus} label={label} />
     </div>
   )
 }
@@ -94,8 +93,8 @@ function SectionList({
 }: {
   section: ManagerSubstituteSection
   showFilter: boolean
-  statusFilter: SubstituteListStatusFilter
-  onStatusFilterChange: (value: SubstituteListStatusFilter) => void
+  statusFilter: ManagerSubstituteListStatusFilter
+  onStatusFilterChange: (value: ManagerSubstituteListStatusFilter) => void
   actionsDisabled: boolean
   onApproveClick: (id: number) => void
   onRejectClick: (id: number) => void
@@ -107,6 +106,7 @@ function SectionList({
         {showFilter ? (
           <SubstituteStatusFilterDropdown
             value={statusFilter}
+            options={MANAGER_SUBSTITUTE_STATUS_FILTER_OPTIONS}
             onChange={onStatusFilterChange}
           />
         ) : null}
@@ -138,7 +138,7 @@ function SectionList({
 export function ManagerSubstituteRequestPage() {
   const notificationProps = useNavbarNotificationProps()
   const [statusFilter, setStatusFilter] =
-    useState<SubstituteListStatusFilter>('all')
+    useState<ManagerSubstituteListStatusFilter>('all')
   const {
     isLoading,
     isError,
@@ -171,10 +171,11 @@ export function ManagerSubstituteRequestPage() {
           <div className="flex flex-col">
             <div className="flex items-center justify-between px-4 pb-2 pt-6">
               <h2 className="typography-headline01 text-text-100">
-                {statusFilterLabel(statusFilter)}
+                {managerStatusFilterLabel(statusFilter)}
               </h2>
               <SubstituteStatusFilterDropdown
                 value={statusFilter}
+                options={MANAGER_SUBSTITUTE_STATUS_FILTER_OPTIONS}
                 onChange={setStatusFilter}
               />
             </div>

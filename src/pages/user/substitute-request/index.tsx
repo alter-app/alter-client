@@ -16,7 +16,7 @@ import type {
   UserSubstituteListItem,
 } from '@/features/user/substitute/types'
 import { useUserSubstituteRequestsViewModel } from '@/features/user/substitute/hooks/useUserSubstituteRequestsViewModel'
-import type { SubstituteListStatusFilter } from '@/shared/types/substituteListFilters'
+import type { UserSubstituteListStatusFilter } from '@/features/user/substitute'
 import { useWorkspacesViewModel } from '@/features/user'
 import { SubstituteCreateFab } from '@/pages/user/substitute-request/components/SubstituteCreateFab'
 import { SubstituteRejectReasonModal } from '@/pages/user/substitute-request/components/SubstituteRejectReasonModal'
@@ -92,9 +92,9 @@ export function SubstituteRequestPage() {
       ) ?? 'sent'
   )
   const [sentStatusFilter, setSentStatusFilter] =
-    useState<SubstituteListStatusFilter>('all')
+    useState<UserSubstituteListStatusFilter>('all')
   const [receivedStatusFilter, setReceivedStatusFilter] =
-    useState<SubstituteListStatusFilter>('all')
+    useState<UserSubstituteListStatusFilter>('all')
   const [storePickerOpen, setStorePickerOpen] = useState(false)
   const [createFlow, setCreateFlow] = useState<CreateFlowState | null>(null)
   const [rejectRequestId, setRejectRequestId] = useState<number | null>(null)
