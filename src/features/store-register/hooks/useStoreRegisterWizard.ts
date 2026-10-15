@@ -1,3 +1,4 @@
+import { geocodeWorkspaceAddress } from '@/features/store-register/lib/geocodeWorkspaceAddress'
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -84,6 +85,18 @@ export function useStoreRegisterWizard() {
     setSubmitError(null)
     setIsSubmitting(true)
     try {
+      let coordinates: { latitude: number; longitude: number }
+      try {
+        coordinates = await geocodeWorkspaceAddress(
+          [province, district, town, address].map(part => part.trim()).join(' ')
+        )
+      } catch (error) {
+        setSubmitError(
+          error instanceof Error ? error.message : '업장 주소를 확인해 주세요.'
+        )
+        return
+      }
+
       let workspaceCertFileId: string
       let workspaceOwnIdentityFileId: string
       let workspaceWarrantFileId: string | null = null
@@ -131,8 +144,7 @@ export function useStoreRegisterWizard() {
           representativeImages: representativeImages.images.map(
             (image, index) => ({ fileId: image.fileId, sortOrder: index })
           ),
-          latitude: 37.5665,
-          longitude: 126.978,
+          ...coordinates,
         })
       } catch (e) {
         setSubmitError(
