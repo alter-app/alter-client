@@ -1,14 +1,18 @@
 import { cn } from '@/shared/lib/utils'
 
-import type { SubstituteUiStatus } from '@/features/user/substitute/types'
+export type SubstituteStatusBadgeTone =
+  | 'pending'
+  | 'accepted'
+  | 'approved'
+  | 'cancelled'
 
 interface SubstituteRequestStatusBadgeProps {
-  uiStatus: SubstituteUiStatus
+  tone: SubstituteStatusBadgeTone
   label: string
 }
 
 const BADGE_STYLE_MAP: Record<
-  SubstituteUiStatus,
+  SubstituteStatusBadgeTone,
   { containerClassName: string; textClassName: string }
 > = {
   pending: {
@@ -19,6 +23,10 @@ const BADGE_STYLE_MAP: Record<
     containerClassName: 'border border-subBlue/30 bg-subBlue/10',
     textClassName: 'text-subBlue',
   },
+  approved: {
+    containerClassName: 'border border-main bg-main',
+    textClassName: 'text-white',
+  },
   cancelled: {
     containerClassName: 'border border-error/30 bg-white',
     textClassName: 'text-error',
@@ -26,10 +34,10 @@ const BADGE_STYLE_MAP: Record<
 }
 
 export function SubstituteRequestStatusBadge({
-  uiStatus,
+  tone,
   label,
 }: SubstituteRequestStatusBadgeProps) {
-  const style = BADGE_STYLE_MAP[uiStatus]
+  const style = BADGE_STYLE_MAP[tone]
 
   return (
     <span

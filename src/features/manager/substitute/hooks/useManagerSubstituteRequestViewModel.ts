@@ -8,7 +8,7 @@ import {
   rejectSubstituteRequest,
 } from '@/features/manager/api/substitute'
 import type { ManagerSubstituteListFilters } from '@/features/manager/substitute'
-import type { SubstituteListStatusFilter } from '@/shared/types/substituteListFilters'
+import type { ManagerSubstituteListStatusFilter } from '@/features/manager/substitute/lib/managerSubstituteListFilters'
 import type { SubstituteRequestItem } from '@/shared/types/substituteRequest'
 import type { SubstituteActionType } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
 import { SubstituteApiStatus } from '@/shared/types/substituteStatus'
@@ -76,7 +76,7 @@ function groupByStatus(requests: SubstituteRequestItem[]) {
 
 function buildSections(
   groups: ReturnType<typeof groupByStatus>,
-  statusFilter: SubstituteListStatusFilter
+  statusFilter: ManagerSubstituteListStatusFilter
 ): ManagerSubstituteSection[] {
   const allSections = SECTION_ORDER.map(key => ({
     key,
