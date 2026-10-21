@@ -1,3 +1,7 @@
+import {
+  isNicknameFormatValid,
+  NICKNAME_GUIDE_MESSAGE,
+} from '@/shared/lib/utils/nicknameValidation'
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getFreshFirebaseIdToken } from '@/shared/lib/firebase'
@@ -57,6 +61,7 @@ export function useSignupForm(options?: UseSignupFormOptions) {
 
   // ─── 2단계 ────────────────────────────────────────────────────────────
   const [nickname, setNickname] = useState('')
+  const nicknameRevision = useRef(0)
   const [nicknameChecked, setNicknameChecked] = useState(false)
   const [nicknameCheckMessage, setNicknameCheckMessage] = useState('')
   const [isCheckingNickname, setIsCheckingNickname] = useState(false)
@@ -97,23 +102,31 @@ export function useSignupForm(options?: UseSignupFormOptions) {
   }
 
   const handleNicknameChange = (value: string) => {
-    if (/^[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9]*$/.test(value)) {
-      setNickname(value)
-      setNicknameChecked(false)
-      setNicknameCheckMessage('')
-    }
+    nicknameRevision.current += 1
+    setNickname(value)
+    setNicknameChecked(false)
+    setNicknameCheckMessage(
+      value && !isNicknameFormatValid(value) ? NICKNAME_GUIDE_MESSAGE : ''
+    )
   }
 
   const handleNicknameCheck = async () => {
-    if (!nickname.trim()) return
+    if (!isNicknameFormatValid(nickname)) {
+      setNicknameChecked(false)
+      setNicknameCheckMessage(NICKNAME_GUIDE_MESSAGE)
+      return
+    }
+    const revision = nicknameRevision.current
     try {
       setIsCheckingNickname(true)
       const ok = await checkNicknameDuplicate(nickname)
+      if (revision !== nicknameRevision.current) return
       setNicknameChecked(ok)
       setNicknameCheckMessage(
         ok ? '사용 가능한 닉네임입니다!' : '이미 사용 중인 닉네임입니다.'
       )
     } catch (err) {
+      if (revision !== nicknameRevision.current) return
       const e = err as { message?: string }
       setNicknameChecked(false)
       setNicknameCheckMessage(
@@ -177,6 +190,14 @@ export function useSignupForm(options?: UseSignupFormOptions) {
   }: SubmitParams) => {
     try {
       setSignupError('')
+      if (!isNicknameFormatValid(nickname) || !nicknameChecked) {
+        setNicknameCheckMessage(
+          !isNicknameFormatValid(nickname)
+            ? NICKNAME_GUIDE_MESSAGE
+            : '닉네임 중복 확인을 해주세요.'
+        )
+        return
+      }
       setBirthError('')
       setIsSubmitting(true)
 
@@ -253,7 +274,7 @@ export function useSignupForm(options?: UseSignupFormOptions) {
               : {}),
             platformType: socialLoginData.platformType,
             name: name.trim(),
-            nickname: nickname.trim(),
+            nickname,
             gender: getGenderCode(gender),
             birthday,
             ...consentFields,
@@ -270,7 +291,7 @@ export function useSignupForm(options?: UseSignupFormOptions) {
           ...(emailSessionId ? { emailSessionId } : {}),
           password,
           name: name.trim(),
-          nickname: nickname.trim(),
+          nickname,
           gender: getGenderCode(gender),
           birthday,
           contact: normalizePhone(phone),
@@ -305,9 +326,10 @@ export function useSignupForm(options?: UseSignupFormOptions) {
   /** 이메일은 선택 항목: 입력하지 않았거나 인증 완료 시 통과 (소셜 가입 시 이메일·비밀번호 불필요) */
   const isStep2Valid = (emailValue: string, emailVerified: boolean) => {
     if (isSocialSignup) {
-      return nicknameChecked && agreed
+      return isNicknameFormatValid(nickname) && nicknameChecked && agreed
     }
     return (
+      isNicknameFormatValid(nickname) &&
       nicknameChecked &&
       (!emailValue.trim() || emailVerified) &&
       agreed &&

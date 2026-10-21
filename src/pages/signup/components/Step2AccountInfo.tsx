@@ -1,3 +1,8 @@
+import { colors } from '@/shared/lib/tokens'
+import {
+  isNicknameFormatValid,
+  NICKNAME_GUIDE_MESSAGE,
+} from '@/shared/lib/utils/nicknameValidation'
 import { AuthInput } from '@/shared/ui/common/AuthInput'
 import { AuthButton } from '@/shared/ui/common/AuthButton'
 import { VerifyActionButton } from '@/features/auth'
@@ -138,24 +143,29 @@ export function Step2AccountInfo({
                 onChange={e => handleNicknameChange(e.target.value)}
                 borderColor={
                   nicknameChecked
-                    ? '1px solid main'
+                    ? `1px solid ${colors.main.DEFAULT}`
                     : nicknameCheckMessage
-                      ? '1px solid error'
+                      ? `1px solid ${colors.error}`
                       : undefined
                 }
               />
             </div>
             <VerifyActionButton
               onClick={handleNicknameCheck}
-              disabled={!nickname.trim() || isCheckingNickname}
+              disabled={!isNicknameFormatValid(nickname) || isCheckingNickname}
             >
               {isCheckingNickname ? '확인 중...' : '중복 확인'}
             </VerifyActionButton>
           </div>
+          <p className="text-text-50 typography-body03-regular">
+            {NICKNAME_GUIDE_MESSAGE}
+          </p>
           {nicknameCheckMessage && (
             <p
               className="font-pretendard font-regular text-[12px] leading-[18px] text-left w-full sm:text-[11px] xs:text-[10px]"
-              style={{ color: nicknameChecked ? 'main' : 'error' }}
+              style={{
+                color: nicknameChecked ? colors.main.DEFAULT : colors.error,
+              }}
             >
               {nicknameCheckMessage}
             </p>
