@@ -7,10 +7,6 @@ import type { BusinessTypeDto } from '@/features/store-register/types/workspaceR
 type Props = {
   bizName: string
   brn: string
-  province: string
-  district: string
-  town: string
-  address: string
   /** 선택 전에는 null */
   businessTypeId: number | null
   /** 업종 상세 — 선택한 업종이 requiresDetail 이면 필수 */
@@ -23,10 +19,6 @@ type Props = {
   contact: string
   onBizNameChange: (v: string) => void
   onBrnChange: (v: string) => void
-  onProvinceChange: (v: string) => void
-  onDistrictChange: (v: string) => void
-  onTownChange: (v: string) => void
-  onAddressChange: (v: string) => void
   onBusinessTypeIdChange: (v: number) => void
   onBusinessTypeDetailChange: (v: string) => void
   onContactChange: (v: string) => void
@@ -63,10 +55,6 @@ function Field({
 export function StoreBasicInfoFields({
   bizName,
   brn,
-  province,
-  district,
-  town,
-  address,
   businessTypeId,
   businessTypeDetail,
   businessTypes,
@@ -76,10 +64,6 @@ export function StoreBasicInfoFields({
   contact,
   onBizNameChange,
   onBrnChange,
-  onProvinceChange,
-  onDistrictChange,
-  onTownChange,
-  onAddressChange,
   onBusinessTypeIdChange,
   onBusinessTypeDetailChange,
   onContactChange,
@@ -183,42 +167,6 @@ export function StoreBasicInfoFields({
           inputMode="numeric"
           maxLength={13}
           autoComplete="tel"
-        />
-      </Field>
-
-      <Field label="주소">
-        <div className="flex gap-2">
-          <div className="min-w-0 flex-1">
-            <AuthInput
-              type="text"
-              placeholder="시/도"
-              value={province}
-              onChange={e => onProvinceChange(e.target.value)}
-            />
-          </div>
-          <div className="w-[84px]">
-            <AuthInput
-              type="text"
-              placeholder="구"
-              value={district}
-              onChange={e => onDistrictChange(e.target.value)}
-            />
-          </div>
-          <div className="w-[84px]">
-            <AuthInput
-              type="text"
-              placeholder="동"
-              value={town}
-              onChange={e => onTownChange(e.target.value)}
-            />
-          </div>
-        </div>
-        <AuthInput
-          type="text"
-          placeholder="상세 주소"
-          value={address}
-          onChange={e => onAddressChange(e.target.value)}
-          autoComplete="street-address"
         />
       </Field>
     </div>

@@ -22,7 +22,11 @@ export function StoreRequestListCard({ item, onClick }: Props) {
         <StoreRequestStatusBadge status={item.status} />
       </div>
       <p className="mt-2 truncate typography-body02-regular text-text-70">
-        {item.fullAddress}
+        {item.roadAddress || item.jibunAddress
+          ? [item.roadAddress || item.jibunAddress, item.detailAddress]
+              .filter(Boolean)
+              .join(' ')
+          : item.fullAddress}
       </p>
       <p className="mt-1.5 typography-body03-semibold text-text-50">
         신청일 {formatRequestDate(item.createdAt)}
