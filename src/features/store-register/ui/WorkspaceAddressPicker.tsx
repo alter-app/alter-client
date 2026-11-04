@@ -21,6 +21,10 @@ export function WorkspaceAddressPicker({
   detailAddress,
   onDetailChange,
 }: Props) {
+  // 제출할 주소와 지도 표시 위치를 분리해 조회 실패 시에도 재선택할 수 있게 합니다.
+  const [mapLocation, setMapLocation] = useState(
+    () => value && { latitude: value.latitude, longitude: value.longitude }
+  )
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<WorkspaceLocation[]>([])
   const [busy, setBusy] = useState(false)
@@ -42,6 +46,10 @@ export function WorkspaceAddressPicker({
     setBusy(false)
     setError('')
     setResults([])
+    setMapLocation({
+      latitude: location.latitude,
+      longitude: location.longitude,
+    })
     onChange(location)
   }
   async function search() {
@@ -67,8 +75,8 @@ export function WorkspaceAddressPicker({
   }
   useEffect(() => {
     const api = getNaverMaps()
-    if (!api || !element.current || !value) return
-    const center = new api.LatLng(value.latitude, value.longitude)
+    if (!api || !element.current || !mapLocation) return
+    const center = new api.LatLng(mapLocation.latitude, mapLocation.longitude)
     const map = new api.Map(element.current, { center, zoom: 17 })
     const marker = new api.Marker({ position: center, map })
     const listener = api.Event.addListener(
@@ -77,6 +85,11 @@ export function WorkspaceAddressPicker({
       async (event?: { coord: NaverLatLng }) => {
         if (!event) return
         const id = ++sequence.current
+        setMapLocation({
+          latitude: event.coord.lat(),
+          longitude: event.coord.lng(),
+        })
+        setResults([])
         onChangeRef.current(null)
         setBusy(true)
         setError('')
@@ -104,7 +117,7 @@ export function WorkspaceAddressPicker({
       marker.setMap(null)
       map.destroy()
     }
-  }, [value])
+  }, [mapLocation])
   return (
     <section className="flex flex-col gap-3" aria-label="업장 주소">
       <label
@@ -179,7 +192,7 @@ export function WorkspaceAddressPicker({
       )}
       <div
         ref={element}
-        className={value ? 'h-60 w-full rounded-xl' : 'hidden'}
+        className={mapLocation ? 'h-60 w-full rounded-xl' : 'hidden'}
         aria-label="업장 위치 선택 지도"
       />
       <label
