@@ -7,6 +7,23 @@ export type WorkspaceLocation = {
   district: string
   town: string
 }
+/** 기존 등록 계약에서 사용하는 지역값과 좌표를 제출 직전에도 검사합니다. */
+export function isValidWorkspaceLocation(
+  location: WorkspaceLocation | null
+): location is WorkspaceLocation {
+  return (
+    !!location &&
+    !!location.province.trim() &&
+    !!location.district.trim() &&
+    !!location.town.trim() &&
+    !!(location.roadAddress?.trim() || location.jibunAddress.trim()) &&
+    Number.isFinite(location.latitude) &&
+    Math.abs(location.latitude) <= 90 &&
+    Number.isFinite(location.longitude) &&
+    Math.abs(location.longitude) <= 180
+  )
+}
+
 type Address = {
   x: string
   y: string
@@ -95,19 +112,23 @@ export function searchWorkspaceAddresses(
           a.jibunAddress
       )
       done(
-        items.map(a => {
-          const region = (type: string) =>
-            a.addressElements?.find(e => e.types.includes(type))?.longName ?? ''
-          return {
-            roadAddress: a.roadAddress || null,
-            jibunAddress: a.jibunAddress,
-            latitude: Number(a.y),
-            longitude: Number(a.x),
-            province: region('SIDO'),
-            district: region('SIGUGUN'),
-            town: region('DONGMYUN'),
-          }
-        })
+        items
+          .map(a => {
+            const region = (type: string) =>
+              a.addressElements
+                ?.find(e => e.types?.includes(type))
+                ?.longName?.trim() ?? ''
+            return {
+              roadAddress: a.roadAddress || null,
+              jibunAddress: a.jibunAddress,
+              latitude: Number(a.y),
+              longitude: Number(a.x),
+              province: region('SIDO'),
+              district: region('SIGUGUN'),
+              town: region('DONGMYUN'),
+            }
+          })
+          .filter(isValidWorkspaceLocation)
       )
     })
   })
@@ -131,15 +152,24 @@ export function reverseWorkspaceAddress(
           )
           return
         }
-        done({
+        const location = {
           latitude,
           longitude,
           roadAddress: address.roadAddress || null,
           jibunAddress: address.jibunAddress,
-          province: region.area1.name,
-          district: region.area2.name,
-          town: region.area3.name,
-        })
+          province: region.area1?.name?.trim() ?? '',
+          district: region.area2?.name?.trim() ?? '',
+          town: region.area3?.name?.trim() ?? '',
+        }
+        if (!isValidWorkspaceLocation(location)) {
+          fail(
+            new Error(
+              '선택한 위치의 지역 정보가 부족해 등록할 수 없습니다. 다른 위치를 선택하거나 주소로 검색해 주세요.'
+            )
+          )
+          return
+        }
+        done(location)
       }
     )
   })

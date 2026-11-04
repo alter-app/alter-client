@@ -1,4 +1,7 @@
-import { type WorkspaceLocation } from '@/features/store-register/lib/geocodeWorkspaceAddress'
+import {
+  isValidWorkspaceLocation,
+  type WorkspaceLocation,
+} from '@/features/store-register/lib/geocodeWorkspaceAddress'
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -62,7 +65,7 @@ export function useStoreRegisterWizard() {
   const infoValid =
     bizName.trim().length > 0 &&
     brn.replace(/\D/g, '').length === 10 &&
-    location !== null &&
+    isValidWorkspaceLocation(location) &&
     businessTypeValid &&
     contact.trim().length > 0
 
@@ -78,7 +81,7 @@ export function useStoreRegisterWizard() {
       !identityFile.file ||
       !infoValid ||
       !businessTypeId ||
-      !location
+      !isValidWorkspaceLocation(location)
     ) {
       return
     }
