@@ -36,11 +36,13 @@ import {
   selectWorkerForm,
   type WorkerFormOverride,
 } from '@/features/manager/worker-schedule/lib/workerFormOverride'
-import { resolveGeneralScheduleSaveError } from '@/features/manager/worker-schedule/lib/scheduleSaveError'
+import {
+  resolveFixedScheduleSaveError,
+  resolveGeneralScheduleSaveError,
+} from '@/features/manager/worker-schedule/lib/scheduleSaveError'
 import { dateTimeToHourMinute } from '@/features/manager/worker-schedule/lib/scheduleDateTime'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
 import { queryKeys } from '@/shared/lib/queryKeys'
-import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { toDateKey } from '@/shared/lib/calendarUtils'
 import type { ManagerScheduleShiftDto } from '@/features/manager/home/types/schedule'
 import type { ScheduleColor } from '@/features/manager/worker-schedule/types/scheduleColor'
@@ -167,10 +169,8 @@ export function useWorkerScheduleManageViewModel(args: {
     return listFixedSchedulesForWorker(list, workerId)
   }, [fixedScheduleResponse, workerId])
 
-  const [fixedFormOverride, setFixedFormOverride] = useState<{
-    key: string
-    form: ScheduleFormState
-  } | null>(null)
+  const [fixedFormOverride, setFixedFormOverride] =
+    useState<WorkerFormOverride<ScheduleFormState>>(null)
   const [generalFormOverride, setGeneralFormOverride] = useState<{
     key: string
     form: ScheduleFormState
@@ -184,11 +184,6 @@ export function useWorkerScheduleManageViewModel(args: {
   const currentPendingKey = generalSelectedDate
     ? pendingAssignKey(workerId, generalSelectedDate)
     : null
-
-  const fixedDataKey = useMemo(
-    () => `${workerId}:${loadedFixedSlots.map(s => s.id).join(',')}`,
-    [workerId, loadedFixedSlots]
-  )
 
   const serverFixedForm = useMemo((): ScheduleFormState | null => {
     if (fixedScheduleLoading) return null
@@ -221,12 +216,11 @@ export function useWorkerScheduleManageViewModel(args: {
     [recurrence, workerId, fixedScheduleLoading]
   )
 
-  const fixedForm = useMemo((): ScheduleFormState => {
-    if (fixedFormOverride?.key === fixedDataKey) {
-      return fixedFormOverride.form
-    }
-    return serverFixedForm ?? EMPTY_SCHEDULE_FORM
-  }, [fixedFormOverride, fixedDataKey, serverFixedForm])
+  const fixedForm = selectWorkerForm(
+    fixedFormOverride,
+    workerId,
+    serverFixedForm ?? EMPTY_SCHEDULE_FORM
+  )
 
   const generalDataKey = useMemo(() => {
     if (!generalSelectedDate) return null
@@ -338,12 +332,15 @@ export function useWorkerScheduleManageViewModel(args: {
 
   const patchFixedForm = useCallback(
     (patch: Partial<ScheduleFormState>) => {
-      setFixedFormOverride({
-        key: fixedDataKey,
-        form: { ...fixedForm, ...patch },
-      })
+      const next = patchWorkerForm(
+        fixedForm,
+        workerId,
+        patch,
+        fixedScheduleLoading
+      )
+      if (next) setFixedFormOverride(next)
     },
-    [fixedDataKey, fixedForm]
+    [fixedForm, workerId, fixedScheduleLoading]
   )
 
   const patchGeneralForm = useCallback(
@@ -481,11 +478,10 @@ export function useWorkerScheduleManageViewModel(args: {
     // 저장 중 날짜·탭이 바뀔 수 있어 저장을 시작한 시점의 값(variables)을 기준으로 처리한다.
     onError: async (error: unknown, { tab, date, pendingKey }) => {
       if (tab === '고정') {
-        setSaveError(getAxiosErrorMessage(error, '저장에 실패했습니다.'))
+        setSaveError(resolveFixedScheduleSaveError(error))
         await queryClient.invalidateQueries({
           queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
         })
-        setFixedFormOverride(null)
         return
       }
 
