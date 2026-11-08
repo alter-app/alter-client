@@ -30,12 +30,12 @@ export function resolveGeneralScheduleSaveError(error: unknown): string {
 }
 
 export function resolveFixedScheduleSaveError(error: unknown): string {
-  const info = getApiErrorInfo(error)
-  if (info.status === 409 && info.code === 'B020') {
-    return info.message ?? FIXED_CONFLICT
+  const { message } = getApiErrorInfo(error)
+  if (isApiError(error, 409, 'B020')) {
+    return message ?? FIXED_CONFLICT
   }
-  if (info.status === 400 && info.code === 'B001') {
-    return info.message ?? FIXED_INVALID
+  if (isApiError(error, 400, 'B001')) {
+    return message ?? FIXED_INVALID
   }
   return getAxiosErrorMessage(error, SAVE_FAILED)
 }
