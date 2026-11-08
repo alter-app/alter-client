@@ -13,9 +13,12 @@ import {
   adaptReceivedSubstituteDetail,
   adaptSentSubstituteDetail,
   adaptUserSubstituteListItem,
+  mapApiStatusToUi,
   normalizeSentSubstituteDetailDto,
+  statusLabelForApi,
   unwrapSubstituteEnum,
 } from './adaptUserSubstituteRequest'
+import { resolveApiStatuses } from './substituteListFilters'
 
 const schedule = {
   scheduleId: 1,
@@ -245,5 +248,51 @@ describe('unwrapSubstituteEnum', () => {
     )
     expect(item.rawStatus).toBe('')
     expect(item.uiStatus).toBe('pending')
+  })
+})
+
+describe('알바생 수락과 사장님 승인 상태 구분', () => {
+  it('ACCEPTED는 accepted, APPROVED는 approved로 매핑한다', () => {
+    expect(mapApiStatusToUi('ACCEPTED')).toBe('accepted')
+    expect(mapApiStatusToUi('APPROVED')).toBe('approved')
+  })
+
+  it('ACCEPTED는 수락됨, APPROVED는 승인됨으로 표시한다', () => {
+    expect(statusLabelForApi('ACCEPTED', 'accepted')).toBe('수락됨')
+    expect(statusLabelForApi('APPROVED', 'approved')).toBe('승인됨')
+  })
+
+  it('APPROVED 목록 항목은 승인됨 상태로 변환한다', () => {
+    const item = adaptUserSubstituteListItem(
+      { ...sentList({}), status: { value: 'APPROVED', description: '승인' } },
+      'SENT'
+    )
+    expect(item.uiStatus).toBe('approved')
+    expect(item.statusLabel).toBe('승인됨')
+  })
+
+  it('APPROVED 보낸 상세는 승인됨을 표시하고 취소할 수 없다', () => {
+    const detail = adaptSentSubstituteDetail({
+      ...sentDetail({}),
+      status: 'APPROVED',
+    })
+    expect(detail.uiStatus).toBe('approved')
+    expect(detail.statusLabel).toBe('승인됨')
+    expect(detail.canCancel).toBe(false)
+  })
+
+  it('ACCEPTED 보낸 상세는 수락됨을 표시하고 취소할 수 있다', () => {
+    const detail = adaptSentSubstituteDetail({
+      ...sentDetail({}),
+      status: 'ACCEPTED',
+    })
+    expect(detail.uiStatus).toBe('accepted')
+    expect(detail.statusLabel).toBe('수락됨')
+    expect(detail.canCancel).toBe(true)
+  })
+
+  it('수락됨·승인됨 필터는 각각 하나의 API 상태만 요청한다', () => {
+    expect(resolveApiStatuses('accepted')).toEqual(['ACCEPTED'])
+    expect(resolveApiStatuses('approved')).toEqual(['APPROVED'])
   })
 })

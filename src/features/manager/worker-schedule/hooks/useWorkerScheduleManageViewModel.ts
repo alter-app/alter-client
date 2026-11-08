@@ -17,11 +17,32 @@ import {
 } from '@/features/manager/worker-schedule/lib/fixedScheduleForWorker'
 import { invalidateManagerScheduleQueries } from '@/features/manager/worker-schedule/lib/invalidateScheduleQueries'
 import { saveFixedWorkerSchedules } from '@/features/manager/worker-schedule/lib/saveFixedWorkerSchedules'
+import {
+  recurrenceFormFromSlots,
+  validateRecurrenceForm,
+  type FixedScheduleRecurrenceForm,
+} from '@/features/manager/worker-schedule/lib/fixedScheduleRecurrence'
+import type { FixedScheduleRecurrenceType } from '@/features/manager/worker-schedule/types/fixedWorkerSchdules'
 import { saveGeneralWorkerSchedule } from '@/features/manager/worker-schedule/lib/saveGeneralWorkerSchedule'
+import {
+  pendingAfterGeneralSaveError,
+  pendingAfterGeneralSaveSuccess,
+  pendingAssignKey,
+  pendingAssignShiftIdFor,
+  type PendingAssignShifts,
+} from '@/features/manager/worker-schedule/lib/pendingAssignShifts'
+import {
+  patchWorkerForm,
+  selectWorkerForm,
+  type WorkerFormOverride,
+} from '@/features/manager/worker-schedule/lib/workerFormOverride'
+import {
+  resolveFixedScheduleSaveError,
+  resolveGeneralScheduleSaveError,
+} from '@/features/manager/worker-schedule/lib/scheduleSaveError'
 import { dateTimeToHourMinute } from '@/features/manager/worker-schedule/lib/scheduleDateTime'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
 import { queryKeys } from '@/shared/lib/queryKeys'
-import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { toDateKey } from '@/shared/lib/calendarUtils'
 import type { ManagerScheduleShiftDto } from '@/features/manager/home/types/schedule'
 import type { ScheduleColor } from '@/features/manager/worker-schedule/types/scheduleColor'
@@ -33,6 +54,12 @@ import {
 } from '@/features/manager/worker-schedule/types/workerColor'
 
 const DEFAULT_SELECTED_DAYS: ManagerWeekdayKo[] = ['수', '금']
+
+type SaveVariables = {
+  tab: ScheduleTab
+  date: Date | null
+  pendingKey: string | null
+}
 
 type ScheduleFormState = {
   selectedDays: ManagerWeekdayKo[]
@@ -142,10 +169,8 @@ export function useWorkerScheduleManageViewModel(args: {
     return listFixedSchedulesForWorker(list, workerId)
   }, [fixedScheduleResponse, workerId])
 
-  const [fixedFormOverride, setFixedFormOverride] = useState<{
-    key: string
-    form: ScheduleFormState
-  } | null>(null)
+  const [fixedFormOverride, setFixedFormOverride] =
+    useState<WorkerFormOverride<ScheduleFormState>>(null)
   const [generalFormOverride, setGeneralFormOverride] = useState<{
     key: string
     form: ScheduleFormState
@@ -155,23 +180,47 @@ export function useWorkerScheduleManageViewModel(args: {
     color: ScheduleColor
   } | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
-
-  const fixedDataKey = useMemo(
-    () => `${workerId}:${loadedFixedSlots.map(s => s.id).join(',')}`,
-    [workerId, loadedFixedSlots]
-  )
+  const [pendingAssign, setPendingAssign] = useState<PendingAssignShifts>({})
+  const currentPendingKey = generalSelectedDate
+    ? pendingAssignKey(workerId, generalSelectedDate)
+    : null
 
   const serverFixedForm = useMemo((): ScheduleFormState | null => {
     if (fixedScheduleLoading) return null
     return buildFixedFormFromSlots(loadedFixedSlots)
   }, [fixedScheduleLoading, loadedFixedSlots])
 
-  const fixedForm = useMemo((): ScheduleFormState => {
-    if (fixedFormOverride?.key === fixedDataKey) {
-      return fixedFormOverride.form
-    }
-    return serverFixedForm ?? EMPTY_SCHEDULE_FORM
-  }, [fixedFormOverride, fixedDataKey, serverFixedForm])
+  const today = format(new Date(), 'yyyy-MM-dd')
+  const serverRecurrence = useMemo(
+    () => recurrenceFormFromSlots(loadedFixedSlots, today),
+    [loadedFixedSlots, today]
+  )
+  const [recurrenceOverride, setRecurrenceOverride] =
+    useState<WorkerFormOverride<FixedScheduleRecurrenceForm>>(null)
+  const recurrence = selectWorkerForm(
+    recurrenceOverride,
+    workerId,
+    serverRecurrence
+  )
+
+  const patchRecurrence = useCallback(
+    (patch: Partial<FixedScheduleRecurrenceForm>) => {
+      const next = patchWorkerForm(
+        recurrence,
+        workerId,
+        { ...patch, dirty: true },
+        fixedScheduleLoading
+      )
+      if (next) setRecurrenceOverride(next)
+    },
+    [recurrence, workerId, fixedScheduleLoading]
+  )
+
+  const fixedForm = selectWorkerForm(
+    fixedFormOverride,
+    workerId,
+    serverFixedForm ?? EMPTY_SCHEDULE_FORM
+  )
 
   const generalDataKey = useMemo(() => {
     if (!generalSelectedDate) return null
@@ -283,12 +332,15 @@ export function useWorkerScheduleManageViewModel(args: {
 
   const patchFixedForm = useCallback(
     (patch: Partial<ScheduleFormState>) => {
-      setFixedFormOverride({
-        key: fixedDataKey,
-        form: { ...fixedForm, ...patch },
-      })
+      const next = patchWorkerForm(
+        fixedForm,
+        workerId,
+        patch,
+        fixedScheduleLoading
+      )
+      if (next) setFixedFormOverride(next)
     },
-    [fixedDataKey, fixedForm]
+    [fixedForm, workerId, fixedScheduleLoading]
   )
 
   const patchGeneralForm = useCallback(
@@ -326,6 +378,8 @@ export function useWorkerScheduleManageViewModel(args: {
     setFixedFormOverride(null)
     setGeneralFormOverride(null)
     setColorOverride(null)
+    setRecurrenceOverride(null)
+    setSaveError(null)
     navigate(managerWorkerSchedulePath(workspaceId, nextWorkerId))
   }
 
@@ -337,14 +391,16 @@ export function useWorkerScheduleManageViewModel(args: {
   )
 
   const saveMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ tab, date, pendingKey }: SaveVariables) => {
       setSaveError(null)
       if (!worker) throw new Error('근무자 정보를 불러오지 못했습니다.')
 
-      if (activeTab === '고정') {
+      if (tab === '고정') {
         if (selectedDays.length === 0) {
           throw new Error('최소 한 개의 요일을 선택해 주세요.')
         }
+        const recurrenceError = validateRecurrenceForm(recurrence)
+        if (recurrenceError) throw new Error(recurrenceError)
         await saveFixedWorkerSchedules({
           workspaceId,
           workspaceWorkerId: workerId,
@@ -354,15 +410,11 @@ export function useWorkerScheduleManageViewModel(args: {
           startMinute,
           endHour,
           endMinute,
-          onRollback: async () => {
-            await queryClient.invalidateQueries({
-              queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
-            })
-            setFixedFormOverride(null)
-          },
+          recurrence,
+          today,
         })
       } else {
-        if (!generalSelectedDate) {
+        if (!date || !pendingKey) {
           throw new Error('날짜를 선택해 주세요.')
         }
 
@@ -371,13 +423,21 @@ export function useWorkerScheduleManageViewModel(args: {
           workerId,
           position: worker.position,
           shiftId: generalShiftId,
-          date: generalSelectedDate,
+          pendingAssignShiftId: pendingAssignShiftIdFor(
+            pendingAssign,
+            pendingKey
+          ),
+          excludeShiftIds: Object.values(pendingAssign),
+          date,
           startHour,
           startMinute,
           endHour,
           endMinute,
         })
-        if (shiftId !== null && generalDataKey !== null) {
+        setPendingAssign(prev =>
+          pendingAfterGeneralSaveSuccess(prev, pendingKey, shiftId)
+        )
+        if (generalDataKey !== null) {
           setGeneralFormOverride({
             key: generalDataKey,
             form: { ...generalForm, generalShiftId: shiftId },
@@ -395,16 +455,13 @@ export function useWorkerScheduleManageViewModel(args: {
         })
       }
     },
-    onSuccess: async () => {
-      const year =
-        generalSelectedDate?.getFullYear() ?? new Date().getFullYear()
-      const month =
-        (generalSelectedDate?.getMonth() ?? new Date().getMonth()) + 1
+    onSuccess: async (_data, { date }) => {
+      const baseDate = date ?? new Date()
       await invalidateManagerScheduleQueries(
         queryClient,
         workspaceId,
-        year,
-        month
+        baseDate.getFullYear(),
+        baseDate.getMonth() + 1
       )
       await queryClient.invalidateQueries({
         queryKey: ['managerWorkspace', 'workers', workspaceId],
@@ -412,6 +469,7 @@ export function useWorkerScheduleManageViewModel(args: {
       setFixedFormOverride(null)
       setGeneralFormOverride(null)
       setColorOverride(null)
+      setRecurrenceOverride(null)
 
       if (onSaveSuccess) {
         onSaveSuccess()
@@ -419,22 +477,63 @@ export function useWorkerScheduleManageViewModel(args: {
         navigate(ROUTES.MANAGER.HOME, { replace: true })
       }
     },
-    onError: async (error: unknown) => {
-      setSaveError(getAxiosErrorMessage(error, '저장에 실패했습니다.'))
-      if (activeTab === '고정') {
-        await queryClient.invalidateQueries({
-          queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
-        })
-        setFixedFormOverride(null)
+    // 저장 중 날짜·탭이 바뀔 수 있어 저장을 시작한 시점의 값(variables)을 기준으로 처리한다.
+    onError: async (error: unknown, { tab, date, pendingKey }) => {
+      if (tab === '고정') {
+        setSaveError(resolveFixedScheduleSaveError(error))
+        // 일부 삭제·수정이 이미 반영됐을 수 있어 고정 목록과 일정을 함께 다시 조회한다.
+        const baseDate = date ?? new Date()
+        await invalidateManagerScheduleQueries(
+          queryClient,
+          workspaceId,
+          baseDate.getFullYear(),
+          baseDate.getMonth() + 1
+        )
+        return
+      }
+
+      setSaveError(resolveGeneralScheduleSaveError(error))
+      if (pendingKey !== null) {
+        setPendingAssign(prev =>
+          pendingAfterGeneralSaveError(prev, pendingKey, error)
+        )
+      }
+      if (date) {
+        await invalidateManagerScheduleQueries(
+          queryClient,
+          workspaceId,
+          date.getFullYear(),
+          date.getMonth() + 1
+        )
       }
     },
   })
 
   const handleSave = useCallback(() => {
-    saveMutation.mutate()
-  }, [saveMutation])
+    saveMutation.mutate({
+      tab: activeTab,
+      date: generalSelectedDate,
+      pendingKey: currentPendingKey,
+    })
+  }, [saveMutation, activeTab, generalSelectedDate, currentPendingKey])
 
   return {
+    fixedRecurrence: {
+      form: recurrence,
+      setRecurrenceType: (recurrenceType: FixedScheduleRecurrenceType) =>
+        patchRecurrence({
+          recurrenceType,
+          weekOfMonth:
+            recurrenceType === 'MONTHLY' ? recurrence.weekOfMonth : null,
+        }),
+      setWeekOfMonth: (weekOfMonth: number) => patchRecurrence({ weekOfMonth }),
+      setStartDate: (date: Date) =>
+        patchRecurrence({ startDate: format(date, 'yyyy-MM-dd') }),
+      setEndDate: (date: Date | null) =>
+        patchRecurrence({
+          endDate: date === null ? null : format(date, 'yyyy-MM-dd'),
+        }),
+    },
     workersLoading,
     worker,
     workers,
@@ -459,6 +558,7 @@ export function useWorkerScheduleManageViewModel(args: {
     handleSave,
     isSaving: saveMutation.isPending,
     saveError,
+    clearSaveError: () => setSaveError(null),
     selectedColor,
     setSelectedColor,
   }

@@ -16,7 +16,19 @@ export type SubstituteRequestStatus =
 
 export type SubstituteRequestType = 'ALL' | 'SPECIFIC'
 
-export type SubstituteUiStatus = 'pending' | 'accepted' | 'cancelled'
+/**
+ * 알바생 화면의 대타 진행 단계.
+ * `accepted`는 대상 알바생이 수락해 사장님 승인을 기다리는 상태(API `ACCEPTED`),
+ * `approved`는 사장님 승인까지 끝난 상태(API `APPROVED`)다.
+ */
+export type SubstituteUiStatus =
+  | 'pending'
+  | 'accepted'
+  | 'approved'
+  | 'cancelled'
+
+/** 매니저 화면은 `ACCEPTED`를 승인 대기(요청됨)로 분류하므로 매니저 필터 타입과 합치지 않는다. */
+export type UserSubstituteListStatusFilter = 'all' | SubstituteUiStatus
 
 /** API enum 래퍼 — `{ value, description }` */
 export interface SubstituteEnumValueDto<T extends string = string> {
@@ -210,6 +222,7 @@ export interface UserSubstituteDetailViewModel {
   endTimeLabel: string
   reason: string
   uiStatus: SubstituteUiStatus
+  statusLabel: string
   canRespond: boolean
   canCancel: boolean
   rawStatus: string

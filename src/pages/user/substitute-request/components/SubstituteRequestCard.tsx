@@ -1,6 +1,6 @@
 import type { SubstituteDirectionTab } from '@/pages/user/substitute-request/components/SubstituteRequestTabs'
-import { SubstituteRequestResponseActions } from '@/pages/user/substitute-request/components/SubstituteRequestResponseActions'
-import { SubstituteRequestStatusBadge } from '@/pages/user/substitute-request/components/SubstituteRequestStatusBadge'
+import { SubstituteRequestResponseActions } from '@/shared/ui/substitute/SubstituteRequestResponseActions'
+import { SubstituteRequestStatusBadge } from '@/shared/ui/substitute/SubstituteRequestStatusBadge'
 import type { UserSubstituteListItem } from '@/features/user/substitute/types'
 
 interface SubstituteRequestCardProps {
@@ -74,7 +74,7 @@ export function SubstituteRequestCard({
           />
         ) : (
           <SubstituteRequestStatusBadge
-            uiStatus={item.uiStatus}
+            tone={item.uiStatus}
             label={item.statusLabel}
           />
         )}

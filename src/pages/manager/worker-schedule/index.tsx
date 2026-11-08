@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { parseISO } from 'date-fns'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
+import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import type { ScheduleTab } from '@/features/manager'
 import type { WorkerScheduleLocationState } from '@/features/manager/schedule/types/workerScheduleLocationState'
 import { useWorkerScheduleManageViewModel } from '@/features/manager'
@@ -10,7 +11,6 @@ import { ROUTES } from '@/shared/constants/routes'
 import { ColorSelectSection } from '@/pages/manager/worker-schedule/components/ColorSelectSection'
 import { FixedScheduleDateSection } from '@/pages/manager/worker-schedule/components/FixedScheduleDateSection'
 import { GeneralScheduleDateSection } from '@/pages/manager/worker-schedule/components/GeneralScheduleDateSection'
-import type { ScheduleRecurrence } from '@/pages/manager/worker-schedule/components/RecurrenceSelect'
 import { ScheduleSaveButton } from '@/pages/manager/worker-schedule/components/ScheduleSaveButton'
 import { ScheduleTabBar } from '@/pages/manager/worker-schedule/components/ScheduleTabBar'
 import { WorkerSelectSection } from '@/pages/manager/worker-schedule/components/WorkerSelectSection'
@@ -64,9 +64,6 @@ function ManagerWorkerSchedulePageContent({
   const [selectedDate, setSelectedDate] = useState<Date | null>(
     editDate ? parseISO(editDate) : new Date()
   )
-  const [startDate, setStartDate] = useState(() => new Date())
-  const [endDate, setEndDate] = useState(() => new Date())
-  const [recurrence, setRecurrence] = useState<ScheduleRecurrence>('매주')
   const {
     workersLoading,
     worker,
@@ -80,8 +77,10 @@ function ManagerWorkerSchedulePageContent({
     handleSave,
     isSaving,
     saveError,
+    clearSaveError,
     selectedColor,
     setSelectedColor,
+    fixedRecurrence,
   } = useWorkerScheduleManageViewModel({
     workspaceId,
     workerId,
@@ -127,12 +126,11 @@ function ManagerWorkerSchedulePageContent({
             workdayOptions={workdayOptions}
             selectedDays={selectedDays}
             onToggleDay={toggleDay}
-            recurrence={recurrence}
-            onRecurrenceChange={setRecurrence}
-            startDate={startDate}
-            endDate={endDate}
-            onStartDateChange={setStartDate}
-            onEndDateChange={setEndDate}
+            recurrence={fixedRecurrence.form}
+            onRecurrenceTypeChange={fixedRecurrence.setRecurrenceType}
+            onWeekOfMonthChange={fixedRecurrence.setWeekOfMonth}
+            onStartDateChange={fixedRecurrence.setStartDate}
+            onEndDateChange={fixedRecurrence.setEndDate}
             workTime={workTime}
             fixedScheduleLoading={fixedScheduleLoading}
           />
@@ -153,20 +151,19 @@ function ManagerWorkerSchedulePageContent({
           onToggle={() => setIsColorSectionOpen(prev => !prev)}
         />
 
-        {saveError ? (
-          <p
-            className="px-1 typography-body02-regular text-red-500"
-            role="alert"
-          >
-            {saveError}
-          </p>
-        ) : null}
-
         <ScheduleSaveButton
           onClick={handleSave}
           disabled={isSaving || workersLoading || fixedScheduleLoading}
         />
       </main>
+
+      <ConfirmModal
+        isOpen={saveError !== null}
+        title="저장할 수 없어요"
+        description={saveError ?? undefined}
+        onConfirm={clearSaveError}
+        onClose={clearSaveError}
+      />
     </div>
   )
 }
