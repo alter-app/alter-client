@@ -30,9 +30,9 @@ export function WeekOfMonthSelect({ value, onChange }: WeekOfMonthSelectProps) {
             aria-pressed={selected}
             onClick={() => onChange(week)}
             className={cn(
-              'flex h-10 flex-1 items-center justify-center rounded-2xl typography-body03-semibold',
+              'flex h-10 flex-1 items-center justify-center rounded-2xl',
               selected
-                ? 'bg-main-900 text-text-100'
+                ? 'bg-main-900 text-text-100 typography-body03-semibold'
                 : 'text-text-50 typography-body03-regular'
             )}
           >

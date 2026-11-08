@@ -103,9 +103,6 @@ export function FixedScheduleDateSection({
                   value={recurrence.weekOfMonth}
                   onChange={onWeekOfMonthChange}
                 />
-                <p className="px-1 typography-body03-regular text-text-50">
-                  다섯째 주가 없는 달은 건너뛰어요.
-                </p>
               </div>
             ) : null}
           </div>
