@@ -1,0 +1,27 @@
+import {
+  CreatedScheduleNotFoundError,
+  ScheduleAssignPendingError,
+} from '@/features/manager/worker-schedule/lib/saveGeneralWorkerSchedule'
+import { getApiErrorInfo, isApiError } from '@/shared/lib/getApiErrorInfo'
+import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
+
+const SAVE_FAILED = '저장에 실패했습니다.'
+const GENERAL_CONFLICT =
+  '근무 시간이 올바르지 않거나 같은 시간대에 이미 배정된 근무가 있어요. 시간을 확인해 주세요.'
+
+function generalReason(error: unknown): string {
+  if (isApiError(error, 400, 'B001')) {
+    return getApiErrorInfo(error).message ?? GENERAL_CONFLICT
+  }
+  return getAxiosErrorMessage(error, SAVE_FAILED)
+}
+
+export function resolveGeneralScheduleSaveError(error: unknown): string {
+  if (error instanceof ScheduleAssignPendingError) {
+    return `근무는 만들어졌지만 근무자를 배정하지 못했어요. ${generalReason(error.cause)} 시간을 고쳐 다시 저장하면 같은 근무에 배정해요.`
+  }
+  if (error instanceof CreatedScheduleNotFoundError) {
+    return '근무는 만들어졌지만 확인하지 못했어요. 캘린더에서 근무를 확인해 주세요.'
+  }
+  return generalReason(error)
+}

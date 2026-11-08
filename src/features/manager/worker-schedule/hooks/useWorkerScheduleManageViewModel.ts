@@ -18,6 +18,14 @@ import {
 import { invalidateManagerScheduleQueries } from '@/features/manager/worker-schedule/lib/invalidateScheduleQueries'
 import { saveFixedWorkerSchedules } from '@/features/manager/worker-schedule/lib/saveFixedWorkerSchedules'
 import { saveGeneralWorkerSchedule } from '@/features/manager/worker-schedule/lib/saveGeneralWorkerSchedule'
+import {
+  pendingAfterGeneralSaveError,
+  pendingAfterGeneralSaveSuccess,
+  pendingAssignKey,
+  pendingAssignShiftIdFor,
+  type PendingAssignShifts,
+} from '@/features/manager/worker-schedule/lib/pendingAssignShifts'
+import { resolveGeneralScheduleSaveError } from '@/features/manager/worker-schedule/lib/scheduleSaveError'
 import { dateTimeToHourMinute } from '@/features/manager/worker-schedule/lib/scheduleDateTime'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
 import { queryKeys } from '@/shared/lib/queryKeys'
@@ -33,6 +41,12 @@ import {
 } from '@/features/manager/worker-schedule/types/workerColor'
 
 const DEFAULT_SELECTED_DAYS: ManagerWeekdayKo[] = ['수', '금']
+
+type SaveVariables = {
+  tab: ScheduleTab
+  date: Date | null
+  pendingKey: string | null
+}
 
 type ScheduleFormState = {
   selectedDays: ManagerWeekdayKo[]
@@ -155,6 +169,10 @@ export function useWorkerScheduleManageViewModel(args: {
     color: ScheduleColor
   } | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [pendingAssign, setPendingAssign] = useState<PendingAssignShifts>({})
+  const currentPendingKey = generalSelectedDate
+    ? pendingAssignKey(workerId, generalSelectedDate)
+    : null
 
   const fixedDataKey = useMemo(
     () => `${workerId}:${loadedFixedSlots.map(s => s.id).join(',')}`,
@@ -326,6 +344,7 @@ export function useWorkerScheduleManageViewModel(args: {
     setFixedFormOverride(null)
     setGeneralFormOverride(null)
     setColorOverride(null)
+    setSaveError(null)
     navigate(managerWorkerSchedulePath(workspaceId, nextWorkerId))
   }
 
@@ -337,11 +356,11 @@ export function useWorkerScheduleManageViewModel(args: {
   )
 
   const saveMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ tab, date, pendingKey }: SaveVariables) => {
       setSaveError(null)
       if (!worker) throw new Error('근무자 정보를 불러오지 못했습니다.')
 
-      if (activeTab === '고정') {
+      if (tab === '고정') {
         if (selectedDays.length === 0) {
           throw new Error('최소 한 개의 요일을 선택해 주세요.')
         }
@@ -362,7 +381,7 @@ export function useWorkerScheduleManageViewModel(args: {
           },
         })
       } else {
-        if (!generalSelectedDate) {
+        if (!date || !pendingKey) {
           throw new Error('날짜를 선택해 주세요.')
         }
 
@@ -371,13 +390,20 @@ export function useWorkerScheduleManageViewModel(args: {
           workerId,
           position: worker.position,
           shiftId: generalShiftId,
-          date: generalSelectedDate,
+          pendingAssignShiftId: pendingAssignShiftIdFor(
+            pendingAssign,
+            pendingKey
+          ),
+          date,
           startHour,
           startMinute,
           endHour,
           endMinute,
         })
-        if (shiftId !== null && generalDataKey !== null) {
+        setPendingAssign(prev =>
+          pendingAfterGeneralSaveSuccess(prev, pendingKey, shiftId)
+        )
+        if (generalDataKey !== null) {
           setGeneralFormOverride({
             key: generalDataKey,
             form: { ...generalForm, generalShiftId: shiftId },
@@ -395,16 +421,13 @@ export function useWorkerScheduleManageViewModel(args: {
         })
       }
     },
-    onSuccess: async () => {
-      const year =
-        generalSelectedDate?.getFullYear() ?? new Date().getFullYear()
-      const month =
-        (generalSelectedDate?.getMonth() ?? new Date().getMonth()) + 1
+    onSuccess: async (_data, { date }) => {
+      const baseDate = date ?? new Date()
       await invalidateManagerScheduleQueries(
         queryClient,
         workspaceId,
-        year,
-        month
+        baseDate.getFullYear(),
+        baseDate.getMonth() + 1
       )
       await queryClient.invalidateQueries({
         queryKey: ['managerWorkspace', 'workers', workspaceId],
@@ -419,20 +442,41 @@ export function useWorkerScheduleManageViewModel(args: {
         navigate(ROUTES.MANAGER.HOME, { replace: true })
       }
     },
-    onError: async (error: unknown) => {
-      setSaveError(getAxiosErrorMessage(error, '저장에 실패했습니다.'))
-      if (activeTab === '고정') {
+    // 저장 중 날짜·탭이 바뀔 수 있어 저장을 시작한 시점의 값(variables)을 기준으로 처리한다.
+    onError: async (error: unknown, { tab, date, pendingKey }) => {
+      if (tab === '고정') {
+        setSaveError(getAxiosErrorMessage(error, '저장에 실패했습니다.'))
         await queryClient.invalidateQueries({
           queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
         })
         setFixedFormOverride(null)
+        return
+      }
+
+      setSaveError(resolveGeneralScheduleSaveError(error))
+      if (pendingKey !== null) {
+        setPendingAssign(prev =>
+          pendingAfterGeneralSaveError(prev, pendingKey, error)
+        )
+      }
+      if (date) {
+        await invalidateManagerScheduleQueries(
+          queryClient,
+          workspaceId,
+          date.getFullYear(),
+          date.getMonth() + 1
+        )
       }
     },
   })
 
   const handleSave = useCallback(() => {
-    saveMutation.mutate()
-  }, [saveMutation])
+    saveMutation.mutate({
+      tab: activeTab,
+      date: generalSelectedDate,
+      pendingKey: currentPendingKey,
+    })
+  }, [saveMutation, activeTab, generalSelectedDate, currentPendingKey])
 
   return {
     workersLoading,
