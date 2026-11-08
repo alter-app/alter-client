@@ -426,6 +426,7 @@ export function useWorkerScheduleManageViewModel(args: {
             pendingAssign,
             pendingKey
           ),
+          excludeShiftIds: Object.values(pendingAssign),
           date,
           startHour,
           startMinute,
