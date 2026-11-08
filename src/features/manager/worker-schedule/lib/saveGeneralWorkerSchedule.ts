@@ -6,22 +6,57 @@ import {
 } from '@/features/manager/worker-schedule/api/managerWorkSchedule'
 import { toApiLocalDateTime } from '@/features/manager/worker-schedule/lib/scheduleDateTime'
 
+export class ScheduleAssignPendingError extends Error {
+  readonly shiftId: number
+
+  constructor(shiftId: number, cause: unknown) {
+    super('근무자 배정에 실패했습니다.', { cause })
+    this.name = 'ScheduleAssignPendingError'
+    this.shiftId = shiftId
+  }
+}
+
+export class CreatedScheduleNotFoundError extends Error {
+  constructor() {
+    super('생성한 근무를 찾지 못했습니다.')
+    this.name = 'CreatedScheduleNotFoundError'
+  }
+}
+
+async function assignWorker(shiftId: number, workerId: number): Promise<void> {
+  try {
+    await postAssignWorkerToSchedule(shiftId, { workerId })
+  } catch (error) {
+    throw new ScheduleAssignPendingError(shiftId, error)
+  }
+}
+
+/**
+ * 일반(날짜 지정) 근무를 저장하고 근무자를 배정한 뒤 근무 ID를 돌려준다.
+ * - `shiftId`가 있으면 그 근무의 시간만 수정한다.
+ * - `pendingAssignShiftId`가 있으면 새로 만들지 않고 그 근무의 시간을 고친 뒤 배정만 다시 시도한다.
+ * - 둘 다 없으면 근무를 만들고 배정한다.
+ * @throws {ScheduleAssignPendingError} 근무는 있지만 배정이 실패한 경우. 재시도 시 `shiftId`를 `pendingAssignShiftId`로 넘긴다.
+ * @throws {CreatedScheduleNotFoundError} 생성한 근무를 월간 목록에서 찾지 못한 경우
+ */
 export async function saveGeneralWorkerSchedule(args: {
   workspaceId: number
   workerId: number
   position: string
   shiftId: number | null
+  pendingAssignShiftId: number | null
   date: Date
   startHour: string
   startMinute: string
   endHour: string
   endMinute: string
-}): Promise<number | null> {
+}): Promise<number> {
   const {
     workspaceId,
     workerId,
     position,
     shiftId,
+    pendingAssignShiftId,
     date,
     startHour,
     startMinute,
@@ -50,6 +85,16 @@ export async function saveGeneralWorkerSchedule(args: {
     return shiftId
   }
 
+  if (pendingAssignShiftId !== null) {
+    await putManagerWorkSchedule(pendingAssignShiftId, {
+      startDateTime,
+      endDateTime,
+      position,
+    })
+    await assignWorker(pendingAssignShiftId, workerId)
+    return pendingAssignShiftId
+  }
+
   await postManagerWorkSchedule({
     workspaceId,
     startDateTime,
@@ -61,6 +106,7 @@ export async function saveGeneralWorkerSchedule(args: {
   const month = date.getMonth() + 1
   const monthly = await fetchMonthlySchedules({ workspaceId, year, month })
 
+  // 생성 API가 ID를 돌려주지 않아 같은 시각의 미배정 근무로 찾는다.
   const created = monthly.data.schedules.find(
     s =>
       s.startDateTime === startDateTime &&
@@ -70,9 +116,9 @@ export async function saveGeneralWorkerSchedule(args: {
   )
 
   if (!created) {
-    return null
+    throw new CreatedScheduleNotFoundError()
   }
 
-  await postAssignWorkerToSchedule(created.shiftId, { workerId })
+  await assignWorker(created.shiftId, workerId)
   return created.shiftId
 }
