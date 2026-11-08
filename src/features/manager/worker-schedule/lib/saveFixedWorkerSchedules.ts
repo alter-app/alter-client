@@ -7,31 +7,34 @@ import {
   buildSlotInputForWeekday,
   type WorkerFixedSlotByWeekday,
 } from '@/features/manager/worker-schedule/lib/fixedScheduleForWorker'
+import {
+  recurrenceFieldsForCreate,
+  recurrenceFieldsForUpdate,
+  slotRecurrenceDiffers,
+  type FixedScheduleRecurrenceForm,
+} from '@/features/manager/worker-schedule/lib/fixedScheduleRecurrence'
 import type { ManagerWeekdayKo } from '@/features/manager/home/constants/managerWeekdayKo'
 import type { FixedWorkerScheduleSlotInput } from '@/features/manager/worker-schedule/types/fixedWorkerSchdules'
 
 function slotNeedsUpdate(
   existing: WorkerFixedSlotByWeekday,
-  startHour: string,
-  startMinute: string,
-  endHour: string,
-  endMinute: string
+  desired: FixedWorkerScheduleSlotInput,
+  recurrence: FixedScheduleRecurrenceForm
 ): boolean {
-  const desired = buildSlotInputForWeekday(
-    existing.weekdayKo,
-    startHour,
-    startMinute,
-    endHour,
-    endMinute
-  )
   return (
     desired.startTime !== existing.startTime ||
     desired.endTime !== existing.endTime ||
     desired.startDayOfWeek !== existing.startDayOfWeek ||
-    desired.endDayOfWeek !== existing.endDayOfWeek
+    desired.endDayOfWeek !== existing.endDayOfWeek ||
+    slotRecurrenceDiffers(existing, recurrence)
   )
 }
 
+/**
+ * 선택한 요일·시간·반복 규칙에 맞게 근무자의 고정 근무 슬롯을 삭제·수정·등록한다.
+ * 요청이 여러 번이라 원자적이지 않으며, 실패 시 일부 요청은 이미 반영됐을 수 있다.
+ * 호출자는 실패 후 목록을 다시 조회해 남은 차이를 다시 계산해야 한다.
+ */
 export async function saveFixedWorkerSchedules(args: {
   workspaceId: number
   workspaceWorkerId: number
@@ -41,8 +44,7 @@ export async function saveFixedWorkerSchedules(args: {
   startMinute: string
   endHour: string
   endMinute: string
-  /** 부분 실패 시 서버 데이터로 폼을 되돌리기 위한 콜백 */
-  onRollback?: () => Promise<void>
+  recurrence: FixedScheduleRecurrenceForm
 }): Promise<void> {
   const {
     workspaceId,
@@ -53,7 +55,7 @@ export async function saveFixedWorkerSchedules(args: {
     startMinute,
     endHour,
     endMinute,
-    onRollback,
+    recurrence,
   } = args
 
   const selectedSet = new Set(selectedDays)
@@ -66,7 +68,7 @@ export async function saveFixedWorkerSchedules(args: {
 
   for (const day of selectedDays) {
     const existing = loadedByDay.get(day)
-    const body = buildSlotInputForWeekday(
+    const slotInput = buildSlotInputForWeekday(
       day,
       startHour,
       startMinute,
@@ -74,32 +76,28 @@ export async function saveFixedWorkerSchedules(args: {
       endMinute
     )
     if (!existing) {
-      toCreate.push(body)
+      toCreate.push({ ...slotInput, ...recurrenceFieldsForCreate(recurrence) })
       continue
     }
-    if (slotNeedsUpdate(existing, startHour, startMinute, endHour, endMinute)) {
-      toUpdate.push({ id: existing.id, body })
+    if (slotNeedsUpdate(existing, slotInput, recurrence)) {
+      toUpdate.push({
+        id: existing.id,
+        body: { ...slotInput, ...recurrenceFieldsForUpdate(recurrence) },
+      })
     }
   }
 
-  try {
-    await Promise.all([
-      ...toDelete.map(slot => deleteFixedWorkerSchdule(workspaceId, slot.id)),
-      ...toUpdate.map(({ id, body }) =>
-        patchFixedWorkerSchdule(workspaceId, id, body)
-      ),
-    ])
+  await Promise.all([
+    ...toDelete.map(slot => deleteFixedWorkerSchdule(workspaceId, slot.id)),
+    ...toUpdate.map(({ id, body }) =>
+      patchFixedWorkerSchdule(workspaceId, id, body)
+    ),
+  ])
 
-    if (toCreate.length > 0) {
-      await postFixedWorkerSchdules(workspaceId, {
-        workspaceWorkerId,
-        schedules: toCreate,
-      })
-    }
-  } catch (error) {
-    if (onRollback) {
-      await onRollback()
-    }
-    throw error
+  if (toCreate.length > 0) {
+    await postFixedWorkerSchdules(workspaceId, {
+      workspaceWorkerId,
+      schedules: toCreate,
+    })
   }
 }

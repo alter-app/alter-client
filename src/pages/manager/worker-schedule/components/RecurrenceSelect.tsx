@@ -1,13 +1,18 @@
 import { Fragment } from 'react'
+import type { FixedScheduleRecurrenceType } from '@/features/manager'
 import { cn } from '@/shared/lib/utils'
 
-export type ScheduleRecurrence = '매주' | '매월'
-
-const RECURRENCE_OPTIONS: ScheduleRecurrence[] = ['매주', '매월']
+const RECURRENCE_OPTIONS: {
+  value: FixedScheduleRecurrenceType
+  label: string
+}[] = [
+  { value: 'WEEKLY', label: '매주' },
+  { value: 'MONTHLY', label: '매월' },
+]
 
 interface RecurrenceSelectProps {
-  value: ScheduleRecurrence
-  onChange: (value: ScheduleRecurrence) => void
+  value: FixedScheduleRecurrenceType
+  onChange: (value: FixedScheduleRecurrenceType) => void
 }
 
 export function RecurrenceSelect({ value, onChange }: RecurrenceSelectProps) {
@@ -18,7 +23,7 @@ export function RecurrenceSelect({ value, onChange }: RecurrenceSelectProps) {
       aria-label="반복 주기"
     >
       {RECURRENCE_OPTIONS.map((option, index) => (
-        <Fragment key={option}>
+        <Fragment key={option.value}>
           {index > 0 ? (
             <span className="mx-1 text-text-50" aria-hidden="true">
               |
@@ -26,17 +31,17 @@ export function RecurrenceSelect({ value, onChange }: RecurrenceSelectProps) {
           ) : null}
           <button
             type="button"
-            aria-pressed={value === option}
-            onClick={() => onChange(option)}
+            aria-pressed={value === option.value}
+            onClick={() => onChange(option.value)}
             className={cn(
               'transition-colors',
-              value === option ? 'text-text-90' : 'text-text-50',
-              value === option
+              value === option.value ? 'text-text-90' : 'text-text-50',
+              value === option.value
                 ? 'typography-body02-semibold'
                 : 'typography-body02-regular'
             )}
           >
-            {option}
+            {option.label}
           </button>
         </Fragment>
       ))}
