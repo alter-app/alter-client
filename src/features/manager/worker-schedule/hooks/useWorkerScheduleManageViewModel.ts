@@ -558,6 +558,7 @@ export function useWorkerScheduleManageViewModel(args: {
     handleSave,
     isSaving: saveMutation.isPending,
     saveError,
+    clearSaveError: () => setSaveError(null),
     selectedColor,
     setSelectedColor,
   }

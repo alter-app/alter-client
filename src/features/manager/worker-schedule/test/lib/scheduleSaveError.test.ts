@@ -36,23 +36,46 @@ describe('resolveGeneralScheduleSaveError', () => {
     ).toContain('시간을 확인해 주세요')
   })
 
-  it('배정 대기 오류는 근무가 생성됐다는 사실과 재저장 방법을 함께 안내한다', () => {
-    const message = resolveGeneralScheduleSaveError(
-      new ScheduleAssignPendingError(
-        30,
-        axiosError(400, { code: 'B001', message: '겹치는 근무가 있습니다.' })
+  it('배정 실패는 서버 원인 뒤에 재저장 방법을 붙인다', () => {
+    expect(
+      resolveGeneralScheduleSaveError(
+        new ScheduleAssignPendingError(
+          30,
+          axiosError(400, {
+            code: 'B001',
+            message:
+              '해당 근무자가 이미 같은 시간대에 배정된 스케줄이 있습니다.',
+          })
+        )
       )
+    ).toBe(
+      '해당 근무자가 이미 같은 시간대에 배정된 스케줄이 있습니다. 시간을 바꿔 다시 저장해 주세요.'
     )
-
-    expect(message).toContain('근무는 만들어졌지만 근무자를 배정하지 못했어요.')
-    expect(message).toContain('겹치는 근무가 있습니다.')
-    expect(message).toContain('다시 저장하면 같은 근무에 배정해요.')
   })
 
-  it('생성한 근무를 찾지 못하면 캘린더 확인을 안내한다', () => {
+  it('서버 원인에 마침표가 없으면 붙여서 문장을 나눈다', () => {
+    expect(
+      resolveGeneralScheduleSaveError(
+        new ScheduleAssignPendingError(
+          30,
+          axiosError(400, { code: 'B001', message: '겹치는 근무가 있습니다' })
+        )
+      )
+    ).toBe('겹치는 근무가 있습니다. 시간을 바꿔 다시 저장해 주세요.')
+  })
+
+  it('서버 원인이 없으면 기본 배정 실패 문구를 보여준다', () => {
+    expect(
+      resolveGeneralScheduleSaveError(
+        new ScheduleAssignPendingError(30, new Error('Network Error'))
+      )
+    ).toBe('근무자를 배정하지 못했어요. 시간을 바꿔 다시 저장해 주세요.')
+  })
+
+  it('생성한 근무를 찾지 못하면 일반 저장 실패로 안내한다', () => {
     expect(
       resolveGeneralScheduleSaveError(new CreatedScheduleNotFoundError())
-    ).toContain('캘린더에서 근무를 확인해 주세요')
+    ).toBe('저장에 실패했습니다.')
   })
 
   it('그 밖의 오류는 기존 오류 문구 규칙을 따른다', () => {

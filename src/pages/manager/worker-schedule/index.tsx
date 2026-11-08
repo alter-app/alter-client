@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { parseISO } from 'date-fns'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
+import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import type { ScheduleTab } from '@/features/manager'
 import type { WorkerScheduleLocationState } from '@/features/manager/schedule/types/workerScheduleLocationState'
 import { useWorkerScheduleManageViewModel } from '@/features/manager'
@@ -76,6 +77,7 @@ function ManagerWorkerSchedulePageContent({
     handleSave,
     isSaving,
     saveError,
+    clearSaveError,
     selectedColor,
     setSelectedColor,
     fixedRecurrence,
@@ -149,20 +151,19 @@ function ManagerWorkerSchedulePageContent({
           onToggle={() => setIsColorSectionOpen(prev => !prev)}
         />
 
-        {saveError ? (
-          <p
-            className="px-1 typography-body02-regular text-red-500"
-            role="alert"
-          >
-            {saveError}
-          </p>
-        ) : null}
-
         <ScheduleSaveButton
           onClick={handleSave}
           disabled={isSaving || workersLoading || fixedScheduleLoading}
         />
       </main>
+
+      <ConfirmModal
+        isOpen={saveError !== null}
+        title="저장할 수 없어요"
+        description={saveError ?? undefined}
+        onConfirm={clearSaveError}
+        onClose={clearSaveError}
+      />
     </div>
   )
 }
