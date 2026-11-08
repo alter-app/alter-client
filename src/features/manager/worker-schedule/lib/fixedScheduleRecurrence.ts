@@ -71,6 +71,14 @@ export function validateRecurrenceForm(
   return null
 }
 
+/** 종료일이 오늘보다 이르면 이미 끝난 적용 기간이다. 종료일이 없으면 무기한이라 끝나지 않는다. */
+export function isRecurrencePeriodEnded(
+  form: FixedScheduleRecurrenceForm,
+  today: string
+): boolean {
+  return form.endDate !== null && form.endDate < today
+}
+
 /** 새 슬롯 등록용 필드. 기존 무기한 매주 규칙을 그대로 보여주는 폼이면 생략해 같은 규칙으로 등록한다. */
 export function recurrenceFieldsForCreate(
   form: FixedScheduleRecurrenceForm
