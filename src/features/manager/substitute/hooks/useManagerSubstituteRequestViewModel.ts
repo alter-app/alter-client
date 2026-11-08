@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
 import { useSubstituteRequestsViewModel } from '@/features/manager/home/hooks/useSubstituteRequestsViewModel'
 import { useManagedWorkspacesQuery } from '@/features/manager/home/hooks/useManagedWorkspacesQuery'
 import {
@@ -12,22 +11,8 @@ import type { ManagerSubstituteListStatusFilter } from '@/features/manager/subst
 import type { SubstituteRequestItem } from '@/shared/types/substituteRequest'
 import type { SubstituteActionType } from '@/pages/manager/substitute-request/components/ManagerSubstituteActionModal'
 import { SubstituteApiStatus } from '@/shared/types/substituteStatus'
-
-const SUBSTITUTE_ACTION_ERROR_MESSAGES: Record<string, string> = {
-  B001: '이미 처리되었거나 승인/거절할 수 없는 상태입니다.',
-  A002: '관리 중인 업장이 아닙니다.',
-  B020: '존재하지 않는 대타 요청입니다.',
-}
-
-function getSubstituteActionErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const code = (error.response?.data as { code?: string } | undefined)?.code
-    if (code && SUBSTITUTE_ACTION_ERROR_MESSAGES[code]) {
-      return SUBSTITUTE_ACTION_ERROR_MESSAGES[code]
-    }
-  }
-  return '처리 중 오류가 발생했습니다. 다시 시도해 주세요.'
-}
+import { getSubstituteActionErrorMessage } from '@/features/manager/substitute/lib/substituteActionError'
+import { SUBSTITUTE_APPROVE_REFETCH_QUERY_KEYS } from '@/features/manager/substitute/lib/approveRefetchQueryKeys'
 
 type ActionTarget = { id: number; type: SubstituteActionType }
 
@@ -111,6 +96,13 @@ export function useManagerSubstituteRequestViewModel(
       queryKey: ['substitute', 'list'],
     })
 
+  const invalidateAfterApprove = () =>
+    Promise.all(
+      SUBSTITUTE_APPROVE_REFETCH_QUERY_KEYS.map(queryKey =>
+        queryClient.invalidateQueries({ queryKey })
+      )
+    )
+
   const approveMutation = useMutation({
     mutationFn: ({ id, comment }: { id: number; comment: string }) =>
       approveSubstituteRequest(
@@ -118,12 +110,13 @@ export function useManagerSubstituteRequestViewModel(
         comment !== '' ? { approvalComment: comment } : {}
       ),
     onSuccess: async () => {
-      await invalidate()
+      await invalidateAfterApprove()
       setActionTarget(null)
       setActionError(null)
     },
-    onError: (error: unknown) => {
+    onError: async (error: unknown) => {
       setActionError(getSubstituteActionErrorMessage(error))
+      await invalidateAfterApprove()
     },
   })
 
