@@ -1,12 +1,18 @@
 import { useState } from 'react'
+import { parseISO } from 'date-fns'
 import calendarIcon from '@/assets/icons/schedule/schedule_calendar.svg'
+import type {
+  FixedScheduleRecurrenceForm,
+  FixedScheduleRecurrenceType,
+} from '@/features/manager'
 import { CollapsibleScheduleSection } from '@/pages/manager/worker-schedule/components/CollapsibleScheduleSection'
 import { RecurrenceSelect } from '@/pages/manager/worker-schedule/components/RecurrenceSelect'
-import type { ScheduleRecurrence } from '@/pages/manager/worker-schedule/components/RecurrenceSelect'
 import { ScheduleDateDisplayRow } from '@/pages/manager/worker-schedule/components/ScheduleDateDisplayRow'
 import { ScheduleDatePickerDrawer } from '@/pages/manager/worker-schedule/components/ScheduleDatePickerDrawer'
 import { WeekdayPicker } from '@/pages/manager/worker-schedule/components/WeekdayPicker'
+import { WeekOfMonthSelect } from '@/pages/manager/worker-schedule/components/WeekOfMonthSelect'
 import { WorkTimeRangeField } from '@/pages/manager/worker-schedule/components/WorkTimeRangeField'
+import { Toggle } from '@/shared/ui/common/Toggle'
 import type { WorkTimeEditorState } from '@/shared/types/workTime'
 
 type DatePickerTarget = 'start' | 'end' | null
@@ -17,14 +23,17 @@ interface FixedScheduleDateSectionProps {
   workdayOptions: readonly string[]
   selectedDays: string[]
   onToggleDay: (day: string) => void
-  recurrence: ScheduleRecurrence
-  onRecurrenceChange: (value: ScheduleRecurrence) => void
-  startDate: Date
-  endDate: Date
+  recurrence: FixedScheduleRecurrenceForm
+  onRecurrenceTypeChange: (value: FixedScheduleRecurrenceType) => void
+  onWeekOfMonthChange: (value: number) => void
   onStartDateChange: (date: Date) => void
-  onEndDateChange: (date: Date) => void
+  onEndDateChange: (date: Date | null) => void
   workTime: WorkTimeEditorState
   fixedScheduleLoading?: boolean
+}
+
+function toDate(value: string | null): Date | null {
+  return value === null ? null : parseISO(value)
 }
 
 export function FixedScheduleDateSection({
@@ -34,9 +43,8 @@ export function FixedScheduleDateSection({
   selectedDays,
   onToggleDay,
   recurrence,
-  onRecurrenceChange,
-  startDate,
-  endDate,
+  onRecurrenceTypeChange,
+  onWeekOfMonthChange,
   onStartDateChange,
   onEndDateChange,
   workTime,
@@ -45,9 +53,15 @@ export function FixedScheduleDateSection({
   const [datePickerTarget, setDatePickerTarget] =
     useState<DatePickerTarget>(null)
 
-  const pickerOpen = datePickerTarget !== null
-  const pickerDate = datePickerTarget === 'end' ? endDate : startDate
-  const isWeekly = recurrence === '매주'
+  const startDate = toDate(recurrence.startDate)
+  const endDate = toDate(recurrence.endDate)
+  const hasEndDate = endDate !== null
+  const isMonthly = recurrence.recurrenceType === 'MONTHLY'
+
+  const pickerDate =
+    (datePickerTarget === 'end' ? endDate : startDate) ??
+    startDate ??
+    new Date()
 
   return (
     <>
@@ -65,28 +79,34 @@ export function FixedScheduleDateSection({
         onToggle={onToggle}
       >
         <div className="flex flex-col items-center gap-5 rounded-2xl bg-white px-4 py-5">
-          <div
-            className={
-              isWeekly
-                ? 'flex w-full max-w-[326px] flex-col gap-5'
-                : 'flex w-full max-w-[326px] flex-col'
-            }
-          >
+          <div className="flex w-full max-w-[326px] flex-col gap-5">
             <div className="flex items-center justify-between px-1">
               <span className="typography-body01-regular text-text-70">
-                {isWeekly ? '요일' : '반복'}
+                요일
               </span>
               <RecurrenceSelect
-                value={recurrence}
-                onChange={onRecurrenceChange}
+                value={recurrence.recurrenceType}
+                onChange={onRecurrenceTypeChange}
               />
             </div>
-            {isWeekly ? (
-              <WeekdayPicker
-                options={workdayOptions}
-                selectedDays={selectedDays}
-                onToggleDay={onToggleDay}
-              />
+            <WeekdayPicker
+              options={workdayOptions}
+              selectedDays={selectedDays}
+              onToggleDay={onToggleDay}
+            />
+            {isMonthly ? (
+              <div className="flex flex-col gap-2">
+                <span className="px-1 typography-body01-regular text-text-70">
+                  주차
+                </span>
+                <WeekOfMonthSelect
+                  value={recurrence.weekOfMonth}
+                  onChange={onWeekOfMonthChange}
+                />
+                <p className="px-1 typography-body03-regular text-text-50">
+                  다섯째 주가 없는 달은 건너뛰어요.
+                </p>
+              </div>
             ) : null}
           </div>
 
@@ -96,11 +116,25 @@ export function FixedScheduleDateSection({
               date={startDate}
               onPress={() => setDatePickerTarget('start')}
             />
-            <ScheduleDateDisplayRow
-              label="종료 날짜"
-              date={endDate}
-              onPress={() => setDatePickerTarget('end')}
-            />
+            <div className="flex w-full items-center justify-between px-1">
+              <span className="typography-body01-regular text-text-70">
+                종료일 없음
+              </span>
+              <Toggle
+                checked={!hasEndDate}
+                ariaLabel="종료일 없음"
+                onChange={noEndDate =>
+                  onEndDateChange(noEndDate ? null : (startDate ?? new Date()))
+                }
+              />
+            </div>
+            {hasEndDate ? (
+              <ScheduleDateDisplayRow
+                label="종료 날짜"
+                date={endDate}
+                onPress={() => setDatePickerTarget('end')}
+              />
+            ) : null}
           </div>
 
           <div className="flex w-full max-w-[326px] flex-col gap-2">
@@ -115,7 +149,7 @@ export function FixedScheduleDateSection({
       </CollapsibleScheduleSection>
 
       <ScheduleDatePickerDrawer
-        open={pickerOpen}
+        open={datePickerTarget !== null}
         onOpenChange={open => {
           if (!open) setDatePickerTarget(null)
         }}

@@ -10,7 +10,6 @@ import { ROUTES } from '@/shared/constants/routes'
 import { ColorSelectSection } from '@/pages/manager/worker-schedule/components/ColorSelectSection'
 import { FixedScheduleDateSection } from '@/pages/manager/worker-schedule/components/FixedScheduleDateSection'
 import { GeneralScheduleDateSection } from '@/pages/manager/worker-schedule/components/GeneralScheduleDateSection'
-import type { ScheduleRecurrence } from '@/pages/manager/worker-schedule/components/RecurrenceSelect'
 import { ScheduleSaveButton } from '@/pages/manager/worker-schedule/components/ScheduleSaveButton'
 import { ScheduleTabBar } from '@/pages/manager/worker-schedule/components/ScheduleTabBar'
 import { WorkerSelectSection } from '@/pages/manager/worker-schedule/components/WorkerSelectSection'
@@ -64,9 +63,6 @@ function ManagerWorkerSchedulePageContent({
   const [selectedDate, setSelectedDate] = useState<Date | null>(
     editDate ? parseISO(editDate) : new Date()
   )
-  const [startDate, setStartDate] = useState(() => new Date())
-  const [endDate, setEndDate] = useState(() => new Date())
-  const [recurrence, setRecurrence] = useState<ScheduleRecurrence>('매주')
   const {
     workersLoading,
     worker,
@@ -82,6 +78,7 @@ function ManagerWorkerSchedulePageContent({
     saveError,
     selectedColor,
     setSelectedColor,
+    fixedRecurrence,
   } = useWorkerScheduleManageViewModel({
     workspaceId,
     workerId,
@@ -127,12 +124,11 @@ function ManagerWorkerSchedulePageContent({
             workdayOptions={workdayOptions}
             selectedDays={selectedDays}
             onToggleDay={toggleDay}
-            recurrence={recurrence}
-            onRecurrenceChange={setRecurrence}
-            startDate={startDate}
-            endDate={endDate}
-            onStartDateChange={setStartDate}
-            onEndDateChange={setEndDate}
+            recurrence={fixedRecurrence.form}
+            onRecurrenceTypeChange={fixedRecurrence.setRecurrenceType}
+            onWeekOfMonthChange={fixedRecurrence.setWeekOfMonth}
+            onStartDateChange={fixedRecurrence.setStartDate}
+            onEndDateChange={fixedRecurrence.setEndDate}
             workTime={workTime}
             fixedScheduleLoading={fixedScheduleLoading}
           />

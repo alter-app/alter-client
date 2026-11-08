@@ -17,6 +17,12 @@ import {
 } from '@/features/manager/worker-schedule/lib/fixedScheduleForWorker'
 import { invalidateManagerScheduleQueries } from '@/features/manager/worker-schedule/lib/invalidateScheduleQueries'
 import { saveFixedWorkerSchedules } from '@/features/manager/worker-schedule/lib/saveFixedWorkerSchedules'
+import {
+  recurrenceFormFromSlots,
+  validateRecurrenceForm,
+  type FixedScheduleRecurrenceForm,
+} from '@/features/manager/worker-schedule/lib/fixedScheduleRecurrence'
+import type { FixedScheduleRecurrenceType } from '@/features/manager/worker-schedule/types/fixedWorkerSchdules'
 import { saveGeneralWorkerSchedule } from '@/features/manager/worker-schedule/lib/saveGeneralWorkerSchedule'
 import {
   pendingAfterGeneralSaveError,
@@ -25,6 +31,11 @@ import {
   pendingAssignShiftIdFor,
   type PendingAssignShifts,
 } from '@/features/manager/worker-schedule/lib/pendingAssignShifts'
+import {
+  patchWorkerForm,
+  selectWorkerForm,
+  type WorkerFormOverride,
+} from '@/features/manager/worker-schedule/lib/workerFormOverride'
 import { resolveGeneralScheduleSaveError } from '@/features/manager/worker-schedule/lib/scheduleSaveError'
 import { dateTimeToHourMinute } from '@/features/manager/worker-schedule/lib/scheduleDateTime'
 import { ROUTES, managerWorkerSchedulePath } from '@/shared/constants/routes'
@@ -183,6 +194,32 @@ export function useWorkerScheduleManageViewModel(args: {
     if (fixedScheduleLoading) return null
     return buildFixedFormFromSlots(loadedFixedSlots)
   }, [fixedScheduleLoading, loadedFixedSlots])
+
+  const today = format(new Date(), 'yyyy-MM-dd')
+  const serverRecurrence = useMemo(
+    () => recurrenceFormFromSlots(loadedFixedSlots, today),
+    [loadedFixedSlots, today]
+  )
+  const [recurrenceOverride, setRecurrenceOverride] =
+    useState<WorkerFormOverride<FixedScheduleRecurrenceForm>>(null)
+  const recurrence = selectWorkerForm(
+    recurrenceOverride,
+    workerId,
+    serverRecurrence
+  )
+
+  const patchRecurrence = useCallback(
+    (patch: Partial<FixedScheduleRecurrenceForm>) => {
+      const next = patchWorkerForm(
+        recurrence,
+        workerId,
+        { ...patch, dirty: true },
+        fixedScheduleLoading
+      )
+      if (next) setRecurrenceOverride(next)
+    },
+    [recurrence, workerId, fixedScheduleLoading]
+  )
 
   const fixedForm = useMemo((): ScheduleFormState => {
     if (fixedFormOverride?.key === fixedDataKey) {
@@ -344,6 +381,7 @@ export function useWorkerScheduleManageViewModel(args: {
     setFixedFormOverride(null)
     setGeneralFormOverride(null)
     setColorOverride(null)
+    setRecurrenceOverride(null)
     setSaveError(null)
     navigate(managerWorkerSchedulePath(workspaceId, nextWorkerId))
   }
@@ -364,6 +402,8 @@ export function useWorkerScheduleManageViewModel(args: {
         if (selectedDays.length === 0) {
           throw new Error('최소 한 개의 요일을 선택해 주세요.')
         }
+        const recurrenceError = validateRecurrenceForm(recurrence)
+        if (recurrenceError) throw new Error(recurrenceError)
         await saveFixedWorkerSchedules({
           workspaceId,
           workspaceWorkerId: workerId,
@@ -373,12 +413,7 @@ export function useWorkerScheduleManageViewModel(args: {
           startMinute,
           endHour,
           endMinute,
-          onRollback: async () => {
-            await queryClient.invalidateQueries({
-              queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
-            })
-            setFixedFormOverride(null)
-          },
+          recurrence,
         })
       } else {
         if (!date || !pendingKey) {
@@ -435,6 +470,7 @@ export function useWorkerScheduleManageViewModel(args: {
       setFixedFormOverride(null)
       setGeneralFormOverride(null)
       setColorOverride(null)
+      setRecurrenceOverride(null)
 
       if (onSaveSuccess) {
         onSaveSuccess()
@@ -479,6 +515,22 @@ export function useWorkerScheduleManageViewModel(args: {
   }, [saveMutation, activeTab, generalSelectedDate, currentPendingKey])
 
   return {
+    fixedRecurrence: {
+      form: recurrence,
+      setRecurrenceType: (recurrenceType: FixedScheduleRecurrenceType) =>
+        patchRecurrence({
+          recurrenceType,
+          weekOfMonth:
+            recurrenceType === 'MONTHLY' ? recurrence.weekOfMonth : null,
+        }),
+      setWeekOfMonth: (weekOfMonth: number) => patchRecurrence({ weekOfMonth }),
+      setStartDate: (date: Date) =>
+        patchRecurrence({ startDate: format(date, 'yyyy-MM-dd') }),
+      setEndDate: (date: Date | null) =>
+        patchRecurrence({
+          endDate: date === null ? null : format(date, 'yyyy-MM-dd'),
+        }),
+    },
     workersLoading,
     worker,
     workers,
