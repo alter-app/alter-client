@@ -32,8 +32,8 @@ function withoutKey(
 
 /**
  * 저장한 키와, 방금 배정된 근무를 가리키는 다른 키를 함께 지운다.
- * 다른 근무자의 저장이 같은 미배정 근무를 가져간 경우 그 기록을 남기면,
- * 원래 근무자 재저장 시 다른 근무자의 근무를 수정·재배정하게 된다.
+ * 생성 근무 탐색에서 배정 대기 근무를 빼므로 보통은 저장한 키만 지워지며,
+ * 같은 근무가 다른 키에 남아 다른 근무자의 근무를 수정·재배정하는 일을 막는 방어적 정리다.
  */
 export function pendingAfterGeneralSaveSuccess(
   pending: PendingAssignShifts,

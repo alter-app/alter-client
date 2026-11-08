@@ -45,6 +45,8 @@ export async function saveGeneralWorkerSchedule(args: {
   position: string
   shiftId: number | null
   pendingAssignShiftId: number | null
+  /** 다른 근무자·날짜의 배정 대기 근무. 생성한 근무를 찾을 때 후보에서 뺀다. */
+  excludeShiftIds: readonly number[]
   date: Date
   startHour: string
   startMinute: string
@@ -57,6 +59,7 @@ export async function saveGeneralWorkerSchedule(args: {
     position,
     shiftId,
     pendingAssignShiftId,
+    excludeShiftIds,
     date,
     startHour,
     startMinute,
@@ -107,13 +110,21 @@ export async function saveGeneralWorkerSchedule(args: {
   const monthly = await fetchMonthlySchedules({ workspaceId, year, month })
 
   // 생성 API가 ID를 돌려주지 않아 같은 시각의 미배정 근무로 찾는다.
-  const created = monthly.data.schedules.find(
-    s =>
-      s.startDateTime === startDateTime &&
-      s.endDateTime === endDateTime &&
-      s.status.value === 'PLANNED' &&
-      !s.assignedWorker
-  )
+  // 다른 근무자의 배정 대기 근무는 빼고, 후보가 여럿이면 가장 최근에 생성된(ID가 큰) 근무를 고른다.
+  // 응답의 position 형식이 요청 값과 같은지 확인되지 않아 직책은 비교하지 않는다.
+  const excluded = new Set(excludeShiftIds)
+  const created = monthly.data.schedules
+    .filter(
+      s =>
+        s.startDateTime === startDateTime &&
+        s.endDateTime === endDateTime &&
+        s.status.value === 'PLANNED' &&
+        !s.assignedWorker &&
+        !excluded.has(s.shiftId)
+    )
+    .reduce<
+      (typeof monthly.data.schedules)[number] | undefined
+    >((latest, s) => (!latest || s.shiftId > latest.shiftId ? s : latest), undefined)
 
   if (!created) {
     throw new CreatedScheduleNotFoundError()

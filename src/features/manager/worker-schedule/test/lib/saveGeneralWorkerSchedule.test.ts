@@ -41,6 +41,7 @@ function baseArgs(
     position: 'STAFF',
     shiftId: null,
     pendingAssignShiftId: null,
+    excludeShiftIds: [],
     date: new Date(2026, 10, 20),
     startHour: '09',
     startMinute: '00',
@@ -55,6 +56,7 @@ function monthlyWith(
     shiftId: number
     startDateTime: string
     endDateTime: string
+    position: string
     status: { value: string }
     assignedWorker: unknown
   }[]
@@ -68,6 +70,7 @@ const createdShift = {
   shiftId: 30,
   startDateTime: '2026-11-20T09:00:00',
   endDateTime: '2026-11-20T18:00:00',
+  position: 'STAFF',
   status: { value: 'PLANNED' },
   assignedWorker: null,
 }
@@ -140,6 +143,29 @@ describe('saveGeneralWorkerSchedule', () => {
 
     await expect(saveGeneralWorkerSchedule(baseArgs())).resolves.toBe(30)
     expect(assign).toHaveBeenCalledWith(30, { workerId: 7 })
+  })
+
+  it('다른 근무자의 배정 대기 근무는 생성한 근무 후보에서 뺀다', async () => {
+    fetchMonthly.mockResolvedValueOnce(
+      monthlyWith([createdShift, { ...createdShift, shiftId: 40 }])
+    )
+
+    await expect(
+      saveGeneralWorkerSchedule(baseArgs({ excludeShiftIds: [40] }))
+    ).resolves.toBe(30)
+    expect(assign).toHaveBeenCalledWith(30, { workerId: 7 })
+  })
+
+  it('후보가 여럿이면 가장 최근에 생성된 근무를 고른다', async () => {
+    fetchMonthly.mockResolvedValueOnce(
+      monthlyWith([
+        { ...createdShift, shiftId: 12 },
+        { ...createdShift, shiftId: 31 },
+        { ...createdShift, shiftId: 20 },
+      ])
+    )
+
+    await expect(saveGeneralWorkerSchedule(baseArgs())).resolves.toBe(31)
   })
 
   it('종료가 시작 이하이면 다음 날 종료로 보낸다', async () => {
