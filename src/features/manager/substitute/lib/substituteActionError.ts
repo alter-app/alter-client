@@ -1,4 +1,4 @@
-import { getApiErrorInfo } from '@/shared/lib/getApiErrorInfo'
+import { getApiErrorInfo, isApiError } from '@/shared/lib/getApiErrorInfo'
 
 const SUBSTITUTE_ACTION_ERROR_MESSAGES: Record<string, string> = {
   B001: '이미 처리되었거나 승인/거절할 수 없는 상태입니다.',
@@ -11,8 +11,7 @@ export const SUBSTITUTE_APPROVE_CONFLICT_MESSAGE =
 
 /** 409 B020은 승인 직전 시간 충돌이고, 그 밖의 B020은 요청을 찾을 수 없는 경우다. */
 export function isSubstituteApproveConflict(error: unknown): boolean {
-  const { status, code } = getApiErrorInfo(error)
-  return status === 409 && code === 'B020'
+  return isApiError(error, 409, 'B020')
 }
 
 export function getSubstituteActionErrorMessage(error: unknown): string {
