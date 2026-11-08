@@ -411,6 +411,7 @@ export function useWorkerScheduleManageViewModel(args: {
           endHour,
           endMinute,
           recurrence,
+          today,
         })
       } else {
         if (!date || !pendingKey) {
@@ -480,9 +481,14 @@ export function useWorkerScheduleManageViewModel(args: {
     onError: async (error: unknown, { tab, date, pendingKey }) => {
       if (tab === '고정') {
         setSaveError(resolveFixedScheduleSaveError(error))
-        await queryClient.invalidateQueries({
-          queryKey: queryKeys.fixedWorkerSchedule.list(workspaceId),
-        })
+        // 일부 삭제·수정이 이미 반영됐을 수 있어 고정 목록과 일정을 함께 다시 조회한다.
+        const baseDate = date ?? new Date()
+        await invalidateManagerScheduleQueries(
+          queryClient,
+          workspaceId,
+          baseDate.getFullYear(),
+          baseDate.getMonth() + 1
+        )
         return
       }
 
