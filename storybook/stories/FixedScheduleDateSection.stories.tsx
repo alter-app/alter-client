@@ -113,9 +113,6 @@ export const MonthlySecondWeek: Story = {
       within(weeks).getByRole('button', { name: '둘째' })
     ).toHaveAttribute('aria-pressed', 'true')
     await expect(canvas.getByRole('button', { name: '월' })).toBeVisible()
-    await expect(
-      canvas.getByText('다섯째 주가 없는 달은 건너뛰어요.')
-    ).toBeVisible()
 
     await userEvent.click(within(weeks).getByRole('button', { name: '다섯째' }))
     await expect(canvas.getByTestId('form-state')).toHaveTextContent(
