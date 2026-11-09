@@ -1,3 +1,4 @@
+import { NICKNAME_GUIDE_MESSAGE } from '@/shared/lib/utils/nicknameValidation'
 import { useNavigate } from 'react-router-dom'
 import { useChangeNickname, useUserMe } from '@/features/user/me'
 import { AuthButton } from '@/shared/ui/common/AuthButton'
@@ -29,12 +30,12 @@ export function NicknameEditPage() {
         </label>
         <AuthInput
           value={changeNickname.nickname}
-          maxLength={64}
+          disabled={changeNickname.isBusy}
           placeholder="닉네임을 입력해 주세요"
           onChange={event => changeNickname.setNickname(event.target.value)}
         />
         <p className="mt-2 pl-1 text-text-50 typography-body03-regular">
-          현재 닉네임과 다른 64자 이하의 닉네임을 입력해 주세요.
+          {NICKNAME_GUIDE_MESSAGE}
         </p>
         {changeNickname.message && (
           <p role="alert" className="mt-4 text-error typography-body03-regular">
