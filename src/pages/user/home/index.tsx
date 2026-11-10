@@ -2,11 +2,13 @@ import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   HomeScheduleCalendar,
+  MonthlyIncomeCard,
   WorkingStoresList,
   AppliedStoreList,
   type AppliedStoreItem,
   useWorkspacesViewModel,
   useHomeScheduleViewModel,
+  useMonthlyIncomeViewModel,
   useAppliedStoresViewModel,
 } from '@/features/user'
 import { useNavbarNotificationProps } from '@/features/notification'
@@ -18,6 +20,13 @@ export function UserHomePage() {
 
   const { mode, baseDate, calendarData, isLoading, onDateChange } =
     useHomeScheduleViewModel()
+
+  const {
+    month: incomeMonth,
+    income,
+    isLoading: isIncomeLoading,
+    isError: isIncomeError,
+  } = useMonthlyIncomeViewModel(baseDate)
 
   const { workspaces } = useWorkspacesViewModel()
 
@@ -48,6 +57,13 @@ export function UserHomePage() {
           data={calendarData}
           isLoading={isLoading}
           onDateChange={onDateChange}
+        />
+
+        <MonthlyIncomeCard
+          month={incomeMonth}
+          income={income}
+          isLoading={isIncomeLoading}
+          isError={isIncomeError}
         />
 
         <WorkingStoresList

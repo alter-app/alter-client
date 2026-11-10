@@ -6,6 +6,8 @@ export { AppliedStoreDetailModal } from '@/features/user/home/applied-stores/ui/
 export { useAppliedStoresViewModel } from '@/features/user/home/applied-stores/hooks/useAppliedStoresViewModel'
 export type { AppliedStoreData } from '@/features/user/home/applied-stores/types/appliedStore'
 export { useHomeScheduleViewModel } from '@/features/user/home/schedule/hooks/useHomeScheduleViewModel'
+export { useMonthlyIncomeViewModel } from '@/features/user/home/schedule/hooks/useMonthlyIncomeViewModel'
+export { MonthlyIncomeCard } from '@/features/user/home/schedule/ui/MonthlyIncomeCard'
 export { useWorkspacesViewModel } from '@/features/user/home/workspace/hooks/useWorkspacesViewModel'
 export { useWorkspaceScheduleViewModel } from '@/features/user/home/workspace/hooks/useWorkspaceScheduleViewModel'
 export {
@@ -29,4 +31,5 @@ export type { ScheduleListItem } from '@/features/user/home/schedule/types/sched
 export {
   getSelfSchedule,
   adaptScheduleResponse,
+  adaptMonthlyIncome,
 } from '@/features/user/home/schedule/api/schedule'
