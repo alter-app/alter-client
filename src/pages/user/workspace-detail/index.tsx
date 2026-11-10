@@ -73,7 +73,7 @@ export function WorkspaceDetailPage() {
     calendarData,
     isLoading: scheduleLoading,
     onDateChange,
-  } = useWorkspaceScheduleViewModel(id)
+  } = useWorkspaceScheduleViewModel(id, storeDisplayName)
 
   const {
     managers,
