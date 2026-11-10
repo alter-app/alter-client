@@ -16,7 +16,11 @@ export interface WorkspaceShiftDto {
   status: StatusEnum
 }
 
-/** GET /app/schedules/workspaces/{id} 기본 응답의 data 객체 */
+/**
+ * GET /app/schedules/workspaces/{id} 기본 응답의 data 객체
+ * - schedules: 본인에게 배정된 확정 근무만 (assignedWorker는 항상 본인)
+ * - 본인 근무가 없는 달은 빈 배열·0시간·0원
+ */
 export interface WorkspaceScheduleDataDto {
   totalWorkHours: number
   estimatedSalary: number
@@ -48,24 +52,4 @@ export interface WorkspaceScheduleQueryParams {
   toYear?: number
   toMonth?: number
   toDay?: number
-}
-
-// ---- UI Model ----
-export interface WorkspaceShiftItem {
-  shiftId: number
-  workerId: number
-  workerName: string
-  position: string
-  status: StatusEnum
-  startDateTime: string
-  endDateTime: string
-  timeRange: string
-  durationHours: number
-}
-
-export interface WorkspaceWorkerItem {
-  workerId: number
-  workerName: string
-  nextShiftDateTime: string
-  nextShiftTimeRange: string
 }
