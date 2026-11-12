@@ -27,6 +27,9 @@ export type BusinessTypesApiResponse = CommonApiResponse<BusinessTypeDto[]>
 export interface WorkspaceRequestListItemDto {
   id: number
   businessName: string
+  roadAddress?: string | null
+  jibunAddress?: string | null
+  detailAddress?: string | null
   fullAddress: string
   createdAt: string
   status: WorkspaceRequestStatusDto
@@ -45,6 +48,9 @@ export interface WorkspaceRequestDetailDto {
   businessType: string
   contact: string
   status: WorkspaceRequestStatusDto
+  roadAddress?: string | null
+  jibunAddress?: string | null
+  detailAddress?: string | null
   fullAddress: string
   latitude: number
   longitude: number
@@ -70,6 +76,9 @@ export interface WorkspaceRepresentativeImageBody {
 export type WorkspaceRegistrationCreateBody = {
   bizName: string
   brn: string
+  roadAddress: string | null
+  jibunAddress: string
+  detailAddress: string
   address: string
   province: string
   district: string
