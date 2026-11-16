@@ -6,7 +6,10 @@ import type {
   SentSubstituteRequestDetailDto,
   SentSubstituteRequestListItemDto,
   SubstituteEnumValueDto,
+  SubstituteRequestStatus,
+  SubstituteRequestTargetStatus,
   SubstituteTargetDto,
+  SubstituteUiStatus,
 } from '@/features/user/substitute/types'
 
 import {
@@ -18,7 +21,10 @@ import {
   statusLabelForApi,
   unwrapSubstituteEnum,
 } from './adaptUserSubstituteRequest'
-import { resolveApiStatuses } from './substituteListFilters'
+import {
+  resolveApiStatuses,
+  USER_SUBSTITUTE_STATUS_FILTER_OPTIONS,
+} from './substituteListFilters'
 
 const schedule = {
   scheduleId: 1,
@@ -294,5 +300,173 @@ describe('알바생 수락과 사장님 승인 상태 구분', () => {
   it('수락됨·승인됨 필터는 각각 하나의 API 상태만 요청한다', () => {
     expect(resolveApiStatuses('accepted')).toEqual(['ACCEPTED'])
     expect(resolveApiStatuses('approved')).toEqual(['APPROVED'])
+  })
+})
+
+describe('받은 요청의 본인 대상자 상태(myTargetStatus) 표시', () => {
+  function receivedWith(
+    status: SubstituteRequestStatus,
+    myTargetStatus?: ReceivedSubstituteRequestDto['myTargetStatus']
+  ): ReceivedSubstituteRequestDto {
+    return {
+      ...received(),
+      requestType: { value: 'ALL', description: '전체' },
+      status: { value: status, description: status },
+      myTargetStatus,
+    }
+  }
+
+  function myTarget(
+    value: SubstituteRequestTargetStatus,
+    description = value as string
+  ) {
+    return { value, description }
+  }
+
+  // 받은 요청 상세는 목록 DTO를 그대로 재사용하므로 두 어댑터 결과가 같아야 한다.
+  function adaptBoth(dto: ReceivedSubstituteRequestDto) {
+    return {
+      item: adaptUserSubstituteListItem(dto, 'RECEIVED'),
+      detail: adaptReceivedSubstituteDetail(dto),
+    }
+  }
+
+  it.each<{
+    name: string
+    dto: ReceivedSubstituteRequestDto
+    uiStatus: SubstituteUiStatus
+    statusLabel: string
+    canRespond: boolean
+  }>([
+    {
+      name: '전체 PENDING + 본인 REJECTED는 거절함이고 응답할 수 없다',
+      dto: receivedWith('PENDING', myTarget('REJECTED', '거절됨')),
+      uiStatus: 'rejected',
+      statusLabel: '거절함',
+      canRespond: false,
+    },
+    {
+      name: '다른 근무자가 수락해 전체 ACCEPTED여도 본인 REJECTED면 거절함이다',
+      dto: receivedWith('ACCEPTED', myTarget('REJECTED')),
+      uiStatus: 'rejected',
+      statusLabel: '거절함',
+      canRespond: false,
+    },
+    {
+      name: '모든 대상자가 거절한 REJECTED_BY_TARGET + 본인 REJECTED는 거절함이다',
+      dto: receivedWith('REJECTED_BY_TARGET', myTarget('REJECTED')),
+      uiStatus: 'rejected',
+      statusLabel: '거절함',
+      canRespond: false,
+    },
+    {
+      name: '전체 PENDING + 본인 PENDING은 요청됨이고 응답할 수 있다',
+      dto: receivedWith('PENDING', myTarget('PENDING')),
+      uiStatus: 'pending',
+      statusLabel: '확인중',
+      canRespond: true,
+    },
+    {
+      name: '본인 수락(ACCEPTED)은 수락됨이다',
+      dto: receivedWith('ACCEPTED', myTarget('ACCEPTED')),
+      uiStatus: 'accepted',
+      statusLabel: '수락됨',
+      canRespond: false,
+    },
+    {
+      name: '사장님 승인(APPROVED)은 승인됨이다',
+      dto: receivedWith('APPROVED', myTarget('APPROVED')),
+      uiStatus: 'approved',
+      statusLabel: '승인됨',
+      canRespond: false,
+    },
+    {
+      name: '다른 사람이 먼저 수락한 요청은 서버 description을 수락됨 계열로 표시하고 응답할 수 없다',
+      dto: receivedWith(
+        'ACCEPTED',
+        myTarget('ACCEPTED_BY_OTHERS', '다른 사람에게 수락됨')
+      ),
+      uiStatus: 'accepted',
+      statusLabel: '다른 사람에게 수락됨',
+      canRespond: false,
+    },
+    {
+      name: '다른 사람이 먼저 수락한 요청은 승인 뒤에도 서버 description을 수락됨 계열로 표시한다',
+      dto: receivedWith(
+        'APPROVED',
+        myTarget('ACCEPTED_BY_OTHERS', '다른 사람에게 수락됨')
+      ),
+      uiStatus: 'accepted',
+      statusLabel: '다른 사람에게 수락됨',
+      canRespond: false,
+    },
+    {
+      name: 'ACCEPTED_BY_OTHERS의 description이 비면 전체 status로 폴백한다',
+      dto: receivedWith('APPROVED', myTarget('ACCEPTED_BY_OTHERS', ' ')),
+      uiStatus: 'approved',
+      statusLabel: '승인됨',
+      canRespond: false,
+    },
+    {
+      name: '본인 상태가 취소됨이면 전체 status(CANCELLED) 표시를 따른다',
+      dto: receivedWith('CANCELLED', myTarget('CANCELLED')),
+      uiStatus: 'cancelled',
+      statusLabel: '취소됨',
+      canRespond: false,
+    },
+    {
+      name: 'myTargetStatus가 없으면 전체 PENDING으로 폴백해 응답할 수 있다',
+      dto: receivedWith('PENDING'),
+      uiStatus: 'pending',
+      statusLabel: '확인중',
+      canRespond: true,
+    },
+    {
+      name: 'myTargetStatus가 null이면 전체 ACCEPTED로 폴백해 수락됨이다',
+      dto: receivedWith('ACCEPTED', null),
+      uiStatus: 'accepted',
+      statusLabel: '수락됨',
+      canRespond: false,
+    },
+    {
+      name: 'myTargetStatus가 없으면 전체 APPROVED로 폴백해 승인됨이다',
+      dto: receivedWith('APPROVED'),
+      uiStatus: 'approved',
+      statusLabel: '승인됨',
+      canRespond: false,
+    },
+  ])('$name', ({ dto, uiStatus, statusLabel, canRespond }) => {
+    const { item, detail } = adaptBoth(dto)
+
+    expect(item.uiStatus).toBe(uiStatus)
+    expect(item.statusLabel).toBe(statusLabel)
+    expect(detail.uiStatus).toBe(uiStatus)
+    expect(detail.statusLabel).toBe(statusLabel)
+    expect(item.canRespond).toBe(canRespond)
+    expect(detail.canRespond).toBe(canRespond)
+  })
+
+  it('보낸 요청 목록 항목은 PENDING이어도 응답할 수 없다', () => {
+    expect(adaptUserSubstituteListItem(sentList({}), 'SENT').canRespond).toBe(
+      false
+    )
+  })
+
+  it('목록 rawStatus는 본인 상태와 관계없이 전체 status를 유지한다', () => {
+    const { item, detail } = adaptBoth(
+      receivedWith('PENDING', myTarget('REJECTED'))
+    )
+    expect(item.rawStatus).toBe('PENDING')
+    expect(detail.rawStatus).toBe('PENDING')
+  })
+
+  it('거절함은 서버 status로 조회할 수 없어 상태 필터 선택지에 없다', () => {
+    expect(USER_SUBSTITUTE_STATUS_FILTER_OPTIONS.map(o => o.key)).toEqual([
+      'all',
+      'pending',
+      'accepted',
+      'approved',
+      'cancelled',
+    ])
   })
 })

@@ -4,6 +4,7 @@ export type SubstituteStatusBadgeTone =
   | 'pending'
   | 'accepted'
   | 'approved'
+  | 'rejected'
   | 'cancelled'
 
 interface SubstituteRequestStatusBadgeProps {
@@ -26,6 +27,10 @@ const BADGE_STYLE_MAP: Record<
   approved: {
     containerClassName: 'border border-main bg-main',
     textClassName: 'text-white',
+  },
+  rejected: {
+    containerClassName: 'border border-error/30 bg-white',
+    textClassName: 'text-error',
   },
   cancelled: {
     containerClassName: 'border border-error/30 bg-white',

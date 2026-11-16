@@ -52,6 +52,38 @@ describe('buildSubstituteListSections', () => {
     ])
   })
 
+  it('본인이 거절한 받은 요청은 승인됨과 취소됨 사이의 거절함 섹션에 둔다', () => {
+    const rejectedItem = adaptUserSubstituteListItem(
+      {
+        ...item(5, 'PENDING').dto,
+        myTargetStatus: { value: 'REJECTED', description: '거절됨' },
+      } as ReceivedSubstituteRequestDto,
+      'RECEIVED'
+    )
+    const sections = buildSubstituteListSections(
+      [
+        item(1, 'CANCELLED'),
+        rejectedItem,
+        item(2, 'APPROVED'),
+        item(3, 'PENDING'),
+      ],
+      'all'
+    )
+
+    expect(sections.map(section => section.title)).toEqual([
+      '요청됨',
+      '승인됨',
+      '거절함',
+      '취소됨',
+    ])
+    expect(sections.map(section => section.items.map(i => i.id))).toEqual([
+      [3],
+      [2],
+      [5],
+      [1],
+    ])
+  })
+
   it('전체 필터에서 항목이 없는 상태의 섹션은 만들지 않는다', () => {
     const sections = buildSubstituteListSections(
       [item(1, 'APPROVED'), item(2, 'APPROVED')],

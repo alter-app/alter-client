@@ -71,3 +71,28 @@ export const ReceivedApproved: Story = {
     receivedFallback: received({ status: 'APPROVED' }),
   },
 }
+
+/** 전체 요청은 PENDING이지만 본인이 이미 거절한 ALL 요청 */
+export const ReceivedRejectedByMe: Story = {
+  args: {
+    receivedFallback: received({
+      requestType: 'ALL',
+      status: { value: 'PENDING', description: '대기 중' },
+      myTargetStatus: { value: 'REJECTED', description: '거절됨' },
+    }),
+  },
+}
+
+/** 다른 근무자가 먼저 수락하고 사장님 승인까지 끝난 ALL 요청 */
+export const ReceivedAcceptedByOthers: Story = {
+  args: {
+    receivedFallback: received({
+      requestType: 'ALL',
+      status: { value: 'APPROVED', description: '승인됨' },
+      myTargetStatus: {
+        value: 'ACCEPTED_BY_OTHERS',
+        description: '다른 사람에게 수락됨',
+      },
+    }),
+  },
+}
