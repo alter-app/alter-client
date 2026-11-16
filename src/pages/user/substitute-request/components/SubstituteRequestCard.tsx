@@ -22,7 +22,7 @@ export function SubstituteRequestCard({
 }: SubstituteRequestCardProps) {
   const showResponseActions =
     directionTab === 'received' &&
-    item.uiStatus === 'pending' &&
+    item.canRespond &&
     onAccept != null &&
     onReject != null
 
