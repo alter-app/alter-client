@@ -1,6 +1,9 @@
 import type { ManagerWeekdayKo } from '@/features/manager/home/constants/managerWeekdayKo'
 import { MANAGER_WEEKDAY_KO_ORDER } from '@/features/manager/home/constants/managerWeekdayKo'
-import type { FixedWorkerScheduleDto } from '@/features/manager/worker-schedule/types/fixedWorkerSchdules'
+import type {
+  FixedScheduleRecurrenceType,
+  FixedWorkerScheduleDto,
+} from '@/features/manager/worker-schedule/types/fixedWorkerSchdules'
 import {
   nextWeekdayKoToApi,
   sortWeekdaysKo,
@@ -20,6 +23,18 @@ export type WorkerFixedSlotByWeekday = {
   endDayOfWeek: FixedWorkerScheduleDto['endDayOfWeek']
   startTime: string
   endTime: string
+  recurrenceType: FixedScheduleRecurrenceType
+  weekOfMonth: number | null
+  /** null이면 반복·기간 도입 전의 무기한 매주 규칙이다. */
+  startDate: string | null
+  endDate: string | null
+}
+
+function unwrapRecurrenceType(
+  value: FixedWorkerScheduleDto['recurrenceType']
+): FixedScheduleRecurrenceType {
+  const raw = typeof value === 'object' && value !== null ? value.value : value
+  return raw === 'MONTHLY' ? 'MONTHLY' : 'WEEKLY'
 }
 
 export function listFixedSchedulesForWorker(
@@ -40,6 +55,10 @@ export function listFixedSchedulesForWorker(
         endDayOfWeek: s.endDayOfWeek,
         startTime: s.startTime,
         endTime: s.endTime,
+        recurrenceType: unwrapRecurrenceType(s.recurrenceType),
+        weekOfMonth: s.weekOfMonth ?? null,
+        startDate: s.startDate ?? null,
+        endDate: s.endDate ?? null,
       }
     })
     .filter((s): s is WorkerFixedSlotByWeekday => s !== null)

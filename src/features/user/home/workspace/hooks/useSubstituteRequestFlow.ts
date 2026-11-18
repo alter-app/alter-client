@@ -81,7 +81,6 @@ interface UseSubstituteRequestFlowParams {
   /** workspaceId 없을 때만 사용 (레거시) */
   calendarData?: CalendarViewData | null
   initialMonth?: Date
-  summarySelfIntroduction?: string
   workspaceId?: number
   onClose: () => void
 }
@@ -89,7 +88,6 @@ interface UseSubstituteRequestFlowParams {
 export function useSubstituteRequestFlow({
   calendarData,
   initialMonth,
-  summarySelfIntroduction,
   workspaceId,
   onClose,
 }: UseSubstituteRequestFlowParams) {
@@ -99,9 +97,6 @@ export function useSubstituteRequestFlow({
   const [substituteSubmitLocalError, setSubstituteSubmitLocalError] = useState<
     string | null
   >(null)
-  const [selfIntroduction, setSelfIntroduction] = useState(
-    () => summarySelfIntroduction?.trim() ?? ''
-  )
   const [substituteCalendarBaseDate, setSubstituteCalendarBaseDate] = useState(
     () => initialMonth ?? new Date()
   )
@@ -325,8 +320,6 @@ export function useSubstituteRequestFlow({
     goBack,
     substituteReason,
     onSubstituteReasonChange,
-    selfIntroduction,
-    setSelfIntroduction,
     substituteCalendarBaseDate,
     setSubstituteCalendarBaseDate,
     selectedCalendarDate,

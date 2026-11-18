@@ -69,8 +69,11 @@ export function normalizeSubstituteStatus(status: string): string {
 
 export function mapApiStatusToUi(status: string): SubstituteUiStatus {
   const upper = normalizeSubstituteStatus(status)
-  if (upper === 'APPROVED' || upper === 'ACCEPTED') {
+  if (upper === 'ACCEPTED') {
     return 'accepted'
+  }
+  if (upper === 'APPROVED') {
+    return 'approved'
   }
   if (
     upper === 'CANCELLED' ||
@@ -88,14 +91,10 @@ export function statusLabelForApi(
   uiStatus: SubstituteUiStatus
 ): string {
   const upper = normalizeSubstituteStatus(apiStatus)
-  if (uiStatus === 'accepted') {
-    if (upper === 'ACCEPTED') return '수락됨'
-    if (upper === 'APPROVED') return '수락됨'
-    return '수락됨'
-  }
+  if (uiStatus === 'accepted') return '수락됨'
+  if (uiStatus === 'approved') return '승인됨'
   if (uiStatus === 'cancelled') {
     if (upper === 'EXPIRED') return '만료됨'
-    if (upper === 'CANCELLED') return '취소됨'
     if (upper === 'REJECTED_BY_TARGET') return '거절됨'
     if (upper === 'REJECTED_BY_APPROVER') return '거절됨'
     return '취소됨'
@@ -356,6 +355,7 @@ function detailFromSchedulePerson(
     reason:
       dto.requestReason?.trim() || '대타요청 사유가 작성 되어있는 곳입니다.',
     uiStatus,
+    statusLabel: statusLabelForApi(rawStatus, uiStatus),
     canRespond: direction === 'RECEIVED' && upper === 'PENDING',
     canCancel:
       direction === 'SENT' && (upper === 'PENDING' || upper === 'ACCEPTED'),
