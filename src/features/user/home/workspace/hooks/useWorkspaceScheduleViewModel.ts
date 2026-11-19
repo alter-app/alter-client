@@ -6,10 +6,12 @@ import { queryKeys } from '@/shared/lib/queryKeys'
 import {
   getWorkspaceSchedule,
   adaptWorkspaceScheduleToCalendar,
-  deriveWorkerList,
 } from '@/features/user/home/workspace/api/workspaceSchedule'
 
-export function useWorkspaceScheduleViewModel(workspaceId: number) {
+export function useWorkspaceScheduleViewModel(
+  workspaceId: number,
+  workspaceName?: string
+) {
   const [mode, setMode] = useState<HomeCalendarMode>('monthly')
   const [baseDate, setBaseDate] = useState(() => new Date())
 
@@ -26,13 +28,9 @@ export function useWorkspaceScheduleViewModel(workspaceId: number) {
   })
 
   const calendarData = useMemo(
-    () => (rawData ? adaptWorkspaceScheduleToCalendar(rawData) : null),
-    [rawData]
-  )
-
-  const workers = useMemo(
-    () => (rawData ? deriveWorkerList(rawData) : []),
-    [rawData]
+    () =>
+      rawData ? adaptWorkspaceScheduleToCalendar(rawData, workspaceName) : null,
+    [rawData, workspaceName]
   )
 
   const onDateChange = useCallback((nextDate: Date) => {
@@ -44,7 +42,6 @@ export function useWorkspaceScheduleViewModel(workspaceId: number) {
     setMode,
     baseDate,
     calendarData,
-    workers,
     isLoading: isPending,
     isError,
     onDateChange,
