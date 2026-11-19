@@ -103,18 +103,14 @@ export function ManagerSubstituteActionModal({
             rows={4}
             className="w-full resize-none rounded-2xl bg-bg-dark p-4 typography-body02-regular text-text-100 outline-none placeholder:text-text-50"
           />
-          <div className="mt-1 flex items-start justify-between">
-            {error || submitError ? (
-              <p className="typography-body02-regular text-error">
-                {error ?? submitError}
-              </p>
-            ) : (
-              <span />
-            )}
-            <p className="typography-body02-regular text-text-50">
-              {comment.length}/500
+          <p className="mt-1 text-right typography-body02-regular text-text-50">
+            {comment.length}/500
+          </p>
+          {error || submitError ? (
+            <p className="mt-1 typography-body02-regular text-error">
+              {error ?? submitError}
             </p>
-          </div>
+          ) : null}
         </div>
         <div className="px-5 pb-5">
           <button
