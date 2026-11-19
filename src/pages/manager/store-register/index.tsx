@@ -1,3 +1,4 @@
+import { WorkspaceAddressPicker } from '@/features/store-register/ui/WorkspaceAddressPicker'
 import type { ReactNode } from 'react'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { useStoreRegisterWizard } from '@/features/store-register/hooks/useStoreRegisterWizard'
@@ -81,10 +82,6 @@ export function StoreRegisterPage() {
             <StoreBasicInfoFields
               bizName={w.bizName}
               brn={w.brn}
-              province={w.province}
-              district={w.district}
-              town={w.town}
-              address={w.address}
               businessTypeId={w.businessTypeId}
               businessTypeDetail={w.businessTypeDetail}
               businessTypes={w.businessTypes}
@@ -94,13 +91,15 @@ export function StoreRegisterPage() {
               contact={w.contact}
               onBizNameChange={w.setBizName}
               onBrnChange={w.setBrn}
-              onProvinceChange={w.setProvince}
-              onDistrictChange={w.setDistrict}
-              onTownChange={w.setTown}
-              onAddressChange={w.setAddress}
               onBusinessTypeIdChange={w.setBusinessTypeId}
               onBusinessTypeDetailChange={w.setBusinessTypeDetail}
               onContactChange={w.setContact}
+            />
+            <WorkspaceAddressPicker
+              value={w.location}
+              onChange={w.setLocation}
+              detailAddress={w.detailAddress}
+              onDetailChange={w.setDetailAddress}
             />
             <RepresentativeImagePicker picker={w.representativeImages} />
           </div>

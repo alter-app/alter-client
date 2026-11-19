@@ -1,3 +1,7 @@
+import {
+  isValidWorkspaceLocation,
+  type WorkspaceLocation,
+} from '@/features/store-register/lib/geocodeWorkspaceAddress'
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -36,10 +40,8 @@ export function useStoreRegisterWizard() {
   const [step, setStep] = useState<Step>('info')
   const [bizName, setBizName] = useState('')
   const [brn, setBrn] = useState('')
-  const [province, setProvince] = useState('')
-  const [district, setDistrict] = useState('')
-  const [town, setTown] = useState('')
-  const [address, setAddress] = useState('')
+  const [location, setLocation] = useState<WorkspaceLocation | null>(null)
+  const [detailAddress, setDetailAddress] = useState('')
   const [businessTypeId, setBusinessTypeId] = useState<number | null>(null)
   const [businessTypeDetail, setBusinessTypeDetail] = useState('')
   const [contact, setContact] = useState('')
@@ -63,10 +65,7 @@ export function useStoreRegisterWizard() {
   const infoValid =
     bizName.trim().length > 0 &&
     brn.replace(/\D/g, '').length === 10 &&
-    province.trim().length > 0 &&
-    district.trim().length > 0 &&
-    town.trim().length > 0 &&
-    address.trim().length > 0 &&
+    isValidWorkspaceLocation(location) &&
     businessTypeValid &&
     contact.trim().length > 0
 
@@ -77,7 +76,13 @@ export function useStoreRegisterWizard() {
   const goCertificate = () => setStep('certificate')
 
   const submit = useCallback(async () => {
-    if (!certFile.file || !identityFile.file || !infoValid || !businessTypeId) {
+    if (
+      !certFile.file ||
+      !identityFile.file ||
+      !infoValid ||
+      !businessTypeId ||
+      !isValidWorkspaceLocation(location)
+    ) {
       return
     }
 
@@ -117,10 +122,26 @@ export function useStoreRegisterWizard() {
         await createWorkspaceRegistrationRequest(scope, {
           bizName,
           brn,
-          province,
-          district,
-          town,
-          address,
+          province: location.province,
+          district: location.district,
+          town: location.town,
+          // 기존 서버의 지역 + address 조합과 중복되지 않도록 지번의 나머지만 유지합니다.
+          address: location.jibunAddress.startsWith(
+            [location.province, location.district, location.town]
+              .filter(Boolean)
+              .join(' ') + ' '
+          )
+            ? location.jibunAddress
+                .slice(
+                  [location.province, location.district, location.town]
+                    .filter(Boolean)
+                    .join(' ').length
+                )
+                .trim()
+            : location.jibunAddress,
+          roadAddress: location.roadAddress,
+          jibunAddress: location.jibunAddress,
+          detailAddress: detailAddress.trim(),
           businessTypeId,
           businessTypeDetail: businessTypeDetail.trim() || null,
           contact,
@@ -131,8 +152,8 @@ export function useStoreRegisterWizard() {
           representativeImages: representativeImages.images.map(
             (image, index) => ({ fileId: image.fileId, sortOrder: index })
           ),
-          latitude: 37.5665,
-          longitude: 126.978,
+          latitude: location.latitude,
+          longitude: location.longitude,
         })
       } catch (e) {
         setSubmitError(
@@ -155,17 +176,15 @@ export function useStoreRegisterWizard() {
       setIsSubmitting(false)
     }
   }, [
-    address,
+    location,
+    detailAddress,
     brn,
     certFile.file,
     contact,
-    district,
     identityFile.file,
     infoValid,
-    province,
     representativeImages.images,
     scope,
-    town,
     businessTypeId,
     businessTypeDetail,
     warrantFile.file,
@@ -180,10 +199,6 @@ export function useStoreRegisterWizard() {
     step,
     bizName,
     brn,
-    province,
-    district,
-    town,
-    address,
     businessTypeId,
     businessTypeDetail,
     businessTypes,
@@ -195,10 +210,10 @@ export function useStoreRegisterWizard() {
     contact,
     setBizName,
     setBrn: setBrnMasked,
-    setProvince,
-    setDistrict,
-    setTown,
-    setAddress,
+    location,
+    setLocation,
+    detailAddress,
+    setDetailAddress,
     setBusinessTypeId,
     setBusinessTypeDetail,
     setContact: setContactMasked,

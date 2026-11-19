@@ -33,7 +33,18 @@ export function RequestInfoSection({ detail }: Props) {
         <div className="border-t border-line-1" />
         <InfoRow label="연락처" value={detail.contact} />
         <div className="border-t border-line-1" />
-        <InfoRow label="주소" value={detail.fullAddress} />
+        <InfoRow
+          label="주소"
+          value={
+            detail.roadAddress || detail.jibunAddress || detail.fullAddress
+          }
+        />
+        {detail.jibunAddress && (
+          <InfoRow label="지번 주소" value={detail.jibunAddress} />
+        )}
+        {detail.detailAddress && (
+          <InfoRow label="상세주소" value={detail.detailAddress} />
+        )}
       </div>
     </section>
   )
