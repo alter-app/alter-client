@@ -4,6 +4,7 @@ import type { ApiError, ErrorResponse } from '@/shared/types/common'
 import type {
   CalendarEvent,
   CalendarViewData,
+  MonthlyIncome,
   ScheduleApiResponse,
   ScheduleDataDto,
 } from '@/features/user/home/schedule/types/schedule'
@@ -34,12 +35,37 @@ function mapToCalendarEvent(
 export function adaptScheduleResponse(
   response: ScheduleApiResponse
 ): CalendarViewData {
+  const { estimatedSalary } = response.data
   return {
     summary: {
       totalWorkHours: response.data.totalWorkHours,
       eventCount: response.data.schedules.length,
+      ...(typeof estimatedSalary === 'number' && {
+        estimatedLaborCost: estimatedSalary,
+      }),
     },
     events: response.data.schedules.map(mapToCalendarEvent),
+  }
+}
+
+/**
+ * 월 조회 응답에서 수입 카드 데이터를 만든다.
+ * 일 조회·주간 병합 응답은 estimatedSalary가 null이므로 null을 돌려준다.
+ */
+export function adaptMonthlyIncome(
+  response: ScheduleApiResponse
+): MonthlyIncome | null {
+  const { totalWorkHours, estimatedSalary, workspaceSummaries } = response.data
+  if (typeof estimatedSalary !== 'number') return null
+  return {
+    totalWorkHours,
+    estimatedSalary,
+    workspaces: (workspaceSummaries ?? []).map(summary => ({
+      workspaceId: summary.workspace.workspaceId,
+      workspaceName: summary.workspace.workspaceName,
+      totalWorkHours: summary.totalWorkHours,
+      estimatedSalary: summary.estimatedSalary,
+    })),
   }
 }
 
@@ -80,6 +106,9 @@ function mergeScheduleResponses(
     ...a,
     data: {
       totalWorkHours: a.data.totalWorkHours + b.data.totalWorkHours,
+      // 두 달에 걸친 주간 병합 결과는 한 달 기준 수입이 아니다
+      estimatedSalary: null,
+      workspaceSummaries: null,
       schedules: [...a.data.schedules, ...b.data.schedules],
     },
   }
@@ -92,7 +121,19 @@ export async function getSelfSchedule(
     const sameMonth =
       params.fromYear === params.toYear && params.fromMonth === params.toMonth
     if (sameMonth) {
-      return fetchScheduleByMonth(params.fromYear, params.fromMonth)
+      // 주간 조회는 월 응답을 빌려 쓰므로 월 기준 수입은 떼어 낸다
+      const monthData = await fetchScheduleByMonth(
+        params.fromYear,
+        params.fromMonth
+      )
+      return {
+        ...monthData,
+        data: {
+          ...monthData.data,
+          estimatedSalary: null,
+          workspaceSummaries: null,
+        },
+      }
     }
     const [fromData, toData] = await Promise.all([
       fetchScheduleByMonth(params.fromYear, params.fromMonth),
