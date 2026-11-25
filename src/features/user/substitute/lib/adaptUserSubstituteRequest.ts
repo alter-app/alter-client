@@ -93,6 +93,7 @@ export function statusLabelForApi(
   const upper = normalizeSubstituteStatus(apiStatus)
   if (uiStatus === 'accepted') return '수락됨'
   if (uiStatus === 'approved') return '승인됨'
+  if (uiStatus === 'rejected') return '거절함'
   if (uiStatus === 'cancelled') {
     if (upper === 'EXPIRED') return '만료됨'
     if (upper === 'REJECTED_BY_TARGET') return '거절됨'
@@ -100,6 +101,52 @@ export function statusLabelForApi(
     return '취소됨'
   }
   return '확인중'
+}
+
+interface SubstituteStatusView {
+  uiStatus: SubstituteUiStatus
+  statusLabel: string
+}
+
+function resolveStatusView(rawStatus: string): SubstituteStatusView {
+  const uiStatus = mapApiStatusToUi(rawStatus)
+  return { uiStatus, statusLabel: statusLabelForApi(rawStatus, uiStatus) }
+}
+
+/**
+ * 받은 요청의 표시 상태를 본인 대상자 상태(`myTargetStatus`) 우선으로 정한다.
+ * 본인 거절은 전체 status와 무관하게 거절함, 다른 사람이 먼저 수락한 요청은 서버 description을 수락됨에 쓰고,
+ * 그 밖의 값이거나 `myTargetStatus`가 없으면 전체 status로 폴백한다.
+ */
+function resolveReceivedStatusView(
+  dto: Pick<ReceivedSubstituteRequestDto, 'status' | 'myTargetStatus'>
+): SubstituteStatusView {
+  const myTargetStatus = normalizeSubstituteStatus(
+    unwrapSubstituteEnum(dto.myTargetStatus)
+  )
+  if (myTargetStatus === 'REJECTED') {
+    return {
+      uiStatus: 'rejected',
+      statusLabel: statusLabelForApi(myTargetStatus, 'rejected'),
+    }
+  }
+  if (myTargetStatus === 'ACCEPTED_BY_OTHERS') {
+    const description = dto.myTargetStatus?.description
+    if (typeof description === 'string' && description.trim() !== '') {
+      return { uiStatus: 'accepted', statusLabel: description.trim() }
+    }
+  }
+  return resolveStatusView(unwrapSubstituteEnum(dto.status))
+}
+
+/** 받은 요청은 전체 status가 PENDING이고 본인도 아직 응답하지 않았을(uiStatus `pending`) 때만 수락·거절할 수 있다. */
+function canRespondToReceived(
+  rawStatus: string,
+  uiStatus: SubstituteUiStatus
+): boolean {
+  return (
+    normalizeSubstituteStatus(rawStatus) === 'PENDING' && uiStatus === 'pending'
+  )
 }
 
 function positionToRole(position?: string): WorkerRole {
@@ -276,14 +323,15 @@ function adaptReceivedListItem(
   const storeName = dto.workspace.workspaceName?.trim() ?? '매장'
   const personName = dto.requester.workerName?.trim() ?? '이름'
   const rawStatus = unwrapSubstituteEnum(dto.status)
-  const uiStatus = mapApiStatusToUi(rawStatus)
+  const { uiStatus, statusLabel } = resolveReceivedStatusView(dto)
 
   return buildListItemBase(dto, {
     id: dto.id,
     displayName: `${storeName} / ${personName}`,
     role: positionToRole(dto.schedule.position),
     uiStatus,
-    statusLabel: statusLabelForApi(rawStatus, uiStatus),
+    statusLabel,
+    canRespond: canRespondToReceived(rawStatus, uiStatus),
     imageUrl: dto.requester.profileImageUrl ?? null,
     rawStatus,
     dto,
@@ -308,6 +356,7 @@ function adaptSentListItem(
     role: positionToRole(dto.schedule.position),
     uiStatus,
     statusLabel: statusLabelForApi(rawStatus, uiStatus),
+    canRespond: false,
     imageUrl: resolveSentPersonImage(dto) ?? null,
     rawStatus,
     dto,
@@ -333,11 +382,12 @@ function detailFromSchedulePerson(
   },
   personName: string,
   personImage: string | null,
-  direction: SubstituteRequestDirection
+  direction: SubstituteRequestDirection,
+  statusView: SubstituteStatusView
 ): UserSubstituteDetailViewModel {
   const storeName = dto.workspace.workspaceName?.trim() ?? '매장'
   const rawStatus = unwrapSubstituteEnum(dto.status)
-  const uiStatus = mapApiStatusToUi(rawStatus)
+  const { uiStatus, statusLabel } = statusView
   const upper = normalizeSubstituteStatus(rawStatus)
 
   return {
@@ -355,8 +405,9 @@ function detailFromSchedulePerson(
     reason:
       dto.requestReason?.trim() || '대타요청 사유가 작성 되어있는 곳입니다.',
     uiStatus,
-    statusLabel: statusLabelForApi(rawStatus, uiStatus),
-    canRespond: direction === 'RECEIVED' && upper === 'PENDING',
+    statusLabel,
+    canRespond:
+      direction === 'RECEIVED' && canRespondToReceived(rawStatus, uiStatus),
     canCancel:
       direction === 'SENT' && (upper === 'PENDING' || upper === 'ACCEPTED'),
     rawStatus,
@@ -371,7 +422,8 @@ export function adaptReceivedSubstituteDetail(
       dto,
       dto.requester.workerName?.trim() ?? '이름',
       dto.requester.profileImageUrl ?? null,
-      'RECEIVED'
+      'RECEIVED',
+      resolveReceivedStatusView(dto)
     ),
     id: dto.id,
   }
@@ -384,7 +436,13 @@ export function adaptSentSubstituteDetail(
   const personImage = resolveSentPersonImage(dto)
 
   return {
-    ...detailFromSchedulePerson(dto, personName, personImage, 'SENT'),
+    ...detailFromSchedulePerson(
+      dto,
+      personName,
+      personImage,
+      'SENT',
+      resolveStatusView(unwrapSubstituteEnum(dto.status))
+    ),
     id: dto.id,
   }
 }
