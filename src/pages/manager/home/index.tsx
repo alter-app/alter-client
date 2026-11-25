@@ -1,4 +1,7 @@
-import { formatAddress, formatJibunAddress } from '@/shared/lib/utils/addressFormat'
+import {
+  formatAddress,
+  formatJibunAddress,
+} from '@/shared/lib/utils/addressFormat'
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'

@@ -1,4 +1,7 @@
-import { formatAddress, formatJibunAddress } from '@/shared/lib/utils/addressFormat'
+import {
+  formatAddress,
+  formatJibunAddress,
+} from '@/shared/lib/utils/addressFormat'
 import { useMemo, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
