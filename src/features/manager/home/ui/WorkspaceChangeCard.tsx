@@ -1,3 +1,4 @@
+import { formatAddress } from '@/shared/lib/utils/addressFormat'
 import { WorkCategoryBadge } from '@/shared/ui/home/WorkCategoryBadge'
 import type { WorkspaceItemDto } from '@/features/manager/home/types/workspace'
 
@@ -30,8 +31,8 @@ export function WorkspaceChangeCard({
         </div>
 
         <div className="flex min-w-0 items-center gap-2 typography-body02-regular text-text-100">
-          <span className="whitespace-nowrap" title={workspace.fullAddress}>
-            {workspace.fullAddress}
+          <span className="whitespace-nowrap" title={formatAddress(workspace)}>
+            {formatAddress(workspace)}
           </span>
           <span
             className={`h-4 w-px shrink-0 ${

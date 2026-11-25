@@ -11,6 +11,10 @@ export interface WorkspaceItemDto {
   businessName: string
   businessType: string
   fullAddress: string
+  /** 지번 주소 — 기존 업장은 null */
+  jibunAddress?: string | null
+  /** 상세 주소 — 기존 업장은 null */
+  detailAddress?: string | null
   createdAt: string
   status: WorkspaceStatusDto
 }
@@ -22,6 +26,10 @@ export interface WorkspaceDetailDto {
   contact: string
   description: string
   fullAddress: string
+  /** 지번 주소 — 기존 업장은 null */
+  jibunAddress?: string | null
+  /** 상세 주소 — 기존 업장은 null */
+  detailAddress?: string | null
   reputationSummary: string
 }
 
