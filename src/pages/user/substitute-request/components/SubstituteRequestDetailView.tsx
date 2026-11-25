@@ -3,6 +3,7 @@ import { useState } from 'react'
 import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 import type { SubstituteDirectionTab } from '@/pages/user/substitute-request/components/SubstituteRequestTabs'
 import { Avatar } from '@/shared/ui/common/Avatar'
+import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import { SubstituteRejectReasonModal } from '@/pages/user/substitute-request/components/SubstituteRejectReasonModal'
 import { SubstituteRequestStatusBadge } from '@/shared/ui/substitute/SubstituteRequestStatusBadge'
 import { useUserSubstituteRequestDetailViewModel } from '@/features/user/substitute/hooks/useUserSubstituteRequestDetailViewModel'
@@ -67,6 +68,9 @@ export function SubstituteRequestDetailView({
     isRejecting,
     isCancelling,
     actionError,
+    rejectError,
+    conflictError,
+    clearRejectError,
   } = useUserSubstituteRequestDetailViewModel(requestId, direction, {
     receivedFallback,
     onActionSuccess: onBack,
@@ -208,14 +212,24 @@ export function SubstituteRequestDetailView({
         </div>
       </div>
 
+      {/* 성공하면 상세를 떠나고, 충돌이면 아래 확인 모달로 바뀌므로 그 전까지 거절 모달을 열어 둔다. */}
       <SubstituteRejectReasonModal
-        open={rejectModalOpen}
+        open={rejectModalOpen && conflictError == null}
         pending={isRejecting}
-        onClose={() => setRejectModalOpen(false)}
-        onSubmit={reason => {
-          reject(reason)
+        submitError={rejectError}
+        onClose={() => {
           setRejectModalOpen(false)
+          clearRejectError()
         }}
+        onSubmit={reject}
+      />
+
+      <ConfirmModal
+        isOpen={conflictError != null}
+        title="처리할 수 없어요"
+        description={conflictError ?? undefined}
+        onConfirm={onBack}
+        onClose={onBack}
       />
     </>
   )

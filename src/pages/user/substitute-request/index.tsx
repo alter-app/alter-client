@@ -16,6 +16,11 @@ import type {
   UserSubstituteListItem,
 } from '@/features/user/substitute/types'
 import { useUserSubstituteRequestsViewModel } from '@/features/user/substitute/hooks/useUserSubstituteRequestsViewModel'
+import {
+  USER_SUBSTITUTE_RESPOND_ERROR_FALLBACK,
+  getUserSubstituteActionErrorMessage,
+} from '@/features/user/substitute/lib/substituteActionError'
+import { USER_SUBSTITUTE_RESPOND_REFETCH_QUERY_KEYS } from '@/features/user/substitute/lib/substituteRefetchQueryKeys'
 import type { UserSubstituteListStatusFilter } from '@/features/user/substitute'
 import { useWorkspacesViewModel } from '@/features/user'
 import { SubstituteCreateFab } from '@/pages/user/substitute-request/components/SubstituteCreateFab'
@@ -29,6 +34,7 @@ import {
 import { SubstituteStoreSelectModal } from '@/pages/user/substitute-request/components/SubstituteStoreSelectModal'
 import { SubstituteRequestModalFlow } from '@/pages/user/workspace-detail/components/SubstituteRequestModalFlow'
 import { useNavbarNotificationProps } from '@/features/notification'
+import { ConfirmModal } from '@/shared/ui/common/ConfirmModal'
 import { Navbar } from '@/shared/ui/common/Navbar'
 import { Spinner } from '@/shared/ui/Spinner'
 import { ROUTES } from '@/shared/constants/routes'
@@ -98,6 +104,8 @@ export function SubstituteRequestPage() {
   const [storePickerOpen, setStorePickerOpen] = useState(false)
   const [createFlow, setCreateFlow] = useState<CreateFlowState | null>(null)
   const [rejectRequestId, setRejectRequestId] = useState<number | null>(null)
+  const [rejectError, setRejectError] = useState<string | null>(null)
+  const [acceptError, setAcceptError] = useState<string | null>(null)
 
   const { workspaces, isLoading: workspacesLoading } = useWorkspacesViewModel()
 
@@ -112,17 +120,31 @@ export function SubstituteRequestPage() {
     isLoading: listLoading,
     isError: listError,
     refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   } = useUserSubstituteRequestsViewModel(apiDirection, { statusFilter })
 
-  const invalidateLists = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: ['userSubstitute', 'list'],
-    })
-  }
+  const invalidateLists = () =>
+    Promise.all(
+      USER_SUBSTITUTE_RESPOND_REFETCH_QUERY_KEYS.map(queryKey =>
+        queryClient.invalidateQueries({ queryKey })
+      )
+    )
 
   const acceptMutation = useMutation({
     mutationFn: (requestId: number) => acceptUserSubstituteRequest(requestId),
     onSuccess: invalidateLists,
+    // 실패 안내·닫기를 막지 않도록 실패 후 재조회는 기다리지 않는다.
+    onError: (error: unknown) => {
+      setAcceptError(
+        getUserSubstituteActionErrorMessage(
+          error,
+          USER_SUBSTITUTE_RESPOND_ERROR_FALLBACK
+        )
+      )
+      void invalidateLists()
+    },
   })
 
   const rejectMutation = useMutation({
@@ -137,7 +159,40 @@ export function SubstituteRequestPage() {
       await invalidateLists()
       setRejectRequestId(null)
     },
+    onError: (error: unknown) => {
+      setRejectError(
+        getUserSubstituteActionErrorMessage(
+          error,
+          USER_SUBSTITUTE_RESPOND_ERROR_FALLBACK
+        )
+      )
+      void invalidateLists()
+    },
   })
+
+  // 목록·상세가 같은 컴포넌트 인스턴스라 상세에 다녀오면 sentinel이 새로 마운트된다.
+  // 엘리먼트를 state로 받아 마운트될 때마다 관찰을 다시 붙인다.
+  const [sentinelEl, setSentinelEl] = useState<HTMLDivElement | null>(null)
+  useEffect(() => {
+    if (!sentinelEl) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          void fetchNextPage()
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(sentinelEl)
+    return () => observer.disconnect()
+  }, [sentinelEl, hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const closeRejectModal = () => {
+    setRejectRequestId(null)
+    setRejectError(null)
+  }
 
   const handleOpenCreate = () => {
     const preselected = locationState?.workspaceId
@@ -285,6 +340,15 @@ export function SubstituteRequestPage() {
             }
           />
         )}
+        {!listLoading && !listError ? (
+          <div
+            ref={setSentinelEl}
+            className="flex h-10 items-center justify-center"
+            aria-hidden={!isFetchingNextPage}
+          >
+            {isFetchingNextPage ? <Spinner size={24} /> : null}
+          </div>
+        ) : null}
       </main>
 
       <SubstituteCreateFab onClick={handleOpenCreate} />
@@ -300,14 +364,24 @@ export function SubstituteRequestPage() {
       <SubstituteRejectReasonModal
         open={rejectRequestId != null}
         pending={rejectMutation.isPending}
-        onClose={() => setRejectRequestId(null)}
+        submitError={rejectError}
+        onClose={closeRejectModal}
         onSubmit={reason => {
           if (rejectRequestId == null) return
+          setRejectError(null)
           rejectMutation.mutate({
             requestId: rejectRequestId,
             targetRejectionReason: reason,
           })
         }}
+      />
+
+      <ConfirmModal
+        isOpen={acceptError !== null}
+        title="처리할 수 없어요"
+        description={acceptError ?? undefined}
+        onConfirm={() => setAcceptError(null)}
+        onClose={() => setAcceptError(null)}
       />
 
       {createFlow != null ? (
