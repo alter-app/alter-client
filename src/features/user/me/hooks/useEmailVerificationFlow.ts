@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
+import { getEmailChangeErrorMessage } from '@/features/user/me/lib/emailChangeErrorMessage'
 import {
   useDeleteEmailMutation,
   useSendEmailVerificationMutation,
@@ -74,7 +75,9 @@ export function useEmailVerificationFlow(currentEmail: string) {
       setSessionId('')
       setSuccessMessage('인증 코드가 발송되었습니다.')
     } catch (error) {
-      setMessage(getAxiosErrorMessage(error, '인증 코드 발송에 실패했습니다.'))
+      setMessage(
+        getEmailChangeErrorMessage(error, '인증 코드 발송에 실패했습니다.')
+      )
     }
   }
 
@@ -88,7 +91,9 @@ export function useEmailVerificationFlow(currentEmail: string) {
       setSessionId(nextSessionId)
       setSuccessMessage('이메일 인증이 완료되었습니다.')
     } catch (error) {
-      setMessage(getAxiosErrorMessage(error, '인증 코드 확인에 실패했습니다.'))
+      setMessage(
+        getEmailChangeErrorMessage(error, '인증 코드 확인에 실패했습니다.')
+      )
     }
   }
 
@@ -96,10 +101,13 @@ export function useEmailVerificationFlow(currentEmail: string) {
     clearMessages()
     try {
       await updateEmailMutation.mutateAsync(sessionId)
+      // 저장한 이메일이 현재 이메일이 되어 같은 세션으로는 다시 저장할 수 없으므로 비운다.
+      setSessionId('')
+      setCodeState('')
       setSuccessMessage('이메일이 등록/변경되었습니다.')
     } catch (error) {
       setMessage(
-        getAxiosErrorMessage(error, '이메일 등록/변경에 실패했습니다.')
+        getEmailChangeErrorMessage(error, '이메일 등록/변경에 실패했습니다.')
       )
     }
   }

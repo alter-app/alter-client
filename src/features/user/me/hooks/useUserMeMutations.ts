@@ -116,9 +116,11 @@ export function useUpdateEmailMutation() {
   return useMutation({
     mutationFn: (sessionId: string) =>
       updateUserEmail({ scope: requireUserScope(scope), sessionId }),
-    onSuccess: () => {
+    // 서버가 인증된 이메일을 소문자로 저장하므로 재조회를 기다린 뒤 성공으로 끝낸다.
+    // 재조회가 실패해도(기본 재시도 후) 오류를 던지지 않아 성공으로 끝나며, 표시는 이전 값에 머문다.
+    onSuccess: async () => {
       if (scope) {
-        void queryClient.invalidateQueries({
+        await queryClient.invalidateQueries({
           queryKey: queryKeys.user.me(scope),
         })
       }
