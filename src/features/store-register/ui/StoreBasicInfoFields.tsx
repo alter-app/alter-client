@@ -17,6 +17,8 @@ type Props = {
   isBusinessTypesError: boolean
   onRetryBusinessTypes: () => void
   contact: string
+  /** 서버 400 의 contact 필드 오류 */
+  contactError?: string | null
   onBizNameChange: (v: string) => void
   onBrnChange: (v: string) => void
   onBusinessTypeIdChange: (v: number) => void
@@ -67,6 +69,7 @@ export function StoreBasicInfoFields({
   onBusinessTypeIdChange,
   onBusinessTypeDetailChange,
   onContactChange,
+  contactError,
 }: Props) {
   const brnDigits = brn.replace(/\D/g, '').length
   const brnError = brnDigits > 0 && brnDigits < 10
@@ -167,7 +170,13 @@ export function StoreBasicInfoFields({
           inputMode="numeric"
           maxLength={13}
           autoComplete="tel"
+          aria-invalid={contactError ? true : undefined}
         />
+        {contactError ? (
+          <p className="typography-body03-regular text-error" role="alert">
+            {contactError}
+          </p>
+        ) : null}
       </Field>
     </div>
   )
