@@ -1,9 +1,14 @@
 import {
   CreatedScheduleNotFoundError,
+  isShiftAlreadyAssignedError,
   ScheduleAssignPendingError,
 } from '@/features/manager/worker-schedule/lib/saveGeneralWorkerSchedule'
 import { getApiErrorInfo, isApiError } from '@/shared/lib/getApiErrorInfo'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
+import {
+  getTooManyRequestsMessage,
+  isTooManyRequestsError,
+} from '@/shared/lib/tooManyRequestsError'
 
 const SAVE_FAILED = '저장에 실패했습니다.'
 const GENERAL_CONFLICT =
@@ -15,6 +20,9 @@ const FIXED_CONFLICT =
 const FIXED_INVALID = '근무 시간을 확인해 주세요.'
 
 function generalReason(error: unknown): string {
+  if (isTooManyRequestsError(error)) {
+    return getTooManyRequestsMessage(error)
+  }
   if (isApiError(error, 400, 'B001')) {
     return getApiErrorInfo(error).message ?? GENERAL_CONFLICT
   }
@@ -26,7 +34,14 @@ function withSentenceEnd(text: string): string {
   return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`
 }
 
+// 시간을 바꾸라는 안내는 시간 겹침 같은 배정 거절에만 맞으므로, 잠금 대기 초과·동시 배정은 서버 안내만 보여 준다.
 function assignPendingMessage(cause: unknown): string {
+  if (isTooManyRequestsError(cause)) {
+    return getTooManyRequestsMessage(cause)
+  }
+  if (isShiftAlreadyAssignedError(cause)) {
+    return getApiErrorInfo(cause).message ?? SAVE_FAILED
+  }
   const { message } = getApiErrorInfo(cause)
   if (!message) return ASSIGN_FAILED
   return `${withSentenceEnd(message)} ${RETRY_WITH_OTHER_TIME}`

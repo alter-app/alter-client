@@ -113,7 +113,14 @@ describe('saveGeneralWorkerSchedule', () => {
     expect(assign).not.toHaveBeenCalled()
   })
 
-  it('배정 대기 근무가 있으면 새로 만들지 않고 시간을 고친 뒤 배정한다', async () => {
+  it('배정 대기 근무가 아직 미배정이면 새로 만들지 않고 시간을 고친 뒤 배정한다', async () => {
+    fetchMonthly.mockResolvedValueOnce(
+      monthlyWith([
+        { ...createdShift, shiftId: 29, assignedWorker: { workerId: 8 } },
+        createdShift,
+      ])
+    )
+
     await expect(
       saveGeneralWorkerSchedule(
         baseArgs({ pendingAssignShiftId: 30, startHour: '10' })
@@ -121,7 +128,11 @@ describe('saveGeneralWorkerSchedule', () => {
     ).resolves.toBe(30)
 
     expect(postSchedule).not.toHaveBeenCalled()
-    expect(fetchMonthly).not.toHaveBeenCalled()
+    expect(fetchMonthly).toHaveBeenCalledWith({
+      workspaceId: 1,
+      year: 2026,
+      month: 11,
+    })
     expect(putSchedule).toHaveBeenCalledWith(30, {
       startDateTime: '2026-11-20T10:00:00',
       endDateTime: '2026-11-20T18:00:00',
@@ -130,7 +141,101 @@ describe('saveGeneralWorkerSchedule', () => {
     expect(assign).toHaveBeenCalledWith(30, { workerId: 7 })
   })
 
+  it('배정 대기 근무가 다른 근무자에게 배정됐으면 그 근무를 고치지 않고 새로 만들어 배정한다', async () => {
+    const takenByOther = { ...createdShift, assignedWorker: { workerId: 8 } }
+    fetchMonthly
+      .mockResolvedValueOnce(monthlyWith([takenByOther]))
+      .mockResolvedValueOnce(
+        monthlyWith([takenByOther, { ...createdShift, shiftId: 41 }])
+      )
+
+    await expect(
+      saveGeneralWorkerSchedule(
+        baseArgs({ pendingAssignShiftId: 30, excludeShiftIds: [30] })
+      )
+    ).resolves.toBe(41)
+
+    expect(putSchedule).not.toHaveBeenCalled()
+    expect(postSchedule).toHaveBeenCalledTimes(1)
+    expect(assign).toHaveBeenCalledTimes(1)
+    expect(assign).toHaveBeenCalledWith(41, { workerId: 7 })
+  })
+
+  it('배정 대기 근무가 목록에서 사라졌으면 새로 만들어 배정한다', async () => {
+    fetchMonthly
+      .mockResolvedValueOnce(monthlyWith([]))
+      .mockResolvedValueOnce(monthlyWith([{ ...createdShift, shiftId: 41 }]))
+
+    await expect(
+      saveGeneralWorkerSchedule(baseArgs({ pendingAssignShiftId: 30 }))
+    ).resolves.toBe(41)
+
+    expect(putSchedule).not.toHaveBeenCalled()
+    expect(assign).toHaveBeenCalledWith(41, { workerId: 7 })
+  })
+
+  it('배정 대기 근무가 미배정이어도 PLANNED가 아니면 그 근무를 고치지 않고 새로 만들어 배정한다', async () => {
+    const cancelled = { ...createdShift, status: { value: 'CANCELLED' } }
+    fetchMonthly
+      .mockResolvedValueOnce(monthlyWith([cancelled]))
+      .mockResolvedValueOnce(
+        monthlyWith([cancelled, { ...createdShift, shiftId: 41 }])
+      )
+
+    await expect(
+      saveGeneralWorkerSchedule(baseArgs({ pendingAssignShiftId: 30 }))
+    ).resolves.toBe(41)
+
+    expect(putSchedule).not.toHaveBeenCalled()
+    expect(assign).toHaveBeenCalledTimes(1)
+    expect(assign).toHaveBeenCalledWith(41, { workerId: 7 })
+  })
+
+  it.each(['DELETED', 'CANCELLED'])(
+    '이 근무자에게 배정된 배정 대기 근무가 %s면 그 근무를 고치지 않고 새로 만들어 배정한다',
+    async status => {
+      const inactive = {
+        ...createdShift,
+        status: { value: status },
+        assignedWorker: { workerId: 7 },
+      }
+      fetchMonthly
+        .mockResolvedValueOnce(monthlyWith([inactive]))
+        .mockResolvedValueOnce(
+          monthlyWith([inactive, { ...createdShift, shiftId: 41 }])
+        )
+
+      await expect(
+        saveGeneralWorkerSchedule(baseArgs({ pendingAssignShiftId: 30 }))
+      ).resolves.toBe(41)
+
+      expect(putSchedule).not.toHaveBeenCalled()
+      expect(assign).toHaveBeenCalledWith(41, { workerId: 7 })
+    }
+  )
+
+  it('배정 대기 근무가 이미 이 근무자에게 배정됐으면 시간만 고치고 다시 배정하지 않는다', async () => {
+    fetchMonthly.mockResolvedValueOnce(
+      monthlyWith([{ ...createdShift, assignedWorker: { workerId: 7 } }])
+    )
+
+    await expect(
+      saveGeneralWorkerSchedule(
+        baseArgs({ pendingAssignShiftId: 30, startHour: '10' })
+      )
+    ).resolves.toBe(30)
+
+    expect(putSchedule).toHaveBeenCalledWith(30, {
+      startDateTime: '2026-11-20T10:00:00',
+      endDateTime: '2026-11-20T18:00:00',
+      position: 'STAFF',
+    })
+    expect(assign).not.toHaveBeenCalled()
+    expect(postSchedule).not.toHaveBeenCalled()
+  })
+
   it('배정 대기 근무의 배정이 다시 실패해도 같은 근무 ID를 유지한다', async () => {
+    fetchMonthly.mockResolvedValueOnce(monthlyWith([createdShift]))
     assign.mockRejectedValueOnce(conflict)
 
     await expect(

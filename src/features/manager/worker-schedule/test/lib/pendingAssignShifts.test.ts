@@ -70,6 +70,32 @@ describe('배정 대기 근무 보관', () => {
     expect(next).toEqual({ [B]: 31 })
   })
 
+  it('다른 배정이 먼저 반영돼(409 B020) 실패하면 그 근무를 기억하지 않는다', () => {
+    const alreadyAssigned = new ScheduleAssignPendingError(30, {
+      isAxiosError: true,
+      response: {
+        status: 409,
+        data: { code: 'B020', message: '이미 근무자가 배정된 스케줄입니다.' },
+      },
+    })
+
+    expect(
+      pendingAfterGeneralSaveError({ [A]: 30, [B]: 31 }, A, alreadyAssigned)
+    ).toEqual({ [B]: 31 })
+    expect(pendingAfterGeneralSaveError({}, A, alreadyAssigned)).toEqual({})
+  })
+
+  it('배정이 잠금 대기 초과(429 E001)로 실패하면 같은 근무에 다시 배정하도록 기억한다', () => {
+    const tooManyRequests = new ScheduleAssignPendingError(30, {
+      isAxiosError: true,
+      response: { status: 429, data: { code: 'E001' } },
+    })
+
+    expect(pendingAfterGeneralSaveError({}, A, tooManyRequests)).toEqual({
+      [A]: 30,
+    })
+  })
+
   it('네트워크 오류 등 그 밖의 실패는 기억을 유지한다', () => {
     const pending = { [A]: 30 }
 
