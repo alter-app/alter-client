@@ -52,6 +52,8 @@ export interface ManagerPostingDetailWorkspaceDto {
   businessType?: string
   businessTypeDetail?: string
   fullAddress?: string
+  jibunAddress?: string | null
+  detailAddress?: string | null
 }
 
 export interface ManagerPostingDetailDto {

@@ -12,15 +12,35 @@ import { uploadWorkspaceRegistrationFile } from '@/features/store-register/api/w
 import { useBusinessTypes } from '@/features/store-register/hooks/useBusinessTypes'
 import { useRepresentativeImagePick } from '@/features/store-register/hooks/useRepresentativeImagePick'
 import { maskBrn, maskContact } from '@/features/store-register/lib/inputMask'
+import {
+  CONTACT_FORMAT_MESSAGE,
+  isValidContact,
+  pickFieldErrorMessage,
+  toContactPayload,
+} from '@/features/store-register/lib/contact'
+import axios from 'axios'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { ROUTES } from '@/shared/constants/routes'
 
 type Step = 'info' | 'certificate' | 'done'
 
-/** 증명원: JPG/PNG/PDF ≤10MB, 신분증·위임장: ≤5MB */
-const CERTIFICATE_MAX_BYTES = 10 * 1024 * 1024
-const IDENTITY_MAX_BYTES = 5 * 1024 * 1024
+/** 서버 업로드 상한(20MiB)과 동일 — 정확히 20MiB 파일도 통과 */
+const CERTIFICATE_MAX_BYTES = 20 * 1024 * 1024
+const IDENTITY_MAX_BYTES = 20 * 1024 * 1024
+
+const DUPLICATE_FILE_MESSAGE =
+  '증빙 서류는 역할별로 서로 다른 파일을 첨부해야 합니다.'
+
+function isSameFile(a: File | null, b: File | null): boolean {
+  return (
+    !!a &&
+    !!b &&
+    a.name === b.name &&
+    a.size === b.size &&
+    a.lastModified === b.lastModified
+  )
+}
 
 export function useStoreRegisterWizard() {
   const navigate = useNavigate()
@@ -46,13 +66,14 @@ export function useStoreRegisterWizard() {
   const [businessTypeDetail, setBusinessTypeDetail] = useState('')
   const [contact, setContact] = useState('')
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [contactError, setContactError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const setBrnMasked = useCallback((v: string) => setBrn(maskBrn(v)), [])
-  const setContactMasked = useCallback(
-    (v: string) => setContact(maskContact(v)),
-    []
-  )
+  const setContactMasked = useCallback((v: string) => {
+    setContact(maskContact(v))
+    setContactError(null)
+  }, [])
 
   const selectedBusinessType =
     businessTypes.find(type => type.id === businessTypeId) ?? null
@@ -67,10 +88,17 @@ export function useStoreRegisterWizard() {
     brn.replace(/\D/g, '').length === 10 &&
     isValidWorkspaceLocation(location) &&
     businessTypeValid &&
-    contact.trim().length > 0
+    isValidContact(contact)
 
   // 위임장은 선택 — 증명원·신분증만 필수
   const certificateValid = !!certFile.file && !!identityFile.file
+  // 같은 파일을 두 칸에 넣으면 서버가 거부하므로 미리 막는다
+  const duplicateFileError =
+    isSameFile(certFile.file, identityFile.file) ||
+    isSameFile(certFile.file, warrantFile.file) ||
+    isSameFile(identityFile.file, warrantFile.file)
+      ? DUPLICATE_FILE_MESSAGE
+      : null
 
   const goInfo = () => setStep('info')
   const goCertificate = () => setStep('certificate')
@@ -86,7 +114,13 @@ export function useStoreRegisterWizard() {
       return
     }
 
+    if (duplicateFileError) {
+      setSubmitError(duplicateFileError)
+      return
+    }
+
     setSubmitError(null)
+    setContactError(null)
     setIsSubmitting(true)
     try {
       let workspaceCertFileId: string
@@ -107,6 +141,15 @@ export function useStoreRegisterWizard() {
             'WARRANT',
             scope
           )
+        }
+        const ids = [
+          workspaceCertFileId,
+          workspaceOwnIdentityFileId,
+          workspaceWarrantFileId,
+        ].filter((id): id is string => !!id)
+        if (new Set(ids).size !== ids.length) {
+          setSubmitError(DUPLICATE_FILE_MESSAGE)
+          return
         }
       } catch (e) {
         setSubmitError(
@@ -144,7 +187,7 @@ export function useStoreRegisterWizard() {
           detailAddress: detailAddress.trim(),
           businessTypeId,
           businessTypeDetail: businessTypeDetail.trim() || null,
-          contact,
+          contact: toContactPayload(contact),
           workspaceCertFileId,
           workspaceOwnIdentityFileId,
           workspaceWarrantFileId,
@@ -156,6 +199,15 @@ export function useStoreRegisterWizard() {
           longitude: location.longitude,
         })
       } catch (e) {
+        const fieldMessage = axios.isAxiosError(e)
+          ? pickFieldErrorMessage(e.response?.data?.data, 'contact')
+          : null
+        if (fieldMessage) {
+          // 연락처 입력란 오류로 보여 주려고 1단계로 되돌린다
+          setContactError(fieldMessage || CONTACT_FORMAT_MESSAGE)
+          setStep('info')
+          return
+        }
         setSubmitError(
           getAxiosErrorMessage(
             e,
@@ -183,6 +235,7 @@ export function useStoreRegisterWizard() {
     contact,
     identityFile.file,
     infoValid,
+    duplicateFileError,
     representativeImages.images,
     scope,
     businessTypeId,
@@ -224,6 +277,8 @@ export function useStoreRegisterWizard() {
     infoValid,
     certificateValid,
     submitError,
+    contactError,
+    duplicateFileError,
     isSubmitting,
     goInfo,
     goCertificate,

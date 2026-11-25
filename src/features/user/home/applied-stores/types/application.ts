@@ -1,3 +1,7 @@
+import {
+  formatAddress,
+  formatJibunAddress,
+} from '@/shared/lib/utils/addressFormat'
 import type {
   AppliedStoreData,
   ApplicationStatus,
@@ -19,9 +23,17 @@ export interface PostingScheduleDto {
   position: string
 }
 
+/** 지원 내역 공고의 업장 — 이전 응답은 id(number)만 내려왔음 */
+export interface PostingWorkspaceDto {
+  id?: number
+  fullAddress?: string | null
+  jibunAddress?: string | null
+  detailAddress?: string | null
+}
+
 export interface PostingDto {
   id: number
-  workspace: number
+  workspace: number | PostingWorkspaceDto
   title: string
   payAmount: number
   paymentType: string
@@ -129,9 +141,15 @@ function mapApiStatusToUiStatus(
 // ---- DTO → UI Model ----
 export function adaptApplicationDto(dto: ApplicationDto): AppliedStoreData {
   const { postingSchedule, posting, description, status } = dto
+  const workspace =
+    posting.workspace !== null && typeof posting.workspace === 'object'
+      ? posting.workspace
+      : null
   return {
     id: dto.id,
     storeName: posting.title,
+    workspaceAddress: workspace ? formatAddress(workspace) : '',
+    workspaceJibunAddress: workspace ? formatJibunAddress(workspace) : '',
     status: mapApiStatusToUiStatus(status.value),
     applicationDetail: {
       selectedWeekdays: parseWorkingDays(postingSchedule.workingDays),
