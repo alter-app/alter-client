@@ -12,6 +12,12 @@ import {
   formatDetailMinutes,
   normalizeSentSubstituteDetailDto,
 } from '@/features/user/substitute/lib/adaptUserSubstituteRequest'
+import {
+  USER_SUBSTITUTE_RESPOND_ERROR_FALLBACK,
+  getUserSubstituteActionErrorMessage,
+  isUserSubstituteConflictError,
+} from '@/features/user/substitute/lib/substituteActionError'
+import { USER_SUBSTITUTE_RESPOND_REFETCH_QUERY_KEYS } from '@/features/user/substitute/lib/substituteRefetchQueryKeys'
 import type {
   ReceivedSubstituteRequestDto,
   SubstituteRequestDirection,
@@ -55,14 +61,21 @@ export function useUserSubstituteRequestDetailViewModel(
   })
 
   const invalidateLists = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: ['userSubstitute', 'list'],
-    })
+    await Promise.all(
+      USER_SUBSTITUTE_RESPOND_REFETCH_QUERY_KEYS.map(queryKey =>
+        queryClient.invalidateQueries({ queryKey })
+      )
+    )
     if (requestId != null) {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.userSubstitute.sentDetail(requestId),
       })
     }
+  }
+
+  // 실패 안내는 mutation이 끝나야 보이므로 재조회를 기다리지 않는다(기다리면 그동안 '처리 중'에 머문다).
+  const refetchAfterFailure = () => {
+    void invalidateLists()
   }
 
   const canMutate = isActionableRequestId(requestId)
@@ -73,6 +86,7 @@ export function useUserSubstituteRequestDetailViewModel(
       await invalidateLists()
       options?.onActionSuccess?.()
     },
+    onError: refetchAfterFailure,
   })
 
   const rejectMutation = useMutation({
@@ -84,6 +98,7 @@ export function useUserSubstituteRequestDetailViewModel(
       await invalidateLists()
       options?.onActionSuccess?.()
     },
+    onError: refetchAfterFailure,
   })
 
   const cancelMutation = useMutation({
@@ -119,13 +134,38 @@ export function useUserSubstituteRequestDetailViewModel(
         }
       : null
 
-  const actionError =
-    acceptMutation.isError || rejectMutation.isError || cancelMutation.isError
-      ? getAxiosErrorMessage(
-          acceptMutation.error ?? rejectMutation.error ?? cancelMutation.error,
-          '요청 처리에 실패했습니다.'
+  const respondError = acceptMutation.error ?? rejectMutation.error
+  const respondErrorMessage =
+    respondError != null
+      ? getUserSubstituteActionErrorMessage(
+          respondError,
+          USER_SUBSTITUTE_RESPOND_ERROR_FALLBACK
         )
       : null
+  const isRespondConflict =
+    respondError != null && isUserSubstituteConflictError(respondError)
+
+  // 충돌은 보던 요청 상태가 낡았다는 뜻이라 상세에 남기지 않고 확인 후 다시 조회된 목록으로 돌려보낸다.
+  const conflictError = isRespondConflict ? respondErrorMessage : null
+  const rejectError =
+    !isRespondConflict && rejectMutation.isError ? respondErrorMessage : null
+  const actionError = acceptMutation.isError
+    ? isRespondConflict
+      ? null
+      : respondErrorMessage
+    : cancelMutation.isError
+      ? getAxiosErrorMessage(
+          cancelMutation.error,
+          USER_SUBSTITUTE_RESPOND_ERROR_FALLBACK
+        )
+      : null
+
+  // 한 번에 한 동작의 오류만 보이도록 다른 동작의 이전 오류를 지운다.
+  const resetActionErrors = () => {
+    acceptMutation.reset()
+    rejectMutation.reset()
+    cancelMutation.reset()
+  }
 
   return {
     detail,
@@ -135,19 +175,25 @@ export function useUserSubstituteRequestDetailViewModel(
       (!isSent && options?.receivedFallback == null),
     accept: () => {
       if (!canMutate) return
+      resetActionErrors()
       acceptMutation.mutate()
     },
     reject: (reason: string) => {
       if (!canMutate) return
+      resetActionErrors()
       rejectMutation.mutate(reason)
     },
     cancel: () => {
       if (!canMutate) return
+      resetActionErrors()
       cancelMutation.mutate()
     },
+    clearRejectError: () => rejectMutation.reset(),
     isAccepting: acceptMutation.isPending,
     isRejecting: rejectMutation.isPending,
     isCancelling: cancelMutation.isPending,
     actionError,
+    rejectError,
+    conflictError,
   }
 }

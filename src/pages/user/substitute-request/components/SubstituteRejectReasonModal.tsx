@@ -6,6 +6,8 @@ import ChevronLeftIcon from '@/assets/icons/nav/chevron-left.svg'
 interface SubstituteRejectReasonModalProps {
   open: boolean
   pending?: boolean
+  /** 서버 거절 실패 문구. 모달을 닫지 않고 입력 오류와 같은 자리에 보여 준다. */
+  submitError?: string | null
   onClose: () => void
   onSubmit: (reason: string) => void
 }
@@ -13,17 +15,20 @@ interface SubstituteRejectReasonModalProps {
 export function SubstituteRejectReasonModal({
   open,
   pending,
+  submitError,
   onClose,
   onSubmit,
 }: SubstituteRejectReasonModalProps) {
   const [reason, setReason] = useState('')
   const [localError, setLocalError] = useState<string | null>(null)
 
+  // 처리 중에 닫으면 호출부가 결과(오류·충돌 안내)를 보여 줄 곳을 잃으므로 결과가 올 때까지 닫지 않는다.
   const handleClose = useCallback(() => {
+    if (pending) return
     setReason('')
     setLocalError(null)
     onClose()
-  }, [onClose])
+  }, [pending, onClose])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -91,9 +96,9 @@ export function SubstituteRejectReasonModal({
             rows={4}
             className="w-full resize-none rounded-2xl bg-bg-dark p-4 typography-body02-regular text-text-100 outline-none placeholder:text-text-50"
           />
-          {localError ? (
+          {localError || submitError ? (
             <p className="mt-2 typography-body02-regular text-error">
-              {localError}
+              {localError ?? submitError}
             </p>
           ) : null}
         </div>

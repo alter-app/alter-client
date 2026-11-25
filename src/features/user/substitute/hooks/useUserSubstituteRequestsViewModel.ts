@@ -7,6 +7,7 @@ import {
 } from '@/features/user/substitute/api/userSubstituteRequests'
 import { adaptUserSubstituteListItem } from '@/features/user/substitute/lib/adaptUserSubstituteRequest'
 import { buildSubstituteListSections } from '@/features/user/substitute/lib/buildSubstituteListSections'
+import { dedupeSubstituteListItems } from '@/features/user/substitute/lib/dedupeSubstituteListItems'
 import {
   resolveApiStatuses,
   type SubstituteListFilters,
@@ -31,7 +32,15 @@ export function useUserSubstituteRequestsViewModel(
   const { statusFilter } = filters
   const apiStatuses = resolveApiStatuses(statusFilter)
 
-  const { data, isPending, isError, refetch } = useInfiniteQuery<
+  const {
+    data,
+    isPending,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery<
     SubstituteListPage,
     Error,
     { pages: SubstituteListPage[]; pageParams: (string | undefined)[] },
@@ -59,12 +68,14 @@ export function useUserSubstituteRequestsViewModel(
 
   const items = useMemo(
     () =>
-      data?.pages.flatMap(
-        page =>
-          page.data.data.map(dto =>
-            adaptUserSubstituteListItem(dto, direction)
-          ) ?? []
-      ) ?? [],
+      dedupeSubstituteListItems(
+        data?.pages.flatMap(
+          page =>
+            page.data.data.map(dto =>
+              adaptUserSubstituteListItem(dto, direction)
+            ) ?? []
+        ) ?? []
+      ),
     [data, direction]
   )
 
@@ -82,5 +93,8 @@ export function useUserSubstituteRequestsViewModel(
     isLoading: isPending,
     isError,
     refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   }
 }
