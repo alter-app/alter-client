@@ -9,7 +9,15 @@ export type SendWorkspaceInvitationApiResponse = CommonApiResponse<
   Record<string, never>
 >
 
-/** B001 등 발송 실패 시 data에 포함될 수 있는 발송 불가 번호 목록 */
-export type InvalidInvitePhoneNumbersPayload =
-  | string[]
-  | { phoneNumbers?: string[]; invalidPhoneNumbers?: string[] }
+/** 초대 실패 사유 코드 */
+export type InvitationFailureReason =
+  | 'NOT_REGISTERED'
+  | 'ACCOUNT_UNAVAILABLE'
+  | 'ALREADY_WORKING'
+  | 'ALREADY_INVITED'
+
+/** B001 발송 실패 시 data[] 한 건 — 번호별 사유 */
+export interface InvitationFailureItem {
+  phoneNumber: string
+  reason: { value: InvitationFailureReason | string; description: string }
+}

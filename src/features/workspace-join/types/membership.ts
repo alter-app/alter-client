@@ -6,6 +6,12 @@ export type WorkspaceInvitationStatus =
   | 'DECLINED'
   | 'EXPIRED'
 
+/** 응답 status — {value, description} */
+export interface WorkspaceInvitationStatusDto {
+  value: WorkspaceInvitationStatus | string
+  description: string
+}
+
 export interface WorkspaceMembershipCursorPageDto {
   cursor: string | null
   pageSize: number
@@ -17,7 +23,7 @@ export interface MyInvitationItemDto {
   businessName: string
   invitedAt: string | null
   expiresAt: string | null
-  status?: WorkspaceInvitationStatus
+  status?: WorkspaceInvitationStatusDto
 }
 
 export interface MyInvitationsListDto {

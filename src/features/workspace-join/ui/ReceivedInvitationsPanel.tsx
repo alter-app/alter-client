@@ -218,40 +218,46 @@ export function ReceivedInvitationsPanel({ onAccepted }: Props) {
               </p>
             ) : null}
 
-            <div className="flex gap-2">
-              <AuthButton
-                type="button"
-                className="flex-1"
-                disabled={isListBusy}
-                onClick={() =>
-                  invitationMut.mutate({
-                    invitationId: row.invitationId,
-                    action: 'ACCEPT',
-                    businessName: row.businessName?.trim() || '업장',
-                  })
-                }
-              >
-                {isActionLoading(row.invitationId, 'ACCEPT')
-                  ? '처리 중…'
-                  : '수락'}
-              </AuthButton>
-              <button
-                type="button"
-                className="flex-1 rounded-xl border border-line-2 py-3 typography-body02-semibold text-text-90 disabled:opacity-50"
-                disabled={isListBusy}
-                onClick={() =>
-                  invitationMut.mutate({
-                    invitationId: row.invitationId,
-                    action: 'DECLINE',
-                    businessName: row.businessName?.trim() || '업장',
-                  })
-                }
-              >
-                {isActionLoading(row.invitationId, 'DECLINE')
-                  ? '처리 중…'
-                  : '거절'}
-              </button>
-            </div>
+            {row.status && row.status.value !== 'PENDING' ? (
+              <p className="typography-body02-semibold text-text-70">
+                {row.status.description || row.status.value}
+              </p>
+            ) : (
+              <div className="flex gap-2">
+                <AuthButton
+                  type="button"
+                  className="flex-1"
+                  disabled={isListBusy}
+                  onClick={() =>
+                    invitationMut.mutate({
+                      invitationId: row.invitationId,
+                      action: 'ACCEPT',
+                      businessName: row.businessName?.trim() || '업장',
+                    })
+                  }
+                >
+                  {isActionLoading(row.invitationId, 'ACCEPT')
+                    ? '처리 중…'
+                    : '수락'}
+                </AuthButton>
+                <button
+                  type="button"
+                  className="flex-1 rounded-xl border border-line-2 py-3 typography-body02-semibold text-text-90 disabled:opacity-50"
+                  disabled={isListBusy}
+                  onClick={() =>
+                    invitationMut.mutate({
+                      invitationId: row.invitationId,
+                      action: 'DECLINE',
+                      businessName: row.businessName?.trim() || '업장',
+                    })
+                  }
+                >
+                  {isActionLoading(row.invitationId, 'DECLINE')
+                    ? '처리 중…'
+                    : '거절'}
+                </button>
+              </div>
+            )}
           </li>
         ))}
       </ul>
