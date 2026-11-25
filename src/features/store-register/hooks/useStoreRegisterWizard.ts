@@ -25,9 +25,22 @@ import { ROUTES } from '@/shared/constants/routes'
 
 type Step = 'info' | 'certificate' | 'done'
 
-/** 증명원: JPG/PNG/PDF ≤10MB, 신분증·위임장: ≤5MB */
-const CERTIFICATE_MAX_BYTES = 10 * 1024 * 1024
-const IDENTITY_MAX_BYTES = 5 * 1024 * 1024
+/** 서버 업로드 상한(20MiB)과 동일 — 정확히 20MiB 파일도 통과 */
+const CERTIFICATE_MAX_BYTES = 20 * 1024 * 1024
+const IDENTITY_MAX_BYTES = 20 * 1024 * 1024
+
+const DUPLICATE_FILE_MESSAGE =
+  '증빙 서류는 역할별로 서로 다른 파일을 첨부해야 합니다.'
+
+function isSameFile(a: File | null, b: File | null): boolean {
+  return (
+    !!a &&
+    !!b &&
+    a.name === b.name &&
+    a.size === b.size &&
+    a.lastModified === b.lastModified
+  )
+}
 
 export function useStoreRegisterWizard() {
   const navigate = useNavigate()
@@ -79,6 +92,13 @@ export function useStoreRegisterWizard() {
 
   // 위임장은 선택 — 증명원·신분증만 필수
   const certificateValid = !!certFile.file && !!identityFile.file
+  // 같은 파일을 두 칸에 넣으면 서버가 거부하므로 미리 막는다
+  const duplicateFileError =
+    isSameFile(certFile.file, identityFile.file) ||
+    isSameFile(certFile.file, warrantFile.file) ||
+    isSameFile(identityFile.file, warrantFile.file)
+      ? DUPLICATE_FILE_MESSAGE
+      : null
 
   const goInfo = () => setStep('info')
   const goCertificate = () => setStep('certificate')
@@ -91,6 +111,11 @@ export function useStoreRegisterWizard() {
       !businessTypeId ||
       !isValidWorkspaceLocation(location)
     ) {
+      return
+    }
+
+    if (duplicateFileError) {
+      setSubmitError(duplicateFileError)
       return
     }
 
@@ -116,6 +141,15 @@ export function useStoreRegisterWizard() {
             'WARRANT',
             scope
           )
+        }
+        const ids = [
+          workspaceCertFileId,
+          workspaceOwnIdentityFileId,
+          workspaceWarrantFileId,
+        ].filter((id): id is string => !!id)
+        if (new Set(ids).size !== ids.length) {
+          setSubmitError(DUPLICATE_FILE_MESSAGE)
+          return
         }
       } catch (e) {
         setSubmitError(
@@ -201,6 +235,7 @@ export function useStoreRegisterWizard() {
     contact,
     identityFile.file,
     infoValid,
+    duplicateFileError,
     representativeImages.images,
     scope,
     businessTypeId,
@@ -243,6 +278,7 @@ export function useStoreRegisterWizard() {
     certificateValid,
     submitError,
     contactError,
+    duplicateFileError,
     isSubmitting,
     goInfo,
     goCertificate,

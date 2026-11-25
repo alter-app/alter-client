@@ -5,6 +5,7 @@ const FALLBACK_CODES: Record<string, string> = {
   B001: '잘못된 요청입니다.',
   B020: '존재하지 않는 스케줄입니다.',
   B022: '유효하지 않은 파일입니다.',
+  B024: '파일 크기가 제한을 초과합니다.',
   INVALID_FILE: '유효하지 않은 파일입니다.',
   FILE_NOT_FOUND: '존재하지 않는 파일입니다.',
   FILE_ALREADY_ATTACHED: '이미 연결된 파일입니다.',
