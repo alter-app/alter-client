@@ -40,6 +40,38 @@ describe('대타 승인·거절 오류 문구', () => {
     )
   })
 
+  it('409 B020 동시 배정은 서버 message를 그대로 보여준다', () => {
+    const error = axiosError(409, {
+      code: 'B020',
+      message: '이미 근무자가 배정된 스케줄입니다.',
+      data: null,
+    })
+
+    expect(isSubstituteApproveConflict(error)).toBe(true)
+    expect(getSubstituteActionErrorMessage(error)).toBe(
+      '이미 근무자가 배정된 스케줄입니다.'
+    )
+  })
+
+  it('429 E001 잠금 대기 초과는 서버 message를 보여준다', () => {
+    const error = axiosError(429, {
+      code: 'E001',
+      message: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
+      data: null,
+    })
+
+    expect(isSubstituteApproveConflict(error)).toBe(false)
+    expect(getSubstituteActionErrorMessage(error)).toBe(
+      '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.'
+    )
+  })
+
+  it('429 E001에 message가 없어도 기본 오류 대신 잠금 대기 초과 안내를 보여준다', () => {
+    expect(
+      getSubstituteActionErrorMessage(axiosError(429, { code: 'E001' }))
+    ).toBe('요청이 너무 많습니다. 잠시 후 다시 시도해주세요.')
+  })
+
   it('409 B020에 message가 없으면 기본 문구를 보여준다', () => {
     const error = axiosError(409, { code: 'B020', message: '  ' })
 

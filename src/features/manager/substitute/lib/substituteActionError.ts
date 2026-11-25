@@ -1,4 +1,8 @@
 import { getApiErrorInfo, isApiError } from '@/shared/lib/getApiErrorInfo'
+import {
+  getTooManyRequestsMessage,
+  isTooManyRequestsError,
+} from '@/shared/lib/tooManyRequestsError'
 
 const SUBSTITUTE_ACTION_ERROR_MESSAGES: Record<string, string> = {
   B001: '이미 처리되었거나 승인/거절할 수 없는 상태입니다.',
@@ -10,8 +14,8 @@ const DEFAULT_SUBSTITUTE_ACTION_ERROR_MESSAGE =
   '처리 중 오류가 발생했습니다. 다시 시도해 주세요.'
 
 /**
- * 409 B020은 승인 직전 수락자의 시간 겹침이나 원래 근무 삭제로 승인이 거절된 경우이고(요청은 ACCEPTED로 남는다),
- * 그 밖의 B020은 요청을 찾을 수 없는 경우다.
+ * 409 B020은 승인 직전 수락자의 시간 겹침이나 원래 근무 삭제로 승인이 거절된 경우(요청은 ACCEPTED로 남는다)와
+ * 같은 근무에 다른 배정이 먼저 반영된 경우이고, 그 밖의 B020은 요청을 찾을 수 없는 경우다.
  */
 export function isSubstituteApproveConflict(error: unknown): boolean {
   return isApiError(error, 409, 'B020')
@@ -19,6 +23,9 @@ export function isSubstituteApproveConflict(error: unknown): boolean {
 
 /** 409 B020은 원인마다 서버 message가 달라 그대로 보여 주고, message가 비어 있으면 기본 문구를 쓴다. */
 export function getSubstituteActionErrorMessage(error: unknown): string {
+  if (isTooManyRequestsError(error)) {
+    return getTooManyRequestsMessage(error)
+  }
   if (isSubstituteApproveConflict(error)) {
     return (
       getApiErrorInfo(error).message ?? DEFAULT_SUBSTITUTE_ACTION_ERROR_MESSAGE
