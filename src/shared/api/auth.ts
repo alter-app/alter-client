@@ -4,6 +4,10 @@ import type { NavigateFunction } from 'react-router-dom'
 import authInstance, { publicInstance } from '../lib/axiosInstance'
 import { getAuthApiBasePath } from '../lib/authApiPath'
 import { ROUTES } from '../constants/routes'
+import {
+  EMAIL_ALREADY_REGISTERED_MESSAGE,
+  TOO_MANY_REQUESTS_MESSAGE,
+} from '../constants/apiErrorMessages'
 import { navigatePostAuth } from '../lib/postAuthNavigation'
 
 export type AuthNavigateOptions = {
@@ -621,8 +625,8 @@ function getErrorMessage(code?: string): string | undefined {
     A001: '소셜 로그인 처리 중 서버 오류가 났습니다. 카카오 콘솔 Redirect URI·환경(로컬/배포 URL)이 일치하는지 확인해 주세요.',
     B001: '인증 코드가 일치하지 않습니다.',
     B011: '존재하지 않는 사용자 계정입니다.',
-    A004: '이미 가입된 이메일입니다.',
-    E001: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
+    A004: EMAIL_ALREADY_REGISTERED_MESSAGE,
+    E001: TOO_MANY_REQUESTS_MESSAGE,
   }
   return code ? errorMessages[code] : undefined
 }

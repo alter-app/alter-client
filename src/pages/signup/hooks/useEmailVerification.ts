@@ -4,6 +4,7 @@ import {
   sendEmailVerification,
   verifyEmailCode,
 } from '@/shared/api/auth'
+import { EMAIL_ALREADY_REGISTERED_MESSAGE } from '@/shared/constants/apiErrorMessages'
 import { useTimer } from '@/shared/hooks/useTimer'
 import { isValidEmailFormat } from '@/shared/lib/utils/emailValidation'
 
@@ -57,7 +58,7 @@ export function useEmailVerification() {
       setMessage('')
       const available = await checkEmailDuplicate(trimmed)
       if (!available) {
-        setMessage('이미 가입된 이메일입니다.')
+        setMessage(EMAIL_ALREADY_REGISTERED_MESSAGE)
         return
       }
 
