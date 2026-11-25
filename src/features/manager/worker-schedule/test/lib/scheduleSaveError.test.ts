@@ -17,6 +17,12 @@ function axiosError(status: number, data: unknown) {
   }
 }
 
+const TOO_MANY_REQUESTS = {
+  code: 'E001',
+  message: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
+  data: null,
+}
+
 describe('resolveGeneralScheduleSaveError', () => {
   it('400 B001이면 서버 안내를 보여준다', () => {
     expect(
@@ -70,6 +76,45 @@ describe('resolveGeneralScheduleSaveError', () => {
         new ScheduleAssignPendingError(30, new Error('Network Error'))
       )
     ).toBe('근무자를 배정하지 못했어요. 시간을 바꿔 다시 저장해 주세요.')
+  })
+
+  it('배정이 잠금 대기 초과(429 E001)로 실패하면 시간 변경 안내 없이 서버 안내만 보여준다', () => {
+    expect(
+      resolveGeneralScheduleSaveError(
+        new ScheduleAssignPendingError(30, axiosError(429, TOO_MANY_REQUESTS))
+      )
+    ).toBe('요청이 너무 많습니다. 잠시 후 다시 시도해주세요.')
+  })
+
+  it('다른 배정이 먼저 반영돼(409 B020) 실패하면 시간 변경 안내 없이 서버 안내만 보여준다', () => {
+    expect(
+      resolveGeneralScheduleSaveError(
+        new ScheduleAssignPendingError(
+          30,
+          axiosError(409, {
+            code: 'B020',
+            message: '이미 근무자가 배정된 스케줄입니다.',
+          })
+        )
+      )
+    ).toBe('이미 근무자가 배정된 스케줄입니다.')
+  })
+
+  it('동시 배정 409 B020에 서버 안내가 없으면 일반 저장 실패로 안내한다', () => {
+    expect(
+      resolveGeneralScheduleSaveError(
+        new ScheduleAssignPendingError(30, axiosError(409, { code: 'B020' }))
+      )
+    ).toBe('저장에 실패했습니다.')
+  })
+
+  it('근무 생성·시간 변경이 429 E001로 실패하면 서버 안내를 보여준다', () => {
+    expect(
+      resolveGeneralScheduleSaveError(axiosError(429, TOO_MANY_REQUESTS))
+    ).toBe('요청이 너무 많습니다. 잠시 후 다시 시도해주세요.')
+    expect(
+      resolveGeneralScheduleSaveError(axiosError(429, { code: 'E001' }))
+    ).toBe('요청이 너무 많습니다. 잠시 후 다시 시도해주세요.')
   })
 
   it('생성한 근무를 찾지 못하면 일반 저장 실패로 안내한다', () => {

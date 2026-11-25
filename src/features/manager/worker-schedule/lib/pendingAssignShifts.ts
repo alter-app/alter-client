@@ -1,6 +1,9 @@
 import { format } from 'date-fns'
 
-import { ScheduleAssignPendingError } from '@/features/manager/worker-schedule/lib/saveGeneralWorkerSchedule'
+import {
+  isShiftAlreadyAssignedError,
+  ScheduleAssignPendingError,
+} from '@/features/manager/worker-schedule/lib/saveGeneralWorkerSchedule'
 import { getApiErrorInfo } from '@/shared/lib/getApiErrorInfo'
 
 /**
@@ -48,13 +51,19 @@ export function pendingAfterGeneralSaveSuccess(
     : Object.fromEntries(remaining)
 }
 
-/** 배정 실패면 생성된 근무를 기억하고, 404면 근무가 사라진 것이므로 잊는다. 그 밖의 실패는 그대로 둔다. */
+/**
+ * 배정 실패면 생성된 근무를 기억한다. 다른 배정이 먼저 반영됐거나(409 B020) 404면
+ * 그 근무를 다시 수정·배정하면 안 되므로 잊는다. 그 밖의 실패는 그대로 둔다.
+ */
 export function pendingAfterGeneralSaveError(
   pending: PendingAssignShifts,
   key: string,
   error: unknown
 ): PendingAssignShifts {
   if (error instanceof ScheduleAssignPendingError) {
+    if (isShiftAlreadyAssignedError(error.cause)) {
+      return withoutKey(pending, key)
+    }
     return { ...pending, [key]: error.shiftId }
   }
   if (getApiErrorInfo(error).status === 404) {
