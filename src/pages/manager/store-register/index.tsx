@@ -110,12 +110,12 @@ export function StoreRegisterPage() {
             <CertificateUploader
               certificate={w.certFile}
               headline="사업자등록증명원"
-              hint="7일 이내 발급본, JPG·PNG·PDF 10MB 이하"
+              hint="7일 이내 발급본, JPG·PNG·PDF 20MB 이하"
             />
             <CertificateUploader
               certificate={w.identityFile}
               headline="대표자 신분증"
-              hint="JPG·PNG 5MB 이하, 모바일 신분증 불가"
+              hint="JPG·PNG·PDF 20MB 이하, 모바일 신분증 불가"
               icon={<IdCardIcon className="size-5" />}
             />
             <CertificateUploader
