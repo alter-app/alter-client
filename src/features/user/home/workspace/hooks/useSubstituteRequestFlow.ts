@@ -11,11 +11,20 @@ import {
   adaptExchangeableSchedulesToCalendar,
   getExchangeableSchedules,
 } from '@/features/user/substitute'
+import {
+  USER_SUBSTITUTE_CREATE_ERROR_FALLBACK,
+  getUserSubstituteActionErrorMessage,
+} from '@/features/user/substitute/lib/substituteActionError'
+import { buildSubstituteCreateRefetchQueryKeys } from '@/features/user/substitute/lib/substituteRefetchQueryKeys'
 import { getExchangeableWorkers } from '@/features/user/home/workspace/api/exchangeableWorkers'
 import { createSubstituteRequest } from '@/features/user/home/workspace/api/substituteRequests'
+import {
+  retainAvailableCandidateKeys,
+  workerIdFromCandidateKey,
+} from '@/features/user/home/workspace/lib/substituteCandidateSelection'
+import type { ExchangeableWorkersApiResponse } from '@/features/user/home/workspace/types/exchangeableWorkers'
 import { WEEKDAY_LABELS } from '@/shared/constants/calendar'
 import { splitClockToParts } from '@/shared/lib/clock'
-import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { queryKeys } from '@/shared/lib/queryKeys'
 
 export type SubstituteRequestStepId = 1 | 2 | 3 | 4 | 5
@@ -40,12 +49,6 @@ export function normalizeMinuteInput(raw: string) {
   const n = parseInt(d, 10)
   if (Number.isNaN(n)) return '00'
   return String(Math.min(59, Math.max(0, n))).padStart(2, '0')
-}
-
-function workerIdFromCandidateKey(key: string): number | undefined {
-  if (!key.startsWith('ew-')) return undefined
-  const id = Number(key.slice(3))
-  return Number.isFinite(id) ? id : undefined
 }
 
 function pickSelectedScheduleEvent(
@@ -183,11 +186,19 @@ export function useSubstituteRequestFlow({
         scheduleId: substituteScheduleId!,
         pageSize: EXCHANGEABLE_WORKERS_PAGE_SIZE,
       }),
+    // 5단계 제출이 실패하면 후보를 다시 조회해 선택을 정리하므로 5단계에서도 활성 상태로 둔다.
     enabled:
-      step === 4 && substituteScheduleId != null && substituteScheduleId > 0,
+      step >= 4 && substituteScheduleId != null && substituteScheduleId > 0,
   })
 
   const exchangeableWorkers = exchangeableResponse?.data.data ?? []
+
+  const invalidateAfterCreate = (scheduleId: number) =>
+    Promise.all(
+      buildSubstituteCreateRefetchQueryKeys(scheduleId, workspaceId).map(
+        queryKey => queryClient.invalidateQueries({ queryKey })
+      )
+    )
 
   const substituteRequestMutation = useMutation({
     mutationFn: (vars: {
@@ -204,18 +215,25 @@ export function useSubstituteRequestFlow({
         },
       }),
     onSuccess: async (_, vars) => {
-      if (workspaceId != null && workspaceId > 0) {
-        await queryClient.invalidateQueries({
-          queryKey: ['workspace', 'exchangeableSchedules', workspaceId],
-        })
-      }
-      await queryClient.invalidateQueries({
-        queryKey: ['workspace', 'exchangeableWorkers', vars.scheduleId],
-      })
-      await queryClient.invalidateQueries({
-        queryKey: ['userSubstitute', 'list'],
-      })
+      await invalidateAfterCreate(vars.scheduleId)
       onClose()
+    },
+    // 실패 문구를 먼저 보이도록 재조회를 기다리지 않고, 재조회가 끝나면 후보에서 빠진 근무자 선택을 해제한다.
+    onError: (_, vars) => {
+      void invalidateAfterCreate(vars.scheduleId).then(() => {
+        const refreshed =
+          queryClient.getQueryData<ExchangeableWorkersApiResponse>(
+            queryKeys.workspace.exchangeableWorkers(
+              vars.scheduleId,
+              EXCHANGEABLE_WORKERS_PAGE_SIZE
+            )
+          )
+        if (refreshed == null) return
+        const availableIds = refreshed.data.data.map(w => w.workerId)
+        setSelectedCandidateKeys(prev =>
+          retainAvailableCandidateKeys(prev, availableIds)
+        )
+      })
     },
   })
 
@@ -282,9 +300,9 @@ export function useSubstituteRequestFlow({
   const substituteSubmitErrorDisplay =
     substituteSubmitLocalError ??
     (substituteRequestMutation.isError
-      ? getAxiosErrorMessage(
+      ? getUserSubstituteActionErrorMessage(
           substituteRequestMutation.error,
-          '대타 요청에 실패했습니다.'
+          USER_SUBSTITUTE_CREATE_ERROR_FALLBACK
         )
       : null)
 
