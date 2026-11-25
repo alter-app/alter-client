@@ -4,12 +4,13 @@ import {
   fetchManagerNotifications,
 } from '@/features/notification/api/notifications'
 import { queryKeys } from '@/shared/lib/queryKeys'
+import type { NotificationType } from '@/features/notification/types/notificationType'
 
 const PAGE_SIZE = 20
 
 export function useNotifications(
   scope: 'MANAGER' | 'USER' | null,
-  type?: string
+  type?: NotificationType
 ) {
   const fetcher =
     scope === 'MANAGER' ? fetchManagerNotifications : fetchUserNotifications

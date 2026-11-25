@@ -17,7 +17,7 @@ export function useMarkNotificationRead(scope: 'MANAGER' | 'USER' | null) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.notification.list(scope, undefined),
+        queryKey: queryKeys.notification.lists(scope),
       })
     },
   })

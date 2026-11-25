@@ -3,9 +3,10 @@ import { useAuthStore } from '@/shared/stores/useAuthStore'
 import { useNotifications } from '@/features/notification/hooks/useNotifications'
 import { useMarkNotificationRead } from '@/features/notification/hooks/useMarkNotificationRead'
 import {
-  NOTIFICATION_TYPE,
-  type NotificationType,
-} from '@/features/notification/types/notificationType'
+  NOTIFICATION_FILTER,
+  toNotificationTypeParam,
+  type NotificationFilter,
+} from '@/features/notification/lib/notificationFilter'
 import type { NotificationItemProps } from '@/shared/ui/notification/NotificationItem'
 import type { NotificationDto } from '@/features/notification/types'
 
@@ -31,8 +32,8 @@ function mapDto(dto: NotificationDto): Omit<NotificationItemProps, 'onDelete'> {
 }
 
 export function useNotificationViewModel() {
-  const [selectedType, setSelectedType] = useState<NotificationType>(
-    NOTIFICATION_TYPE.GENERAL
+  const [selectedFilter, setSelectedFilter] = useState<NotificationFilter>(
+    NOTIFICATION_FILTER.ALL
   )
   const [deletedIds, setDeletedIds] = useState<Set<number>>(new Set())
   const [readIds, setReadIds] = useState<Set<number>>(new Set())
@@ -45,7 +46,7 @@ export function useNotificationViewModel() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useNotifications(scope, selectedType)
+  } = useNotifications(scope, toNotificationTypeParam(selectedFilter))
 
   const { mutate: markRead } = useMarkNotificationRead(scope)
 
@@ -80,8 +81,8 @@ export function useNotificationViewModel() {
   }
 
   return {
-    selectedType,
-    setSelectedType,
+    selectedFilter,
+    setSelectedFilter,
     currentItems,
     markAllRead,
     isLoading,

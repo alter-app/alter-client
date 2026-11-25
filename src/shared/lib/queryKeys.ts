@@ -139,6 +139,9 @@ export const queryKeys = {
       ['chat', 'contacts', scope] as const,
   },
   notification: {
+    /** scope의 모든 유형 필터 목록 무효화용 prefix */
+    lists: (scope: 'MANAGER' | 'USER' | null) =>
+      ['notifications', scope] as const,
     list: (scope: 'MANAGER' | 'USER' | null, type?: string) =>
       ['notifications', scope, type] as const,
     consent: (scope: 'MANAGER' | 'USER' | null) =>
