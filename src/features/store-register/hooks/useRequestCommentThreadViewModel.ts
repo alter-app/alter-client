@@ -12,8 +12,8 @@ import { uploadWorkspaceRequestCommentFile } from '@/features/store-register/api
 
 export const COMMENT_MAX_LENGTH = 255
 
-/** 첨부 파일 ≤ 5MB */
-const ATTACHMENT_MAX_BYTES = 5 * 1024 * 1024
+/** 첨부 파일 ≤ 20MiB (서버 상한과 동일) */
+const ATTACHMENT_MAX_BYTES = 20 * 1024 * 1024
 
 /** 신청 1건의 단일 댓글 스레드 + 작성 ViewModel */
 export function useRequestCommentThreadViewModel(
