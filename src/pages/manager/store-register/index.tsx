@@ -89,6 +89,7 @@ export function StoreRegisterPage() {
               isBusinessTypesError={w.isBusinessTypesError}
               onRetryBusinessTypes={() => void w.refetchBusinessTypes()}
               contact={w.contact}
+              contactError={w.contactError}
               onBizNameChange={w.setBizName}
               onBrnChange={w.setBrn}
               onBusinessTypeIdChange={w.setBusinessTypeId}

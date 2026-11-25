@@ -1,3 +1,4 @@
+import { formatContactDisplay } from '@/features/store-register/lib/contact'
 import type { WorkspaceRequestDetailDto } from '@/features/store-register/types/workspaceRequests'
 
 type Props = {
@@ -31,7 +32,7 @@ export function RequestInfoSection({ detail }: Props) {
         <div className="border-t border-line-1" />
         <InfoRow label="업종" value={detail.businessType} />
         <div className="border-t border-line-1" />
-        <InfoRow label="연락처" value={detail.contact} />
+        <InfoRow label="연락처" value={formatContactDisplay(detail.contact)} />
         <div className="border-t border-line-1" />
         <InfoRow
           label="주소"

@@ -12,6 +12,13 @@ import { uploadWorkspaceRegistrationFile } from '@/features/store-register/api/w
 import { useBusinessTypes } from '@/features/store-register/hooks/useBusinessTypes'
 import { useRepresentativeImagePick } from '@/features/store-register/hooks/useRepresentativeImagePick'
 import { maskBrn, maskContact } from '@/features/store-register/lib/inputMask'
+import {
+  CONTACT_FORMAT_MESSAGE,
+  isValidContact,
+  pickFieldErrorMessage,
+  toContactPayload,
+} from '@/features/store-register/lib/contact'
+import axios from 'axios'
 import { getAxiosErrorMessage } from '@/shared/lib/getAxiosErrorMessage'
 import { queryKeys } from '@/shared/lib/queryKeys'
 import { ROUTES } from '@/shared/constants/routes'
@@ -46,13 +53,14 @@ export function useStoreRegisterWizard() {
   const [businessTypeDetail, setBusinessTypeDetail] = useState('')
   const [contact, setContact] = useState('')
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [contactError, setContactError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const setBrnMasked = useCallback((v: string) => setBrn(maskBrn(v)), [])
-  const setContactMasked = useCallback(
-    (v: string) => setContact(maskContact(v)),
-    []
-  )
+  const setContactMasked = useCallback((v: string) => {
+    setContact(maskContact(v))
+    setContactError(null)
+  }, [])
 
   const selectedBusinessType =
     businessTypes.find(type => type.id === businessTypeId) ?? null
@@ -67,7 +75,7 @@ export function useStoreRegisterWizard() {
     brn.replace(/\D/g, '').length === 10 &&
     isValidWorkspaceLocation(location) &&
     businessTypeValid &&
-    contact.trim().length > 0
+    isValidContact(contact)
 
   // 위임장은 선택 — 증명원·신분증만 필수
   const certificateValid = !!certFile.file && !!identityFile.file
@@ -87,6 +95,7 @@ export function useStoreRegisterWizard() {
     }
 
     setSubmitError(null)
+    setContactError(null)
     setIsSubmitting(true)
     try {
       let workspaceCertFileId: string
@@ -144,7 +153,7 @@ export function useStoreRegisterWizard() {
           detailAddress: detailAddress.trim(),
           businessTypeId,
           businessTypeDetail: businessTypeDetail.trim() || null,
-          contact,
+          contact: toContactPayload(contact),
           workspaceCertFileId,
           workspaceOwnIdentityFileId,
           workspaceWarrantFileId,
@@ -156,6 +165,15 @@ export function useStoreRegisterWizard() {
           longitude: location.longitude,
         })
       } catch (e) {
+        const fieldMessage = axios.isAxiosError(e)
+          ? pickFieldErrorMessage(e.response?.data?.data, 'contact')
+          : null
+        if (fieldMessage) {
+          // 연락처 입력란 오류로 보여 주려고 1단계로 되돌린다
+          setContactError(fieldMessage || CONTACT_FORMAT_MESSAGE)
+          setStep('info')
+          return
+        }
         setSubmitError(
           getAxiosErrorMessage(
             e,
@@ -224,6 +242,7 @@ export function useStoreRegisterWizard() {
     infoValid,
     certificateValid,
     submitError,
+    contactError,
     isSubmitting,
     goInfo,
     goCertificate,
