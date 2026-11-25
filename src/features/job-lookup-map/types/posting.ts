@@ -70,6 +70,10 @@ export interface Workspace {
   latitude: number
   longitude: number
   fullAddress: string
+  /** 지번 주소 — 기존 업장은 null */
+  jibunAddress?: string | null
+  /** 상세 주소 — 기존 업장은 null */
+  detailAddress?: string | null
   town: string
 }
 

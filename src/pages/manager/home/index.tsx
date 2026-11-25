@@ -1,3 +1,4 @@
+import { formatAddress, formatJibunAddress } from '@/shared/lib/utils/addressFormat'
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
@@ -116,8 +117,13 @@ export function ManagerHomePage() {
               <WorkCategoryBadge label={workspaceDetail?.businessType ?? ''} />
             </div>
             <p className="typography-body01-regular leading-[1.4]">
-              {workspaceDetail?.fullAddress ?? ''}
+              {workspaceDetail ? formatAddress(workspaceDetail) : ''}
             </p>
+            {workspaceDetail && formatJibunAddress(workspaceDetail) ? (
+              <p className="typography-body02-regular leading-[1.4]">
+                (지번) {formatJibunAddress(workspaceDetail)}
+              </p>
+            ) : null}
             <p className="typography-body01-regular leading-[1.4]">
               {workspaceDetail?.businessName ?? ''}
             </p>

@@ -1,3 +1,4 @@
+import { formatAddress, formatJibunAddress } from '@/shared/lib/utils/addressFormat'
 import { useMemo, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
@@ -227,8 +228,13 @@ export function JobLookupMapDetailPage() {
               근무 위치
             </h3>
             <p className="mt-2 typography-body03-regular text-text-100">
-              {data.workspace.fullAddress}
+              {formatAddress(data.workspace)}
             </p>
+            {formatJibunAddress(data.workspace) ? (
+              <p className="mt-1 typography-body03-regular text-text-70">
+                (지번) {formatJibunAddress(data.workspace)}
+              </p>
+            ) : null}
           </section>
 
           <section className="mt-3 bg-white px-4 py-5">

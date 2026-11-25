@@ -88,6 +88,14 @@ function parsePostingListItem(
         typeof workspace.longitude === 'number' ? workspace.longitude : 0,
       fullAddress:
         typeof workspace.fullAddress === 'string' ? workspace.fullAddress : '',
+      jibunAddress:
+        typeof workspace.jibunAddress === 'string'
+          ? workspace.jibunAddress
+          : null,
+      detailAddress:
+        typeof workspace.detailAddress === 'string'
+          ? workspace.detailAddress
+          : null,
       town: typeof workspace.town === 'string' ? workspace.town : '',
     },
     scrapped: typeof record.scrapped === 'boolean' ? record.scrapped : false,
@@ -203,6 +211,14 @@ function parseWorkspace(
       typeof workspace.longitude === 'number' ? workspace.longitude : 0,
     fullAddress:
       typeof workspace.fullAddress === 'string' ? workspace.fullAddress : '',
+    jibunAddress:
+      typeof workspace.jibunAddress === 'string'
+        ? workspace.jibunAddress
+        : null,
+    detailAddress:
+      typeof workspace.detailAddress === 'string'
+        ? workspace.detailAddress
+        : null,
     town: typeof workspace.town === 'string' ? workspace.town : '',
   }
 }
