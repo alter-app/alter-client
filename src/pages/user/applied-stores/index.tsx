@@ -140,6 +140,8 @@ export function AppliedStoresPage() {
           isOpen
           onClose={closeDetail}
           storeName={selectedStore.storeName}
+          address={selectedStore.workspaceAddress}
+          jibunAddress={selectedStore.workspaceJibunAddress}
           detail={selectedStore.applicationDetail}
           showCancelButton={selectedStore.status === 'submitted'}
           onCancel={handleCancel}

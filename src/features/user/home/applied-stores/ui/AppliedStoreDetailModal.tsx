@@ -9,6 +9,8 @@ interface AppliedStoreDetailModalProps {
   isOpen: boolean
   onClose: () => void
   storeName: string
+  address?: string
+  jibunAddress?: string
   detail: AppliedApplicationDetail
   showCancelButton: boolean
   onCancel?: () => void
@@ -19,6 +21,8 @@ export function AppliedStoreDetailModal({
   isOpen,
   onClose,
   storeName,
+  address,
+  jibunAddress,
   detail,
   showCancelButton,
   onCancel,
@@ -63,6 +67,17 @@ export function AppliedStoreDetailModal({
         >
           {storeName}
         </h2>
+        {address ? (
+          <p className="px-5 pt-1 text-center typography-body03-regular text-text-70">
+            {address}
+            {jibunAddress ? (
+              <>
+                <br />
+                (지번) {jibunAddress}
+              </>
+            ) : null}
+          </p>
+        ) : null}
 
         <div className="px-5 pt-6">
           <p className="mb-2 typography-body03-regular text-text-70">요일</p>

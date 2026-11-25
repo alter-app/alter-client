@@ -28,6 +28,9 @@ export interface AppliedApplicationDetail {
 export interface AppliedStoreData {
   id: number
   storeName: string
+  /** 기본 + 상세 주소 — 없으면 빈 문자열 */
+  workspaceAddress?: string
+  workspaceJibunAddress?: string
   status: ApplicationStatus
   thumbnailUrl?: string
   applicationDetail?: AppliedApplicationDetail
