@@ -5,32 +5,25 @@ import { Spinner } from '@/shared/ui/Spinner'
 import { NotificationItem } from '@/shared/ui/notification/NotificationItem'
 import { useNotificationViewModel } from '@/features/notification/useNotificationViewModel'
 import {
-  NOTIFICATION_TYPE,
-  type NotificationType,
-} from '@/features/notification/types/notificationType'
+  NOTIFICATION_FILTERS,
+  type NotificationFilter,
+} from '@/features/notification/lib/notificationFilter'
 import { ROUTES } from '@/shared/constants/routes'
 import SettingIcon from '@/assets/icons/settings.svg?react'
 import ChevronDownIcon from '@/assets/icons/home/chevron-down.svg?react'
 
-const TYPE_LABELS: Record<NotificationType, string> = {
-  GENERAL: '전체',
-  SCHEDULE: '스케줄',
-  SUBSTITUTE: '대타',
-  REPUTATION: '평판',
-  POSTING_APPLICATION: '공고',
-  CHAT: '채팅',
-  WORKSPACE_INVITATION: '매장 초대',
-  JOIN_REQUEST: '참여 요청',
+const FILTER_LABELS: Record<NotificationFilter, string> = {
+  ALL: '전체',
+  GENERAL: '일반',
+  SCHEDULE: '근무',
 }
-
-const ALL_TYPES = Object.values(NOTIFICATION_TYPE) as NotificationType[]
 
 function NotificationTypeFilter({
   value,
   onChange,
 }: {
-  value: NotificationType
-  onChange: (type: NotificationType) => void
+  value: NotificationFilter
+  onChange: (filter: NotificationFilter) => void
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -57,7 +50,7 @@ function NotificationTypeFilter({
         className="flex items-center gap-1 rounded-full border border-line-1 px-3 py-1.5 typography-body02-medium text-text-100"
         onClick={() => setIsOpen(prev => !prev)}
       >
-        {TYPE_LABELS[value]}
+        {FILTER_LABELS[value]}
         <ChevronDownIcon
           className={`size-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
@@ -65,21 +58,21 @@ function NotificationTypeFilter({
 
       {isOpen && (
         <ul className="absolute left-0 top-full z-20 mt-1 min-w-[120px] overflow-hidden rounded-xl border border-line-1 bg-white shadow-md">
-          {ALL_TYPES.map(type => (
-            <li key={type}>
+          {NOTIFICATION_FILTERS.map(filter => (
+            <li key={filter}>
               <button
                 type="button"
                 className={`w-full px-4 py-2.5 text-left typography-body02-regular transition-colors hover:bg-main-100 ${
-                  type === value
+                  filter === value
                     ? 'text-main typography-body02-medium'
                     : 'text-text-100'
                 }`}
                 onClick={() => {
-                  onChange(type)
+                  onChange(filter)
                   setIsOpen(false)
                 }}
               >
-                {TYPE_LABELS[type]}
+                {FILTER_LABELS[filter]}
               </button>
             </li>
           ))}
@@ -92,8 +85,8 @@ function NotificationTypeFilter({
 export function NotificationPage() {
   const navigate = useNavigate()
   const {
-    selectedType,
-    setSelectedType,
+    selectedFilter,
+    setSelectedFilter,
     currentItems,
     markAllRead,
     isLoading,
@@ -142,8 +135,8 @@ export function NotificationPage() {
 
         <div className="flex items-center justify-between px-4 py-2">
           <NotificationTypeFilter
-            value={selectedType}
-            onChange={setSelectedType}
+            value={selectedFilter}
+            onChange={setSelectedFilter}
           />
           <button
             type="button"
