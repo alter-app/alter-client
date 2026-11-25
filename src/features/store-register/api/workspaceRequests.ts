@@ -63,12 +63,12 @@ export async function createWorkspaceRegistrationRequest(
   )
 }
 
-/** POST /{scope}/workspace-requests/{id}/cancel — PENDING/REVOKED 에서만 성공 */
+/** PATCH /{scope}/workspace-requests/{id}/cancel — PENDING/REVOKED 에서만 성공 */
 export async function cancelWorkspaceRequest(
   scope: AuthScope,
   workspaceRequestId: number
 ): Promise<void> {
-  await axiosInstance.post<CommonApiResponse<Record<string, never>>>(
+  await axiosInstance.patch<CommonApiResponse<Record<string, never>>>(
     `${requestsBasePath(scope)}/${workspaceRequestId}/cancel`
   )
 }

@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import axios from 'axios'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import useAuthStore from '@/shared/stores/useAuthStore'
 import { queryKeys } from '@/shared/lib/queryKeys'
@@ -36,13 +37,32 @@ export function useStoreRegisterRequestDetailViewModel(requestId: number) {
         }),
       ])
     },
-    onError: (e: unknown) => {
+    onError: async (e: unknown) => {
+      setIsConfirmOpen(false)
+      const status = axios.isAxiosError(e) ? e.response?.status : undefined
+      if (status === 429) {
+        setCancelError(
+          '요청이 많아 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'
+        )
+        return
+      }
       setCancelError(
         getAxiosErrorMessage(
           e,
           '신청을 취소하지 못했습니다. 잠시 후 다시 시도해 주세요.'
         )
       )
+      if (status === 409) {
+        // 먼저 처리된 쪽이 있으므로 최신 상태로 다시 불러온다
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.storeRegisterRequest.list(scope),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.storeRegisterRequest.detail(scope, requestId),
+          }),
+        ])
+      }
     },
   })
 
